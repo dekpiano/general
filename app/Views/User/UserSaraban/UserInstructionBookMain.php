@@ -1,6 +1,6 @@
 <!-- Layout container -->
 <div class="layout-page">
-    <?php //echo view('User/UserLeyout/UserNavbar'); ?>
+    <?php echo view('User/UserLeyout/UserNavbar'); ?>
 
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -9,7 +9,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between flex-column flex-md-row">
                     <div class="head-label text-center">
-                        <h5 class="card-title mb-0">ข้อมูลคำสั่ง</h5>
+                        <h5 class="card-title mb-0">หนังสือคำสั่ง</h5>
                     </div>
                
                 </div>

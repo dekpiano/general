@@ -1,11 +1,11 @@
 <!-- Layout container -->
 <div class="layout-page">
-    <?php //echo view('User/UserLeyout/UserNavbar'); ?>
+    <?php echo view('User/UserLeyout/UserNavbar'); ?>
 
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y demo">
             <div class="row">
-                <div class="col-lg-8 col-md-12 col-6 mb-4">
+                <div class="col-lg-8 col-md-12 col-12 mb-4">
                     <div class="card">
                         <div class="d-flex align-items-end row">
                             <div class="col-sm-7">
@@ -16,7 +16,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="col-sm-5 text-center text-sm-left">
+                            <div class="col-sm-5  text-center text-sm-left">
                                 <div class="card-body pb-0 px-0 px-md-4">
                                     <img src="<?=base_url();?>assets/img/illustrations/man-with-laptop-light.png"
                                         height="140" alt="View Badge User"
@@ -28,7 +28,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-2 col-md-12 col-6 mb-4">
+                <div class="col-lg-2 col-md-12 col-12 mb-4">
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title d-flex align-items-start justify-content-between">

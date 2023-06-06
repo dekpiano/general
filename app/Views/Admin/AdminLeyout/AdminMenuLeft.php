@@ -9,7 +9,7 @@
                     <span class="app-brand-logo demo">
                        <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="40">
                     </span>
-                    <span class="app-brand-text menu-text fw-bolder ms-2">SKJ E-Office</span>
+                    <span class="app-brand-text menu-text fw-bolder ms-2">SKJ E-Office <small>(เจ้าหน้าที่)</small></span>
                 </a>
 
                 <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">

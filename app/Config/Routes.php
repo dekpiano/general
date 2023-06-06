@@ -30,10 +30,13 @@ $routes->setAutoRoute(false);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'ConUserHome::index');
+//User งานสารบรรณ
 $routes->get('User/WorkSaraban/InstructionMain', 'ConUserWorkSaraban::InstructionMain');
+$routes->match(['get', 'post'],'User/Dictation/ShowData', 'ConUserWorkSaraban::DictationShowData');
 
-$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
-$routes->get('/LogOutEoffice', 'ConUserHome::LogOutEoffice');
+$routes->get('/LoginEoffice', 'ConLogin::LoginEoffice');
+//$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
+$routes->get('/LogOutEoffice', 'ConLogin::LogOutEoffice');
 
 //Admin
 //งานสารบรรณ

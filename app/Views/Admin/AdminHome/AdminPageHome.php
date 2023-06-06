@@ -15,8 +15,8 @@
                                 <div class="content-left">
                                     <span>หนังสือคำสั่ง</span>
                                     <div class="d-flex align-items-end mt-2">
-                                        <h4 class="mb-0 me-2">21,459</h4>
-                                        <small class="text-success">(+29%)</small>
+                                        <h4 class="mb-0 me-2"><?=$DictationAll;?></h4>
+                                        <!-- <small class="text-success"></small> -->
                                     </div>
                                     <small>ไฟล์ทั้งหมด</small>
                                 </div>

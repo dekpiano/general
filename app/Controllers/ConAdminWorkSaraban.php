@@ -92,6 +92,5 @@ class ConAdminWorkSaraban extends BaseController
          echo json_encode($response);
        // echo '<pre>'; print_r($data);
 
-
     }
 }

@@ -4,28 +4,15 @@ namespace App\Controllers;
 
 class ConUserWorkSaraban extends BaseController
 {
-    private $googleClient = null;
-    private $GoogleButton = "";
+
     function __construct(){
-        $path = dirname(dirname(dirname((dirname(__FILE__)))));
-		require $path . '/librarie_skj/google_sheet/vendor/autoload.php';
-
-        $redirect_uri = base_url('LoginEoffice');
         
-        $this->googleClient = new \Google_Client();
-        $this->googleClient->setClientId('975527477710-i15oq29ntmboi7e1mopolps0u29c98mm.apps.googleusercontent.com');
-		$this->googleClient->setClientSecret('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');
-        $this->googleClient->setRedirectUri($redirect_uri);
-        $this->googleClient->addScope('email');
-        $this->googleClient->addScope('profile');
-
-        $this->GoogleButton = '<a href="'.$this->googleClient->createAuthUrl().'" class="btn btn-primary me-3 w-auto"><i class="tf-icons bx bxl-google-plus"></i> Login by Google </a>';
     }
 
     public function DataMain(){
        $data['full_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
        $data['uri'] = service('uri'); 
-       $data['GoogleButton'] = $this->GoogleButton;
+       
         return $data;
     }
 
@@ -104,7 +91,6 @@ class ConUserWorkSaraban extends BaseController
          );
          echo json_encode($response);
        // echo '<pre>'; print_r($data);
-
 
     }
 }

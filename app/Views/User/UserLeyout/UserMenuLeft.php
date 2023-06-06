@@ -47,10 +47,10 @@
 
             <div>
                 <ul class="menu-inner py-1">
-                    <li class="menu-item">
-                        <a href="#" class="menu-link" data-bs-toggle="modal" data-bs-target="#modalToggle">
+                    <li class="menu-item"> <!-- data-bs-toggle="modal" data-bs-target="#modalToggle" -->
+                        <a href="<?=base_url('LoginEoffice');?>" class="menu-link" >
                             <i class="menu-icon tf-icons bx bxs-key"></i>
-                            <div data-i18n="Analytics">เข้าสู่ระบบ</div>
+                            <div data-i18n="Analytics">เข้าสู่ระบบ (เจ้าหน้าที่)</div>
                         </a>
                     </li>
                 </ul>
@@ -70,43 +70,10 @@
                          
                                     <h4 class="mb-2">Welcome to Login SKJ E-Office 👋</h4>
                                     <p class="mb-4">สำหรับเจ้าหน้าที่</p>
-
-                                    <form id="formAuthentication"
-                                        class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework" action="index.html"
-                                        method="POST" novalidate="novalidate">
-                                        <div class="mb-3 fv-plugins-icon-container">
-                                            <label for="email" class="form-label">Email or Username</label>
-                                            <input type="text" class="form-control" id="email" name="email-username"
-                                                placeholder="Enter your email or username" autofocus="">
-                                            <div class="fv-plugins-message-container invalid-feedback"></div>
-                                        </div>
-                                        <div class="mb-3 form-password-toggle fv-plugins-icon-container">
-                                            <div class="d-flex justify-content-between">
-                                                <label class="form-label" for="password">Password</label>
-                                               
-                                            </div>
-                                            <div class="input-group input-group-merge has-validation">
-                                                <input type="password" id="password" class="form-control"
-                                                    name="password" placeholder="············"
-                                                    aria-describedby="password">
-                                                <span class="input-group-text cursor-pointer"><i
-                                                        class="bx bx-hide"></i></span>
-                                            </div>
-                                            <div class="fv-plugins-message-container invalid-feedback"></div>
-                                        </div>
-                                
-                                        <div class="mb-3">
-                                            <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
-                                        </div>
-                                        <input type="hidden">
-                                    </form>
-
-                                    <div class="divider my-4">
-                                        <div class="divider-text">or</div>
-                                    </div>
+                                    
 
                                     <div class="d-flex justify-content-center">
-                                    <?php echo $GoogleButton; ?>
+                                    <?php //echo $GoogleButton; ?>
                                     </div>
                              
                             <!-- /Register -->
