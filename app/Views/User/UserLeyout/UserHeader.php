@@ -16,7 +16,19 @@
 
     <title><?=$title;?> | SKJ E-Office</title>
 
-    <meta name="description" content="" />
+    <meta name="description" content="<?= $description ?>" />
+    <meta
+        content="ระบบงาน,E-Office,โรงเรียนสวนกุหลาบวิทยาลัย,โรงเรียน,สวนกุหลาบ,จิรประวัติ,นครสวรรค์,สวนกุหลาบจิรประวัติ,โรงเรียนสวนกุหลาบ"
+        name="keywords">
+    <meta http-equiv="content-language" content="th" />
+    <meta name="robots" content="index, follow" />
+    <meta name="revisit-after" content="1 day" />
+    <meta name="author" content="Dekpiano" />
+    <meta property="og:url" content="<?= $full_url ?>" />
+    <meta property="og:title" content="<?=$title;?>" />
+    <meta property="og:description" content="<?= $description ?>" />
+    <meta property="og:type" content="website" />
+            <meta property="og:image" content="<?=base_url();?>uploads/banner/home/E-office.png" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="<?=base_url()?>/assets/img/favicon/favicon.ico" />

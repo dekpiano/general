@@ -20,6 +20,7 @@ class ConUserWorkSaraban extends BaseController
     {
         $data = $this->DataMain();
         $data['title']="หนังสือคำสั่ง";
+        $data['description']="ดาวน์โหลดหนังสือคำสั่ง";
         $data['UrlMenuMain'] = 'WorkSaraban';
         $data['UrlMenuSub'] = 'InstructionMain';
         

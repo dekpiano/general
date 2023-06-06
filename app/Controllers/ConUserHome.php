@@ -26,6 +26,7 @@ class ConUserHome extends BaseController
 
         $data = $this->DataMain();
         $data['title']="หน้าแรก";
+        $data['description']="หน้าแรกระบบงาน E-Office";
         $data['UrlMenuMain'] = '';
         $data['UrlMenuSub'] = '';
 

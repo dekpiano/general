@@ -4,6 +4,9 @@ namespace App\Controllers;
 
 class ConLogin extends BaseController
 {
+    //$path = dirname(dirname(dirname(dirname((dirname(__FILE__))))));
+	//require $path . '/skj.ac.th/public_html/librarie_skj/google_sheet/vendor/autoload.php';
+
     private $googleClient = null;
     private $GoogleButton = "";
     function __construct(){
@@ -56,7 +59,7 @@ class ConLogin extends BaseController
            
            
            $CheckEmail = $DBPers->where('pers_username', $data['email'])->get()->getRowArray()>0?true:false;
-           if($CheckEmail){
+           if($CheckEmail && $data['email'] == 'thanis.k@skj.ac.th' || $data['email'] == 'dekpiano@skj.ac.th'){
                 $UserData = array('login_oauth_uid' => $data['id'],
                                     'updated_at' => date('Y-m-d H:i:s'));
                 $DBPers->where('pers_username', $data['email'])->update($UserData);
