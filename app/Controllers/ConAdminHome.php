@@ -4,6 +4,14 @@ namespace App\Controllers;
 
 class ConAdminHome extends BaseController
 {
+    public function __construct(){
+        $session = session();
+        if(!$session->get('username')){
+            header("Location:".base_url()); exit();
+        } 
+    }
+
+
     public function DataMain(){
         $data['full_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         

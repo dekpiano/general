@@ -33,6 +33,7 @@ $routes->get('/', 'ConUserHome::index');
 $routes->get('User/WorkSaraban/InstructionMain', 'ConUserWorkSaraban::InstructionMain');
 
 $routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
+$routes->get('/LogOutEoffice', 'ConUserHome::LogOutEoffice');
 
 //Admin
 //งานสารบรรณ
