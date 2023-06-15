@@ -24,7 +24,7 @@ function ShowDataInstruction() {
             {
                 data: 'dicta_title',
                 render: function(data, type, row) {
-                    return '<div class="d-inline-block text-nowrap"><button class="btn btn-sm btn-icon"><i class="bx bx-edit"></i></button><button class="btn btn-sm btn-icon delete-record"><i class="bx bx-trash"></i></button></div>';
+                    return '<div class="d-inline-block text-nowrap"><button class="btn btn-sm btn-icon"><i class="bx bx-edit" data-bs-toggle="modal" data-bs-target="#UpdateInstruction"></i></button><button class="btn btn-sm btn-icon delete-record"><i class="bx bx-trash" id="EditInstruction" key-id="' + row.dicta_id + '"></i></button></div>';
                 }
             }
         ]
@@ -70,4 +70,27 @@ $(document).on('submit', '#FromDictationInsert', function(e) {
             }
         });
     }
+});
+
+$(document).on('click', '#EditInstruction', function() {
+    console.log($(this).attr('key-id'));
+    Swal.fire({
+        title: 'คุณต้องการลบข้อมูลหรือไม่?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            $.post();
+            Swal.fire(
+                'Deleted!',
+                'Your file has been deleted.',
+                'success'
+            )
+        }
+    })
+
 });

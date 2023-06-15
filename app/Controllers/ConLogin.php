@@ -37,6 +37,7 @@ class ConLogin extends BaseController
       
         $data = $this->DataMain();
         $data['title']="หน้าแรก";
+        $data['description']="เข้าสู่ระบบ";
         $data['UrlMenuMain'] = '';
         $data['UrlMenuSub'] = '';
 

@@ -78,6 +78,7 @@ class ConAdminWorkSaraban extends BaseController
         $data = array();
         foreach ($DictationRecords as $row) {
             $data[] = array(
+                "dicta_id"=>$row->dicta_id,
                "dicta_year"=>$row->dicta_year,
                "dicta_number"=>$row->dicta_number,
                "dicta_createdate"=>$row->dicta_createdate,
