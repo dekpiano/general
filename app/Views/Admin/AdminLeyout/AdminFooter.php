@@ -34,6 +34,7 @@
 
     <script src="<?=base_url()?>/assets/vendor/js/menu.js"></script>
     <!-- endbuild -->
+    <script src="<?=base_url()?>/assets/js/select2.js"></script>
 
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -53,7 +54,7 @@
   </body>
 </html>
 
-<script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=3"></script>
+<script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=5"></script>
 
 <script>
   // Example starter JavaScript for disabling form submissions if there are invalid fields

@@ -6,7 +6,7 @@ class ConAdminLocationRoom extends BaseController
 {
     public function __construct(){
         $session = session();
-        if(!$session->get('username')){
+        if(!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager"){
             header("Location:".base_url()); exit();
         } 
     }

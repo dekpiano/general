@@ -18,6 +18,7 @@ class ConUserBooking extends BaseController
 
     public function BookingMain()
     {
+        $session = session();
         $data = $this->DataMain();
         $data['title']="จองห้อง / สถานที่";
         $data['description']="ระบบสำหรับจองห้อง / สถานที่ ภายในโรงเรียน";
@@ -42,10 +43,7 @@ class ConUserBooking extends BaseController
         $data['UrlMenuMain'] = 'Booking';
         $data['UrlMenuSub'] = 'BookingSelect';
         $session = session();
-        $newdata = [
-            'UriOld'  => $_SERVER['REQUEST_URI']
-        ];
-        $session->set($newdata);  
+      
 
         $database = \Config\Database::connect();
         $builder = $database->table('tb_location');
@@ -54,6 +52,27 @@ class ConUserBooking extends BaseController
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
                 .view('User/UserBooking/UserBookingSelect')
+                .view('User/UserLeyout/UserFooter');
+    }
+
+    public function BookingAdd($LocationID = null)
+    {
+        $session = session();
+        $data = $this->DataMain();
+        $data['title']="จองห้อง / สถานที่";
+        $data['description']="จองห้องสำหรับใช้ภายในโรงเรียน";
+        $data['UrlMenuMain'] = 'Booking';
+        $data['UrlMenuSub'] = 'BookingAdd';        
+
+        $database = \Config\Database::connect();
+        $DBlocation = $database->table('tb_location');
+
+        $data['loca'] = $DBlocation->where('location_ID',$LocationID)->get()->getRow();
+        //print_r($data['loca']->location_detail); exit();
+        
+        return view('User/UserLeyout/UserHeader',$data)
+                .view('User/UserLeyout/UserMenuLeft')
+                .view('User/UserBooking/UserBookingAdd')
                 .view('User/UserLeyout/UserFooter');
     }
 

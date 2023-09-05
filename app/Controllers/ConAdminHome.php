@@ -6,7 +6,7 @@ class ConAdminHome extends BaseController
 {
     public function __construct(){
         $session = session();
-        if(!$session->get('username')){
+        if(!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager"){
             header("Location:".base_url()); exit();
         } 
     }
@@ -21,6 +21,7 @@ class ConAdminHome extends BaseController
 
     public function index()
     {
+        $session = session();
         $data = $this->DataMain();
         $data['title']="หน้าแรก";
         $database = \Config\Database::connect();
@@ -34,6 +35,7 @@ class ConAdminHome extends BaseController
 
     public function User()
     {
+        $session = session();
         $data = $this->DataMain();
         $data['title']="หน้าแรก";
 

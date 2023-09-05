@@ -42,7 +42,7 @@
                     <li class="menu-item"> <!-- data-bs-toggle="modal" data-bs-target="#modalToggle" -->
                         <a href="<?=base_url('LoginOfficerGeneral');?>" class="menu-link" >
                             <i class="menu-icon tf-icons bx bxs-key"></i>
-                            <div data-i18n="Analytics">เข้าสู่ระบบ (เจ้าหน้าที่)</div>
+                            <div data-i18n="Analytics">เข้าสู่ระบบ</div>
                         </a>
                     </li>
                 </ul>

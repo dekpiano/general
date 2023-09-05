@@ -1,13 +1,12 @@
 <!-- Layout container -->
 <div class="layout-page">
     <?php echo view('User/UserLeyout/UserNavbar'); ?>
-
+    
     <!-- Content wrapper -->
     <div class="content-wrapper">
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
-            <h4 class="py-3 mb-4"><span class="text-muted fw-light"></span> จองห้อง / สถานที่</h4>
-            <?=$_SESSION['UriOld'];?>
+            <h4 class="py-3 mb-4"><span class="text-muted fw-light"></span> จองห้อง / สถานที่</h4>           
             <div class="row mb-5">
                 <?php foreach ($LocationRoomAll as $key => $v_LocationRoom): ?>
                 <div class="col-md-6 col-lg-4 mb-3">
@@ -21,10 +20,16 @@
                                 <?=$v_LocationRoom->location_detail;?>
                             </p>
                             <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
-                                จองห้องนี้
-                            </button>
+                            <?php if(isset($_SESSION['username'])):?>
+                                <!-- data-bs-toggle="modal" data-bs-target="#exampleModal" -->
+                            <a href="<?=base_url('Booking/Add/'.$v_LocationRoom->location_ID)?>" class="btn btn-primary" >
+                                จอง
+                            </a>
+                            <?php else: ?>
+                            <a href="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>" class="btn btn-primary">
+                                จอง
+                            </a>
+                            <?php endif;?>
                         </div>
                     </div>
                 </div>

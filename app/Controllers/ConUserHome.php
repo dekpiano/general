@@ -19,8 +19,7 @@ class ConUserHome extends BaseController
 
     public function index()
     {
-    //    echo $this->googleClient->createAuthUrl();
-    //     exit();
+        $session = session();
         $database = \Config\Database::connect();
         $builder = $database->table('tb_location');
 

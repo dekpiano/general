@@ -7,7 +7,7 @@
             <div class="app-brand demo">
                 <a href="index.html" class="app-brand-link">
                     <span class="app-brand-logo demo">
-                       <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="40">
+                        <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="40">
                     </span>
                     <span class="app-brand-text menu-text fw-bolder ms-2">สกจ.ทั่วไป <small>(เจ้าหน้าที่)</small></span>
                 </a>
@@ -40,11 +40,22 @@
                             <a href="<?=base_url('Admin/LocationRoom/LocationRoomMain')?>" class="menu-link">
                                 <div data-i18n="Without menu">ห้องประชุม / สถานที่</div>
                             </a>
-                        </li>                       
-                       
+                        </li>
+
                     </ul>
                 </li>
-           
+
             </ul>
+
+             <div>
+                <ul class="menu-inner py-1">
+                <li class="menu-item <?php echo $uri->getSegment(2) == "Rloes"?"active":""?>">
+                        <a href="<?=base_url('Admin/Rloes/Setting');?>" class="menu-link" >
+                            <i class="menu-icon tf-icons bx bx-spreadsheet"></i>
+                            <div data-i18n="Analytics">กำหนดสิทธิ์ใช้งาน</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </aside>
         <!-- / Menu -->

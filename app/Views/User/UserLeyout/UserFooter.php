@@ -36,6 +36,7 @@
     <!-- endbuild -->
     
     <script src="<?=base_url()?>/assets/js/fullcalendar.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -85,3 +86,10 @@
 });
 </script>
 
+<script>
+  $(".selector").flatpickr({
+    altInput: true,
+    altFormat: "j F Y",
+    dateFormat: "d-m-Y",
+  });
+</script>

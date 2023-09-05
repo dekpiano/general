@@ -19,8 +19,7 @@
                                     </div>
                                     <h4 class="ms-1 mb-0"><?=$CountLocationRoomAll;?></h4>
                                 </div>
-                                <p class="mb-1 h5">เลือกห้องประชุม / สถานที่</p>
-
+                                <p class="mb-1 h5">เลือกห้องประชุม / สถานที่</p>                           
                             </div>
                         </div>
                     </a>

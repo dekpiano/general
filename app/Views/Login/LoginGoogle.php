@@ -3,8 +3,7 @@
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y demo">
 
-            <h4 class="mb-2">Welcome to Login SKJ E-Office 👋</h4>
-            <p class="mb-4">สำหรับเจ้าหน้าที่</p>
+            <h4 class="mb-3">ยินดีต้อนรับ เข้าสู่ระบบบริหารทั่วไป 👋</h4>            
             <?php echo $GoogleButton; ?>
         </div>
     </div>

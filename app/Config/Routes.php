@@ -33,6 +33,7 @@ $routes->get('/', 'ConUserHome::index');
 //User งานจองห้อง
 $routes->get('Booking', 'ConUserBooking::BookingMain');
 $routes->get('Booking/Select', 'ConUserBooking::BookingSelect');
+$routes->get('Booking/Add/(:any)', 'ConUserBooking::BookingAdd/$1');
 $routes->match(['get', 'post'],'User/Dictation/ShowData', 'ConUserWorkSaraban::DictationShowData');
 
 $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
@@ -40,13 +41,15 @@ $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
 $routes->get('/LogoutOfficerGeneral', 'ConLogin::LogoutOfficerGeneral');
 
 //Admin
-//งานสารบรรณ
 $routes->get('Admin/Home', 'ConAdminHome::index');
 $routes->get('Admin/LocationRoom/LocationRoomMain', 'ConAdminLocationRoom::LocationRoomMain');
 
 $routes->post('Admin/LocationRoom/Insert', 'ConAdminLocationRoom::LocationRoomInsert');
 $routes->match(['get', 'post'],'Admin/LocationRoom/Delete', 'ConAdminLocationRoom::LocationRoomDelete');
 $routes->match(['get', 'post'],'Admin/LocationRoom/ShowData', 'ConAdminLocationRoom::LocationRoomShowData');
+
+$routes->get('Admin/Rloes/Setting', 'ConAdminRoles::index');
+$routes->match(['get', 'post'],'Admin/Rloes/RloesSettingManager', 'ConAdminRoles::RloesSettingManager');
 
 /*
  * --------------------------------------------------------------------

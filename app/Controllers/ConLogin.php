@@ -9,6 +9,7 @@ class ConLogin extends BaseController
 
     private $googleClient = null;
     private $GoogleButton = "";
+    private $ReturnUrl = "";
     function __construct(){
         $path = dirname(dirname(dirname((dirname(__FILE__)))));
 		require $path . '/librarie_skj/google_sheet/vendor/autoload.php';
@@ -40,50 +41,68 @@ class ConLogin extends BaseController
         $data['description']="เข้าสู่ระบบ";
         $data['UrlMenuMain'] = '';
         $data['UrlMenuSub'] = '';
+        
 
         $session = session();
+        $DB_General = \Config\Database::connect();
+        $DBrloes = $DB_General->table('tb_admin_rloes');
         $DB_Personnel = \Config\Database::connect('personnel');
-        $DBPers = $DB_Personnel->table('tb_personnel');
-
-        if($this->request->getVar("code")){
-        $token = $this->googleClient->fetchAccessTokenWithAuthCode($this->request->getVar("code"));
+        $DBPers = $DB_Personnel->table('tb_personnel');     
         
-        if(!isset($token['error'])){
-           
-            $this->googleClient->setAccessToken($token['access_token']);           
-            session()->set('AccessToken', $token['access_token']);
-          
-
-            $googleService = new \Google_Service_Oauth2($this->googleClient);  
-            //echo '<pre>';print_r($googleService); exit();          
-            $data = $googleService->userinfo->get();            
-           
-           
-           $CheckEmail = $DBPers->where('pers_username', $data['email'])->get()->getRowArray()>0?true:false;
-           if($CheckEmail && $data['email'] == 'thanis.k@skj.ac.th' || $data['email'] == 'dekpiano@skj.ac.th'){
-                $UserData = array('login_oauth_uid' => $data['id'],
-                                    'updated_at' => date('Y-m-d H:i:s'));
-                $DBPers->where('pers_username', $data['email'])->update($UserData);
-                
-                $User = $DBPers->where('pers_username', $data['email'])->get()->getRowArray();
-                echo "<pre>";print_r($User['pers_id']); 
-                $newdata = [
-                    'username'  => $User['pers_prefix'].$User['pers_firstname'].' '.$User['pers_lastname'],
-                    'id'     => $User['pers_id'],
-                    'logged_in' => true,
-                ];                
-                $session->set($newdata);                
-                return redirect()->to(base_url('Admin/Home'));
-           }
-         
+        if($this->request->getVar("return_to") == ""){
 
         }else{
-            session()->set('Error', "Something went Wrong!");
-           
-
+            session()->set('Return',$this->request->getVar("return_to"));
         }
-      
-    }
+        
+        
+            if($this->request->getVar("code")){
+            $token = $this->googleClient->fetchAccessTokenWithAuthCode($this->request->getVar("code"));
+            
+                if(!isset($token['error'])){
+                
+                    $this->googleClient->setAccessToken($token['access_token']);           
+                    session()->set('AccessToken', $token['access_token']);
+                
+
+                    $googleService = new \Google_Service_Oauth2($this->googleClient);  
+                    //echo '<pre>';print_r($googleService); exit();          
+                    $data = $googleService->userinfo->get();            
+                                
+                $CheckEmail = $DBPers->where('pers_username', $data['email'])->get()->getRowArray()>0?true:false;
+                if($CheckEmail){
+                        $UserData = array('login_oauth_uid' => $data['id'],
+                                            'updated_at' => date('Y-m-d H:i:s'));
+                        $DBPers->where('pers_username', $data['email'])->update($UserData);
+
+                            $User = $DBPers->where('pers_username', $data['email'])->get()->getRowArray();
+                            $User2 = $DBrloes->where('admin_rloes_userid', $User['pers_id'])->get()->getRowArray();
+                            //echo $_SESSION['Return']; exit();
+                            $newdata = [
+                                'username'  => $User['pers_prefix'].$User['pers_firstname'].' '.$User['pers_lastname'],
+                                'id'     => $User['pers_id'],
+                                'logged_in' => true,
+                                'status' => $User2['admin_rloes_status']
+                            ];                
+                            $session->set($newdata);  
+                            
+                            if($User2['admin_rloes_status'] == "admin"){
+                                return redirect()->to(base_url('Admin/Home'));
+                            }else{
+                                return redirect()->to("https://".$_SESSION['Return']);
+                            }
+                           
+                        
+                        
+                        
+                }            
+
+                }else{
+                    session()->set('Error', "Something went Wrong!");     
+                }
+        
+            }
+        
         return view('User/UserLeyout/UserHeader',$data)
         .view('User/UserLeyout/UserMenuLeft')
         .view('Login/LoginGoogle')
