@@ -20,13 +20,28 @@
             <!-- /Search -->
 
             <ul class="navbar-nav flex-row align-items-center ms-auto">
-                     
-<li>SKJ E-Office</li>
-             
+            <li>
+                    ผู้ใช้งานทั่วไป
+                </li>
+            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+            <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="avatar avatar-online">
+               
+                <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="" class="w-px-40 h-auto rounded-circle">
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">  
+              <li>
+                <a class="dropdown-item" href="auth-login-cover.html" target="_blank">
+                  <i class="bx bx-power-off me-2"></i>
+                  <span class="align-middle">Log Out</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+
             </ul>
         </div>
     </nav>
 
     <!-- / Navbar -->
-
-    

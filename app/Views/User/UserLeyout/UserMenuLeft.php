@@ -9,7 +9,7 @@
                     <span class="app-brand-logo demo">
                         <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="40">
                     </span>
-                    <span class="app-brand-text menu-text fw-bolder ms-2">SKJ E-Office</span>
+                    <span class="app-brand-text menu-text fw-bolder ms-2">สกจ.บริหารทั่วไป</span>
                 </a>
 
                 <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -18,6 +18,7 @@
             </div>
 
             <div class="menu-inner-shadow"></div>
+
             <ul class="menu-inner py-1">
                 <!-- Dashboard -->
                 <li class="menu-item <?php echo $UrlMenuMain == ""?"active":""?>">
@@ -27,28 +28,19 @@
                     </a>
                 </li>
 
-                <!-- Layouts -->
-                <li class="menu-item <?php echo $UrlMenuMain == "WorkSaraban"?"active open":""?>">
-                    <a href="javascript:void(0);" class="menu-link menu-toggle">
-                        <i class="menu-icon tf-icons bx bx-layout"></i>
-                        <div data-i18n="Layouts">งานสารบรรณ</div>
+                <li class="menu-item <?php echo $UrlMenuMain == "Booking"?"active":""?>">
+                    <a href="<?=base_url('Booking');?>" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                        <div data-i18n="Analytics">จองห้อง / สถานที่</div>
                     </a>
-
-                    <ul class="menu-sub">
-                        <li class="menu-item <?php echo $UrlMenuSub == "InstructionMain"?"active":""?>">
-                            <a href="<?=base_url('User/WorkSaraban/InstructionMain')?>" class="menu-link">
-                                <div data-i18n="Without menu">หนังสือคำสั่ง</div>
-                            </a>
-                        </li>
-
-                    </ul>
                 </li>
+
             </ul>
 
             <div>
                 <ul class="menu-inner py-1">
                     <li class="menu-item"> <!-- data-bs-toggle="modal" data-bs-target="#modalToggle" -->
-                        <a href="<?=base_url('LoginEoffice');?>" class="menu-link" >
+                        <a href="<?=base_url('LoginOfficerGeneral');?>" class="menu-link" >
                             <i class="menu-icon tf-icons bx bxs-key"></i>
                             <div data-i18n="Analytics">เข้าสู่ระบบ (เจ้าหน้าที่)</div>
                         </a>

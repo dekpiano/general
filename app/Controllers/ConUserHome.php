@@ -22,7 +22,7 @@ class ConUserHome extends BaseController
     //    echo $this->googleClient->createAuthUrl();
     //     exit();
         $database = \Config\Database::connect();
-        $builder = $database->table('tb_dictation');
+        $builder = $database->table('tb_location');
 
         $data = $this->DataMain();
         $data['title']="หน้าแรก";

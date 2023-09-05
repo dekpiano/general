@@ -9,7 +9,7 @@
                     <span class="app-brand-logo demo">
                        <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="40">
                     </span>
-                    <span class="app-brand-text menu-text fw-bolder ms-2">SKJ E-Office <small>(เจ้าหน้าที่)</small></span>
+                    <span class="app-brand-text menu-text fw-bolder ms-2">สกจ.ทั่วไป <small>(เจ้าหน้าที่)</small></span>
                 </a>
 
                 <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -29,16 +29,16 @@
                 </li>
 
                 <!-- Layouts -->
-                <li class="menu-item <?php echo $uri->getSegment(2) == "WorkSaraban"?"active open":""?>">
+                <li class="menu-item <?php echo $uri->getSegment(2) == "LocationRoom"?"active open":""?>">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-layout"></i>
-                        <div data-i18n="Layouts">งานสารบรรณ</div>
+                        <div data-i18n="Layouts">งานอาคารสถานที่</div>
                     </a>
 
                     <ul class="menu-sub">
-                        <li class="menu-item <?php echo $uri->getSegment(3) == "InstructionMain"?"active":""?>">
-                            <a href="<?=base_url('Admin/WorkSaraban/InstructionMain')?>" class="menu-link">
-                                <div data-i18n="Without menu">หนังสือคำสั่ง</div>
+                        <li class="menu-item <?php echo $uri->getSegment(3) == "LocationRoomMain"?"active":""?>">
+                            <a href="<?=base_url('Admin/LocationRoom/LocationRoomMain')?>" class="menu-link">
+                                <div data-i18n="Without menu">ห้องประชุม / สถานที่</div>
                             </a>
                         </li>                       
                        

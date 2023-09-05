@@ -13,12 +13,12 @@
                         <div class="card-body">
                             <div class="d-flex align-items-start justify-content-between">
                                 <div class="content-left">
-                                    <span>หนังสือคำสั่ง</span>
+                                    <span>งานอาคารสถานที่</span>
                                     <div class="d-flex align-items-end mt-2">
-                                        <h4 class="mb-0 me-2"><?=$DictationAll;?></h4>
+                                        <h4 class="mb-0 me-2"><?=$LocationRoomAll;?></h4>
                                         <!-- <small class="text-success"></small> -->
                                     </div>
-                                    <small>ไฟล์ทั้งหมด</small>
+                                    <small>ทั้งหมด</small>
                                 </div>
                                 <span class="badge bg-label-primary rounded p-2">
                                 <i class='bx bxs-file-doc bx-sm'></i>                                    

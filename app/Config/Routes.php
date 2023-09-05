@@ -30,21 +30,23 @@ $routes->setAutoRoute(false);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'ConUserHome::index');
-//User งานสารบรรณ
-$routes->get('User/WorkSaraban/InstructionMain', 'ConUserWorkSaraban::InstructionMain');
+//User งานจองห้อง
+$routes->get('Booking', 'ConUserBooking::BookingMain');
+$routes->get('Booking/Select', 'ConUserBooking::BookingSelect');
 $routes->match(['get', 'post'],'User/Dictation/ShowData', 'ConUserWorkSaraban::DictationShowData');
 
-$routes->get('/LoginEoffice', 'ConLogin::LoginEoffice');
+$routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
 //$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
-$routes->get('/LogOutEoffice', 'ConLogin::LogOutEoffice');
+$routes->get('/LogoutOfficerGeneral', 'ConLogin::LogoutOfficerGeneral');
 
 //Admin
 //งานสารบรรณ
 $routes->get('Admin/Home', 'ConAdminHome::index');
-$routes->get('Admin/WorkSaraban/InstructionMain', 'ConAdminWorkSaraban::InstructionMain');
+$routes->get('Admin/LocationRoom/LocationRoomMain', 'ConAdminLocationRoom::LocationRoomMain');
 
-$routes->post('Admin/Dictation/Insert', 'ConAdminWorkSaraban::DictationInsert');
-$routes->match(['get', 'post'],'Admin/Dictation/ShowData', 'ConAdminWorkSaraban::DictationShowData');
+$routes->post('Admin/LocationRoom/Insert', 'ConAdminLocationRoom::LocationRoomInsert');
+$routes->match(['get', 'post'],'Admin/LocationRoom/Delete', 'ConAdminLocationRoom::LocationRoomDelete');
+$routes->match(['get', 'post'],'Admin/LocationRoom/ShowData', 'ConAdminLocationRoom::LocationRoomShowData');
 
 /*
  * --------------------------------------------------------------------

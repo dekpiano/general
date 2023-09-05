@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-class ConUserWorkSaraban extends BaseController
+class ConUserBooking extends BaseController
 {
 
     function __construct(){
@@ -16,17 +16,44 @@ class ConUserWorkSaraban extends BaseController
         return $data;
     }
 
-    public function InstructionMain()
+    public function BookingMain()
     {
         $data = $this->DataMain();
-        $data['title']="หนังสือคำสั่ง";
-        $data['description']="ดาวน์โหลดหนังสือคำสั่ง";
-        $data['UrlMenuMain'] = 'WorkSaraban';
-        $data['UrlMenuSub'] = 'InstructionMain';
+        $data['title']="จองห้อง / สถานที่";
+        $data['description']="ระบบสำหรับจองห้อง / สถานที่ ภายในโรงเรียน";
+        $data['UrlMenuMain'] = 'Booking';
+        $data['UrlMenuSub'] = 'BookingMain';
+
+        $database = \Config\Database::connect();
+        $builder = $database->table('tb_location');
+        $data['CountLocationRoomAll'] = $builder->countAll();
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserSaraban/UserInstructionBookMain')
+                .view('User/UserBooking/UserBookingMain')
+                .view('User/UserLeyout/UserFooter');
+    }
+    
+    public function BookingSelect()
+    {
+        $data = $this->DataMain();
+        $data['title']="เลือกห้อง / สถานที่";
+        $data['description']="เลือกห้องสำหรับใช้ภายในโรงเรียน";
+        $data['UrlMenuMain'] = 'Booking';
+        $data['UrlMenuSub'] = 'BookingSelect';
+        $session = session();
+        $newdata = [
+            'UriOld'  => $_SERVER['REQUEST_URI']
+        ];
+        $session->set($newdata);  
+
+        $database = \Config\Database::connect();
+        $builder = $database->table('tb_location');
+        $data['LocationRoomAll'] = $builder->get()->getResult();
+        
+        return view('User/UserLeyout/UserHeader',$data)
+                .view('User/UserLeyout/UserMenuLeft')
+                .view('User/UserBooking/UserBookingSelect')
                 .view('User/UserLeyout/UserFooter');
     }
 

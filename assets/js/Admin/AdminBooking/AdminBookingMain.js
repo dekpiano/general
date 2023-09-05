@@ -1,37 +1,36 @@
-ShowDataInstruction();
+ShowDataLocationRoom();
 
-function ShowDataInstruction() {
-    $('.TbDataInstruction').DataTable({
+function ShowDataLocationRoom() {
+    $('.TbDataLocationRoom').DataTable({
         'processing': true,
         'serverMethod': 'post',
         'ajax': {
-            'url': '../../Admin/Dictation/ShowData'
+            'url': '../../Admin/LocationRoom/ShowData'
         },
         order: [
             [3, 'desc']
         ],
-        'columns': [
-            { data: 'dicta_year' },
-            { data: 'dicta_number' },
-            { data: 'dicta_title' },
-            { data: 'dicta_createdate' },
-            {
-                data: 'dicta_file',
+        'columns': [{
+                data: 'location_img',
                 render: function(data, type, row) {
-                    return '<a target="_blank" href="../../uploads/admin/dictation/' + data + '">เปิดดู</a>';
+                    return '<img style="width:200px;" class="card-img-top" src="../../uploads/admin/LocationRoom/' + data + '" alt="Card image cap">';
                 }
             },
+            { data: 'location_name' },
+            { data: 'location_detail' },
+            { data: 'location_number' },
+            { data: 'location_seats' },
             {
-                data: 'dicta_title',
+                data: 'location_ID',
                 render: function(data, type, row) {
-                    return '<div class="d-inline-block text-nowrap"><button class="btn btn-sm btn-icon"><i class="bx bx-edit" data-bs-toggle="modal" data-bs-target="#UpdateInstruction"></i></button><button class="btn btn-sm btn-icon delete-record"><i class="bx bx-trash" id="EditInstruction" key-id="' + row.dicta_id + '"></i></button></div>';
+                    return '<div class="d-inline-block text-nowrap"><button class="btn btn-sm btn-icon"><i class="bx bx-edit" data-bs-toggle="modal" data-bs-target="#UpdateInstruction"></i></button><button class="btn btn-sm btn-icon delete-record"><i class="bx bx-trash" id="DelLocationRoom" key-id="' + row.location_ID + '"></i></button></div>';
                 }
             }
         ]
     });
 }
 
-$(document).on('submit', '#FromDictationInsert', function(e) {
+$(document).on('submit', '#FromLocationRoomInsert', function(e) {
     $('.uploadBtn').html('Uploading ...');
     $('.uploadBtn').prop('Disabled');
     e.preventDefault();
@@ -42,7 +41,7 @@ $(document).on('submit', '#FromDictationInsert', function(e) {
         document.getElementById("upload_image_form").reset();
     } else {
         $.ajax({
-            url: "../../Admin/Dictation/Insert",
+            url: "../../Admin/LocationRoom/Insert",
             method: "POST",
             data: new FormData(this),
             processData: false,
@@ -58,7 +57,7 @@ $(document).on('submit', '#FromDictationInsert', function(e) {
                         'แจ้งเตือน!', res.msg,
                         'success'
                     )
-                    $('.TbDataInstruction').DataTable().ajax.reload();
+                    $('.TbDataLocationRoom').DataTable().ajax.reload();
                 } else if (res.success == false) {
                     $('#rightModal2').hide();
                     $('.modal-backdrop').hide();
@@ -72,7 +71,7 @@ $(document).on('submit', '#FromDictationInsert', function(e) {
     }
 });
 
-$(document).on('click', '#EditInstruction', function() {
+$(document).on('click', '#DelLocationRoom', function() {
     console.log($(this).attr('key-id'));
     Swal.fire({
         title: 'คุณต้องการลบข้อมูลหรือไม่?',
@@ -84,12 +83,17 @@ $(document).on('click', '#EditInstruction', function() {
     }).then((result) => {
         if (result.isConfirmed) {
 
-            $.post();
-            Swal.fire(
-                'Deleted!',
-                'Your file has been deleted.',
-                'success'
-            )
+            $.post('../../Admin/LocationRoom/Delete', { DelKey: $(this).attr('key-id') }, function(res) {
+                if (res) {
+                    Swal.fire(
+                        'แจ้งเตือน!',
+                        'ลบข้อมูลสำเร็จ.',
+                        'success'
+                    )
+                }
+                $('.TbDataLocationRoom').DataTable().ajax.reload();
+            });
+
         }
     })
 

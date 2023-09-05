@@ -53,7 +53,7 @@
   </body>
 </html>
 
-<script src="<?=base_url()?>/assets/js/Admin/Saraban/Dictation.js?v=10"></script>
+<script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=3"></script>
 
 <script>
   // Example starter JavaScript for disabling form submissions if there are invalid fields

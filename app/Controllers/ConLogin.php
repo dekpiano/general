@@ -13,11 +13,11 @@ class ConLogin extends BaseController
         $path = dirname(dirname(dirname((dirname(__FILE__)))));
 		require $path . '/librarie_skj/google_sheet/vendor/autoload.php';
 
-        $redirect_uri = base_url('LoginEoffice');
+        $redirect_uri = base_url('LoginOfficerGeneral');
         
         $this->googleClient = new \Google_Client();
-        $this->googleClient->setClientId('975527477710-i15oq29ntmboi7e1mopolps0u29c98mm.apps.googleusercontent.com');
-		$this->googleClient->setClientSecret('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');
+        $this->googleClient->setClientId('112583025699-4qiv5d413kebk4s53cc1450fopts7n3m.apps.googleusercontent.com');
+		$this->googleClient->setClientSecret('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');
         $this->googleClient->setRedirectUri($redirect_uri);
         $this->googleClient->addScope('email');
         $this->googleClient->addScope('profile');
@@ -33,7 +33,7 @@ class ConLogin extends BaseController
     }
 
        
-    public function LoginEoffice(){
+    public function LoginOfficerGeneral(){
       
         $data = $this->DataMain();
         $data['title']="หน้าแรก";
@@ -91,7 +91,7 @@ class ConLogin extends BaseController
           
     }
 
-    public function LogOutEoffice(){
+    public function LogoutOfficerGeneral(){
         $session = session();
         $session->destroy();
         return redirect()->to(base_url());
