@@ -1,12 +1,12 @@
 <!-- Layout container -->
 <div class="layout-page">
     <?php echo view('User/UserLeyout/UserNavbar'); ?>
-    
+
     <!-- Content wrapper -->
     <div class="content-wrapper">
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
-            <h4 class="py-3 mb-4"><span class="text-muted fw-light"></span> จองห้อง / สถานที่</h4>           
+            <h4 class="py-3 mb-4"><span class="text-muted fw-light"></span> ห้องประชุมและสถานที่</h4>
             <div class="row mb-5">
                 <?php foreach ($LocationRoomAll as $key => $v_LocationRoom): ?>
                 <div class="col-md-6 col-lg-4 mb-3">
@@ -19,17 +19,32 @@
                             <p class="card-text">
                                 <?=$v_LocationRoom->location_detail;?>
                             </p>
-                            <!-- Button trigger modal -->
-                            <?php if(isset($_SESSION['username'])):?>
-                                <!-- data-bs-toggle="modal" data-bs-target="#exampleModal" -->
-                            <a href="<?=base_url('Booking/Add/'.$v_LocationRoom->location_ID)?>" class="btn btn-primary" >
-                                จอง
-                            </a>
-                            <?php else: ?>
-                            <a href="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>" class="btn btn-primary">
-                                จอง
-                            </a>
-                            <?php endif;?>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <!-- Button trigger modal -->
+                                    <?php if(isset($_SESSION['username'])):?>
+                                    <!-- data-bs-toggle="modal" data-bs-target="#exampleModal" -->
+                                    <a href="<?=base_url('Booking/Add/'.$v_LocationRoom->location_ID)?>"
+                                        class="btn btn-primary">
+                                        จอง
+                                    </a>
+                                    <?php else: ?>
+                                    <a href="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"
+                                        class="btn btn-primary">
+                                        จอง
+                                    </a>
+                                    <?php endif;?>
+                                </div>
+
+                                <div>
+                                    <a href="<?=base_url('Booking/View/'.$v_LocationRoom->location_ID)?>" class="btn btn-outline-secondary">
+                                        ดูการจอง
+                                    </a>
+                                </div>
+                            </div>
+
+
+
                         </div>
                     </div>
                 </div>
@@ -58,7 +73,8 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label" for="booking_locationroom">ชื่อห้อง</label>
-                                <input type="text" id="booking_locationroom" name="booking_locationroom" class="form-control" placeholder="ชื่อห้อง">
+                                <input type="text" id="booking_locationroom" name="booking_locationroom"
+                                    class="form-control" placeholder="ชื่อห้อง">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="booking_number">จำนวนผู้เข้าร่วม</label>
@@ -83,21 +99,24 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="booking_timeStart">เวลาที่เริ่มต้น</label>
-                                <input class="form-control" type="time" value="<?=date("H:i")?>" id="booking_timeStart" name="booking_timeStart">
+                                <input class="form-control" type="time" value="<?=date("H:i")?>" id="booking_timeStart"
+                                    name="booking_timeStart">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="booking_dateEnd">วันสิ้นสุด</label>
-                                <input class="form-control" type="date" value="<?=date("Y-m-d")?>"
-                                    id="booking_dateEnd" name="booking_dateEnd">
+                                <input class="form-control" type="date" value="<?=date("Y-m-d")?>" id="booking_dateEnd"
+                                    name="booking_dateEnd">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="booking_timeEnd">เวลาที่สิ้นสุด</label>
-                                <input class="form-control" type="time" value="<?=date("H:i")?>" id="booking_timeEnd" name="booking_timeEnd">
+                                <input class="form-control" type="time" value="<?=date("H:i")?>" id="booking_timeEnd"
+                                    name="booking_timeEnd">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="booking_timeEnd">ใช้สำหรับ</label>
-                            <select class="form-select" aria-label="Default select example" id="booking_timeEnd" name="booking_timeEnd">                          
+                            <select class="form-select" aria-label="Default select example" id="booking_timeEnd"
+                                name="booking_timeEnd">
                                 <option value="ประชุม">ประชุม</option>
                                 <option value="อบรม">อบรม</option>
                                 <option value="สัมนา">สัมนา</option>
@@ -108,36 +127,38 @@
                             <label class="form-label" for="basic-default-company">อุปกรณ์ที่ใช้</label>
                             <div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" name="booking_equipment[]" id="booking_equipment1"
-                                        value="เครื่องคอมพิวเตอร์">
+                                    <input class="form-check-input" type="checkbox" name="booking_equipment[]"
+                                        id="booking_equipment1" value="เครื่องคอมพิวเตอร์">
                                     <label class="form-check-label" for="booking_equipment1">เครื่องคอมพิวเตอร์</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" name="booking_equipment[]" id="booking_equipment2"
-                                        value="option2">
+                                    <input class="form-check-input" type="checkbox" name="booking_equipment[]"
+                                        id="booking_equipment2" value="option2">
                                     <label class="form-check-label" for="booking_equipment2">จอโปรเจ็คเตอร์</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" name="booking_equipment[]" id="booking_equipment3"
-                                        value="option2">
+                                    <input class="form-check-input" type="checkbox" name="booking_equipment[]"
+                                        id="booking_equipment3" value="option2">
                                     <label class="form-check-label" for="booking_equipment3">เครื่องฉายแผ่นใส</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" name="booking_equipment[]" id="booking_equipment4"
-                                        value="option2">
+                                    <input class="form-check-input" type="checkbox" name="booking_equipment[]"
+                                        id="booking_equipment4" value="option2">
                                     <label class="form-check-label" for="booking_equipment4">เครื่องขยายเสียง</label>
                                 </div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="booking_other">อื่น ๆ</label>
-                            <textarea id="booking_other" name="booking_other" class="form-control" placeholder=""></textarea>
+                            <textarea id="booking_other" name="booking_other" class="form-control"
+                                placeholder=""></textarea>
                         </div>
                         <hr>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label" for="booking_other">ชื่อผู้จอง</label>
-                                <input type="text" id="booking_other" name="booking_other" class="form-control" placeholder="ชื่อผู้จอง">
+                                <input type="text" id="booking_other" name="booking_other" class="form-control"
+                                    placeholder="ชื่อผู้จอง">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="booking_other">เบอร์โทรศัพท์</label>

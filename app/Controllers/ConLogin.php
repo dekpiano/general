@@ -86,11 +86,11 @@ class ConLogin extends BaseController
                             ];                
                             $session->set($newdata);  
                             
-                            if($User2['admin_rloes_status'] == "admin"){
-                                return redirect()->to(base_url('Admin/Home'));
-                            }else{
+                            // if($User2['admin_rloes_status'] == "admin"){
+                            //     return redirect()->to(base_url('Admin/Home'));
+                            // }else{
                                 return redirect()->to("https://".$_SESSION['Return']);
-                            }
+                            // }
                            
                         
                         

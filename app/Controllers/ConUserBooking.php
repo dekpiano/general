@@ -76,6 +76,76 @@ class ConUserBooking extends BaseController
                 .view('User/UserLeyout/UserFooter');
     }
 
+    public function BookingInsert(){
+
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBlocation = $database->table('tb_booking');
+        
+        if($this->request->getVar('booking_equipment') != ""){
+          $equipment = implode('|',$this->request->getVar('booking_equipment'));
+        }else{
+            $equipment = "";
+        }
+        $data = [
+            'booking_locationroom' => $this->request->getVar('booking_locationroom'),
+            'booking_number' => $this->request->getVar('booking_number'),
+            'booking_title' => $this->request->getVar('booking_title'),
+            'booking_dateStart' => $this->request->getVar('booking_dateStart'),
+            'booking_timeStart' => $this->request->getVar('booking_timeStart'),
+            'booking_dateEnd' => $this->request->getVar('booking_dateEnd'),
+            'booking_timeEnd' => $this->request->getVar('booking_timeEnd'),
+            'booking_typeuse' => $this->request->getVar('booking_typeuse'),
+            'booking_other' => $this->request->getVar('booking_other'),
+            'booking_Booker' => $this->request->getVar('booking_Booker'),
+            'booking_telephone' => $this->request->getVar('booking_telephone'),
+            'booking_equipment' => $equipment,
+            'booking_status' => "รอตรวจสอบ" 
+        ];
+        
+        $DBlocation->insert($data);
+        echo $this->request->getVar('booking_locationroom');
+        //print_r($this->request->getVar());
+    }
+
+    public function BookingView($Key){
+
+        $session = session();
+        $data = $this->DataMain();
+        $data['title']="ดูข้อมูลจองห้องประชุมและสถานที่";
+        $data['description']="ดูข้อมูลจองห้องประชุมและสถานที่";
+        $data['UrlMenuMain'] = 'Booking';
+        $data['UrlMenuSub'] = 'BookingView';        
+
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $data['Booking'] = $DBbooking
+        ->select('booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse')
+        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
+        ->where('booking_locationroom',$Key)->get()->getResult();
+        //echo '<pre>';print_r($data['loca']); exit();
+        
+        return view('User/UserLeyout/UserHeader',$data)
+                .view('User/UserLeyout/UserMenuLeft')
+                .view('User/UserBooking/UserBookingView')
+                .view('User/UserLeyout/UserFooter');
+    }
+
+    public function BookingCancel(){
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $data = [
+            'booking_status' => 'ยกเลิกโดยผู้จอง'
+        ];        
+        $DBbooking->where('booking_id', $this->request->getVar('KeyID'));
+        echo $DBbooking->update($data);
+
+        
+    }
+
     public function DictationInsert()
     {  
         helper(['form', 'url']);

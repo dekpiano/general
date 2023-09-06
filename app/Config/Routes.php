@@ -34,6 +34,9 @@ $routes->get('/', 'ConUserHome::index');
 $routes->get('Booking', 'ConUserBooking::BookingMain');
 $routes->get('Booking/Select', 'ConUserBooking::BookingSelect');
 $routes->get('Booking/Add/(:any)', 'ConUserBooking::BookingAdd/$1');
+$routes->get('Booking/View/(:any)', 'ConUserBooking::BookingView/$1');
+$routes->match(['get', 'post'],'Booking/DB/Insert', 'ConUserBooking::BookingInsert');
+$routes->match(['get', 'post'],'Booking/DB/Cancel', 'ConUserBooking::BookingCancel');
 $routes->match(['get', 'post'],'User/Dictation/ShowData', 'ConUserWorkSaraban::DictationShowData');
 
 $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
