@@ -60,7 +60,7 @@
 
     </html>
 
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=6"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=7.2"></script>
 
     <script>
 // Example starter JavaScript for disabling form submissions if there are invalid fields
@@ -102,4 +102,42 @@ $(".selector").flatpickr({
         instance.altInput.value = thai_DM + " " + thai_Y;
     }
 });
+
+var calendarEl = document.getElementById('calendar');
+
+var calendar = new FullCalendar.Calendar(calendarEl, {
+    headerToolbar: {
+        left: 'prevYear,prev,next,nextYear today',
+        center: 'title',
+        right: 'dayGridMonth,dayGridWeek,dayGridDay'
+    },
+    navLinks: true, // can click day/week names to navigate views
+    editable: false,
+    locale: 'th',
+    eventSources: [
+     {
+        timeZone: 'UTC',
+
+         events: function(start, end, timezone, callback) {
+            var start = moment('2021-01-10T00:00:00').unix();
+            var end = moment('2021-01-15T00:00:00').unix();
+             $.ajax({
+             url: "<?=base_url('Booking/DB/ShowTimeBooking')?>",
+             dataType: 'json',
+             data: {
+             // our hypothetical feed requires UNIX timestamps
+             start: start,
+             end: end
+             },
+             success: function(msg) {
+                 var events = msg.events;
+                 callback(events);
+             }
+             });
+         }
+     },
+ ],
+ initialView: 'dayGridMonth'
+});
+calendar.render();
     </script>

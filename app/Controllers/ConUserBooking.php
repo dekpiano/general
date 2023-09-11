@@ -123,7 +123,9 @@ class ConUserBooking extends BaseController
         $data['Booking'] = $DBbooking
         ->select('booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse')
         ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-        ->where('booking_locationroom',$Key)->get()->getResult();
+        ->where('booking_locationroom',$Key)
+        ->where('booking_Booker',$_SESSION['id'])
+        ->get()->getResult();
         //echo '<pre>';print_r($data['loca']); exit();
         
         return view('User/UserLeyout/UserHeader',$data)
@@ -145,6 +147,25 @@ class ConUserBooking extends BaseController
 
         
     }
+
+    public function ShowTimeBooking(){
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+       $S_data = $DBbooking->select('booking_title,booking_dateStart,booking_dateEnd')->get()->getResult();
+
+        foreach ($S_data as $key => $value) {
+            $data=[
+                'title'=> $value->booking_title,
+                'start' => $value->booking_dateStart,
+                'end' => $value->booking_dateEnd
+            ];        
+        }
+
+        return json_encode($data);
+    }
+
 
     public function DictationInsert()
     {  

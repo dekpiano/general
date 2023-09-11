@@ -6,7 +6,7 @@
     <div class="content-wrapper">
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
-            <h4 class="py-3 mb-4"><span class="text-muted fw-light"></span> ข้อมูลจอง<?=@$Booking[0]->location_name?>
+            <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a href="<?=base_url('Booking/Select')?>">สถานที่</a> /</span> ข้อมูลจอง<?=@$Booking[0]->location_name?>
             </h4>
 
             <div class="card">
@@ -51,9 +51,10 @@
                                 <td><?=$v_Booking->booking_reason?></td>
                                 <?php if(isset($_SESSION['username'])) : ?>
                                 <td>
+                                    <?php $CheckDisble = $v_Booking->booking_status == "ยกเลิกโดยผู้จอง"?"disabled":""?>
                                     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                        <button type="button" class="btn btn-warning">แก้ไข</button>
-                                        <button type="button" id="BtnCancelBooking" class="btn btn-danger" key-id="<?=$v_Booking->booking_id;?>">ยกเลิก</button>
+                                        <button type="button" class="btn btn-warning <?=$CheckDisble?>">แก้ไข</button>
+                                        <button type="button" id="BtnCancelBooking" class="btn btn-danger <?=$CheckDisble?>" key-id="<?=$v_Booking->booking_id;?>">ยกเลิก</button>
                                     </div>
                                 </td>
                                 <?php endif; ?>
