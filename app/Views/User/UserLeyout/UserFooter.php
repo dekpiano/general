@@ -4,8 +4,6 @@
     <div class="layout-overlay layout-menu-toggle"></div>
     </div>
     <!-- / Layout wrapper -->
-
-
     <!-- Footer -->
     <footer class="content-footer footer bg-footer-theme">
         <div class="container-xxl d-flex flex-wrap justify-content-end py-2 flex-md-row flex-column">
@@ -26,7 +24,9 @@
 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
-    <script src="<?=base_url()?>/assets/vendor/libs/jquery/jquery.js"></script>
+    <!-- <script src="<?=base_url()?>/assets/vendor/libs/jquery/jquery.js"></script> -->
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="<?=base_url()?>/assets/vendor/libs/popper/popper.js"></script>
     <script src="<?=base_url()?>/assets/vendor/js/bootstrap.js"></script>
     <script src="<?=base_url()?>/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
@@ -60,7 +60,7 @@
 
     </html>
 
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=7.2"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=10"></script>
 
     <script>
 // Example starter JavaScript for disabling form submissions if there are invalid fields
@@ -103,41 +103,4 @@ $(".selector").flatpickr({
     }
 });
 
-var calendarEl = document.getElementById('calendar');
-
-var calendar = new FullCalendar.Calendar(calendarEl, {
-    headerToolbar: {
-        left: 'prevYear,prev,next,nextYear today',
-        center: 'title',
-        right: 'dayGridMonth,dayGridWeek,dayGridDay'
-    },
-    navLinks: true, // can click day/week names to navigate views
-    editable: false,
-    locale: 'th',
-    eventSources: [
-     {
-        timeZone: 'UTC',
-
-         events: function(start, end, timezone, callback) {
-            var start = moment('2021-01-10T00:00:00').unix();
-            var end = moment('2021-01-15T00:00:00').unix();
-             $.ajax({
-             url: "<?=base_url('Booking/DB/ShowTimeBooking')?>",
-             dataType: 'json',
-             data: {
-             // our hypothetical feed requires UNIX timestamps
-             start: start,
-             end: end
-             },
-             success: function(msg) {
-                 var events = msg.events;
-                 callback(events);
-             }
-             });
-         }
-     },
- ],
- initialView: 'dayGridMonth'
-});
-calendar.render();
     </script>

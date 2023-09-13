@@ -1,3 +1,9 @@
+<style>
+/* .fc-event-desc,
+.fc-event-title {
+    white-space: break-spaces;
+} */
+</style>
 <!-- Layout container -->
 <div class="layout-page">
     <?php echo view('User/UserLeyout/UserNavbar'); ?>

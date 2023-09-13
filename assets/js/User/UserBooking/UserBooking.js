@@ -52,19 +52,41 @@ $(document).on('click', '#BtnCancelBooking', function() {
     })
 });
 
-// var calendarEl = document.getElementById('calendar');
+var calendarEl = document.getElementById('calendar');
 
-// var calendar = new FullCalendar.Calendar(calendarEl, {
-//     headerToolbar: {
-//         left: 'prevYear,prev,next,nextYear today',
-//         center: 'title',
-//         right: 'dayGridMonth,dayGridWeek,dayGridDay'
-//     },
-//     navLinks: true, // can click day/week names to navigate views
-//     editable: false,
-//     locale: 'th',
-//     dayMaxEvents: true, // allow "more" link when too many events
-//     events: []
-// });
+var calendar = new FullCalendar.Calendar(calendarEl, {
+    headerToolbar: {
+        left: 'prevYear,prev,next,nextYear today',
+        center: 'title',
+        right: 'dayGridMonth,dayGridWeek,dayGridDay'
+    },
+    navLinks: true, // can click day/week names to navigate views
+    editable: false,
+    locale: 'th',
+    eventSources: [{
+        events: function(fetchInfo, successCallback, failureCallback) {
+            jQuery.ajax({
+                url: "Booking/DB/ShowTimeBooking",
+                type: "POST",
+                success: function(res) {
+                    var events = [];
+                    res.forEach(evt => {
+                        events.push({
+                            id: evt.id,
+                            title: evt.title,
+                            start: evt.start,
+                            end: evt.end,
+                            allDay: true
+                        });
+                    });
+                    successCallback(events);
+                },
+            });
+        },
+        eventColor: '#378006',
 
-// calendar.render();
+
+    }, ],
+    initialView: 'dayGridMonth'
+});
+calendar.render();

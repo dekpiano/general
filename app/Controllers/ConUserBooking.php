@@ -28,6 +28,20 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $builder = $database->table('tb_location');
         $data['CountLocationRoomAll'] = $builder->countAll();
+
+        $DBbooking = $database->table('tb_booking');
+        $data1 = [];
+       $S_data = $DBbooking->select('booking_title,booking_dateStart,booking_dateEnd')->get()->getResult();
+      
+        foreach ($S_data as $key => $value) {
+            $data1[]=[
+                'title'=> $value->booking_title,
+                'start' => $value->booking_dateStart,
+                'end' => $value->booking_dateEnd
+            ];        
+        }
+        //echo "<pre>";print_r($data1);exit();
+        $data['data1']=$data1;
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
@@ -120,11 +134,16 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
+        if(isset($_SESSION['id']) == 1 ){
+            $array =['booking_locationroom'=> $Key,'booking_Booker'=>$_SESSION['id']];
+        }else{
+            $array =['booking_locationroom'=> $Key];
+        }
+      
         $data['Booking'] = $DBbooking
         ->select('booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse')
         ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-        ->where('booking_locationroom',$Key)
-        ->where('booking_Booker',$_SESSION['id'])
+        ->where($array)
         ->get()->getResult();
         //echo '<pre>';print_r($data['loca']); exit();
         
@@ -153,17 +172,20 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_title,booking_dateStart,booking_dateEnd')->get()->getResult();
+       $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,location_name')
+       ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
+       ->get()->getResult();
 
         foreach ($S_data as $key => $value) {
-            $data=[
-                'title'=> $value->booking_title,
-                'start' => $value->booking_dateStart,
-                'end' => $value->booking_dateEnd
+            $data[]=[
+                'id' => $value->booking_locationroom,
+                'title'=> date('H:i',strtotime($value->booking_timeStart)).' - '.date('H:i',strtotime($value->booking_timeEnd)).' '.$value->booking_title.' '.$value->location_name,
+                'start' => $value->booking_dateStart.' '.$value->booking_timeStart,
+                'end' => $value->booking_dateEnd.' '.$value->booking_timeEnd
             ];        
         }
 
-        return json_encode($data);
+        return $this->response->setJSON($data, true);
     }
 
 
