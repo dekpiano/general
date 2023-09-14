@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="col-sm-6 col-lg-3 mb-4">
-                    <a href="http://">
+                    <a href="<?=base_url('Booking/View/All')?>">
                         <div class="card h-100 bg-primary text-white">
                             <div class="card-body ">
                                 <div class="d-flex align-items-center mb-2 pb-1">
@@ -40,7 +40,7 @@
                                         <span class="avatar-initial rounded bg-label-info"><i
                                                 class="bx bx-time-five"></i></span>
                                     </div>
-                                    <h4 class="ms-1 mb-0 text-white">13</h4>
+                                    <h4 class="ms-1 mb-0 text-white"><?=$CountbookingAll;?> รายการ</h4>
                                 </div>
                                 <p class="mb-1 h5 text-white">สถานะจองห้องประชุม / สถานที่</p>
                             </div>

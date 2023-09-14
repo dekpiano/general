@@ -47,10 +47,20 @@ $(document).on('click', '#BtnCancelBooking', function() {
             $.post('../../Booking/DB/Cancel', { KeyID: $(this).attr('key-id') }, function(data) {
                 console.log(data);
                 // $('#TBShowDataBooking').DataTable().ajax.reload();
+                location.reload(true);
             });
         }
     })
 });
+
+
+$(document).on('change', '#booking_timeStart', function() {
+
+    console.log($('#booking_dateStart').val());
+    console.log($('#booking_timeStart').val());
+});
+
+
 
 var calendarEl = document.getElementById('calendar');
 

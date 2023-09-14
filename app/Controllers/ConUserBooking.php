@@ -30,19 +30,8 @@ class ConUserBooking extends BaseController
         $data['CountLocationRoomAll'] = $builder->countAll();
 
         $DBbooking = $database->table('tb_booking');
-        $data1 = [];
-       $S_data = $DBbooking->select('booking_title,booking_dateStart,booking_dateEnd')->get()->getResult();
-      
-        foreach ($S_data as $key => $value) {
-            $data1[]=[
-                'title'=> $value->booking_title,
-                'start' => $value->booking_dateStart,
-                'end' => $value->booking_dateEnd
-            ];        
-        }
-        //echo "<pre>";print_r($data1);exit();
-        $data['data1']=$data1;
-        
+        $data['CountbookingAll'] = $DBbooking->countAll();
+
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
                 .view('User/UserBooking/UserBookingMain')
@@ -134,17 +123,29 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-        if(isset($_SESSION['id']) == 1 ){
-            $array =['booking_locationroom'=> $Key,'booking_Booker'=>$_SESSION['id']];
+        if(isset($_SESSION['id']) == 1){
+            if($Key == 'All'){
+                $data['All'] = $Key;
+            }else{
+                $array =['booking_locationroom'=> $Key,'booking_Booker'=>$_SESSION['id']];
+                $Where = $DBbooking->where($array);
+            }            
         }else{
-            $array =['booking_locationroom'=> $Key];
+            if($Key == 'All'){
+                $data['All'] = $Key;
+            }else{
+                $array =['booking_locationroom'=> $Key];
+                $Where = $DBbooking->where($array);
+            }
+           
         }
       
-        $data['Booking'] = $DBbooking
-        ->select('booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse')
-        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-        ->where($array)
-        ->get()->getResult();
+       $DBbooking
+        ->select('booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse');
+        $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
+        $Where;
+        $data['Booking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
+      
         //echo '<pre>';print_r($data['loca']); exit();
         
         return view('User/UserLeyout/UserHeader',$data)
@@ -163,8 +164,6 @@ class ConUserBooking extends BaseController
         ];        
         $DBbooking->where('booking_id', $this->request->getVar('KeyID'));
         echo $DBbooking->update($data);
-
-        
     }
 
     public function ShowTimeBooking(){
@@ -174,6 +173,7 @@ class ConUserBooking extends BaseController
 
        $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,location_name')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
+       ->where('booking_status','อนุมัติ')
        ->get()->getResult();
 
         foreach ($S_data as $key => $value) {
@@ -181,13 +181,12 @@ class ConUserBooking extends BaseController
                 'id' => $value->booking_locationroom,
                 'title'=> date('H:i',strtotime($value->booking_timeStart)).' - '.date('H:i',strtotime($value->booking_timeEnd)).' '.$value->booking_title.' '.$value->location_name,
                 'start' => $value->booking_dateStart.' '.$value->booking_timeStart,
-                'end' => $value->booking_dateEnd.' '.$value->booking_timeEnd
+                'end' => date("Y-m-d", strtotime("+1 day",strtotime($value->booking_dateEnd))).' '.$value->booking_timeEnd
             ];        
         }
 
         return $this->response->setJSON($data, true);
     }
-
 
     public function DictationInsert()
     {  

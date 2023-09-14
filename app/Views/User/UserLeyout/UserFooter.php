@@ -60,7 +60,7 @@
 
     </html>
 
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=10"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=11"></script>
 
     <script>
 // Example starter JavaScript for disabling form submissions if there are invalid fields
@@ -101,6 +101,13 @@ $(".selector").flatpickr({
         thai_Y = parseInt(moment(selectedDates[0]).format('YYYY')) + 543;
         instance.altInput.value = thai_DM + " " + thai_Y;
     }
+});
+
+$(".selectorTime").flatpickr({
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true
 });
 
     </script>

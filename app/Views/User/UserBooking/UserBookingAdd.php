@@ -72,7 +72,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="booking_timeStart">เวลาที่เริ่มต้น</label>
-                                        <input class="form-control" type="time" value="" id="booking_timeStart"
+                                        <input class="form-control selectorTime" type="time" value="" id="booking_timeStart"
                                             name="booking_timeStart" placeholder="เลือกเวลาที่เริ่มต้น" required>
                                         <div class="invalid-feedback">
                                             เลือกเวลาที่เริ่มต้น
@@ -89,7 +89,7 @@
 
                                     <div class="col-md-6">
                                         <label class="form-label" for="booking_timeEnd">เวลาที่สิ้นสุด</label>
-                                        <input class="form-control" type="time" value="" id="booking_timeEnd"
+                                        <input class="form-control selectorTime" type="time" value="" id="booking_timeEnd"
                                             name="booking_timeEnd" placeholder="เลือกเวลาที่สิ้นสุด" required>
                                         <div class="invalid-feedback">
                                             เลือกเวลาที่สิ้นสุด
