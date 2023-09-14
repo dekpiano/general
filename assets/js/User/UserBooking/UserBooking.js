@@ -56,7 +56,7 @@ $(document).on('click', '#BtnCancelBooking', function() {
 
 $(document).on('change', '#booking_timeStart', function() {
 
-    console.log($('#booking_dateStart').val());
+    console.log($('#booking_dateStart').val());;
     console.log($('#booking_timeStart').val());
 });
 
