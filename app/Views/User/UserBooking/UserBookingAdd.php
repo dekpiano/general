@@ -11,7 +11,7 @@
 
             <div class="row">
                 <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card">
+                    <div class="card mb-3">
                         <img class="card-img-top" src="<?=base_url('uploads/admin/LocationRoom/'.$loca->location_img)?>"
                             alt="Card image cap">
                         <div class="card-body">
@@ -21,6 +21,32 @@
                             </p>
                         </div>
                     </div>
+
+                    <div class="card">
+                        <h5 class="card-header">การจองวันนี้ <?=date('d-m-Y')?></h5>
+                        <div class="table-responsive text-nowrap">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>หัวข้อ</th>
+                                        <th>เวลา</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                    <?php foreach ($BookignToday as $key => $value):
+                                        if(date('Y-m-d') >= $value->booking_dateStart && date('Y-m-d') <= $value->booking_dateEnd): ?>
+                                    <tr>
+                                        <td><?=$value->booking_title?></td>
+                                        <td><?=$value->booking_timeStart.' ถึง '.$value->booking_timeEnd?></td>
+                                    </tr>
+                                    <?php 
+                                        endif;
+                                    endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-md-6 col-lg-8 mb-3">
                     <div class="card">
@@ -72,8 +98,9 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="booking_timeStart">เวลาที่เริ่มต้น</label>
-                                        <input class="form-control selectorTime" type="time" value="" id="booking_timeStart"
-                                            name="booking_timeStart" placeholder="เลือกเวลาที่เริ่มต้น" required>
+                                        <input class="form-control selectorTime" type="text" value=""
+                                            id="booking_timeStart" name="booking_timeStart"
+                                            placeholder="เลือกเวลาที่เริ่มต้น" required>
                                         <div class="invalid-feedback">
                                             เลือกเวลาที่เริ่มต้น
                                         </div>
@@ -89,8 +116,9 @@
 
                                     <div class="col-md-6">
                                         <label class="form-label" for="booking_timeEnd">เวลาที่สิ้นสุด</label>
-                                        <input class="form-control selectorTime" type="time" value="" id="booking_timeEnd"
-                                            name="booking_timeEnd" placeholder="เลือกเวลาที่สิ้นสุด" required>
+                                        <input class="form-control selectorTime" type="text" value=""
+                                            id="booking_timeEnd" name="booking_timeEnd"
+                                            placeholder="เลือกเวลาที่สิ้นสุด" required>
                                         <div class="invalid-feedback">
                                             เลือกเวลาที่สิ้นสุด
                                         </div>

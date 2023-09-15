@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use CodeIgniter\I18n\Time;
+
 class ConUserBooking extends BaseController
 {
 
@@ -69,9 +71,15 @@ class ConUserBooking extends BaseController
 
         $database = \Config\Database::connect();
         $DBlocation = $database->table('tb_location');
+        $tb_booking = $database->table('tb_booking');
+        $myTime = Time::now('asia/bangkok', 'th_TH');
 
         $data['loca'] = $DBlocation->where('location_ID',$LocationID)->get()->getRow();
-        //print_r($data['loca']->location_detail); exit();
+        $data['BookignToday'] = $tb_booking
+        ->select('booking_title,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd')
+        ->where('booking_locationroom',$LocationID)
+        ->get()->getResult();
+        //echo "<pre>";print_r($data['BookignToday']); exit();
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
@@ -186,6 +194,32 @@ class ConUserBooking extends BaseController
         }
 
         return $this->response->setJSON($data, true);
+    }
+
+    public function CheckDateBooking(){
+        // print_r($this->request->getVar());
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $CheckDateBookign = $DBbooking
+        ->where('booking_dateStart',$this->request->getVar('booking_dateStart'))
+        ->where('booking_timeStart <=',$this->request->getVar('booking_timeStart'))
+        ->get()->getNumRows();
+        echo $CheckDateBookign;
+    }
+
+    public function CheckTimeBooking(){
+        // print_r($this->request->getVar());
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $CheckDateBookign = $DBbooking
+        ->where('booking_dateEnd',$this->request->getVar('booking_dateEnd'))
+        ->where('booking_timeEnd >=',$this->request->getVar('booking_timeEnd'))
+        ->get()->getNumRows();
+        echo $CheckDateBookign;
     }
 
     public function DictationInsert()

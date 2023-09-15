@@ -77,12 +77,12 @@ class ConLogin extends BaseController
 
                             $User = $DBPers->where('pers_username', $data['email'])->get()->getRowArray();
                             $User2 = $DBrloes->where('admin_rloes_userid', $User['pers_id'])->get()->getRowArray();
-                            //echo $_SESSION['Return']; exit();
+                           // print_r(isset($User2)); exit();
                             $newdata = [
                                 'username'  => $User['pers_prefix'].$User['pers_firstname'].' '.$User['pers_lastname'],
                                 'id'     => $User['pers_id'],
                                 'logged_in' => true,
-                                'status' => $User2['admin_rloes_status']
+                                'status' => (isset($User2) != "" ?$User2['admin_rloes_status']:"Member")
                             ];                
                             $session->set($newdata);  
                             

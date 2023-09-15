@@ -55,9 +55,38 @@ $(document).on('click', '#BtnCancelBooking', function() {
 
 
 $(document).on('change', '#booking_timeStart', function() {
+    $.post('../../Booking/DB/CheckDateBooking', {
+        booking_dateStart: $('#booking_dateStart').val(),
+        booking_timeStart: $('#booking_timeStart').val()
+    }, function(data) {
+        console.log(data);
+        if (data > 0) {
+            Swal.fire(
+                'กรุณาเลือกใหม่',
+                'ช่วงวัน หรือ เวลา มีผู้จองแล้ว!',
+                'warning'
+            )
+            $('#booking_timeStart').val('');
+        }
 
-    console.log($('#booking_dateStart').val());;
-    console.log($('#booking_timeStart').val());
+    });
+});
+
+$(document).on('change', '#booking_timeEnd', function() {
+    $.post('../../Booking/DB/CheckTimeBooking', {
+        booking_dateEnd: $('#booking_dateEnd').val(),
+        booking_timeEnd: $('#booking_timeEnd').val()
+    }, function(data) {
+        console.log(data);
+        if (data > 0) {
+            Swal.fire(
+                'กรุณาเลือกใหม่',
+                'ช่วงวัน หรือ เวลา มีผู้จองแล้ว!',
+                'warning'
+            )
+            $('#booking_timeEnd').val('');
+        }
+    });
 });
 
 

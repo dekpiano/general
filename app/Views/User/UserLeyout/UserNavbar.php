@@ -25,7 +25,7 @@
                     <?=$_SESSION['username']?>
                     <div>
                         <small>
-                            สมาชิกในระบบ
+                            สมาชิกในระบบ <?=$_SESSION['status']?>
                         </small>
                     </div>
                 </li>
