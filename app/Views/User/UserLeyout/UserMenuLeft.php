@@ -35,17 +35,42 @@
                     </a>
                 </li>
 
+                <!-- แจ้งซ่อม -->
+                <li class="menu-item <?php echo $UrlMenuMain == "Repair"?"active":""?>">
+                    <a href="<?=base_url('Repair');?>" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                        <div data-i18n="Analytics">แจ้งซ่อมออนไลน์</div>
+                    </a>
+                </li>
             </ul>
 
+
+
+
             <div>
+            <?php if(isset($_SESSION['username']) && @$_SESSION['status'] == "admin" || @$_SESSION['status'] == 'manager'): ?>
                 <ul class="menu-inner py-1">
-                    <li class="menu-item"> <!-- data-bs-toggle="modal" data-bs-target="#modalToggle" -->
-                        <a href="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>" class="menu-link" >
+                    <li class="menu-item">
+                        <!-- data-bs-toggle="modal" data-bs-target="#modalToggle" -->
+                        <a href="<?=base_url('Admin/Home');?>"
+                            class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-key"></i>
+                            <div data-i18n="Analytics">จัดการข้อมูลระบบ</div>
+                        </a>
+                    </li>
+                </ul>
+                <?php else: ?>
+                <ul class="menu-inner py-1">
+                    <li class="menu-item">
+                        <!-- data-bs-toggle="modal" data-bs-target="#modalToggle" -->
+                        <a href="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"
+                            class="menu-link">
                             <i class="menu-icon tf-icons bx bxs-key"></i>
                             <div data-i18n="Analytics">เข้าสู่ระบบ</div>
                         </a>
                     </li>
                 </ul>
+                <?php endif; ?>
             </div>
         </aside>
         <!-- / Menu -->
@@ -55,22 +80,22 @@
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
-                
+
                     <div class="modal-body">
                         <div class="authentication-inner">
                             <!-- Register -->
-                         
-                                    <h4 class="mb-2">Welcome to Login SKJ E-Office 👋</h4>
-                                    <p class="mb-4">สำหรับเจ้าหน้าที่</p>
-                                    
 
-                                    <div class="d-flex justify-content-center">
-                                    <?php //echo $GoogleButton; ?>
-                                    </div>
-                             
+                            <h4 class="mb-2">Welcome to Login SKJ E-Office 👋</h4>
+                            <p class="mb-4">สำหรับเจ้าหน้าที่</p>
+
+
+                            <div class="d-flex justify-content-center">
+                                <?php //echo $GoogleButton; ?>
+                            </div>
+
                             <!-- /Register -->
                         </div>
-                    </div>                 
+                    </div>
                 </div>
             </div>
         </div>
