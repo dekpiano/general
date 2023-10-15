@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use CodeIgniter\I18n\Time;
+use App\Libraries\Datethai; // Import library
 
 class ConUserBooking extends BaseController
 {
@@ -67,8 +68,9 @@ class ConUserBooking extends BaseController
         $data['title']="จองห้อง / สถานที่";
         $data['description']="จองห้องสำหรับใช้ภายในโรงเรียน";
         $data['UrlMenuMain'] = 'Booking';
-        $data['UrlMenuSub'] = 'BookingAdd';        
-
+        $data['UrlMenuSub'] = 'BookingAdd'; 
+        $data['Datethai'] = new Datethai();      
+      
         $database = \Config\Database::connect();
         $DBlocation = $database->table('tb_location');
         $tb_booking = $database->table('tb_booking');
@@ -76,7 +78,7 @@ class ConUserBooking extends BaseController
 
         $data['loca'] = $DBlocation->where('location_ID',$LocationID)->get()->getRow();
         $data['BookignToday'] = $tb_booking
-        ->select('booking_title,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd')
+        ->select('booking_title,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd')        
         ->where('booking_locationroom',$LocationID)
         ->get()->getResult();
         //echo "<pre>";print_r($data['BookignToday']); exit();
@@ -126,10 +128,12 @@ class ConUserBooking extends BaseController
         $data['title']="ดูข้อมูลจองห้องประชุมและสถานที่";
         $data['description']="ดูข้อมูลจองห้องประชุมและสถานที่";
         $data['UrlMenuMain'] = 'Booking';
-        $data['UrlMenuSub'] = 'BookingView';        
+        $data['UrlMenuSub'] = 'BookingView';     
+        $data['Datethai'] = new Datethai();   
 
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
+        $DBpers = \Config\Database::connect('personnel');
 
         if(isset($_SESSION['id']) == 1){
             if($Key == 'All'){
@@ -149,12 +153,13 @@ class ConUserBooking extends BaseController
         }
       
        $DBbooking
-        ->select('booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse');
+        ->select('booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
         $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
+        $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
         $Where;
         $data['Booking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
       
-        //echo '<pre>';print_r($data['loca']); exit();
+        //echo '<pre>';print_r($data['Booking']); exit();
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')

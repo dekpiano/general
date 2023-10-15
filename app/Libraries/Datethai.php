@@ -14,14 +14,18 @@ class Datethai {
         } 
         function thai_date_and_time_short($time){   // 19  ธ.ค. 2556 10:10:4
             global $dayTH,$monthTH_brev;   
+            $monthTH = [null,'มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+            $monthTH_brev = [null,'ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
             $thai_date_return = date("j",$time);   
             $thai_date_return.=" ".$monthTH_brev[date("n",$time)];   
             $thai_date_return.= " ".(date("Y",$time)+543);   
-            $thai_date_return.= " ".date("H:i:s",$time);
+            //$thai_date_return.= " ".date("H:i:s",$time);
             return $thai_date_return;   
         } 
         function thai_date_short($time){   // 19  ธ.ค. 2556a
             global $dayTH,$monthTH_brev;   
+            $monthTH = [null,'มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+            $monthTH_brev = [null,'ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
             $thai_date_return = date("j",$time);   
             $thai_date_return.=" ".$monthTH_brev[date("n",$time)];   
             $thai_date_return.= " ".(date("Y",$time)+543);   

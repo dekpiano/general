@@ -14,7 +14,7 @@
             <div class="card">
                 <h5 class="card-header">ข้อมูลการจอง<?=@$Booking[0]->location_name?></h5>
                 <div class="table-responsive text-nowrap p-3">
-                    <table class="table table-hover" id="TBShowDataBooking">
+                    <table class="table table-hover display nowrap"  id="TBShowDataBooking">
                         <thead>
                             <tr>
                                 <th>หัวข้อ</th>
@@ -42,13 +42,13 @@
                                     <?=$v_Booking->location_name?>
                                     <div>
                                         <small>
-                                            <?=$v_Booking->booking_dateStart.' '.date('H:i',strtotime($v_Booking->booking_timeStart))?>
+                                            <?=$Datethai->thai_date_and_time_short(strtotime($v_Booking->booking_dateStart)).' '.date('H:i',strtotime($v_Booking->booking_timeStart))?>
                                             ถึง
-                                            <?=$v_Booking->booking_dateStart.' '.date('H:i',strtotime($v_Booking->booking_timeEnd))?>
+                                            <?=$Datethai->thai_date_and_time_short(strtotime($v_Booking->booking_dateStart)).' '.date('H:i',strtotime($v_Booking->booking_timeEnd))?>
                                         </small>
                                     </div>
                                 </td>
-                                <td><?=$v_Booking->booking_Booker?></td>
+                                <td><?=$v_Booking->pers_prefix.$v_Booking->pers_firstname.' '.$v_Booking->pers_lastname?></td>
                                 <td>
                                     <?php if($v_Booking->booking_status == 'รอตรวจสอบ'){
                                         $Color =  "warning";

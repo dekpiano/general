@@ -1,4 +1,6 @@
-$('#TBShowDataBooking').DataTable();
+$('#TBShowDataBooking').DataTable({
+    responsive: true
+});
 
 $(document).on('submit', '#FormAddBooking', function(e) {
     e.preventDefault();
