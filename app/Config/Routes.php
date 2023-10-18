@@ -42,6 +42,16 @@ $routes->match(['get', 'post'],'Booking/DB/CheckDateBooking', 'ConUserBooking::C
 $routes->match(['get', 'post'],'Booking/DB/CheckTimeBooking', 'ConUserBooking::CheckTimeBooking');
 $routes->match(['get', 'post'],'User/Dictation/ShowData', 'ConUserWorkSaraban::DictationShowData');
 
+// User แจ้งซ่อม
+$routes->get('Repair', 'ConUserRepair::RepairMain');
+$routes->get('Repair/Add', 'ConUserRepair::RepairAdd');
+$routes->match(['get', 'post'],'Repair/DB/CheckPosiUser', 'ConUserRepair::CheckPosiUser');
+$routes->match(['get', 'post'],'Repair/DB/Insert', 'ConUserRepair::RepairInsert');
+$routes->match(['get', 'post'],'Repair/DataTable/ShowRepari', 'ConUserRepair::DataTableShowRepari');
+$routes->match(['get', 'post'],'Repair/DB/CheckRepairFullDetail', 'ConUserRepair::CheckRepairFullDetail');
+$routes->match(['get', 'post'],'Repair/DB/UpdateWork', 'ConUserRepair::RepairUpdateWork');
+
+
 $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
 //$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
 $routes->get('/LogoutOfficerGeneral', 'ConLogin::LogoutOfficerGeneral');

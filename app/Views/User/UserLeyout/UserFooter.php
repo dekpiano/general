@@ -32,7 +32,10 @@
     <script src="<?=base_url()?>/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
 
     <script src="<?=base_url()?>/assets/vendor/js/menu.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    
     <!-- endbuild -->
+    <script src="https://hcaptcha.com/1/api.js" async defer></script>
 
     <script src="<?=base_url()?>/assets/js/fullcalendar.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -42,6 +45,7 @@
 
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -60,7 +64,11 @@
 
     </html>
 
+    <?php if($uri->getSegment(1) == 'Booking') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=11"></script>
+    <?php elseif($uri->getSegment(1) == 'Repair') : ?>
+    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=9"></script>
+    <?php endif; ?>
 
     <script>
 // Example starter JavaScript for disabling form submissions if there are invalid fields
@@ -109,5 +117,4 @@ $(".selectorTime").flatpickr({
     dateFormat: "H:i",
     time_24hr: true
 });
-
     </script>

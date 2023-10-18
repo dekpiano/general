@@ -23,7 +23,7 @@
                     </div>
 
                     <div class="card">
-                        <h5 class="card-header">การจองวันนี้ <?=date('d-m-Y')?></h5>
+                        <h5 class="card-header">การจองวันนี้ <?=$Datethai->thai_date_fullmonth(strtotime(date('d-m-Y')))?></h5>
                         <div class="table-responsive text-nowrap">
                             <table class="table table-striped">
                                 <thead>
