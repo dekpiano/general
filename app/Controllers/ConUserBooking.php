@@ -130,6 +130,9 @@ class ConUserBooking extends BaseController
 
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
+        $DBpersonnel = $database->table('personnel');
+
+        //echo '<pre>';print_r($DBpersonnel); exit();
 
         if(isset($_SESSION['id']) == 1){
             if($Key == 'All'){
