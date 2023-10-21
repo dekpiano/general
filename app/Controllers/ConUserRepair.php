@@ -163,12 +163,27 @@ class ConUserRepair extends BaseController
     public function CheckRepairFullDetail(){
         $DBrepair = \Config\Database::connect();
         $TBrepair = $DBrepair->table('tb_repair');
+        $DBpers = \Config\Database::connect('personnel');
+        $TBpers = $DBpers->table('tb_personnel');
 
-        $data = $TBrepair->where('repair_ID',$this->request->getVar('RepairId'))
+        $json = [];
+        $data = $TBrepair->select('tb_repair.*,tb_position.posi_name,tb_personnel.pers_prefix,tb_personnel.pers_firstname,tb_personnel.pers_lastname')
+        ->where('repair_ID',$this->request->getVar('RepairId'))
         ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
         ->join('skjacth_skj.tb_position','tb_repair.repair_posi = tb_position.posi_id')
         ->get()->getResult();
-        echo json_encode($data);
+        array_push($json,$data);
+       
+        if($data[0]->repair_Repairman != ''){
+            $check = $TBpers->select('pers_prefix,pers_firstname,pers_lastname')
+            ->where('pers_id',$data[0]->repair_Repairman)
+            ->get()->getResult();
+            array_push($json,$check);
+        }else{
+            array_push($json,'pers_prefix,pers_firstname,pers_lastname');
+        }
+
+        echo json_encode($json);
     }
   
     public function RepairUpdateWork(){

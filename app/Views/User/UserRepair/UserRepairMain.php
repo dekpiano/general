@@ -31,23 +31,23 @@
 
             <div class="card p-3">
                 <h5 class="card-header">ตารางแจ้งซ่อม</h5>
-                
-                    <table class="table table-hover nowrap dataTable dtr-inline collapsed" id="TbDataRepair">
-                        <thead>
-                            <tr>
-                                <th>วันที่แจ้งซ่อม</th>
-                                <th>ใบแจ้งซ่อม </th>
-                                <th>ผู้แจ้งซ่อม </th>
-                                <th>รายการแจ้งซ่อม</th>
-                                <th>สถานะ</th>
-                                <th>รายละเอียด</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
 
-                        </tbody>
-                    </table>
-                
+                <table class="table table-hover nowrap dataTable dtr-inline collapsed" id="TbDataRepair">
+                    <thead>
+                        <tr>
+                            <th>วันที่แจ้งซ่อม</th>
+                            <th>ใบแจ้งซ่อม </th>
+                            <th>ผู้แจ้งซ่อม </th>
+                            <th>รายการแจ้งซ่อม</th>
+                            <th>สถานะ</th>
+                            <th>รายละเอียด</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+
+                    </tbody>
+                </table>
+
             </div>
 
 
@@ -68,81 +68,82 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                      <div class="bg-primary text-white p-2">
-                      ข้อมูลการแจ้งปัญหา
-                      </div>  
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th scope="row">หมายเลขใบแจ้งซ่อม</th>
-                                    <td id="show_repair_order"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">รายการแจ้งซ่อม</th>
-                                    <td scope="col">
-                                        <div>
-                                            ประเภท : <span id="show_repair_caselist"></span>
-                                        </div>
-                                        <div>
-                                            สถานที่ : <span id="show_repair_location"></span>
-                                        </div>
-                                        <div>
-                                            <u> รายละเอียดเพิ่มเติม</u>
-                                        </div>
-                                        <div id="show_repair_detail"></div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">วันที่แจ้งซ่อม</th>
-                                    <td scope="col">
-                                        <span id="show_repair_datetime"></span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">ผู้แจ้งซ่อม</th>
-                                    <td scope="col" id="show_repair_userID"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">ตำแหน่ง</th>
-                                    <td scope="col" id="show_repair_posi"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                   
-                        <div class="text-white p-2 bg-success">
-                        ข้อมูลการดำเนินการ
-                      </div> 
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th scope="row">วันที่ดำเนินการ</th>
-                                    <td id="show_repair_datework">Mark</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">ผู้ดำเนินการ</th>
-                                    <td scope="col" id="show_repair_Repairman">First</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">สาเหตุ/วิธีแก้ไข</th>
-                                    <td scope="col" id="show_repair_cause">First</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">สถานะการดำเนินการ</th>
-                                    <td scope="col" id="show_repair_status">First</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">รูปภาพ</th>
-                                    <td scope="col" id="show_repair_imgwork">First</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">ลายมือชื่อผู้แจ้งซ่อม</th>
-                                    <td scope="col" id="show_repair_usersignature">
-                                        
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                
+                <div class="bg-primary text-white p-2">
+                    ข้อมูลการแจ้งปัญหา
+                </div>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th scope="row">หมายเลขใบแจ้งซ่อม</th>
+                            <td id="show_repair_order"></td>
+                        </tr>
+                        <tr>
+                            <th scope="col">รายการแจ้งซ่อม</th>
+                            <td scope="col">
+                                <div>
+                                    ประเภท : <span id="show_repair_caselist"></span>
+                                </div>
+                                <div>
+                                    สถานที่ : <span id="show_repair_location"></span>
+                                </div>
+                                <div>
+                                    <u> รายละเอียดเพิ่มเติม</u>
+                                </div>
+                                <div id="show_repair_detail"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">วันที่แจ้งซ่อม</th>
+                            <td scope="col">
+                                <span id="show_repair_datetime"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">ผู้แจ้งซ่อม</th>
+                            <td scope="col" id="show_repair_userID"></td>
+                        </tr>
+                        <tr>
+                            <th scope="col">ตำแหน่ง</th>
+                            <td scope="col" id="show_repair_posi"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="text-white p-2 bg-success">
+                    ข้อมูลการดำเนินการ
+                </div>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th scope="col">สถานะการดำเนินการ</th>
+                            <td scope="col" id="show_repair_status">รอดำเนินการ</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">วันที่ดำเนินการ</th>
+                            <td id="show_repair_datework">รอดำเนินการ</td>
+                        </tr>
+                        <tr>
+                            <th scope="col">ผู้ดำเนินการ</th>
+                            <td scope="col" id="show_repair_Repairman">รอดำเนินการ</td>
+                        </tr>
+                        <tr>
+                            <th scope="col">สาเหตุ/วิธีแก้ไข</th>
+                            <td scope="col" id="show_repair_cause">รอดำเนินการ</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="col">รูปภาพ</th>
+                            <td scope="col" id="show_repair_imgwork">รอดำเนินการ</td>
+                        </tr>
+                        <tr>
+                            <th scope="col">ลายมือชื่อผู้แจ้งซ่อม</th>
+                            <td scope="col" id="show_repair_usersignature">
+                                รอดำเนินการ
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
             </div>
             <div class="modal-footer justify-content-between">
                 <?php if(!empty($_SESSION['username'])):?>
@@ -165,11 +166,11 @@
 
             <div class="modal-body">
                 <form id="FormSaveRepairAdmin">
-                <div class="mb-3 row">
+                    <div class="mb-3 row">
                         <label for="repair_datework" class="col-sm-3 col-form-label">หมายเลขใบแจ้งซ่อม</label>
                         <div class="col-sm-9">
-                            <input type="text" readonly class="form-control-plaintext" id="repair_order" name="repair_order"
-                                value="">
+                            <input type="text" readonly class="form-control-plaintext" id="repair_order"
+                                name="repair_order" value="">
                         </div>
                     </div>
 
@@ -189,8 +190,8 @@
                         <div class="col-sm-9">
                             <input type="text" readonly class="form-control-plaintext" id="" name=""
                                 value="<?php echo $Datethai->thai_date_and_time(strtotime(date('Y-m-d H:i:s')));?>">
-                            <input type="hidden" readonly class="form-control-plaintext" id="repair_datework" name="repair_datework"
-                                value="<?php echo date('Y-m-d H:i:s');?>">
+                            <input type="hidden" readonly class="form-control-plaintext" id="repair_datework"
+                                name="repair_datework" value="<?php echo date('Y-m-d H:i:s');?>">
                         </div>
                     </div>
                     <div class="mb-3 row">
@@ -198,8 +199,8 @@
                         <div class="col-sm-9">
                             <input type="text" readonly class="form-control-plaintext" id="staticEmail"
                                 value="<?php echo @$_SESSION['username'];?>">
-                            <input type="hidden" readonly class="form-control-plaintext" id="repair_Repairman" name="repair_Repairman"
-                                value="<?php echo @$_SESSION['id'];?>"> 
+                            <input type="hidden" readonly class="form-control-plaintext" id="repair_Repairman"
+                                name="repair_Repairman" value="<?php echo @$_SESSION['id'];?>">
                         </div>
                     </div>
                     <div class="mb-3 row">

@@ -27,14 +27,18 @@
                         <div data-i18n="Analytics">หน้าแรก</div>
                     </a>
                 </li>
-
+                <li class="menu-header small text-uppercase">
+                    <span class="menu-header-text">งานอาคารสถานที่</span>
+                </li>
                 <li class="menu-item <?php echo $UrlMenuMain == "Booking"?"active":""?>">
                     <a href="<?=base_url('Booking');?>" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-home-circle"></i>
                         <div data-i18n="Analytics">จองห้อง / สถานที่</div>
                     </a>
                 </li>
-
+                <li class="menu-header small text-uppercase">
+                    <span class="menu-header-text">งานโสตทัศนูปกรณ์</span>
+                </li>
                 <!-- แจ้งซ่อม -->
                 <li class="menu-item <?php echo $UrlMenuMain == "Repair"?"active":""?>">
                     <a href="<?=base_url('Repair');?>" class="menu-link">
@@ -48,12 +52,11 @@
 
 
             <div>
-            <?php if(isset($_SESSION['username']) && @$_SESSION['status'] == "admin" || @$_SESSION['status'] == 'manager'): ?>
+                <?php if(isset($_SESSION['username']) && @$_SESSION['status'] == "admin" || @$_SESSION['status'] == 'manager'): ?>
                 <ul class="menu-inner py-1">
                     <li class="menu-item">
                         <!-- data-bs-toggle="modal" data-bs-target="#modalToggle" -->
-                        <a href="<?=base_url('Admin/Home');?>"
-                            class="menu-link">
+                        <a href="<?=base_url('Admin/Home');?>" class="menu-link">
                             <i class="menu-icon tf-icons bx bxs-key"></i>
                             <div data-i18n="Analytics">จัดการข้อมูลระบบ</div>
                         </a>
