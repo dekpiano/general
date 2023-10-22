@@ -126,7 +126,7 @@ $(document).on('submit', '#FormAddRepair', function(e) {
         },
         success: function(data) {
             console.log(data);
-            if (data > 0) {
+            if (data == 1) {
                 Swal.fire({
                     title: 'แจ้งเตือน?',
                     text: "บันทึกแจ้งซ่อมสำเร็จ!",
@@ -138,7 +138,13 @@ $(document).on('submit', '#FormAddRepair', function(e) {
                         window.location.href = "../Repair";
                     }
                 })
-            } else {
+            }else if(data == "ErrorSendEmail"){
+                Swal.fire(
+                    'แจ้งเตือน!', 'ส่ง Email ผืดพลาด!',
+                    'error'
+                )
+            }
+             else if(data == "ErrorhCaptcha") {
                 Swal.fire(
                     'แจ้งเตือน!', 'ยืนยันความเป็นมนุษย์ด้วย!',
                     'error'

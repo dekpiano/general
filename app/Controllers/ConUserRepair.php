@@ -94,6 +94,8 @@ class ConUserRepair extends BaseController
 
         $response = file_get_contents("https://hcaptcha.com/siteverify?secret=$hCaptchaSecretKey&response=$hCaptchaResponse");
         $responseData = json_decode($response);
+
+       // print_r($responseData); exit();
         if ($responseData->success) {       
 
             $data = $TBrepair->select('repair_order')->orderBy('repair_ID ','DESC')->get()->getResult();
@@ -103,11 +105,12 @@ class ConUserRepair extends BaseController
             }else{
                 $OrderNumber = "SKJRP_".date('Y')."0001";
             }
+            $DateTimeToday = date('Y-m-d H:i:s');
             //echo '<pre>'; print_r($data[0]->repair_order); 
         // exit();
             $data = [
                 'repair_order' => $OrderNumber,
-                'repair_datetime' => date('Y-m-d H:i:s'),
+                'repair_datetime' => $DateTimeToday,
                 'repair_posi' => $this->request->getVar('repair_posi'),
                 'repair_userID' => $this->request->getVar('repair_userID'),
                 'repair_phone' => $this->request->getVar('repair_phone'),
@@ -119,11 +122,50 @@ class ConUserRepair extends BaseController
                 'repair_status' => 'รอดำเนินการ',
                 'repair_Repairman' => '',
             ];
-                    
-            echo $TBrepair->insert($data);
+            if($TBrepair->insert($data)){
+                $DBpers = \Config\Database::connect('personnel');
+                $TBPres = $DBpers->table('tb_personnel');
+
+                $Teach = $TBPres->select('pers_prefix,pers_firstname,pers_lastname,pers_username')
+                ->where('pers_id',$this->request->getVar('repair_userID'))
+                ->get()->getResult();
+
+               // print_r($Teach);exit();
+                
+                $email = \Config\Services::email();
+                $email->setFrom('dekpiano@skj.ac.th', 'จากระบบแจ้งซ่อม');
+                $email->setTo('dekpiano@skj.ac.th');
+                $email->setSubject('แจ้งซ่อมจาก '.$Teach[0]->pers_prefix.$Teach[0]->pers_firstname.' '.$Teach[0]->pers_lastname);
+
+                // กำหนดข้อความในรูปแบบ HTML
+                $htmlMessage = '<h4>ระบบแจ้งซ่อม รายละเอียด</h4>';
+                $htmlMessage .= '<p>ใบแจ้งซ่อม : '.$OrderNumber.'</p>';
+                $htmlMessage .= '<p>วันที่แจ้งซ่อม : '.$DateTimeToday.'</p>';
+                $htmlMessage .= '<p>เบอร์โทรติดต่อ : '.$this->request->getVar('repair_phone').'</p>';
+                $htmlMessage .= '<p>รายการแจ้งซ่อม : '.$this->request->getVar('repair_caselist').'</p>';
+                $htmlMessage .= '<p>รายละเอียด : '.$this->request->getVar('repair_detail').' อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
+
+                // กำหนดข้อความในรูปแบบ HTML ใน setMessage()
+                $email->setMessage($htmlMessage);
+
+                // กำหนด mailType ให้เป็น 'html'
+                $email->setMailType('html');
+
+                if ($email->send()) {
+                    echo 1;
+                } else {
+                    // $data = $email->printDebugger(['headers']);
+                    // print_r($data);
+                    echo "ErrorSendEmail";
+                }
+                
+            }else{
+                echo "ErrorInsert";
+            }
+            
 
         } else {
-            echo 0;
+            echo "ErrorhCaptcha";
         }
     }
 
