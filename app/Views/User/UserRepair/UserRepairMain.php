@@ -146,10 +146,10 @@
 
             </div>
             <div class="modal-footer justify-content-between">
-                <?php if(!empty($_SESSION['username'])):?>
+                <?php if(!empty($_SESSION['username']) && $_SESSION['username'] != ''):?>
                 <button type="button" class="btn btn-secondary" id="ModalFormAdmin">สำหรับผู้ซ่อม</button>
                 <?php endif; ?>
-                <button type="button" class="btn btn-primary">พิมพ์ใบแจ้งซ่อม</button>
+                <a href="" target="_blank" class="btn btn-primary PrintOrder">พิมพ์ใบแจ้งซ่อม</a>
             </div>
         </div>
     </div>

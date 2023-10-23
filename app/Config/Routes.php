@@ -50,7 +50,7 @@ $routes->match(['get', 'post'],'Repair/DB/Insert', 'ConUserRepair::RepairInsert'
 $routes->match(['get', 'post'],'Repair/DataTable/ShowRepari', 'ConUserRepair::DataTableShowRepari');
 $routes->match(['get', 'post'],'Repair/DB/CheckRepairFullDetail', 'ConUserRepair::CheckRepairFullDetail');
 $routes->match(['get', 'post'],'Repair/DB/UpdateWork', 'ConUserRepair::RepairUpdateWork');
-
+$routes->get('Repair/PrintOrder/(:any)', 'ConUserRepair::PrintOrder/$1');
 
 $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
 //$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');

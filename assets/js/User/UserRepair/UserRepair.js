@@ -94,6 +94,8 @@ $(document).on('click', '#BtnRepairFullDetail', function() {
         $('#repair_order').val(data[0][0].repair_order);
         $('#repair_cause').val(data[0][0].repair_cause);
         $('#repair_status').val(data[0][0].repair_status);
+
+        $('.PrintOrder').attr('href', "Repair/PrintOrder/" + data[0][0].repair_order);
     }, 'json');
 
 });
@@ -138,13 +140,12 @@ $(document).on('submit', '#FormAddRepair', function(e) {
                         window.location.href = "../Repair";
                     }
                 })
-            }else if(data == "ErrorSendEmail"){
+            } else if (data == "ErrorSendEmail") {
                 Swal.fire(
                     'แจ้งเตือน!', 'ส่ง Email ผืดพลาด!',
                     'error'
                 )
-            }
-             else if(data == "ErrorhCaptcha") {
+            } else if (data == "ErrorhCaptcha") {
                 Swal.fire(
                     'แจ้งเตือน!', 'ยืนยันความเป็นมนุษย์ด้วย!',
                     'error'

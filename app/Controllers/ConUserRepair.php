@@ -269,4 +269,54 @@ class ConUserRepair extends BaseController
     }
 
     
+    public function PrintOrder($RepairId){
+        $path = dirname(dirname(dirname(dirname(dirname(__FILE__)))));
+		require $path . '/librarie_skj/mpdf/vendor/autoload.php';
+
+        $DBrepair = \Config\Database::connect();
+        $TBrepair = $DBrepair->table('tb_repair');
+        $DBpers = \Config\Database::connect('personnel');
+        $TBpers = $DBpers->table('tb_personnel');
+        $data['Datethai'] = new Datethai();
+
+        $data['RepairUser'] = $TBrepair->select('tb_repair.*,tb_position.posi_name,tb_personnel.pers_prefix,tb_personnel.pers_firstname,tb_personnel.pers_lastname')        
+        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
+        ->join('skjacth_skj.tb_position','tb_repair.repair_posi = tb_position.posi_id')
+        ->where('repair_order', urldecode($RepairId))
+        ->get()->getResult();
+
+        if($data['RepairUser'][0]->repair_Repairman != ''){
+            $data['Repairman'] = $TBpers->select('pers_prefix,pers_firstname,pers_lastname')
+            ->where('pers_id',$data['RepairUser'][0]->repair_Repairman)
+            ->get()->getResult();
+           
+        }else{
+            $data['Repairman'] = 'pers_prefix,pers_firstname,pers_lastname';
+        }
+
+       
+        $mpdf = new \Mpdf\Mpdf(
+            array(
+                'format' => 'A4',
+                'mode' => 'utf-8',
+                'default_font' => 'thsarabun',
+                'default_font_size' => 16
+            )
+        );
+
+        
+        $html_footer = "<hr><div style='text-align: left;font-size: 0.8rem;text-align: right;'>กลุ่มงานเทคโนโลยีสารสนเทศและงานเว็บไซต์<br>";
+        $html_footer .= "โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์ สังกัดกองการศึกษา ศาสนา และวัฒนธรรม องค์การบริหารส่วนจังหวัดนครสวรรค์</div>";
+        $mpdf->SetHTMLFooter($html_footer);
+       
+       $html = view('User/UserRepair/UserRepairPrintOrder',$data);
+         // เพิ่ม HTML เข้าไปใน PDF
+         $mpdf->WriteHTML($html);
+ 
+         // สร้างไฟล์ PDF
+         $this->response->setHeader('Content-Type', 'application/pdf');
+
+         $mpdf->Output('example.pdf', 'I');
+    
+    }
 }
