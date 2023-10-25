@@ -44,6 +44,21 @@
 
                     </ul>
                 </li>
+                <li class="menu-item <?php echo $uri->getSegment(2) == "WorkPerson"?"active open":""?>">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-layout"></i>
+                        <div data-i18n="Layouts">งานบุคคล</div>
+                    </a>
+
+                    <ul class="menu-sub">
+                        <li class="menu-item <?php echo $uri->getSegment(3) == "Personnel"?"active":""?>">
+                            <a href="<?=base_url('Admin/WorkPerson/Personnel')?>" class="menu-link">
+                                <div data-i18n="Without menu">ทะเบียนครูและบุคลากรทางการศึกษา</div>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
 
             </ul>
 

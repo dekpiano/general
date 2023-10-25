@@ -67,6 +67,10 @@ $routes->match(['get', 'post'],'Admin/LocationRoom/ShowData', 'ConAdminLocationR
 $routes->get('Admin/Rloes/Setting', 'ConAdminRoles::index');
 $routes->match(['get', 'post'],'Admin/Rloes/RloesSettingManager', 'ConAdminRoles::RloesSettingManager');
 
+//Admin Person
+$routes->get('Admin/WorkPerson/Personnel', 'ConAdminWorkPerson::index');
+$routes->get('Admin/WorkPerson/Add', 'ConAdminWorkPerson::FormAdd');
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
