@@ -69,8 +69,9 @@ $routes->match(['get', 'post'],'Admin/Rloes/RloesSettingManager', 'ConAdminRoles
 
 //Admin Person
 $routes->get('Admin/WorkPerson/Personnel', 'ConAdminWorkPerson::index');
-$routes->get('Admin/WorkPerson/Add', 'ConAdminWorkPerson::FormAdd');
-
+$routes->get('Admin/WorkPerson/Personnel/Add', 'ConAdminWorkPerson::FormAdd');
+$routes->get('Admin/WorkPerson/Personnel/Group/(:any)', 'ConAdminWorkPerson::PersonneViewGroup/$1');
+$routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Insert', 'ConAdminWorkPerson::PersonnelInsert');
 /*
  * --------------------------------------------------------------------
  * Additional Routing

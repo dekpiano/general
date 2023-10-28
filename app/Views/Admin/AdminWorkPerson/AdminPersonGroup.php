@@ -11,106 +11,37 @@
                     <div class="head-label text-center">
                         <h5 class="card-title mb-0"><?=$title;?></h5>
                     </div>
-                    <div class="dt-action-buttons text-end pt-3 pt-md-0">
-                        <div class="dt-buttons btn-group flex-wrap">
+                </div>
+            </div>
 
-                            <a class="btn btn-secondary create-new btn-primary"
-                                href="<?=base_url('Admin/WorkPerson/Personnel/Add')?>">
-                                <span><i class="bx bx-plus me-sm-1"></i>
-                                    <span class="d-none d-sm-inline-block">
-                                        เพิ่มข้อมูล
-                                    </span>
-                                </span>
-                            </a>
+            <?php foreach ($Teacher as $key => $v_Teacher) : ?>
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-start align-items-sm-center gap-4 justify-content-between">
+                        <div class="d-flex align-items-start align-items-sm-center gap-4">
+                            <img src="<?=base_url('uploads/admin/Personnal/'.$v_Teacher->pers_img)?>" alt="user-avatar"
+                                class="d-block rounded" height="100" width="100" id="uploadedAvatar">
+                            <p class="mb-0">
+                                <?=$v_Teacher->pers_prefix.$v_Teacher->pers_firstname.' '.$v_Teacher->pers_lastname?>
+                                <br>
+                                ตำแหน่ง : <?=$v_Teacher->posi_name?>
+                                <br>
+                                วิทยฐานะ : <?=$v_Teacher->pers_academic?>
+                            </p>
+                        </div>
+
+                        <div class="button-wrapper">
+                            <label for="upload" class="btn btn-primary" tabindex="0">
+                                <span class="d-none d-sm-block">อัพเดตข้อมูล</span>
+                                <i class="bx bx-upload d-block d-sm-none"></i>
+                                <input type="file" id="upload" class="account-file-input" hidden=""
+                                    accept="image/png, image/jpeg">
+                            </label>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="row g-4 mt-3">
-                <h5>ผู้บริหาร</h5>
-                <div class="col-sm-6 col-xl-3">
-                    <a href="<?=base_url('Admin/WorkPerson/Personnel/Group/Executive')?>">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-start justify-content-between">
-                                    <div class="content-left">
-                                        <span>ผู้บริหารโรงเรียน</span>
-                                        <div class="d-flex align-items-end mt-2">
-                                            <h4 class="mb-0 me-2"><?=count($Executive);?></h4>
-                                        </div>
-                                        <p class="mb-0">คน</p>
-                                    </div>
-                                    <div class="avatar">
-                                        <span class="avatar-initial rounded bg-label-success">
-                                            <i class="bx bx-group bx-sm"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-<hr>
-            <div class="row g-4 mt-3">
-                <h5>ครูผู้สอน</h5>
-                <?php foreach ($Learning as $key => $v_Lear): ?>
-                <div class="col-sm-6 col-xl-3">
-                    <a href="<?=base_url('Admin/WorkPerson/Personnel/Group/'.$v_Lear->lear_id)?>">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-start justify-content-between">
-                                    <div class="content-left">
-                                        <span><?=$v_Lear->lear_namethai?></span>
-                                        <div class="d-flex align-items-end mt-2">
-                                            <h4 class="mb-0 me-2"><?=$v_Lear->NumAll;?></h4>
-                                        </div>
-                                        <p class="mb-0">คน</p>
-                                    </div>
-                                    <div class="avatar">
-                                        <span class="avatar-initial rounded bg-label-success">
-                                            <i class="bx bx-group bx-sm"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <?php endforeach; ?>
-            </div>
-            <hr>
-            <div class="row g-4 mt-3">
-                <h5>สายสนับสนุน</h5>
-                <?php foreach ($Support as $key => $v_Support) : ?>
-
-                <div class="col-sm-6 col-xl-3">
-                    <a href="http://">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-start justify-content-between">
-                                    <div class="content-left">
-                                        <span><?=$v_Support->posi_name?></span>
-                                        <div class="d-flex align-items-end mt-2">
-                                            <h4 class="mb-0 me-2"><?=$v_Support->NumAll?></h4>
-                                        </div>
-                                        <p class="mb-0">คน</p>
-                                    </div>
-                                    <div class="avatar">
-                                        <span class="avatar-initial rounded bg-label-success">
-                                            <i class="bx bx-group bx-sm"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-
-                <?php endforeach ;?>
-            </div>
+            <?php endforeach; ?>
 
         </div>
 

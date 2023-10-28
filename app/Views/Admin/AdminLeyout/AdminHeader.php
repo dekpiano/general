@@ -35,6 +35,8 @@
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/select2.css?v=1" />
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/demo.css?v=1" />
 
+    <link rel="stylesheet" href="<?=base_url()?>/assets/css/flatpickr.css?v=1" />
+    
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="<?=base_url()?>/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 

@@ -24,9 +24,35 @@ class ConAdminWorkPerson extends BaseController
         $session = session();
         $data = $this->DataMain();
         $data['title']="ทะเบียนครูและบุคลากรทางการศึกษา";
-        $database = \Config\Database::connect();
-        $builder = $database->table('tb_location');
-        $data['LocationRoomAll'] = $builder->countAll();
+        $DB_SKJ = \Config\Database::connect('skj');
+        $DBLear = $DB_SKJ->table('tb_learning');
+        $DBPosi = $DB_SKJ->table('tb_position');
+        $DB_Personnel = \Config\Database::connect('personnel');
+        $DBPers = $DB_Personnel->table('tb_personnel');
+        $data['Learning'] = $DBLear
+        ->select('skjacth_skj.tb_learning.lear_namethai,
+        skjacth_skj.tb_learning.lear_id,
+        COUNT(skjacth_personnel.tb_personnel.pers_id) AS NumAll')
+        ->join('skjacth_personnel.tb_personnel','skjacth_skj.tb_learning.lear_id = skjacth_personnel.tb_personnel.pers_learning')
+        ->where('pers_status',"กำลังใช้งาน")
+        ->groupBy('skjacth_skj.tb_learning.lear_namethai')
+        ->orderBy('lear_id')
+        ->get()->getResult();
+
+        $data['Executive'] = $DBPers
+        ->where('pers_status',"กำลังใช้งาน")
+        ->where('pers_position <=','posi_002')->get()->getResult();
+
+        $data['Support']= $DBPosi
+        ->select('skjacth_skj.tb_position.posi_id,
+        skjacth_skj.tb_position.posi_name,
+        count(skjacth_personnel.tb_personnel.pers_id) AS NumAll')
+        ->join('skjacth_personnel.tb_personnel','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
+        ->where('pers_status',"กำลังใช้งาน")
+        ->where('posi_id >=',"posi_007")
+        ->groupBy('skjacth_skj.tb_position.posi_id')
+        ->get()->getResult();
+        //echo '<pre>'; print_r($data['Support']); exit();
 
         return view('Admin/AdminLeyout/AdminHeader',$data)
                 .view('Admin/AdminLeyout/AdminMenuLeft')
@@ -34,13 +60,32 @@ class ConAdminWorkPerson extends BaseController
                 .view('Admin/AdminLeyout/AdminFooter');
     }
 
+    private function resizeImage($path, $width, $height)
+    {
+        $image = \Config\Services::image()
+            ->withFile(ROOTPATH . $path)
+            ->resize($width, $height, true) // ให้สมส่วน
+            ->save(ROOTPATH . $path);
+    }
+
     public function FormAdd(){
         $session = session();
         $data = $this->DataMain();
         $data['title']="เพิ่มข้อมูลครูและบุคลากรทางการศึกษา";
-        $database = \Config\Database::connect();
-        $builder = $database->table('tb_location');
-        $data['LocationRoomAll'] = $builder->countAll();
+        $DB_SKJ = \Config\Database::connect('skj');
+        $DBPosi = $DB_SKJ->table('tb_position');
+        $DBLear = $DB_SKJ->table('tb_learning');
+        $DB_Personnel = \Config\Database::connect('personnel');
+        $DBPers = $DB_Personnel->table('tb_personnel');
+
+        $data['position'] = $DBPosi->get()->getResult();
+        $data['learning'] = $DBLear->get()->getResult();
+       
+		$data['pers'] =	$DBPers->orderBy('pers_id','DESC')->get()->getResult();		
+		$num = @explode("_", $data['pers'][0]->pers_id);
+        $num1 = @sprintf("%03d",$num[1]+1);
+        $data['pers_id'] = 'pers_'.$num1;
+
 
         return view('Admin/AdminLeyout/AdminHeader',$data)
                 .view('Admin/AdminLeyout/AdminMenuLeft')
@@ -48,5 +93,82 @@ class ConAdminWorkPerson extends BaseController
                 .view('Admin/AdminLeyout/AdminFooter');
     }
    
+    public function PersonnelInsert(){
+        //print_r($this->request->getVar());
+        $session = session();
+        $DB_Personnel = \Config\Database::connect('personnel');
+        $DBPers = $DB_Personnel->table('tb_personnel');
+
+        $image = $this->request->getFile('pers_img');
+        
+        if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
+            $newName = $image->getRandomName();
+            $image->move(ROOTPATH . 'uploads/admin/Personnal/', $newName);
+    
+            $this->resizeImage('uploads/admin/Personnal/' . $newName, 600, 800);
+    
+            $data = [
+                'pers_status' => $this->request->getPost('pers_status'),
+                'pers_id' => $this->request->getPost('pers_id'),
+                'pers_prefix' => $this->request->getPost('pers_prefix'),
+                'pers_firstname' => $this->request->getPost('pers_firstname'),
+                'pers_lastname' => $this->request->getPost('pers_lastname'),
+                'pers_britday' => $this->request->getPost('pers_britday'),
+                'pers_phone' => $this->request->getPost('pers_phone'),
+                'pers_username' => $this->request->getPost('pers_username'),
+                'pers_position' => $this->request->getPost('pers_position'),
+                'pers_learning' => $this->request->getPost('pers_learning'),
+                'pers_academic' => $this->request->getPost('pers_academic'),
+                'pers_groupleade' => $this->request->getPost('pers_groupleade'),
+                'pers_img'  => $newName,
+                'pers_dataUpdate' => date('Y-m-d H:i:s'),
+                'pers_userEdit' => $session->get('id')
+            ];
+        } else {
+            $data = [
+                'pers_status' => $this->request->getPost('pers_status'),
+                'pers_id' => $this->request->getPost('pers_id'),
+                'pers_prefix' => $this->request->getPost('pers_prefix'),
+                'pers_firstname' => $this->request->getPost('pers_firstname'),
+                'pers_lastname' => $this->request->getPost('pers_lastname'),
+                'pers_britday' => $this->request->getPost('pers_britday'),
+                'pers_phone' => $this->request->getPost('pers_phone'),
+                'pers_username' => $this->request->getPost('pers_username'),
+                'pers_position' => $this->request->getPost('pers_position'),
+                'pers_learning' => $this->request->getPost('pers_learning'),
+                'pers_academic' => $this->request->getPost('pers_academic'),
+                'pers_groupleade' => $this->request->getPost('pers_groupleade'),
+                'pers_dataUpdate' => date('Y-m-d H:i:s'),
+                'pers_userEdit' => $session->get('id')
+            ];
+        }
+
+        echo $DBPers->insert($data);
+
+    }
+
+    public function PersonneViewGroup($Key){
+        $session = session();
+        $data = $this->DataMain();
+        $data['title']="ข้อมูลตามกลุ่ม";
+
+        $DB_Personnel = \Config\Database::connect('personnel');
+        $DBPers = $DB_Personnel->table('tb_personnel');
+
+        $data["Teacher"] = $DBPers
+        ->select('pers_prefix,pers_firstname,pers_lastname,pers_img,posi_name,pers_academic')
+        ->join('skjacth_skj.tb_position','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
+        ->where('pers_status',"กำลังใช้งาน")
+        ->where('pers_learning',$Key)
+        ->orderBy('pers_numberGroup','ASC')
+        ->get()->getResult();
+        //echo '<pre>'; print_r($data['Teacher']); exit();
+
+
+        return view('Admin/AdminLeyout/AdminHeader',$data)
+                .view('Admin/AdminLeyout/AdminMenuLeft')
+                .view('Admin/AdminWorkPerson/AdminPersonGroup')
+                .view('Admin/AdminLeyout/AdminFooter');
+    }
 
 }

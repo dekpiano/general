@@ -43,6 +43,11 @@
     <!-- Vendors JS -->
     <script src="<?=base_url()?>/assets/vendor/libs/apex-charts/apexcharts.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <!-- moment -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+
     <!-- Main JS -->
     <script src="<?=base_url()?>/assets/js/main.js"></script>
 
@@ -54,7 +59,12 @@
   </body>
 </html>
 
+<?php if($uri->getSegment(2) == 'LocationRoom') : ?>
 <script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=5"></script>
+<?php endif;?>
+<?php if($uri->getSegment(2) == 'WorkPerson') : ?>
+<script src="<?=base_url()?>/assets/js/Admin/AdminPersonnal/AdminPersonnalMain.js?v=1"></script>
+<?php endif;?>
 
 <script>
   // Example starter JavaScript for disabling form submissions if there are invalid fields
@@ -82,4 +92,16 @@
   'use strict';
 
 });
+flatpickr.localize(flatpickr.l10ns.th);
+$(".selector").flatpickr({
+    dateFormat: "Y-m-d",
+    altInput: true,
+    onChange: (selectedDates, dateStr, instance) => {
+        moment.locale('th');
+        thai_DM = moment(selectedDates[0]).format('Do MMMM');
+        thai_Y = parseInt(moment(selectedDates[0]).format('YYYY')) + 543;
+        instance.altInput.value = thai_DM + " " + thai_Y;
+    }
+});
+
 </script>
