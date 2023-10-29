@@ -52,31 +52,36 @@
                     </a>
                 </div>
             </div>
-<hr>
+            <hr>
             <div class="row g-4 mt-3">
                 <h5>ครูผู้สอน</h5>
                 <?php foreach ($Learning as $key => $v_Lear): ?>
-                <div class="col-sm-6 col-xl-3">
-                    <a href="<?=base_url('Admin/WorkPerson/Personnel/Group/'.$v_Lear->lear_id)?>">
+                <div class="col-sm-6 col-xl-4">
                         <div class="card">
                             <div class="card-body">
-                                <div class="d-flex align-items-start justify-content-between">
-                                    <div class="content-left">
-                                        <span><?=$v_Lear->lear_namethai?></span>
-                                        <div class="d-flex align-items-end mt-2">
-                                            <h4 class="mb-0 me-2"><?=$v_Lear->NumAll;?></h4>
-                                        </div>
-                                        <p class="mb-0">คน</p>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <h6 class="fw-normal">Total <?=$v_Lear->NumAll;?> users</h6>
+                                    <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
+                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
+                                            class="avatar avatar-sm pull-up" aria-label="Vinnie Mostowy"
+                                            data-bs-original-title="Vinnie Mostowy">
+                                            <img class="rounded-circle" src="../../assets/img/avatars/5.png"
+                                                alt="Avatar">
+                                        </li>
+                                        
+                                    </ul>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <div class="role-heading">
+                                        <h4 class="mb-1"><?=$v_Lear->lear_namethai?></h4>
+                                        <a href="<?=base_url('Admin/WorkPerson/Personnel/Group/'.$v_Lear->lear_id)?>" 
+                                            class="role-edit-modal"><small>ดูทั้งหมด</small></a>
                                     </div>
-                                    <div class="avatar">
-                                        <span class="avatar-initial rounded bg-label-success">
-                                            <i class="bx bx-group bx-sm"></i>
-                                        </span>
-                                    </div>
+                                    <a href="javascript:void(0);" class="text-muted"><i class="bx bx-copy"></i></a>
                                 </div>
                             </div>
-                        </div>
-                    </a>
+                        </div>                    
+                   
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -86,7 +91,7 @@
                 <?php foreach ($Support as $key => $v_Support) : ?>
 
                 <div class="col-sm-6 col-xl-3">
-                    <a href="http://">
+                    <a href="<?=base_url('Admin/WorkPerson/Personnel/Group/'.$v_Support->posi_id)?>">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-start justify-content-between">

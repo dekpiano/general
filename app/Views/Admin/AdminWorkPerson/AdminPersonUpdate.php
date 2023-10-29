@@ -5,14 +5,11 @@
 
     <div class="content-wrapper">
         <!-- Content -->
-        <div class="container-xxl flex-grow-1 container-p-y demo ">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between flex-column flex-md-row">
-                    <div class="head-label text-center">
-                        <h5 class="card-title mb-0"><?=$title;?></h5>
-                    </div>
-                </div>
-            </div>
+        <div class="container-xxl flex-grow-1 container-p-y demo ">           
+
+            <h4 class="py-3 mb-4">
+                <span class="text-muted fw-light"> <a href="#" onclick='javascript:window.history.back()'>ย้อนกลับ</a>  /</span> <?=$title;?>
+            </h4>
 
             <style>
             .btn-file {
@@ -59,7 +56,8 @@
                                 <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
                                 <!-- Profile picture upload button-->
                                 <span class="btn btn-primary btn-file">
-                                    อัพโหลดรูปภาพ <input type="file" name="pers_img" id="pers_img" onchange="loadFile(event)">
+                                    อัพโหลดรูปภาพ <input type="file" name="pers_img" id="pers_img"
+                                        onchange="loadFile(event)">
                                 </span>
                             </div>
                         </div>
@@ -86,7 +84,7 @@
                                     <div class="col-md-3">
                                         <label for="pers_id" class="form-label">รหัสประจำตัว</label>
                                         <input type="text" class="form-control" id="pers_id" name="pers_id"
-                                            placeholder="" value="<?=$pers_id;?>" required="" readonly>
+                                            placeholder="" value="" required="" readonly>
                                         <div class="invalid-feedback">
                                             กรุณากรอกชื่อจริง...
                                         </div>

@@ -5,14 +5,11 @@
     <!-- Content wrapper -->
     <div class="content-wrapper">
         <!-- Content -->
-        <div class="container-xxl flex-grow-1 container-p-y demo">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between flex-column flex-md-row">
-                    <div class="head-label text-center">
-                        <h5 class="card-title mb-0"><?=$title;?></h5>
-                    </div>
-                </div>
-            </div>
+        <div class="container-xxl flex-grow-1 container-p-y demo">           
+            <h4 class="py-3 mb-4">
+                <span class="text-muted fw-light"> <a href="#" onclick='javascript:window.history.back()'>ย้อนกลับ</a>  /</span> <?=$title;?>
+            </h4>
+
 
             <div id="items" class="sortable">
             <?php foreach ($Teacher as $key => $v_Teacher) : ?>
@@ -27,17 +24,14 @@
                                 <br>
                                 ตำแหน่ง : <?=$v_Teacher->posi_name?>
                                 <br>
+                                <?php if($Teach) :?>
                                 วิทยฐานะ : <?=$v_Teacher->pers_academic?>
+                                <?php endif; ?>
                             </p>
                         </div>
 
-                        <div class="button-wrapper">
-                            <label for="upload" class="btn btn-primary" tabindex="0">
-                                <span class="d-none d-sm-block">อัพเดตข้อมูล</span>
-                                <i class="bx bx-upload d-block d-sm-none"></i>
-                                <input type="file" id="upload" class="account-file-input" hidden=""
-                                    accept="image/png, image/jpeg">
-                            </label>
+                        <div class="button-wrapper">                         
+                                <a class="btn btn-primary" href="<?=base_url('Admin/WorkPerson/Personnel/Update/'.$v_Teacher->pers_id)?>">อัพเดตข้อมูล</a>   
                         </div>
                     </div>
                 </div>

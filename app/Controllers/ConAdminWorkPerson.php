@@ -29,15 +29,19 @@ class ConAdminWorkPerson extends BaseController
         $DBPosi = $DB_SKJ->table('tb_position');
         $DB_Personnel = \Config\Database::connect('personnel');
         $DBPers = $DB_Personnel->table('tb_personnel');
+
         $data['Learning'] = $DBLear
         ->select('skjacth_skj.tb_learning.lear_namethai,
         skjacth_skj.tb_learning.lear_id,
-        COUNT(skjacth_personnel.tb_personnel.pers_id) AS NumAll')
+        COUNT(skjacth_personnel.tb_personnel.pers_id) AS NumAll,
+        (JSON_ARRAY(skjacth_personnel.tb_personnel.pers_img)) AS AllImg')
         ->join('skjacth_personnel.tb_personnel','skjacth_skj.tb_learning.lear_id = skjacth_personnel.tb_personnel.pers_learning')
         ->where('pers_status',"กำลังใช้งาน")
-        ->groupBy('skjacth_skj.tb_learning.lear_namethai')
+        ->groupBy('skjacth_personnel.tb_personnel.pers_learning')
         ->orderBy('lear_id')
         ->get()->getResult();
+
+        $test = $DBPers->select('JSON_ARRAY(pers_img,pers_id) AS json_data')->get()->getResult();
 
         $data['Executive'] = $DBPers
         ->where('pers_status',"กำลังใช้งาน")
@@ -52,7 +56,7 @@ class ConAdminWorkPerson extends BaseController
         ->where('posi_id >=',"posi_007")
         ->groupBy('skjacth_skj.tb_position.posi_id')
         ->get()->getResult();
-        //echo '<pre>'; print_r($data['Support']); exit();
+        echo '<pre>'; print_r($test); exit();
 
         return view('Admin/AdminLeyout/AdminHeader',$data)
                 .view('Admin/AdminLeyout/AdminMenuLeft')
@@ -154,12 +158,24 @@ class ConAdminWorkPerson extends BaseController
 
         $DB_Personnel = \Config\Database::connect('personnel');
         $DBPers = $DB_Personnel->table('tb_personnel');
+        $sub = explode("_",$Key);
+        if($sub[0] == "posi"){
+            $Where = ['pers_position'=>$Key];
+            $data['Teach'] = false;
+        }elseif($Key === "Executive"){
+            $Where = 'pers_position = "posi_001" || pers_position= "posi_002"';
+            $data['Teach'] = true;
+        }
+        else{
+            $Where = ['pers_learning'=>$Key];
+            $data['Teach'] = true;
+        }
 
         $data["Teacher"] = $DBPers
         ->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_img,posi_name,pers_academic')
         ->join('skjacth_skj.tb_position','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
         ->where('pers_status',"กำลังใช้งาน")
-        ->where('pers_learning',$Key)
+        ->where($Where)
         ->orderBy('pers_numberGroup','ASC')
         ->get()->getResult();
         //echo '<pre>'; print_r($data['Teacher']); exit();
@@ -185,6 +201,25 @@ class ConAdminWorkPerson extends BaseController
            // echo $key;
         }
        
+    }
+
+    public function FormPersonneUpdate(){
+        $session = session();
+        $data = $this->DataMain();
+        $data['title']="อัพเดตข้อมูลครูและบุคลากรทางการศึกษา";    
+        $DB_SKJ = \Config\Database::connect('skj');
+        $DBPosi = $DB_SKJ->table('tb_position');
+        $DBLear = $DB_SKJ->table('tb_learning');
+        $DB_Personnel = \Config\Database::connect('personnel');
+        $DBPers = $DB_Personnel->table('tb_personnel');
+
+        $data['position'] = $DBPosi->get()->getResult();
+        $data['learning'] = $DBLear->get()->getResult();
+
+        return view('Admin/AdminLeyout/AdminHeader',$data)
+                .view('Admin/AdminLeyout/AdminMenuLeft')
+                .view('Admin/AdminWorkPerson/AdminPersonUpdate')
+                .view('Admin/AdminLeyout/AdminFooter');
     }
 
 }
