@@ -156,7 +156,7 @@ class ConAdminWorkPerson extends BaseController
         $DBPers = $DB_Personnel->table('tb_personnel');
 
         $data["Teacher"] = $DBPers
-        ->select('pers_prefix,pers_firstname,pers_lastname,pers_img,posi_name,pers_academic')
+        ->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_img,posi_name,pers_academic')
         ->join('skjacth_skj.tb_position','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
         ->where('pers_status',"กำลังใช้งาน")
         ->where('pers_learning',$Key)
@@ -169,6 +169,22 @@ class ConAdminWorkPerson extends BaseController
                 .view('Admin/AdminLeyout/AdminMenuLeft')
                 .view('Admin/AdminWorkPerson/AdminPersonGroup')
                 .view('Admin/AdminLeyout/AdminFooter');
+    }
+
+
+    public function SortableTeacher(){
+
+        $DB_Personnel = \Config\Database::connect('personnel');
+        $DBPers = $DB_Personnel->table('tb_personnel');
+
+        foreach ($this->request->getPost('data') as $key => $value) {
+            
+            $data = ['pers_numberGroup'=>$key];
+            $DBPers->where('pers_id', $value);
+            $DBPers->update($data);
+           // echo $key;
+        }
+       
     }
 
 }

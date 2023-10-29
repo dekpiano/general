@@ -71,6 +71,7 @@ $routes->match(['get', 'post'],'Admin/Rloes/RloesSettingManager', 'ConAdminRoles
 $routes->get('Admin/WorkPerson/Personnel', 'ConAdminWorkPerson::index');
 $routes->get('Admin/WorkPerson/Personnel/Add', 'ConAdminWorkPerson::FormAdd');
 $routes->get('Admin/WorkPerson/Personnel/Group/(:any)', 'ConAdminWorkPerson::PersonneViewGroup/$1');
+$routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/SortableTeacher', 'ConAdminWorkPerson::SortableTeacher');
 $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Insert', 'ConAdminWorkPerson::PersonnelInsert');
 /*
  * --------------------------------------------------------------------

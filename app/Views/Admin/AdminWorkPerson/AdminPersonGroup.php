@@ -14,8 +14,9 @@
                 </div>
             </div>
 
+            <div id="items" class="sortable">
             <?php foreach ($Teacher as $key => $v_Teacher) : ?>
-            <div class="card mt-3">
+            <div class="card mt-3" data-id="<?=$v_Teacher->pers_id;?>">
                 <div class="card-body">
                     <div class="d-flex align-items-start align-items-sm-center gap-4 justify-content-between">
                         <div class="d-flex align-items-start align-items-sm-center gap-4">
@@ -42,6 +43,8 @@
                 </div>
             </div>
             <?php endforeach; ?>
+            </div>
+            
 
         </div>
 

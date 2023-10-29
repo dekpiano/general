@@ -1,29 +1,28 @@
-    
-</div>
+    </div>
 
-<!-- Overlay -->
-<div class="layout-overlay layout-menu-toggle"></div>
-</div>
-<!-- / Layout wrapper -->
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
 
 
-     <!-- Footer -->
-     <footer class="content-footer footer bg-footer-theme">
-              <div class="container-xxl d-flex flex-wrap justify-content-end py-2 flex-md-row flex-column">
-                <div class="mb-2 mb-md-0">
-                  ©
-                  <script>
-                    document.write(new Date().getFullYear());
-                  </script>
-                  , made with ❤️ by
-                  <a href="https://facebook.com/dekpiano" target="_blank" class="footer-link fw-bolder">Dekpiano</a>
-                </div>
-               
-                </div>
-              </div>
-            </footer>
-            <!-- / Footer -->
-        
+    <!-- Footer -->
+    <footer class="content-footer footer bg-footer-theme">
+        <div class="container-xxl d-flex flex-wrap justify-content-end py-2 flex-md-row flex-column">
+            <div class="mb-2 mb-md-0">
+                ©
+                <script>
+                document.write(new Date().getFullYear());
+                </script>
+                , made with ❤️ by
+                <a href="https://facebook.com/dekpiano" target="_blank" class="footer-link fw-bolder">Dekpiano</a>
+            </div>
+
+        </div>
+        </div>
+    </footer>
+    <!-- / Footer -->
+
 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
@@ -48,6 +47,8 @@
     <!-- moment -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     <!-- Main JS -->
     <script src="<?=base_url()?>/assets/js/main.js"></script>
 
@@ -56,40 +57,41 @@
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-  </body>
-</html>
+    </body>
 
-<?php if($uri->getSegment(2) == 'LocationRoom') : ?>
-<script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=5"></script>
-<?php endif;?>
-<?php if($uri->getSegment(2) == 'WorkPerson') : ?>
-<script src="<?=base_url()?>/assets/js/Admin/AdminPersonnal/AdminPersonnalMain.js?v=1"></script>
-<?php endif;?>
+    </html>
 
-<script>
-  // Example starter JavaScript for disabling form submissions if there are invalid fields
-(function () {
-  'use strict'
+    <?php if($uri->getSegment(2) == 'LocationRoom') : ?>
+    <script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=5"></script>
+    <?php endif;?>
+    <?php if($uri->getSegment(2) == 'WorkPerson') : ?>
+    <script src="<?=base_url()?>/assets/js/Admin/AdminPersonnal/AdminPersonnalMain.js?v=2"></script>
+    <?php endif;?>
 
-  // Fetch all the forms we want to apply custom Bootstrap validation styles to
-  var forms = document.querySelectorAll('.needs-validation')
+    <script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function() {
+    'use strict'
 
-  // Loop over them and prevent submission
-  Array.prototype.slice.call(forms)
-    .forEach(function (form) {
-      form.addEventListener('submit', function (event) {
-        if (!form.checkValidity()) {
-          event.preventDefault()
-          event.stopPropagation()
-        }
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
 
-        form.classList.add('was-validated')
-      }, false)
-    })
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+        .forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
 })()
 
-  $(function() {
-  'use strict';
+$(function() {
+    'use strict';
 
 });
 flatpickr.localize(flatpickr.l10ns.th);
@@ -104,4 +106,18 @@ $(".selector").flatpickr({
     }
 });
 
-</script>
+
+// var el = document.getElementById('items');
+// var sortable = new Sortable(el, {
+//   swap: true, // Enable swap plugin
+// 	swapClass: 'bg-gray', // The class applied to the hovered swap item
+// 	animation: 150,
+//   filter: ".js-edit",
+//   onFilter: function (/**Event*/evt) {
+// 		var itemEl = evt.item,ctrl = evt.target;// HTMLElement receiving the `mousedown|tapstart` event.
+//     console.log(ctrl);
+// 	},
+// });
+
+
+    </script>
