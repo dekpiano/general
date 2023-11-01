@@ -28,7 +28,7 @@ function ShowDataLocationRoom() {
             'url': 'Repair/DataTable/ShowRepari'
         },
         order: [
-            [0, 'desc']
+            [1, 'desc']
         ],
         'columns': [
             { data: 'repair_datetime' },

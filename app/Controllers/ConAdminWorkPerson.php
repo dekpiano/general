@@ -34,7 +34,7 @@ class ConAdminWorkPerson extends BaseController
         ->select('skjacth_skj.tb_learning.lear_namethai,
         skjacth_skj.tb_learning.lear_id,
         COUNT(skjacth_personnel.tb_personnel.pers_id) AS NumAll,
-        JSON_ARRAY(GROUP_CONCAT(skjacth_personnel.tb_personnel.pers_img)) AS AllImg')
+        (GROUP_CONCAT(skjacth_personnel.tb_personnel.pers_img)) AS AllImg')
         ->join('skjacth_personnel.tb_personnel','skjacth_skj.tb_learning.lear_id = skjacth_personnel.tb_personnel.pers_learning')
         ->where('pers_status',"กำลังใช้งาน")
         ->groupBy('skjacth_personnel.tb_personnel.pers_learning')
@@ -44,7 +44,7 @@ class ConAdminWorkPerson extends BaseController
         //$test = $DBPers->select('json_array(GROUP_CONCAT(pers_img)) AS json_data')->get()->getResult();
 
         $data['Executive'] = $DBPers
-        ->select('JSON_ARRAY(GROUP_CONCAT(skjacth_personnel.tb_personnel.pers_img)) AS AllImg,
+        ->select('(GROUP_CONCAT(skjacth_personnel.tb_personnel.pers_img)) AS AllImg,
         count(skjacth_personnel.tb_personnel.pers_id) AS NumAll')
         ->where('pers_status',"กำลังใช้งาน")
         ->where('pers_position <=','posi_002')->get()->getResult();
@@ -53,13 +53,13 @@ class ConAdminWorkPerson extends BaseController
         ->select('skjacth_skj.tb_position.posi_id,
         skjacth_skj.tb_position.posi_name,
         count(skjacth_personnel.tb_personnel.pers_id) AS NumAll,
-        JSON_ARRAY(GROUP_CONCAT(skjacth_personnel.tb_personnel.pers_img)) AS AllImg')
+        (GROUP_CONCAT(skjacth_personnel.tb_personnel.pers_img)) AS AllImg')
         ->join('skjacth_personnel.tb_personnel','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
         ->where('pers_status',"กำลังใช้งาน")
         ->where('posi_id >=',"posi_007")
         ->groupBy('skjacth_skj.tb_position.posi_id')
         ->get()->getResult();
-        //echo '<pre>'; print_r($data['Executive']); exit();
+        //echo '<pre>'; print_r($data['Learning']); exit();
 
         return view('Admin/AdminLeyout/AdminHeader',$data)
                 .view('Admin/AdminLeyout/AdminMenuLeft')

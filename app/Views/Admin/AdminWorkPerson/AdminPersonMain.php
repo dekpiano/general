@@ -72,7 +72,6 @@
                                     <?php 
                                     $sub = explode(',',$v_Lear->AllImg);
                                     foreach ($sub as $key => $value): 
-                                 
                                         ?>
                                     <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
                                         class="avatar avatar-sm pull-up" >
