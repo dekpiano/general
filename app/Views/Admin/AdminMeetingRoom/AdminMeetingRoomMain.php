@@ -64,6 +64,15 @@
 
                     <form class="needs-validation" novalidate="" id="FromLocationRoomInsert">
                         <div class="mb-3">
+                        <label class="form-label" for="location_name">ประเภทสถานที่</label>
+                            <select id="location_category" name="location_category" class="form-select">
+                                <option value="">กรุณาเลือกประเภทสถานที่</option>
+                                <option value="ห้อง">ห้อง</option>
+                                <option value="อาคาร">อาคาร</option>
+                                <option value="สนาม">สนาม</option>
+                            </select>
+                            <div class="invalid-feedback"> กรุณาเลือกประเภทสถานที่ </div>
+                        </div>
                         <label class="form-label" for="location_name">ชื่อห้อง / สถานที่</label>
                             <input type="text" class="form-control" id="location_name" name="location_name"
                                 placeholder="ตย.ห้องประชุม 72" required="">
@@ -92,65 +101,6 @@
                             <input type="file" class="form-control" id="location_img" name="location_img" required="">
                             <div class="invalid-feedback"> กรุณาแนบไฟล์ เป็น PDF เท่านั้น </div>
                         </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary">บันทึก</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-<!-- End เพิ่มหนังสือคำสั่ง Modal -->
-
-<!-- เพิ่มหนังสือคำสั่ง Modal -->
-<div class="modal right" id="UpdateInstruction" tabindex="-1" aria-labelledby="rightModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md w-100">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="rightModalLabel">เพิ่มข้อมูลคำสั่ง</h5>
-
-            </div>
-            <div class="modal-body">
-                <div class="col-md">
-
-                    <form class="needs-validation" novalidate="" id="FromDictationInsert">
-                        <div class="mb-3">
-                            <label class="form-label" for="bs-validation-name">ชื่อห้อง / สถานที่</label>
-                            <input type="text" class="form-control" id="dicta_number" name="dicta_number"
-                                placeholder="ศธ/111" required="">
-                            <div class="invalid-feedback"> กรุณากรอกชื่อห้อง / สถานที่ </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label" for="bs-validation-name">เลขที่คำสั่ง</label>
-                            <input type="text" class="form-control" id="dicta_number" name="dicta_number"
-                                placeholder="ศธ/111" required="">
-                            <div class="invalid-feedback"> ใส่เลขคำสั่ง </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="dicta_createdate">วันที่คำสั่ง</label>
-                            <input type="datetime-local" class="form-control flatpickr-validation flatpickr-input"
-                                id="dicta_createdate" name="dicta_createdate" required="">
-                            <div class="invalid-feedback"> โปรดเลือกวันที่คำสั่ง </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="dicta_title">ชื่อเรื่อง</label>
-                            <textarea class="form-control" id="dicta_title" name="dicta_title" rows="3"
-                                required=""></textarea>
-                            <div class="invalid-feedback"> กรอกหัวเรื่อง </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label" for="dicta_file">ไพล์แนบ (เป็น PDF เท่านั้น)</label>
-                            <input type="file" class="form-control" id="dicta_file" name="dicta_file" required="">
-                            <div class="invalid-feedback"> กรุณาแนบไฟล์ เป็น PDF เท่านั้น </div>
-                        </div>
-
-
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">บันทึก</button>

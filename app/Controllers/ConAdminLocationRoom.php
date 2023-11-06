@@ -57,6 +57,7 @@ class ConAdminLocationRoom extends BaseController
                 'location_detail' => $this->request->getPost('location_detail'),
                 'location_number' => $this->request->getPost('location_number'),
                 'location_seats' => $this->request->getPost('location_seats'),
+                'location_category' => $this->request->getPost('location_category'),
                 'location_img'  => $newName,
                 'location_create' => date("Y-m-d H:i:s"),
                 'location_Admin' => $_SESSION['id']

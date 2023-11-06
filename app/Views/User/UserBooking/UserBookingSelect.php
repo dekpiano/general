@@ -6,10 +6,15 @@
     <div class="content-wrapper">
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
-            <h4 class="py-3 mb-4"><span class="text-muted fw-light"></span> ห้องประชุมและสถานที่</h4>
-            <div class="row mb-5">
-                <?php foreach ($LocationRoomAll as $key => $v_LocationRoom): ?>
-                <div class="col-md-6 col-lg-4 mb-3">
+        <div class="row mb-5">
+            <?php  $TypeLocation = ['ห้อง','อาคาร','สนาม'];
+            foreach ($TypeLocation as $key => $v_TypeLocation) : ?>
+                 <h4 class="mt-5">ประเภท <?=$v_TypeLocation;?></h4>
+                <hr>
+            <?php foreach ($LocationRoomAll as $key => $v_LocationRoom): 
+                if($v_LocationRoom->location_category == $v_TypeLocation):?>
+               
+                <div class="col-md-6 col-lg-3">
                     <div class="card h-100">
                         <img class="card-img-top"
                             src="<?=base_url('uploads/admin/LocationRoom/'.$v_LocationRoom->location_img)?>"
@@ -37,20 +42,20 @@
                                 </div>
 
                                 <div>
-                                    <a href="<?=base_url('Booking/View/'.$v_LocationRoom->location_ID)?>" class="btn btn-outline-secondary">
+                                    <a href="<?=base_url('Booking/View/'.$v_LocationRoom->location_ID)?>"
+                                        class="btn btn-outline-secondary">
                                         ดูการจอง
                                     </a>
                                 </div>
                             </div>
-
-
-
                         </div>
                     </div>
                 </div>
-                <?php endforeach; ?>
+           
+                <?php endif; ?>
+            <?php endforeach; ?>
+            <?php endforeach; ?>
             </div>
-
         </div>
     </div>
     <!-- Content wrapper -->

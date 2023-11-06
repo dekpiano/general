@@ -54,7 +54,7 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $builder = $database->table('tb_location');
         $data['LocationRoomAll'] = $builder->get()->getResult();
-        
+         //echo "<pre>";print_r($data['LocationRoomAll']); exit();
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
                 .view('User/UserBooking/UserBookingSelect')

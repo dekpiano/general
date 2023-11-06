@@ -58,6 +58,7 @@ $(document).on('submit', '#FromLocationRoomInsert', function(e) {
                         'success'
                     )
                     $('.TbDataLocationRoom').DataTable().ajax.reload();
+                    $('#FromLocationRoomInsert')[0].reset();
                 } else if (res.success == false) {
                     $('#rightModal2').hide();
                     $('.modal-backdrop').hide();
