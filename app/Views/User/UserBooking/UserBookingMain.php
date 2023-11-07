@@ -58,18 +58,19 @@
                                         <span class="avatar-initial rounded bg-label-info"><i
                                                 class="bx bx-time-five"></i></span>
                                     </div>
-                                    <h4 class="ms-1 mb-0 text-white">รออนุมัติ <?=$CountbookingAll;?> รายการ</h4>
+                                    <div>
+                                    <h6 class="ms-1 mb-0 text-white">ยอดจองทั้งหมด <?=$CountbookingAll;?> รายการ</h6>
+                                    <h4 class="ms-1 mb-0 text-white">รออนุมัติ <?=$NumRowsWaitApprove;?> รายการ</h4>
+                                    </div>
+                                    
                                 </div>
-                                <p class="mb-1 h5 text-white">อนุมัติแล้ว 1 รายการ</p>
+                                <p class="mb-1 h5 text-white">อนุมัติแล้ว <?=$NumRowsApprove;?> รายการ</p>
                             </div>
                         </div>
                     </a>
                 </div>
                 <?php endif; ?>
-
             </div>
-
-
             <div class="card">
                 <div class="card-body">
                     <div id='calendar'></div>

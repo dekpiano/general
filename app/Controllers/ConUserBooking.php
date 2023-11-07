@@ -34,6 +34,8 @@ class ConUserBooking extends BaseController
 
         $DBbooking = $database->table('tb_booking');
         $data['CountbookingAll'] = $DBbooking->countAll();
+        $data['NumRowsWaitApprove'] = $DBbooking->where('booking_status','ไม่อนุมัติ')->get()->getNumRows();
+        $data['NumRowsApprove'] = $DBbooking->where('booking_status','อนุมัติ')->get()->getNumRows();
 
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
