@@ -6,7 +6,7 @@ class ConAdminRoles extends BaseController
 {
     public function __construct(){
         $session = session();
-        if(!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager"){
+        if(!$session->get('username') && $session->get('status') != "AdminGeneral" && $session->get('status') != "ManagerGeneral"){
             header("Location:".base_url()); exit();
         } 
     }
@@ -46,7 +46,7 @@ class ConAdminRoles extends BaseController
     public function RloesSettingManager() {      
         $database = \Config\Database::connect();
         $DBrloes = $database->table('tb_admin_rloes');
-        $data = array('admin_rloes_userid' => $this->request->getVar('TeachID'));
+        $data = array('admin_rloes_userid' => $this->request->getVar('TeachID'),'admin_rloes_nanetype'=>$this->request->getVar('Keytype'));
 
         $DBrloes->where('admin_rloes_id',$this->request->getVar('RloesID'));
         $result = $DBrloes->update($data);

@@ -1,6 +1,88 @@
 $('#TBShowDataBooking').DataTable({
     responsive: true
 });
+$('#TBShowDataBookingAdmin').DataTable({
+    responsive: true,
+    'serverMethod': 'post',
+    'ajax': {
+        'url': '../../Booking/DB/DataTable/Approve/Admin'
+    },
+    order: [
+        [3, 'desc']
+    ],
+    'columns': [
+        { data: 'booking_title' },
+        {
+            data: 'location_name',
+            render: function(data, type, row) {
+                return data + "<br><small>" + row.booking_dateStart + ' ถึง ' + row.booking_dateEnd + '</small>';
+            }
+        },
+        { data: 'booker' },
+        {
+            data: 'booking_status',
+            render: function(data, type, row) {
+                if (data === "อนุมัติ") {
+                    return '<span class="badge bg-label-success me-1">' + data + '</span>';
+                } else {
+                    return '<span class="badge bg-label-danger me-1">' + data + '</span>';
+                }
+
+            }
+        },
+        { data: 'booking_reason' },
+        {
+            data: 'booking_id',
+            render: function(data, type, row) {
+                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-success ' + (row.booking_status == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div>';
+            }
+        }
+    ]
+});
+
+$(document).on('click', '#BtnApproveBooking', function() {
+    let Booking_id = $(this).attr('booking-id');
+    Swal.fire({
+        title: 'แจ้งเตือน?',
+        text: "คุณต้องการอนุมัตการจองนี้หรือไม่!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'ตกลง!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            $.post('../../Booking/DB/BookingApproveAdmin', { BookingID: Booking_id }, function(data) {
+                console.log(data);
+                $('#TBShowDataBookingAdmin').DataTable().ajax.reload();
+                //location.reload(true);
+                Swal.fire("ดำเนินการ อนุมัติเรียบร้อยแล้ว!")
+            });
+
+        }
+    })
+});
+
+$(document).on('click', '#BtnNoApproveBooking', function() {
+    let Booking_id = $(this).attr('booking-id');
+    Swal.fire({
+        title: 'เหตุผลที่ไม่อนุมัติ!',
+        input: 'textarea'
+    }).then(function(result) {
+        if (result.value) {
+            $.post('../../Booking/DB/BookingNoApproveAdmin', {
+                BookingID: Booking_id,
+                booking_reason: result.value
+            }, function(data) {
+                Swal.fire("ดำเนินการ ไม่อนุมัติ เรียบร้อยแล้ว!");
+                $('#TBShowDataBookingAdmin').DataTable().ajax.reload();
+            });
+        }
+    })
+});
+
+
+
 
 $(document).on('submit', '#FormAddBooking', function(e) {
     e.preventDefault();

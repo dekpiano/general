@@ -103,32 +103,3 @@ $(document).on('click', '#DelLocationRoom', function() {
 $(".select2Rloes").select2({
     width: 'resolve' // need to override the changed default
 });
-
-$(document).on("change", ".SettingGeneralRloes", function() {
-
-    console.log($(this).val());
-    console.log($(this).attr('rloes-id'));
-
-    $.post("../../Admin/Rloes/RloesSettingManager", {
-        TeachID: $(this).val(),
-        RloesID: $(this).attr('rloes-id')
-    }, function(data, status) {
-        if (data == 1) {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'success',
-                title: 'เป็นผู้ใช้งานเรียบร้อย',
-                showConfirmButton: false,
-                timer: 1500
-            })
-        } else {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'error',
-                title: 'เปลี่ยนแปลงข้อมูลไม่สำเร็จ',
-                showConfirmButton: false,
-                timer: 1500
-            })
-        }
-    });
-});

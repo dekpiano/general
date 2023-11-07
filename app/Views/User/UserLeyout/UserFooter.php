@@ -65,7 +65,7 @@
     </html>
 
     <?php if($uri->getSegment(1) == 'Booking') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=11"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=15"></script>
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=14"></script>
     <?php endif; ?>

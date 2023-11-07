@@ -8,11 +8,16 @@
         <div class="container-xxl flex-grow-1 container-p-y demo">
             <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a
                         href="<?=base_url('Booking/Select')?>">สถานที่</a> /</span>
-                ข้อมูลจอง<?=@$Booking[0]->location_name?>
+                
+                <?php if($CheckAll == 1){
+                    echo $Title = 'ข้อมูลการจองทั้งหมด';
+                }else{
+                    echo $Title = 'ข้อมูลการจอง'.@$Booking[0]->location_name;
+                }?>
             </h4>
 
             <div class="card">
-                <h5 class="card-header">ข้อมูลการจอง<?=@$Booking[0]->location_name?></h5>
+                <h5 class="card-header"><?=$Title?></h5>
                 <div class="table-responsive text-nowrap p-3">
                     <table class="table table-hover display nowrap"  id="TBShowDataBooking">
                         <thead>
@@ -44,7 +49,7 @@
                                         <small>
                                             <?=$Datethai->thai_date_and_time_short(strtotime($v_Booking->booking_dateStart)).' '.date('H:i',strtotime($v_Booking->booking_timeStart))?>
                                             ถึง
-                                            <?=$Datethai->thai_date_and_time_short(strtotime($v_Booking->booking_dateStart)).' '.date('H:i',strtotime($v_Booking->booking_timeEnd))?>
+                                            <?=$Datethai->thai_date_and_time_short(strtotime($v_Booking->booking_dateEnd)).' '.date('H:i',strtotime($v_Booking->booking_timeEnd))?>
                                         </small>
                                     </div>
                                 </td>

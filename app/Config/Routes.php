@@ -35,12 +35,17 @@ $routes->get('Booking', 'ConUserBooking::BookingMain');
 $routes->get('Booking/Select', 'ConUserBooking::BookingSelect');
 $routes->get('Booking/Add/(:any)', 'ConUserBooking::BookingAdd/$1');
 $routes->get('Booking/View/(:any)', 'ConUserBooking::BookingView/$1');
+$routes->get('Booking/Approve/Admin', 'ConUserBooking::BookingViewApproveAdmin');
 $routes->match(['get', 'post'],'Booking/DB/Insert', 'ConUserBooking::BookingInsert');
 $routes->match(['get', 'post'],'Booking/DB/Cancel', 'ConUserBooking::BookingCancel');
 $routes->match(['get', 'post'],'Booking/DB/ShowTimeBooking', 'ConUserBooking::ShowTimeBooking');
 $routes->match(['get', 'post'],'Booking/DB/CheckDateBooking', 'ConUserBooking::CheckDateBooking');
 $routes->match(['get', 'post'],'Booking/DB/CheckTimeBooking', 'ConUserBooking::CheckTimeBooking');
 $routes->match(['get', 'post'],'User/Dictation/ShowData', 'ConUserWorkSaraban::DictationShowData');
+$routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Admin', 'ConUserBooking::BookingDataTableApproveAdmin');
+$routes->match(['get', 'post'],'Booking/DB/BookingApproveAdmin', 'ConUserBooking::BookingCheckApproveAdmin');
+$routes->match(['get', 'post'],'Booking/DB/BookingNoApproveAdmin', 'ConUserBooking::BookingNoApproveAdmin');
+
 
 // User แจ้งซ่อม
 $routes->get('Repair', 'ConUserRepair::RepairMain');
