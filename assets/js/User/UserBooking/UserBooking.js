@@ -96,7 +96,7 @@ $(document).on('submit', '#FormAddBooking', function(e) {
         },
         success: function(data) {
             console.log(data);
-            if (data > 1) {
+            if (data > 0) {
                 Swal.fire({
                     title: 'แจ้งเตือน?',
                     text: "บันทึกการจองสำเร็จ!",

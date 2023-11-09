@@ -126,13 +126,13 @@
 
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="booking_timeEnd">ใช้สำหรับ</label>
+                                    <label class="form-label" for="booking_typeuse">ใช้สำหรับ</label>
                                     <select class="form-select" aria-label="Default select example" id="booking_typeuse"
                                         name="booking_typeuse" required>
-                                        <option value="ประชุม">ประชุม</option>
-                                        <option value="อบรม">อบรม</option>
-                                        <option value="สัมนา">สัมนา</option>
-                                        <option value="จัดเลี้ยง">จัดเลี้ยง</option>
+                                        <?php $typeuse = array('ประชุม','อบรม','สัมนา','จัดเลี้ยง','จัดกิจกรรม');
+                                        foreach ($typeuse as $key => $v_typeuse) : ?>
+                                        <option value="<?=$v_typeuse?>"><?=$v_typeuse?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                     <div class="invalid-feedback">
                                         เลือกประเภทการใช้ห้อง
