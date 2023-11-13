@@ -123,6 +123,41 @@ class ConUserBooking extends BaseController
         //print_r($this->request->getVar());
     }
 
+    public function BookingUpdate(){
+
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBlocation = $database->table('tb_booking');
+        
+        if($this->request->getVar('booking_equipment') != ""){
+          $equipment = implode('|',$this->request->getVar('booking_equipment'));
+        }else{
+            $equipment = "";
+        }
+        $data = [
+            'booking_locationroom' => $this->request->getVar('booking_locationroom'),
+            'booking_number' => $this->request->getVar('booking_number'),
+            'booking_title' => $this->request->getVar('booking_title'),
+            'booking_dateStart' => $this->request->getVar('booking_dateStart'),
+            'booking_timeStart' => $this->request->getVar('booking_timeStart'),
+            'booking_dateEnd' => $this->request->getVar('booking_dateEnd'),
+            'booking_timeEnd' => $this->request->getVar('booking_timeEnd'),
+            'booking_typeuse' => $this->request->getVar('booking_typeuse'),
+            'booking_other' => $this->request->getVar('booking_other'),
+            'booking_Booker' => $this->request->getVar('booking_Booker'),
+            'booking_telephone' => $this->request->getVar('booking_telephone'),
+            'booking_equipment' => $equipment,
+            'booking_status' => "รอตรวจสอบ" 
+        ];
+
+        $DBlocation->where('booking_id',$this->request->getVar('booking_id'));
+        if($DBlocation->update($data)){
+            echo $this->request->getVar('booking_locationroom');
+        }
+     
+        //print_r($this->request->getVar());
+    }
+
     public function BookingView($Key){
 
         $session = session();
@@ -175,6 +210,46 @@ class ConUserBooking extends BaseController
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
                 .view('User/UserBooking/UserBookingView')
+          
+          
+                .view('User/UserLeyout/UserFooter');
+    }
+
+    public function BookingEdit($Key){
+
+        $session = session();
+        $data = $this->DataMain();
+        $data['title']="แก้ไขข้อมูลจองห้องประชุมและสถานที่";
+        $data['description']="แก้ไขข้อมูลจองห้องประชุมและสถานที่";
+        $data['UrlMenuMain'] = 'Booking';
+        $data['UrlMenuSub'] = 'Edit';     
+        $data['Datethai'] = new Datethai();   
+
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $DBpersonnel = $database->table('personnel');
+
+        //echo '<pre>';print_r($DBpersonnel); exit();
+
+        $DBpers = \Config\Database::connect('personnel');
+
+        $database = \Config\Database::connect();
+        $builder = $database->table('tb_location');
+        $data['LocationList'] = $builder->select('location_ID,location_name')->get()->getResult();
+      
+       $DBbooking
+        ->select('tb_booking.*,location_ID,location_name,location_img,location_detail,pers_prefix,pers_firstname,pers_lastname');
+        $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
+        $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
+        $DBbooking->where('booking_id',$Key);
+        $data['Booking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
+      
+       //echo '<pre>';print_r($data['Booking']); exit();
+        
+        return view('User/UserLeyout/UserHeader',$data)
+                .view('User/UserLeyout/UserMenuLeft')
+                .view('User/UserBooking/UserBookingEdit')
                 .view('User/UserLeyout/UserFooter');
     }
 

@@ -100,6 +100,7 @@ $(function() {
 
     <script>
 flatpickr.localize(flatpickr.l10ns.th);
+
 $(".selector").flatpickr({
     dateFormat: "Y-m-d",
     altInput: true,
@@ -109,6 +110,20 @@ $(".selector").flatpickr({
         thai_Y = parseInt(moment(selectedDates[0]).format('YYYY')) + 543;
         instance.altInput.value = thai_DM + " " + thai_Y;
     }
+});
+
+$(".selectorEdit").flatpickr({
+    //dateFormat: "Y-m-d",
+    altFormat: "j F Y",
+    altInput: true,
+    onReady: function (selectedDates, dateStr, instance) {
+    // ปรับปีในวันที่ที่ถูกเลือก
+    const selectedDate = instance.selectedDates[0];
+    if (selectedDate) {
+      selectedDate.setFullYear(selectedDate.getFullYear() + 543);
+      instance.setDate(selectedDate);
+    }
+}
 });
 
 $(".selectorTime").flatpickr({

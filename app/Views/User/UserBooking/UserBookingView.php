@@ -72,11 +72,11 @@
                                     <?php $CheckDisble = $v_Booking->booking_status == "ยกเลิกโดยผู้จอง"?"disabled":""?>
                                     <?php $CheckDisbleApprove = $v_Booking->booking_status == "อนุมัติ"?"disabled":""?>
                                     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                        <button type="button" class="btn btn-warning 
+                                        <a href="<?=base_url('Booking/Edit/'.$v_Booking->booking_id)?>" class="btn btn-warning 
                                         <?=$CheckDisble.' '.$CheckDisbleApprove?>">แก้ไข
-                                        </button>
+                                        </a>
                                         <button type="button" id="BtnCancelBooking"
-                                            class="btn btn-danger <?=$CheckDisble?>"
+                                            class="btn btn-danger <?=$CheckDisbleApprove?>"
                                             key-id="<?=$v_Booking->booking_id;?>">ยกเลิก</button>
                                     </div>
                                 </td>

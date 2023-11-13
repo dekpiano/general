@@ -116,6 +116,38 @@ $(document).on('submit', '#FormAddBooking', function(e) {
     });
 });
 
+$(document).on('submit', '#FormEditBooking', function(e) {
+    e.preventDefault();
+    $.ajax({
+        url: "../../Booking/DB/Update",
+        method: "POST",
+        data: $(this).serialize(),
+        beforeSend: function() {
+            $('#BtnSubBooking').html('<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span class="">กำลังบันทึก...</span>');
+            $('#BtnSubBooking').addClass("disabled");
+        },
+        success: function(data) {
+            console.log(data);
+            if (data > 0) {
+                Swal.fire({
+                    title: 'แจ้งเตือน?',
+                    text: "แก้ไขการจองสำเร็จ!",
+                    icon: 'success',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'ตกลง!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "../../Booking/View/" + data;
+                    }
+                })
+            }
+            $('#BtnSubBooking').removeClass("disabled");
+            $('#spinner').remove();
+            $('#BtnSubBooking').html("จอง");
+        }
+    });
+});
+
 $(document).on('click', '#BtnCancelBooking', function() {
     //alert($(this).attr('key-id'));
     Swal.fire({
