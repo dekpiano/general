@@ -53,15 +53,21 @@
                         <div class="card-body">
                             <form id="FormAddBooking" class="needs-validation" novalidate>
                                 <div class="row mb-3">
-                                    <div class="col-md-6">
+                                <div class="col-md-4">
+                                        <label class="form-label" for="">เลขที่จอง</label>
+                                        <input type="text" id="booking_order" name="booking_order" class="form-control-plaintext" placeholder="ชื่อห้อง"
+                                            value="<?=$BookLatest?>" readonly>
+                                       
+                                    </div>
+                                    <div class="col-md-4">
                                         <label class="form-label" for="">ชื่อห้อง</label>
-                                        <input type="text" id="" name="" class="form-control" placeholder="ชื่อห้อง"
+                                        <input type="text" id="" name="" class="form-control-plaintext" placeholder="ชื่อห้อง"
                                             value="<?=$loca->location_name?>" readonly>
                                         <input type="hidden" id="booking_locationroom" name="booking_locationroom"
                                             class="form-control" placeholder="ชื่อห้อง" value="<?=$loca->location_ID?>"
                                             readonly>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label class="form-label" for="booking_number">จำนวนผู้เข้าร่วม</label>
                                         <div class="input-group input-group-merge">
                                             <input type="number" id="booking_number" name="booking_number"

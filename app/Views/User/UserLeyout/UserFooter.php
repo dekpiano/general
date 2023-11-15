@@ -65,7 +65,7 @@
     </html>
 
     <?php if($uri->getSegment(1) == 'Booking') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=15"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=16"></script>
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=14"></script>
     <?php endif; ?>
@@ -133,3 +133,24 @@ $(".selectorTime").flatpickr({
     time_24hr: true
 });
     </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var lazyLoadImages = document.querySelectorAll('.lazy-load');
+
+      var lazyLoad = function () {
+        lazyLoadImages.forEach(function (img) {
+          if (img.getBoundingClientRect().top < window.innerHeight && img.dataset.src) {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+          }
+        });
+      };
+
+      // Initial load
+      lazyLoad();
+
+      // Lazy load on scroll
+      document.addEventListener('scroll', lazyLoad);
+    });
+  </script>

@@ -83,7 +83,14 @@ class ConUserBooking extends BaseController
         ->select('booking_title,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd')        
         ->where('booking_locationroom',$LocationID)
         ->get()->getResult();
-        //echo "<pre>";print_r($data['BookignToday']); exit();
+        $data['BookingNow'] = $tb_booking->orderBy('booking_id','DESC')->get()->getRow();
+        if($data['BookingNow']->booking_order == ""){
+            $data['BookLatest'] = "BK_".date('Y')."0001";
+        }else{
+           $sub = explode('_',$data['BookingNow']->booking_order);
+           $data['BookLatest'] = $sub[0]."_".((int)$sub[1])+1;
+        }
+        //echo "<pre>";print_r($BookLatest); exit();
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
@@ -104,6 +111,7 @@ class ConUserBooking extends BaseController
         }
         $data = [
             'booking_locationroom' => $this->request->getVar('booking_locationroom'),
+            'booking_order' => $this->request->getVar('booking_order'),
             'booking_number' => $this->request->getVar('booking_number'),
             'booking_title' => $this->request->getVar('booking_title'),
             'booking_dateStart' => $this->request->getVar('booking_dateStart'),
@@ -136,6 +144,7 @@ class ConUserBooking extends BaseController
         }
         $data = [
             'booking_locationroom' => $this->request->getVar('booking_locationroom'),
+            'booking_order' => $this->request->getVar('booking_order'),
             'booking_number' => $this->request->getVar('booking_number'),
             'booking_title' => $this->request->getVar('booking_title'),
             'booking_dateStart' => $this->request->getVar('booking_dateStart'),
@@ -199,7 +208,7 @@ class ConUserBooking extends BaseController
         }
       
        $DBbooking
-        ->select('booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
+        ->select('booking_order,booking_telephone,booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
         $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
         $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
         $Where;
@@ -408,7 +417,7 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_id,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_status,booking_reason,location_name,pers_prefix,pers_firstname,pers_lastname')
+       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_status,booking_reason,location_name,pers_prefix,pers_firstname,pers_lastname')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
        //->where('booking_status','อนุมัติ')
@@ -417,6 +426,7 @@ class ConUserBooking extends BaseController
         foreach ($S_data as $key => $value) {
             $data[]=[
                 'booking_id' => $value->booking_id,
+                'booking_order' => $value->booking_order,
                 'booking_title' => $value->booking_title,
                 'booking_dateStart' => $Datethai->thai_date_and_time_short(strtotime($value->booking_dateStart)),
                 'booking_dateEnd' => $Datethai->thai_date_and_time_short(strtotime($value->booking_dateEnd)),
@@ -426,6 +436,7 @@ class ConUserBooking extends BaseController
                 'booking_Booker' => $value->booking_Booker,
                 'booking_status' => $value->booking_status,
                 'booking_reason' => $value->booking_reason,
+                'booking_telephone' => $value->booking_telephone,
                 'booker' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname
             ];        
         }

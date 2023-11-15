@@ -16,8 +16,8 @@
                
                 <div class="col-md-6 col-lg-3">
                     <div class="card h-100">
-                        <img class="card-img-top"
-                            src="<?=base_url('uploads/admin/LocationRoom/'.$v_LocationRoom->location_img)?>"
+                        <img class="lazy-load card-img-top"
+                        data-src="<?=base_url('uploads/admin/LocationRoom/'.$v_LocationRoom->location_img)?>"
                             alt="<?=$v_LocationRoom->location_name?>">
                         <div class="card-body">
                             <h5 class="card-title"><?=$v_LocationRoom->location_name?></h5>

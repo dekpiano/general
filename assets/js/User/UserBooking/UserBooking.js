@@ -1,5 +1,8 @@
 $('#TBShowDataBooking').DataTable({
-    responsive: true
+    responsive: true,
+    order: [
+        [0, 'desc']
+    ],
 });
 $('#TBShowDataBookingAdmin').DataTable({
     responsive: true,
@@ -8,9 +11,10 @@ $('#TBShowDataBookingAdmin').DataTable({
         'url': '../../Booking/DB/DataTable/Approve/Admin'
     },
     order: [
-        [3, 'desc']
+        [0, 'desc']
     ],
     'columns': [
+        { data: 'booking_order' },
         { data: 'booking_title' },
         {
             data: 'location_name',
@@ -18,7 +22,12 @@ $('#TBShowDataBookingAdmin').DataTable({
                 return data + "<br><small>" + row.booking_dateStart + ' ถึง ' + row.booking_dateEnd + '</small>';
             }
         },
-        { data: 'booker' },
+        {
+            data: 'booker',
+            render: function(data, type, row) {
+                return data + '<br><small>' + row.booking_telephone + '</small>';
+            }
+        },
         {
             data: 'booking_status',
             render: function(data, type, row) {

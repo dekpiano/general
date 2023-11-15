@@ -22,6 +22,7 @@
                     <table class="table table-hover display nowrap"  id="TBShowDataBooking">
                         <thead>
                             <tr>
+                            <th>เลขที่จอง</th>
                                 <th>หัวข้อ</th>
                                 <th>ชื่อห้อง</th>
                                 <th>ชื่อผู้จอง</th>
@@ -35,6 +36,9 @@
                         <tbody class="table-border-bottom-0">
                             <?php foreach ($Booking as $key => $v_Booking):?>
                             <tr>
+                            <td>
+                            <?=$v_Booking->booking_order?>
+                            </td>
                                 <td>
                                     <?=$v_Booking->booking_title?>
                                     <div>
@@ -53,7 +57,12 @@
                                         </small>
                                     </div>
                                 </td>
-                                <td><?=$v_Booking->pers_prefix.$v_Booking->pers_firstname.' '.$v_Booking->pers_lastname?></td>
+                                <td><?=$v_Booking->pers_prefix.$v_Booking->pers_firstname.' '.$v_Booking->pers_lastname?>
+                                <div>
+                                <small>โทรศัพท์ : <?=$v_Booking->booking_telephone?></small>
+                                </div>
+                                
+                            </td>
                                 <td>
                                     <?php if($v_Booking->booking_status == 'รอตรวจสอบ'){
                                         $Color =  "warning";

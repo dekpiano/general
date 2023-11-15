@@ -17,6 +17,7 @@
                     <table class="table table-hover display nowrap"  id="TBShowDataBookingAdmin">
                         <thead>
                             <tr>
+                            <th>เลขที่จอง</th>
                                 <th>หัวข้อ</th>
                                 <th>ชื่อห้อง</th>
                                 <th>ชื่อผู้จอง</th>
