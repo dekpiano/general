@@ -48,9 +48,13 @@
                 </div>
 
 
-                <?php if(isset($_SESSION['username']) && $_SESSION['status'] =="AdminGeneral"):?>
+                <?php if(isset($_SESSION['username']) && $_SESSION['status'] =="AdminGeneral" || $_SESSION['status'] =="ExecutiveGeneral"):?>
                 <div class="col-sm-6 col-lg-3 mb-4 offset-md-3">
+                    <?php if($_SESSION['status'] =="AdminGeneral"):?>
                     <a href="<?=base_url('Booking/Approve/Admin')?>">
+                    <?php elseif($_SESSION['status'] =="ExecutiveGeneral"): ?>
+                        <a href="<?=base_url('Booking/Approve/Executive')?>">
+                    <?php endif;?>
                         <div class="card h-100 bg-info text-white">
                             <div class="card-body ">
                                 <div class="d-flex align-items-center mb-2 pb-1">

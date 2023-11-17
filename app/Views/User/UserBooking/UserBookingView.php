@@ -64,22 +64,22 @@
                                 
                             </td>
                                 <td>
-                                    <?php if($v_Booking->booking_status == 'รอตรวจสอบ'){
+                                    <?php if($v_Booking->booking_admin_approve == 'รอตรวจสอบ'){
                                         $Color =  "warning";
-                                    }elseif($v_Booking->booking_status == 'อนุมัติ'){
+                                    }elseif($v_Booking->booking_admin_approve == 'อนุมัติ'){
                                         $Color =  "success";
                                     }else{
                                         $Color =  "danger";
                                     }?>
                                     <span class="badge bg-label-<?=$Color;?> me-1">
-                                        <?=$v_Booking->booking_status?>
+                                        <?=$v_Booking->booking_admin_approve?>
                                     </span>
                                 </td>
-                                <td><?=$v_Booking->booking_reason?></td>
+                                <td><?=$v_Booking->booking_admin_reason?></td>
                                 <?php if(isset($_SESSION['username']) && !isset($All)) :  ?>
                                 <td>
-                                    <?php $CheckDisble = $v_Booking->booking_status == "ยกเลิกโดยผู้จอง"?"disabled":""?>
-                                    <?php $CheckDisbleApprove = $v_Booking->booking_status == "อนุมัติ"?"disabled":""?>
+                                    <?php $CheckDisble = $v_Booking->booking_admin_approve == "ยกเลิกโดยผู้จอง"?"disabled":""?>
+                                    <?php $CheckDisbleApprove = $v_Booking->booking_admin_approve == "อนุมัติ"?"disabled":""?>
                                     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                                         <a href="<?=base_url('Booking/Edit/'.$v_Booking->booking_id)?>" class="btn btn-warning 
                                         <?=$CheckDisble.' '.$CheckDisbleApprove?>">แก้ไข

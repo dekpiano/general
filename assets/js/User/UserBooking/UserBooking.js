@@ -29,7 +29,7 @@ $('#TBShowDataBookingAdmin').DataTable({
             }
         },
         {
-            data: 'booking_status',
+            data: 'booking_admin_approve',
             render: function(data, type, row) {
                 if (data === "อนุมัติ") {
                     return '<span class="badge bg-label-success me-1">' + data + '</span>';
@@ -39,11 +39,70 @@ $('#TBShowDataBookingAdmin').DataTable({
 
             }
         },
-        { data: 'booking_reason' },
+        { data: 'booking_admin_reason' },
         {
             data: 'booking_id',
             render: function(data, type, row) {
-                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-success ' + (row.booking_status == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div>';
+                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-success ' + (row.booking_admin_approve == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div>';
+            }
+        }
+    ]
+});
+
+$('#TBShowDataBookingExecutive').DataTable({
+    responsive: true,
+    'serverMethod': 'post',
+    'ajax': {
+        'url': '../../Booking/DB/DataTable/Approve/Executive'
+    },
+    order: [
+        [0, 'desc']
+    ],
+    'columns': [
+        { data: 'booking_order' },
+        { data: 'booking_title' },
+        {
+            data: 'location_name',
+            render: function(data, type, row) {
+                return data + "<br><small>" + row.booking_dateStart + ' ถึง ' + row.booking_dateEnd + '</small>';
+            }
+        },
+        {
+            data: 'booker',
+            render: function(data, type, row) {
+                return data + '<br><small>' + row.booking_telephone + '</small>';
+            }
+        },
+        {
+            data: 'booking_admin_approve',
+            render: function(data, type, row) {
+                if (data === "อนุมัติ") {
+                    return '<span class="badge bg-label-success me-1"><i class="bx bxs-check-circle"></i>' + data + '</span>';
+                } else if (data === "ไม่อนุมัติ") {
+                    return '<span class="badge bg-label-danger me-1"><i class="bx bx-x"></i>' + data + '</span> <div> <small>เหตุผล : ' + row.booking_admin_reason + '</small></div>';
+                } else {
+                    return "";
+                }
+
+            }
+        },
+        {
+            data: 'booking_executive_approve',
+            render: function(data, type, row) {
+                if (data === "อนุมัติ") {
+                    return '<span class="badge bg-label-success me-1"><i class="bx bxs-check-circle"></i>' + data + '</span>';
+                } else if (data === "ไม่อนุมัติ") {
+                    return '<span class="badge bg-label-danger me-1"><i class="bx bx-x"></i>' + data + '</span> <div> <small>เหตุผล : ' + row.booking_executive_reason + '</small></div>';
+                } else {
+                    return "";
+                }
+
+            }
+        },
+        {
+            data: 'booking_id',
+            render: function(data, type, row) {
+                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-success ' + (row.booking_executive_approve == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div>';
             }
         }
     ]
@@ -81,7 +140,7 @@ $(document).on('click', '#BtnNoApproveBooking', function() {
         if (result.value) {
             $.post('../../Booking/DB/BookingNoApproveAdmin', {
                 BookingID: Booking_id,
-                booking_reason: result.value
+                booking_admin_reason: result.value
             }, function(data) {
                 Swal.fire("ดำเนินการ ไม่อนุมัติ เรียบร้อยแล้ว!");
                 $('#TBShowDataBookingAdmin').DataTable().ajax.reload();

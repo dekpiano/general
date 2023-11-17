@@ -37,6 +37,7 @@ $routes->get('Booking/Add/(:any)', 'ConUserBooking::BookingAdd/$1');
 $routes->get('Booking/View/(:any)', 'ConUserBooking::BookingView/$1');
 $routes->get('Booking/Edit/(:any)', 'ConUserBooking::BookingEdit/$1');
 $routes->get('Booking/Approve/Admin', 'ConUserBooking::BookingViewApproveAdmin');
+$routes->get('Booking/Approve/Executive', 'ConUserBooking::BookingViewApproveExecutive');
 $routes->match(['get', 'post'],'Booking/DB/Insert', 'ConUserBooking::BookingInsert');
 $routes->match(['get', 'post'],'Booking/DB/Update', 'ConUserBooking::BookingUpdate');
 $routes->match(['get', 'post'],'Booking/DB/Cancel', 'ConUserBooking::BookingCancel');
@@ -45,6 +46,7 @@ $routes->match(['get', 'post'],'Booking/DB/CheckDateBooking', 'ConUserBooking::C
 $routes->match(['get', 'post'],'Booking/DB/CheckTimeBooking', 'ConUserBooking::CheckTimeBooking');
 $routes->match(['get', 'post'],'User/Dictation/ShowData', 'ConUserWorkSaraban::DictationShowData');
 $routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Admin', 'ConUserBooking::BookingDataTableApproveAdmin');
+$routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Executive', 'ConUserBooking::BookingDataTableApproveExecutive');
 $routes->match(['get', 'post'],'Booking/DB/BookingApproveAdmin', 'ConUserBooking::BookingCheckApproveAdmin');
 $routes->match(['get', 'post'],'Booking/DB/BookingNoApproveAdmin', 'ConUserBooking::BookingNoApproveAdmin');
 

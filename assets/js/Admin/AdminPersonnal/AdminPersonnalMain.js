@@ -1,35 +1,3 @@
-var items = document.querySelector('.sortable');
-Sortable.create(items, {
-    animation: 150,
-    chosenClass: "selected",
-    ghostClass: "ghost",
-    dragClass: "drag",
-    onEnd: () => {
-        //console.log('an element was inserted');
-    },
-    group: "cards",
-    store: {
-        set: (sortable) => {
-            const orden = sortable.toArray();
-            localStorage.setItem(sortable.options.group.name, orden.join('|'));
-           // console.log(orden);
-            
-            $.post("../../../../Admin/WorkPerson/Personnel/DB/SortableTeacher",{
-                data:orden
-            },function(data, status){
-                console.log("Data: " + data + "\nStatus: " + status);
-            });
-        },
-        //get list order       
-        get: (sortable) => {
-            const orden = localStorage.getItem(sortable.options.group.name);
-            return orden ? orden.split('|') : [];
-            console.log(orden);
-        }
-        
-    }
-});
-
 $(document).on('submit', '#FormPersonnalAdd', function(e) {
     e.preventDefault();
 
@@ -65,4 +33,37 @@ $(document).on('submit', '#FormPersonnalAdd', function(e) {
             }
         }
     });
+});
+
+
+var items = document.querySelector('.sortable');
+Sortable.create(items, {
+    animation: 150,
+    chosenClass: "selected",
+    ghostClass: "ghost",
+    dragClass: "drag",
+    onEnd: () => {
+        //console.log('an element was inserted');
+    },
+    group: "cards",
+    store: {
+        set: (sortable) => {
+            const orden = sortable.toArray();
+            localStorage.setItem(sortable.options.group.name, orden.join('|'));
+            // console.log(orden);
+
+            $.post("../../../../Admin/WorkPerson/Personnel/DB/SortableTeacher", {
+                data: orden
+            }, function(data, status) {
+                console.log("Data: " + data + "\nStatus: " + status);
+            });
+        },
+        //get list order       
+        get: (sortable) => {
+            const orden = localStorage.getItem(sortable.options.group.name);
+            return orden ? orden.split('|') : [];
+            console.log(orden);
+        }
+
+    }
 });

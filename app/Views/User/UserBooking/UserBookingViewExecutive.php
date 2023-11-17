@@ -14,16 +14,16 @@
             <div class="card">
                 <h5 class="card-header">ข้อมูลการจองทั้งหมด</h5>
                 <div class="table-responsive text-nowrap p-3">
-                    <table class="table table-hover display nowrap"  id="TBShowDataBookingAdmin">
+                    <table class="table table-hover display nowrap"  id="TBShowDataBookingExecutive">
                         <thead>
                             <tr>
                             <th>เลขที่จอง</th>
                                 <th>หัวข้อ</th>
                                 <th>ชื่อห้อง</th>
                                 <th>ชื่อผู้จอง</th>
-                                <th>สถานะ</th>
-                                <th>เหตุผล</th>                              
-                                <th>อนุมัติโดย Admin</th>
+                                <th>อนุมัติโดย Admin</th>          
+                                <th>อนุมัติโดย ผู้บริหาร</th>
+                                <th>คำสั่ง</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">

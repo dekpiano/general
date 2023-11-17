@@ -34,8 +34,8 @@ class ConUserBooking extends BaseController
 
         $DBbooking = $database->table('tb_booking');
         $data['CountbookingAll'] = $DBbooking->countAll();
-        $data['NumRowsWaitApprove'] = $DBbooking->where('booking_status','ไม่อนุมัติ')->get()->getNumRows();
-        $data['NumRowsApprove'] = $DBbooking->where('booking_status','อนุมัติ')->get()->getNumRows();
+        $data['NumRowsWaitApprove'] = $DBbooking->where('booking_admin_approve','ไม่อนุมัติ')->get()->getNumRows();
+        $data['NumRowsApprove'] = $DBbooking->where('booking_admin_approve','อนุมัติ')->get()->getNumRows();
 
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
@@ -123,7 +123,7 @@ class ConUserBooking extends BaseController
             'booking_Booker' => $this->request->getVar('booking_Booker'),
             'booking_telephone' => $this->request->getVar('booking_telephone'),
             'booking_equipment' => $equipment,
-            'booking_status' => "รอตรวจสอบ" 
+            'booking_admin_approve' => "รอตรวจสอบ" 
         ];
         
         $DBlocation->insert($data);
@@ -156,7 +156,7 @@ class ConUserBooking extends BaseController
             'booking_Booker' => $this->request->getVar('booking_Booker'),
             'booking_telephone' => $this->request->getVar('booking_telephone'),
             'booking_equipment' => $equipment,
-            'booking_status' => "รอตรวจสอบ" 
+            'booking_admin_approve' => "รอตรวจสอบ" 
         ];
 
         $DBlocation->where('booking_id',$this->request->getVar('booking_id'));
@@ -208,7 +208,7 @@ class ConUserBooking extends BaseController
         }
       
        $DBbooking
-        ->select('booking_order,booking_telephone,booking_title,booking_locationroom,booking_Booker,booking_status,booking_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
+        ->select('booking_order,booking_telephone,booking_title,booking_locationroom,booking_Booker,booking_admin_approve,booking_admin_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
         $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
         $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
         $Where;
@@ -268,7 +268,7 @@ class ConUserBooking extends BaseController
         $DBbooking = $database->table('tb_booking');
 
         $data = [
-            'booking_status' => 'ยกเลิกโดยผู้จอง'
+            'booking_admin_approve' => 'ยกเลิกโดยผู้จอง'
         ];        
         $DBbooking->where('booking_id', $this->request->getVar('KeyID'));
         echo $DBbooking->update($data);
@@ -281,7 +281,8 @@ class ConUserBooking extends BaseController
 
        $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,location_name')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-       ->where('booking_status','อนุมัติ')
+       ->where('booking_admin_approve','อนุมัติ')
+       ->where('booking_executive_approve','อนุมัติ')
        ->get()->getResult();
 
         foreach ($S_data as $key => $value) {
@@ -411,16 +412,40 @@ class ConUserBooking extends BaseController
                 .view('User/UserLeyout/UserFooter');
     }
 
+    public function BookingViewApproveExecutive(){
+        $session = session();
+        $data = $this->DataMain();
+        $data['title']="ดูข้อมูลจองห้องประชุมและสถานที่ (ผู้บริหาร)";
+        $data['description']="ดูข้อมูลจองห้องประชุมและสถานที่ (ผู้บริหาร)";
+        $data['UrlMenuMain'] = 'Booking';
+        $data['UrlMenuSub'] = 'BookingView';     
+        $data['Datethai'] = new Datethai();   
+
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+        $DBpersonnel = $database->table('personnel');
+        $DBpers = \Config\Database::connect('personnel');
+
+        $data['Booking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
+      
+       // echo '<pre>';print_r($data['Booking']); exit();
+        
+        return view('User/UserLeyout/UserHeader',$data)
+                .view('User/UserLeyout/UserMenuLeft')
+                .view('User/UserBooking/UserBookingViewExecutive')
+                .view('User/UserLeyout/UserFooter');
+    }
+
     public function BookingDataTableApproveAdmin(){
         $session = session();
         $Datethai = new Datethai();  
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_status,booking_reason,location_name,pers_prefix,pers_firstname,pers_lastname')
+       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,location_name,pers_prefix,pers_firstname,pers_lastname')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
-       //->where('booking_status','อนุมัติ')
+       //->where('booking_admin_approve','อนุมัติ')
        ->get()->getResult();
        $data = array();
         foreach ($S_data as $key => $value) {
@@ -434,8 +459,46 @@ class ConUserBooking extends BaseController
                 'booking_timeEnd' => $value->booking_timeEnd,
                 'location_name' => $value->location_name,
                 'booking_Booker' => $value->booking_Booker,
-                'booking_status' => $value->booking_status,
-                'booking_reason' => $value->booking_reason,
+                'booking_admin_approve' => $value->booking_admin_approve,
+                'booking_admin_reason' => $value->booking_admin_reason,
+                'booking_telephone' => $value->booking_telephone,
+                'booker' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname
+            ];        
+        }
+
+        $response = array(           
+            "aaData" => $data
+         );
+         echo json_encode($response);
+    } 
+
+    public function BookingDataTableApproveExecutive(){
+        $session = session();
+        $Datethai = new Datethai();  
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,location_name,pers_prefix,pers_firstname,pers_lastname,booking_executive_approve,booking_executive_reason')
+       ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
+       ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
+       //->where('booking_admin_approve','อนุมัติ')
+       ->get()->getResult();
+       $data = array();
+        foreach ($S_data as $key => $value) {
+            $data[]=[
+                'booking_id' => $value->booking_id,
+                'booking_order' => $value->booking_order,
+                'booking_title' => $value->booking_title,
+                'booking_dateStart' => $Datethai->thai_date_and_time_short(strtotime($value->booking_dateStart)),
+                'booking_dateEnd' => $Datethai->thai_date_and_time_short(strtotime($value->booking_dateEnd)),
+                'booking_timeStart' => $value->booking_timeStart,
+                'booking_timeEnd' => $value->booking_timeEnd,
+                'location_name' => $value->location_name,
+                'booking_Booker' => $value->booking_Booker,
+                'booking_admin_approve' => $value->booking_admin_approve,
+                'booking_admin_reason' => $value->booking_admin_reason,
+                'booking_executive_approve' => $value->booking_executive_approve,
+                'booking_executive_reason' => $value->booking_executive_reason,
                 'booking_telephone' => $value->booking_telephone,
                 'booker' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname
             ];        
@@ -453,8 +516,14 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
+        if($_SESSION['status'] === "ExecutiveGeneral"){
+            $Approve = ['booking_executive_approve'=>'อนุมัติ','booking_executive_reason'=>'','booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
+        }elseif($_SESSION['status'] === "AdminGeneral"){
+            $Approve = ['booking_admin_approve'=>'อนุมัติ','booking_admin_reason'=>'','booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
+        }
+
         echo $DBbooking->where('booking_id',$this->request->getPost('BookingID'))
-        ->update(['booking_status'=>'อนุมัติ','booking_reason'=>'','booking_datecheck'=>date("Y-m-d H:i:s")]);
+        ->update($Approve);
 
     }
 
@@ -464,7 +533,13 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-        echo $DBbooking->where('booking_id',$this->request->getPost('BookingID'))->update(['booking_status'=>'ไม่อนุมัติ','booking_reason'=>$this->request->getPost('booking_reason'),'booking_datecheck'=>date("Y-m-d H:i:s")]);
+        if($_SESSION['status'] === "ExecutiveGeneral"){
+            $NoApprove = ['booking_executive_approve'=>'ไม่อนุมัติ','booking_executive_reason'=>$this->request->getPost('booking_admin_reason'),'booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
+        }elseif($_SESSION['status'] === "AdminGeneral"){
+            $NoApprove = ['booking_admin_approve'=>'ไม่อนุมัติ','booking_admin_reason'=>$this->request->getPost('booking_admin_reason'),'booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
+        }
+
+        echo $DBbooking->where('booking_id',$this->request->getPost('BookingID'))->update($NoApprove);
     }
 
 }
