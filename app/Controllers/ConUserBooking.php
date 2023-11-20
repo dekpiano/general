@@ -550,8 +550,32 @@ class ConUserBooking extends BaseController
             $Approve = ['booking_admin_approve'=>'อนุมัติ','booking_admin_reason'=>'','booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
         }
 
-        echo $DBbooking->where('booking_id',$this->request->getPost('BookingID'))
+        $upApprove = $DBbooking->where('booking_id',$this->request->getPost('BookingID'))
         ->update($Approve);
+        if($upApprove){
+            $email = \Config\Services::email(); // loading for use
+           
+            $email->setFrom('admin_booking@skj.ac.th',"ระบบการจองอาคารสถานที่");
+     
+            // Send to Users     
+            $email->setTo([
+                "dekpiano@skj.ac.th"
+            ]);
+
+            $email->setSubject("การจองรออนุมัติจากผู้บริหาร");
+
+            $html = "<a href='https://general.skj.ac.th/Booking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+            $email->setMessage($html);
+
+            // Send email
+            if ($email->send()) {
+                echo $this->request->getVar('booking_locationroom');
+            } else {
+                $data = $email->printDebugger(['headers']);
+                print_r($data);
+            }
+        }
+            
 
     }
 
