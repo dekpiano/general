@@ -28,7 +28,11 @@
     <meta property="og:title" content="<?=$title;?>" />
     <meta property="og:description" content="<?= $description ?>" />
     <meta property="og:type" content="website" />
-            <meta property="og:image" content="<?=base_url();?>uploads/banner/home/E-office.png" />
+    <?php if($uri->getSegment(1) == 'Booking') : ?>
+      <meta property="og:image" content="<?=base_url();?>uploads/banner/booking/bannerBooking.png" />
+      <?php elseif($uri->getSegment(1) == 'Repair'): ?>
+            <meta property="og:image" content="<?=base_url();?>uploads/banner/repair/bannerRepair.jpg" />
+    <?php endif?>
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="<?=base_url()?>/assets/img/favicon/favicon.ico" />

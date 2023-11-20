@@ -84,13 +84,14 @@ class ConUserBooking extends BaseController
         ->where('booking_locationroom',$LocationID)
         ->get()->getResult();
         $data['BookingNow'] = $tb_booking->orderBy('booking_id','DESC')->get()->getRow();
-        if($data['BookingNow']->booking_order == ""){
+       
+        if(isset($data['BookingNow']->booking_order) == ""){
             $data['BookLatest'] = "BK_".date('Y')."0001";
         }else{
-           $sub = explode('_',$data['BookingNow']->booking_order);
-           $data['BookLatest'] = $sub[0]."_".((int)$sub[1])+1;
+           $sub = explode('_',$data['BookingNow']->booking_order);          
+           $data['BookLatest'] = $sub[0]."_".(((int)$sub[1])+1);
         }
-        //echo "<pre>";print_r($BookLatest); exit();
+        
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
@@ -125,9 +126,33 @@ class ConUserBooking extends BaseController
             'booking_equipment' => $equipment,
             'booking_admin_approve' => "รอตรวจสอบ" 
         ];
+   
+        if($DBlocation->insert($data)){
+            $email = \Config\Services::email(); // loading for use
+           
+            $email->setFrom('admin_booking@skj.ac.th',"ระบบการจองอาคารสถานที่");
+     
+            // Send to Users     
+            $email->setTo([
+                "dekpiano@skj.ac.th","juthaporn.p@skj.ac.th"
+            ]);
+
+            $email->setSubject("แจ้งการจอง เลขที่ ".$this->request->getVar('booking_order'));
+
+            $html = "<a href='https://general.skj.ac.th/Booking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+            $email->setMessage($html);
+
+            // Send email
+            if ($email->send()) {
+                echo $this->request->getVar('booking_locationroom');
+            } else {
+                $data = $email->printDebugger(['headers']);
+                print_r($data);
+            }
+        }
         
-        $DBlocation->insert($data);
-        echo $this->request->getVar('booking_locationroom');
+
+        //echo $this->request->getVar('booking_locationroom');
         //print_r($this->request->getVar());
     }
 
@@ -390,6 +415,9 @@ class ConUserBooking extends BaseController
 
     public function BookingViewApproveAdmin(){
         $session = session();
+        if(!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager"){
+            header("Location:".base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])); exit();
+        } 
         $data = $this->DataMain();
         $data['title']="ดูข้อมูลจองห้องประชุมและสถานที่ (Admin)";
         $data['description']="ดูข้อมูลจองห้องประชุมและสถานที่ (Admin)";

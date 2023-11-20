@@ -133,7 +133,7 @@ class ConUserRepair extends BaseController
                // print_r($Teach);exit();
                 
                 $email = \Config\Services::email();
-                $email->setFrom('dekpiano@skj.ac.th', 'จากระบบแจ้งซ่อม');
+                $email->setFrom('adminRepair@skj.ac.th', 'จากระบบแจ้งซ่อม');
                 $email->setTo('dekpiano@skj.ac.th');
                 $email->setSubject('แจ้งซ่อมจาก '.$Teach[0]->pers_prefix.$Teach[0]->pers_firstname.' '.$Teach[0]->pers_lastname);
 
