@@ -31,15 +31,32 @@
 
             <div class="card p-3">
                 <h5 class="card-header">ตารางแจ้งซ่อม</h5>
+                <style>
+                @keyframes typing {
+                    from {
+                        width: 0;
+                    }
 
+                    to {
+                        width: 100%;
+                    }
+                }
+
+                .loading-text {
+                    overflow: hidden;
+                    white-space: nowrap;
+                    display: inline-block;
+                    animation: typing 3s steps(40, end) infinite;
+                }
+                </style>
                 <table class="table table-hover nowrap dataTable dtr-inline collapsed" id="TbDataRepair">
                     <thead>
                         <tr>
                             <th>วันที่แจ้งซ่อม</th>
+                            <th>สถานะ</th>
                             <th>ใบแจ้งซ่อม </th>
                             <th>ผู้แจ้งซ่อม </th>
                             <th>รายการแจ้งซ่อม</th>
-                            <th>สถานะ</th>
                             <th>รายละเอียด</th>
                         </tr>
                     </thead>

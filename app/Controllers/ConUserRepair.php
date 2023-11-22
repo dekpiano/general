@@ -188,7 +188,7 @@ class ConUserRepair extends BaseController
            $data[] = array(
                 "repair_ID"=>$row->repair_ID,
               "repair_order"=>$row->repair_order,
-              "repair_datetime"=>$Datethai->thai_date_and_time(strtotime($row->repair_datetime)),
+              "repair_datetime"=>$Datethai->thai_date_fullmonth(strtotime($row->repair_datetime)),
               "repair_userID"=>$row->repair_userID,
               "repair_caselist"=>$row->repair_caselist,
               "repair_status"=>$row->repair_status,

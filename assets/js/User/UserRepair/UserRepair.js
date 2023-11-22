@@ -46,20 +46,17 @@ function ShowDataLocationRoom() {
             'url': 'Repair/DataTable/ShowRepari'
         },
         order: [
-            [1, 'desc']
+            [2, 'desc']
         ],
         'columns': [
             { data: 'repair_datetime' },
-            { data: 'repair_order' },
-            { data: 'UserFullname' },
-            { data: 'repair_caselist' },
             {
                 data: 'repair_status',
                 render: function(data, type, row) {
                     if (data == "รอดำเนินการ") {
-                        return '<span class="badge  bg-label-warning">' + data + '</span>';
+                        return '<span class="badge  bg-label-warning ">' + data + '</span>';
                     } else if (data == "กำลังดำเนินการ") {
-                        return '<span class="badge  bg-label-primary">' + data + '</span>';
+                        return '<span class="badge  bg-label-primary loading-text">' + data + '</span>';
                     } else if (data == "ดำเนินการเรียบร้อย") {
                         return '<span class="badge  bg-label-success">' + data + '</span>';
                     } else {
@@ -68,6 +65,10 @@ function ShowDataLocationRoom() {
 
                 }
             },
+            { data: 'repair_order' },
+            { data: 'UserFullname' },
+            { data: 'repair_caselist' },
+
             {
                 data: 'repair_ID',
                 render: function(data, type, row) {
