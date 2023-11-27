@@ -38,9 +38,27 @@
                                         <span class="avatar-initial rounded  bg-label-warning"><i
                                                 class="bx bx-time-five"></i></span>
                                     </div>
-                                    <h4 class="ms-1 mb-0"><?=$CountbookingAll;?> รายการ</h4>
+                                    <h4 class="ms-1 mb-0 text-white"><?=$CountbookingAll;?> รายการ</h4>
                                 </div>
-                                <p class="mb-1 h5">สถานะจองห้องประชุม / สถานที่</p>
+                                <p class="mb-1 h5 text-white">สถานะจองห้องประชุม / สถานที่</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-sm-6 col-lg-3 mb-4">
+                    <a target="_blank" href="https://www.canva.com/design/DAF1VkidVas/KTSxUIGCXwAmE8OLcTfXyg/view?utm_content=DAF1VkidVas&utm_campaign=designshare&utm_medium=link&utm_source=editor">
+                        <div class="card h-100 bg-success">
+                            <div class="card-body ">
+                                <div class="d-flex align-items-center mb-2 pb-1">
+                                    <div class="avatar me-2">
+                                        <span class="avatar-initial rounded  bg-label-warning">
+                                        <i class='bx bx-book-bookmark'></i>
+                                        </span>
+                                    </div>
+                                    <h4 class="ms-1 mb-0 text-white">คู่มือการใช้งาน</h4>
+                                </div>
+                               
                             </div>
                         </div>
                     </a>
@@ -48,7 +66,7 @@
 
 
                 <?php if(isset($_SESSION['username']) && @$_SESSION['status'] =="AdminGeneral" || @$_SESSION['status'] =="ExecutiveGeneral"):?>
-                <div class="col-sm-6 col-lg-3 mb-4 offset-md-3">
+                <div class="col-sm-6 col-lg-3 mb-4 <?=isset($_SESSION['username']) ?"":"offset-md-3" ?>">
                     <?php if(@$_SESSION['status'] =="AdminGeneral"):?>
                     <a href="<?=base_url('Booking/Approve/Admin')?>">
                     <?php elseif(@$_SESSION['status'] =="ExecutiveGeneral"): ?>

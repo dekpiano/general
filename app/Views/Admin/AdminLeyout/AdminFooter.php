@@ -65,7 +65,7 @@
     <script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=6"></script>
     <?php endif;?>
     <?php if($uri->getSegment(2) == 'WorkPerson') : ?>
-    <script src="<?=base_url()?>/assets/js/Admin/AdminPersonnal/AdminPersonnalMain.js?v=3"></script>
+    <script src="<?=base_url()?>/assets/js/Admin/AdminPersonnal/AdminPersonnalMain.js?v=7"></script>
     <?php endif;?>
     <?php if($uri->getSegment(2) == 'Rloes') : ?>
     <script src="<?=base_url()?>/assets/js/Admin/AdminRoles/AdminRolesMain.js?v=2"></script>
@@ -107,6 +107,20 @@ $(".selector").flatpickr({
         thai_Y = parseInt(moment(selectedDates[0]).format('YYYY')) + 543;
         instance.altInput.value = thai_DM + " " + thai_Y;
     }
+});
+
+$(".selectorEdit").flatpickr({
+    //dateFormat: "Y-m-d",
+    altFormat: "j F Y",
+    altInput: true,
+    onReady: function (selectedDates, dateStr, instance) {
+    // ปรับปีในวันที่ที่ถูกเลือก
+    const selectedDate = instance.selectedDates[0];
+    if (selectedDate) {
+      selectedDate.setFullYear(selectedDate.getFullYear() + 543);
+      instance.setDate(selectedDate);
+    }
+}
 });
 
 

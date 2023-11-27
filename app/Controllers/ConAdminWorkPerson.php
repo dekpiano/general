@@ -206,7 +206,7 @@ class ConAdminWorkPerson extends BaseController
        
     }
 
-    public function FormPersonneUpdate(){
+    public function FormPersonneUpdate($IDPres){
         $session = session();
         $data = $this->DataMain();
         $data['title']="อัพเดตข้อมูลครูและบุคลากรทางการศึกษา";    
@@ -219,10 +219,60 @@ class ConAdminWorkPerson extends BaseController
         $data['position'] = $DBPosi->get()->getResult();
         $data['learning'] = $DBLear->get()->getResult();
 
+        $data['Pers'] = $DBPers->where('pers_id',$IDPres)->get()->getRow();
+        //echo '<pre>'; print_r($data['Pers']); exit();
+
         return view('Admin/AdminLeyout/AdminHeader',$data)
                 .view('Admin/AdminLeyout/AdminMenuLeft')
                 .view('Admin/AdminWorkPerson/AdminPersonUpdate')
                 .view('Admin/AdminLeyout/AdminFooter');
+    }
+
+    public function PersonneUpdateDataGeneral(){
+        $session = session();
+        $DB_Personnel = \Config\Database::connect('personnel');
+        $DBPers = $DB_Personnel->table('tb_personnel');
+        $data = [
+            'pers_status' => $this->request->getVar('pers_status'),
+            'pers_prefix' => $this->request->getVar('pers_prefix'),
+            'pers_firstname' => $this->request->getVar('pers_firstname'),
+            'pers_lastname' => $this->request->getVar('pers_lastname'),
+            'pers_britday' => $this->request->getVar('pers_britday'),
+            'pers_phone' => $this->request->getVar('pers_phone'),
+            'pers_position' => $this->request->getVar('pers_position'),
+            'pers_learning' => $this->request->getVar('pers_learning'),
+            'pers_academic' => $this->request->getVar('pers_academic'),
+            'pers_groupleade' => $this->request->getVar('pers_groupleade')
+        ];
+        $DBPers->where('pers_id', $this->request->getVar('pers_id'));
+        echo $DBPers->update($data);
+    }
+
+    public function PersonnelUpdateImg(){ 
+        $session = session();
+        $DB_Personnel = \Config\Database::connect('personnel');
+        $DBPers = $DB_Personnel->table('tb_personnel');
+
+        $image = $this->request->getFile('file');
+        //print_r($image);
+        $delFile = $DBPers->select('pers_img')->where('pers_id',$this->request->getPost('KeyPresID'))->get()->getRow();
+        $filePath = ROOTPATH . 'uploads/admin/Personnal/'.@$delFile->pers_img;
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+
+        if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
+            $newName = $image->getRandomName();
+            $image->move(ROOTPATH . 'uploads/admin/Personnal/', $newName);
+    
+            $this->resizeImage('uploads/admin/Personnal/' . $newName, 600, 800);
+
+            $data = [
+                'pers_img' => $newName
+            ];
+            $DBPers->where('pers_id',$this->request->getPost('KeyPresID'));
+            echo $DBPers->update($data);
+        }
     }
 
 }

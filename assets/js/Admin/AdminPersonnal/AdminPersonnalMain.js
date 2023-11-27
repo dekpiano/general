@@ -35,6 +35,64 @@ $(document).on('submit', '#FormPersonnalAdd', function(e) {
     });
 });
 
+$(document).on('submit', '#FormPersonnalUpdateDataGeneral', function(e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: "../../../../Admin/WorkPerson/Personnel/DB/Update/DataGeneral",
+        method: "POST",
+        data: new FormData(this),
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(res) {
+            console.log(res);
+            if (res == 1) {
+                Swal.fire({
+                    title: 'แจ้งเตือน?',
+                    text: "อัพเดตข้อมูลสำเร็จ!",
+                    icon: 'success'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                    }
+                })
+
+            } else if (res.success == false) {
+                Swal.fire(
+                    'แจ้งเตือน!', "บันทึกข้อมูลไม่สำเร็จ!",
+                    'error'
+                )
+            }
+        }
+    });
+});
+
+
+$(document).on('change', '#pers_img', function() {
+
+    var fileInput = $('#pers_img')[0].files[0];
+    var formData = new FormData();
+    formData.append('file', fileInput);
+    formData.append('KeyPresID', $(this).attr('key-persid'));
+    $.ajax({
+        url: "../../../../Admin/WorkPerson/Personnel/DB/Update/Img",
+        method: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(res) {
+            if (res == 1) {
+                Swal.fire(
+                    'แจ้งเตือน!', "เปลี่ยนรูปภาพสำเร็จ",
+                    'success'
+                )
+            }
+        }
+    });
+});
+
 
 var items = document.querySelector('.sortable');
 Sortable.create(items, {
