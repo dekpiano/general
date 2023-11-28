@@ -1,8 +1,9 @@
 <style>
-/* .fc-event-desc,
-.fc-event-title {
-    white-space: break-spaces;
-} */
+.cards:hover{
+
+box-shadow: 5px 6px 6px 2px #e9ecef;
+transform: scale(1.1);
+}
 </style>
 <!-- Layout container -->
 <div class="layout-page">
@@ -16,7 +17,7 @@
             <div class="row">
                 <div class="col-sm-6 col-lg-3 mb-4">
                     <a href="<?=base_url('Booking/Select')?>">
-                        <div class="card h-100 bg-primary text-white">
+                        <div class="card cards h-100 bg-primary text-white">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-2 pb-1">
                                     <div class="avatar me-2">
@@ -31,7 +32,7 @@
                 </div>
                 <div class="col-sm-6 col-lg-3 mb-4">
                     <a href="<?=base_url('Booking/View/All')?>">
-                        <div class="card h-100 bg-warning">
+                        <div class="card cards h-100 bg-warning">
                             <div class="card-body ">
                                 <div class="d-flex align-items-center mb-2 pb-1">
                                     <div class="avatar me-2">
@@ -46,17 +47,18 @@
                     </a>
                 </div>
 
+
                 <div class="col-sm-6 col-lg-3 mb-4">
                     <a target="_blank" href="https://www.canva.com/design/DAF1VkidVas/KTSxUIGCXwAmE8OLcTfXyg/view?utm_content=DAF1VkidVas&utm_campaign=designshare&utm_medium=link&utm_source=editor">
-                        <div class="card h-100 bg-success">
-                            <div class="card-body ">
+                        <div class="h-100 cards border border-success rounded d-flex">
+                            <div class="card-body align-self-center">
                                 <div class="d-flex align-items-center mb-2 pb-1">
                                     <div class="avatar me-2">
                                         <span class="avatar-initial rounded  bg-label-warning">
                                         <i class='bx bx-book-bookmark'></i>
                                         </span>
                                     </div>
-                                    <h4 class="ms-1 mb-0 text-white">คู่มือการใช้งาน</h4>
+                                    <h4 class="ms-1 mb-0 ">คู่มือการใช้งาน</h4>
                                 </div>
                                
                             </div>
