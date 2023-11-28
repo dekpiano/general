@@ -106,8 +106,16 @@ class ConUserRepair extends BaseController
                 $OrderNumber = "SKJRP_".date('Y')."0001";
             }
             $DateTimeToday = date('Y-m-d H:i:s');
-            //echo '<pre>'; print_r($data[0]->repair_order); 
-        // exit();
+            
+            $image = $this->request->getFile('repair_imguser');
+
+            if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
+                $newName = $image->getRandomName();
+                $image->move(ROOTPATH . 'uploads/admin/Repair/User/', $newName);
+        
+                $this->resizeImage('uploads/admin/Repair/User/' . $newName, 2048, 1024);
+            }
+
             $data = [
                 'repair_order' => $OrderNumber,
                 'repair_datetime' => $DateTimeToday,
@@ -121,6 +129,7 @@ class ConUserRepair extends BaseController
                 'repair_detail' => $this->request->getVar('repair_detail'),
                 'repair_status' => 'รอดำเนินการ',
                 'repair_Repairman' => '',
+                'repair_imguser' => isset($newName) ?$newName:""
             ];
             if($TBrepair->insert($data)){
                 $DBpers = \Config\Database::connect('personnel');

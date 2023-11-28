@@ -17,7 +17,6 @@ function toThaiDateString(date) {
         `${hour}:${minutes}:${second} น.`;
 }
 
-
 $(document).on('change', '#repair_caselist', function() {
     if ($(this).val() === "งานอาคารสถานที่") {
         Swal.fire({
@@ -107,6 +106,8 @@ $(document).on('click', '#BtnRepairFullDetail', function() {
         $('#show_repair_cause').text(data[0][0].repair_cause);
         $('#show_repair_status').text(data[0][0].repair_status);
 
+        $('#show_repair_imguser').html('<img src="uploads/admin/Repair/User/' + data[0][0].repair_imguser + '" class="img-fluid" alt="รูปที่ผู้ใช้งานส่งมา">');
+
         $('#show_repair_imgwork').html('<img src="uploads/admin/Repair/' + data[0][0].repair_imgwork + '" class="img-fluid" alt="รูปที่ทำงาน">');
         $('#show_repair_usersignature').html('<img src="' + data[0][0].repair_usersignature + '" class="img-fluid" alt="รูปลายมือชื่อ">');
 
@@ -140,7 +141,10 @@ $(document).on('submit', '#FormAddRepair', function(e) {
     $.ajax({
         url: "../Repair/DB/Insert",
         method: "POST",
-        data: $(this).serialize(),
+        data: new FormData(this),
+        processData: false,
+        contentType: false,
+        cache: false,
         beforeSend: function() {
             $('#BtnSubRepair').html('<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span class="">กำลังบันทึก...</span>');
             $('#BtnSubRepair').addClass("disabled");

@@ -107,6 +107,7 @@
                                     <u> รายละเอียดเพิ่มเติม</u>
                                 </div>
                                 <div id="show_repair_detail"></div>
+                                <div id="show_repair_imguser"></div>
                             </td>
                         </tr>
                         <tr>
