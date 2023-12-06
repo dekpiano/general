@@ -163,8 +163,9 @@
                 </table>
 
             </div>
+            <?php $checkRloes = explode(",",@$_SESSION['rloes']);?>
             <div class="modal-footer justify-content-between">
-                <?php if(!empty($_SESSION['username']) && $_SESSION['username'] != ''):?>
+                <?php if(!empty($_SESSION['username']) && $_SESSION['username'] != '' && in_array("งานแจ้งซ่อม",$checkRloes)):?>
                 <button type="button" class="btn btn-secondary" id="ModalFormAdmin">สำหรับผู้ซ่อม</button>
                 <?php endif; ?>
                 <a href="" target="_blank" class="btn btn-primary PrintOrder">พิมพ์ใบแจ้งซ่อม</a>

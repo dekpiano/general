@@ -32,8 +32,17 @@
                 </li>
                 <li class="menu-item <?php echo $UrlMenuMain == "Booking"?"active":""?>">
                     <a href="<?=base_url('Booking');?>" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                        <i class="menu-icon tf-icons bx bxs-home-circle"></i>
                         <div data-i18n="Analytics">จองห้อง / สถานที่</div>
+                    </a>
+                </li>
+                <li class="menu-header small text-uppercase">
+                    <span class="menu-header-text">งานยานพาหนะ</span>
+                </li>
+                <li class="menu-item <?php echo $UrlMenuMain == "CarBooking"?"active":""?>">
+                    <a href="<?=base_url('CarBooking');?>" class="menu-link">
+                    <i class='menu-icon tf-icons bx bxs-car'></i>
+                        <div data-i18n="Analytics">จองรถ</div>
                     </a>
                 </li>
                 <li class="menu-header small text-uppercase">
@@ -42,7 +51,7 @@
                 <!-- แจ้งซ่อม -->
                 <li class="menu-item <?php echo $UrlMenuMain == "Repair"?"active":""?>">
                     <a href="<?=base_url('Repair');?>" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                    <i class='menu-icon tf-icons bx bxs-wrench'></i>
                         <div data-i18n="Analytics">แจ้งซ่อมออนไลน์</div>
                     </a>
                 </li>

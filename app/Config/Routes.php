@@ -50,6 +50,9 @@ $routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Executive', 'ConUse
 $routes->match(['get', 'post'],'Booking/DB/BookingApproveAdmin', 'ConUserBooking::BookingCheckApproveAdmin');
 $routes->match(['get', 'post'],'Booking/DB/BookingNoApproveAdmin', 'ConUserBooking::BookingNoApproveAdmin');
 
+//User งานจองรถ
+$routes->get('CarBooking', 'ConUserCarBooking::CarBookingMain');
+$routes->get('CarBooking/CheckCar', 'ConUserCarBooking::CarBookingCheckCar');
 
 // User แจ้งซ่อม
 $routes->get('Repair', 'ConUserRepair::RepairMain');

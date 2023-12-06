@@ -123,6 +123,34 @@
                 </div>
             </div>
 
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>งานแจ้งซ่อม</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <?php for($i=9; $i<=11; $i++): ?>
+                        <div class="col-md-4 mt-2">
+                            <label for="">เจ้าหน้าที่</label>
+                            <div class="mt-2">
+                                <select class="form-select form-select-lg SettingGeneralRloes"
+                                    rloes-id="<?=$Manager[$i]->admin_rloes_id;?>" Key-nanetype="งานแจ้งซ่อม">
+                                    <option value="">เลือกเจ้าหน้าที่</option>
+                                    <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
+                                    <option
+                                        <?=$Manager[$i]->admin_rloes_userid == $v_NameTeacher->pers_id ? 'selected' : '';?>
+                                        value="<?=$v_NameTeacher->pers_id?>">
+                                        <?=$v_NameTeacher->pers_prefix.$v_NameTeacher->pers_firstname." ".$v_NameTeacher->pers_lastname?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
+
         </div>
         <!-- / Content -->
 

@@ -21,13 +21,13 @@ $(document).on('change', '#repair_caselist', function() {
     if ($(this).val() === "งานอาคารสถานที่") {
         Swal.fire({
             title: 'แจ้งเตือน?',
-            text: "สำหรับงานอาคารสถานที่!... ให้ทำบันทึกข้อความที่กลุ่มงานบริหารทั่วไป",
+            text: "สำหรับงานอาคารสถานที่!... ให้ทำบันทึกข้อความ (ตามนโยบายงานอาคารสถานที่) ที่กลุ่มงานบริหารทั่วไป",
             icon: 'warning',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'ตกลง!'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "../Repair/Add";
+                // window.location.href = "../Repair/Add";
             }
         })
     }
