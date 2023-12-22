@@ -11,7 +11,7 @@ class ConLogin extends BaseController
     private $GoogleButton = "";
     private $ReturnUrl = "";
     function __construct(){
-        $path = (dirname(dirname(dirname(dirname((dirname(__FILE__)))))));
+        $path = dirname(dirname(dirname(dirname(dirname((dirname(__FILE__)))))));
 		require $path . '/librarie_skj/google_sheet/vendor/autoload.php';
 
         $redirect_uri = base_url('LoginOfficerGeneral');

@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 use App\Libraries\Datethai; // Import library
+use CodeIgniter\Files\File;
 
 class ConUserRepair extends BaseController
 {  
@@ -140,10 +141,15 @@ class ConUserRepair extends BaseController
                 ->get()->getResult();
 
                // print_r($Teach);exit();
+               if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
+                $MailAdmin = 'surawut.c@skj.ac.th';
+               }else{
+                $MailAdmin = 'dekpiano@skj.ac.th'; 
+               }
                 
                 $email = \Config\Services::email();
-                $email->setFrom('adminRepair@skj.ac.th', 'จากระบบแจ้งซ่อม');
-                $email->setTo('dekpiano@skj.ac.th');
+                $email->setFrom('adminRepair@skj.ac.th', 'จากระบบแจ้งซ่อมออนไลน์');
+                $email->setTo($MailAdmin);
                 $email->setSubject('แจ้งซ่อมจาก '.$Teach[0]->pers_prefix.$Teach[0]->pers_firstname.' '.$Teach[0]->pers_lastname);
 
                 // กำหนดข้อความในรูปแบบ HTML
@@ -153,6 +159,7 @@ class ConUserRepair extends BaseController
                 $htmlMessage .= '<p>เบอร์โทรติดต่อ : '.$this->request->getVar('repair_phone').'</p>';
                 $htmlMessage .= '<p>รายการแจ้งซ่อม : '.$this->request->getVar('repair_caselist').'</p>';
                 $htmlMessage .= '<p>รายละเอียด : '.$this->request->getVar('repair_detail').' อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
+                $htmlMessage .= 'ดูทั้งหมด <a href="'.base_url('Repair/View/'.$OrderNumber).'">'.base_url('Repair/View/'.$OrderNumber).'</a>';
 
                 // กำหนดข้อความในรูปแบบ HTML ใน setMessage()
                 $email->setMessage($htmlMessage);
@@ -211,6 +218,41 @@ class ConUserRepair extends BaseController
         echo json_encode($response);
     }
 
+    public function ViewOrder($IDorder){
+        $session = session();
+        $data = $this->DataMain();
+        $data['title'] = "รายละเอียดการแจ้งซ่อม";
+        $data['description']="รายละเอียดการแจ้งซ่อม";
+        $data['UrlMenuMain'] = 'Repair';
+        $data['UrlMenuSub'] = 'ViewOrder';
+        $data['Datethai'] = new Datethai();
+
+        $DBrepair = \Config\Database::connect();
+        $TBrepair = $DBrepair->table('tb_repair');
+        $DBpers = \Config\Database::connect('personnel');
+        $TBpers = $DBpers->table('tb_personnel');
+
+        $data['RepaiUser'] = $TBrepair->select('tb_repair.*,tb_position.posi_name,tb_personnel.pers_prefix,tb_personnel.pers_firstname,tb_personnel.pers_lastname')
+        ->where('repair_order',$IDorder)
+        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
+        ->join('skjacth_skj.tb_position','tb_repair.repair_posi = tb_position.posi_id')
+        ->get()->getResult();
+
+        $data['Repairman'] = $TBpers->select("CONCAT(pers_prefix,pers_firstname,' ',pers_lastname) AS Repairman")
+            ->where('pers_id',$data['RepaiUser'][0]->repair_Repairman)
+            ->get()->getResult();
+
+        $data['Order'] = array_merge($data['RepaiUser'],$data['Repairman']);
+
+        //echo "<pre>"; print_r($data['Order']); exit();
+        
+        return view('User/UserLeyout/UserHeader',$data)
+        .view('User/UserLeyout/UserMenuLeft')
+        .view('User/UserRepair/UserRepairView')
+        .view('User/UserLeyout/UserFooter');
+
+    }
+
     public function CheckRepairFullDetail(){
         $DBrepair = \Config\Database::connect();
         $TBrepair = $DBrepair->table('tb_repair');
@@ -242,6 +284,10 @@ class ConUserRepair extends BaseController
         $TBrepair = $DBrepair->table('tb_repair');       
         $image = $this->request->getFile('repair_imgwork');
         if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
+
+            $filePath = FCPATH . 'uploads/admin/Repair/'.$this->request->getPost('imgwork');
+            unlink($filePath);
+
             $newName = $image->getRandomName();
             $image->move(ROOTPATH . 'uploads/admin/Repair/', $newName);
     
@@ -255,6 +301,8 @@ class ConUserRepair extends BaseController
                 'repair_imgwork'  => $newName,
                 'repair_usersignature' => $this->request->getPost('Signature')
             ];
+
+           
         } else {
             $data = [
                 'repair_status' => $this->request->getPost('repair_status'),
@@ -279,7 +327,7 @@ class ConUserRepair extends BaseController
 
     
     public function PrintOrder($RepairId){
-        $path = dirname(dirname(dirname(dirname(dirname(__FILE__)))));
+        $path = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))));
 		require $path . '/librarie_skj/mpdf/vendor/autoload.php';
 
         $DBrepair = \Config\Database::connect();

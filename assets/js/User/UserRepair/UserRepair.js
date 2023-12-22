@@ -71,14 +71,14 @@ function ShowDataLocationRoom() {
             {
                 data: 'repair_ID',
                 render: function(data, type, row) {
-                    return '<a href="javascript:;" data-id="' + row.repair_ID + '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>';
+                    return '<a href="Repair/View/'+row.repair_order+'" data-id="' + row.repair_ID + '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>';
                 }
             }
         ]
     });
 }
 
-$(document).on('click', '#BtnRepairFullDetail', function() {
+$(document).on('click', '#BtnRepairFullDetail1', function() {
     $('#ModalShowRepair').modal('show');
     $.post('Repair/DB/CheckRepairFullDetail', {
         RepairId: $(this).attr('data-id')
@@ -183,9 +183,9 @@ $(document).on('submit', '#FormAddRepair', function(e) {
 
 
 $(document).on('click', '#ModalFormAdmin', function() {
-    $(this).css('display', 'none');
+    //$(this).css('display', 'none');
     $('#ModalRepairSaveAdmin').modal('show');
-    $('#ModalShowRepair').modal('hide');
+    //$('#ModalShowRepair').modal('hide');
 });
 
 var canvas = document.getElementById("signature-pad");
@@ -203,7 +203,7 @@ $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
     formData.append('Signature', dataURL); // เพิ่มคีย์และค่าที่ต้องการส่ง
 
     $.ajax({
-        url: "Repair/DB/UpdateWork",
+        url: "../../Repair/DB/UpdateWork",
         method: "POST",
         data: formData,
         processData: false,
@@ -214,17 +214,25 @@ $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
             $('#ModalRepairSaveAdmin').hide();
             $('.modal-backdrop').hide();
             if (res == 1) {
-                Swal.fire(
-                    'แจ้งเตือน!', 'บันทึกขั้อมูลช่างซ่อมสำเร็จ',
-                    'success'
-                )
+                Swal.fire({
+                    title: 'แจ้งเตือน?',
+                    text: "บันทึกซ่อมสำเร็จ!",
+                    icon: 'success',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'ตกลง!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload(true);
+                    }
+                })
+
             } else {
                 Swal.fire(
                     'แจ้งเตือน!', 'บันทึกขั้อมูลช่างซ่อมไม่สำเร็จ!',
                     'error'
                 )
             }
-            $('#TbDataRepair').DataTable().ajax.reload();
+           
         }
     });
 });

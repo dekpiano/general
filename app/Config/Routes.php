@@ -63,6 +63,7 @@ $routes->match(['get', 'post'],'Repair/DataTable/ShowRepari', 'ConUserRepair::Da
 $routes->match(['get', 'post'],'Repair/DB/CheckRepairFullDetail', 'ConUserRepair::CheckRepairFullDetail');
 $routes->match(['get', 'post'],'Repair/DB/UpdateWork', 'ConUserRepair::RepairUpdateWork');
 $routes->get('Repair/PrintOrder/(:any)', 'ConUserRepair::PrintOrder/$1');
+$routes->get('Repair/View/(:any)', 'ConUserRepair::ViewOrder/$1');
 
 $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
 //$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
@@ -88,6 +89,13 @@ $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/SortableTeacher', 
 $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Insert', 'ConAdminWorkPerson::PersonnelInsert');
 $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Update/DataGeneral', 'ConAdminWorkPerson::PersonneUpdateDataGeneral');
 $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Update/Img', 'ConAdminWorkPerson::PersonnelUpdateImg');
+
+//Admin งานจองรถ
+$routes->get('Admin/Car/CarMain', 'ConAdminCar::CarMain');
+$routes->match(['get', 'post'],'Admin/Car/ShowData', 'ConAdminCar::CarShowData');
+$routes->match(['get', 'post'],'Admin/Car/Insert', 'ConAdminCar::CarInsert');
+
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing

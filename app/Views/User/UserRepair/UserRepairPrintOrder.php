@@ -61,7 +61,9 @@
             </tr>
             <tr>
                 <td style="width: 20.7602%; text-align: right;">วันที่ซ่อม :&nbsp;</td>
-                <td style="width: 79.1228%;"><?=$RepairUser[0]->repair_datework?></td>
+                <td style="width: 79.1228%;">
+                <?=$Datethai->thai_date_and_time(strtotime($RepairUser[0]->repair_datework))?>
+               </td>
             </tr>
             <tr>
                 <td style="width: 20.7602%; text-align: right;">สาเหตุ/วิธีแก้ไข :&nbsp;</td>
