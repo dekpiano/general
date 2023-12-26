@@ -142,7 +142,7 @@ class ConUserRepair extends BaseController
 
                // print_r($Teach);exit();
                if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
-                $MailAdmin = 'surawut.c@skj.ac.th';
+                $MailAdmin = ['surawut.c@skj.ac.th','dekpiano@skj.ac.th'];
                }else{
                 $MailAdmin = 'dekpiano@skj.ac.th'; 
                }
@@ -327,7 +327,7 @@ class ConUserRepair extends BaseController
 
     
     public function PrintOrder($RepairId){
-        $path = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))));
+        $path = (dirname(dirname(dirname(dirname(dirname(__FILE__))))));
 		require $path . '/librarie_skj/mpdf/vendor/autoload.php';
 
         $DBrepair = \Config\Database::connect();

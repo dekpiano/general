@@ -108,7 +108,7 @@
 
                                 <div class="text-center">
                                      <h5 class="">รูปภาพแจ้งซ่อม <small>(อาการเสียหรือปัญหา)</small></h5>
-                                    <small>** จะอัพโหลดไฟล์ภาพหรือไม่โหลดก็ได้ **</small>
+                                    <small>** จะอัพโหลดไฟล์ภาพหรือไม่โหลดก็ได้ ** (ให้ถ่ายรูปแนวนอน)</small>
                                     <div class="input-group">
                                         <input type="file" class="form-control" id="repair_imguser" name="repair_imguser" onchange="document.getElementById('imageResult').src = window.URL.createObjectURL(this.files[0])">
                                         <label class="input-group-text" for="repair_imguser">เลือกรูปภาพ</label>
