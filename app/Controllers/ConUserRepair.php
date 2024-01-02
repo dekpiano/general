@@ -283,11 +283,14 @@ class ConUserRepair extends BaseController
         $DBrepair = \Config\Database::connect();
         $TBrepair = $DBrepair->table('tb_repair');       
         $image = $this->request->getFile('repair_imgwork');
+       
+        $filePath = FCPATH .'uploads/admin/Repair/'.$this->request->getVar('imgwork');
+        // print_r($filePath); exit();
+        @unlink($filePath);
+        
+
         if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
-
-            $filePath = FCPATH . 'uploads/admin/Repair/'.$this->request->getPost('imgwork');
-            unlink($filePath);
-
+           
             $newName = $image->getRandomName();
             $image->move(ROOTPATH . 'uploads/admin/Repair/', $newName);
     
