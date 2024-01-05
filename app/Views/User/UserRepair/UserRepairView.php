@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-md-6 mt-xs-3 text-md-end text-sm-center">
                     <?php $checkRloes = explode(",",@$_SESSION['rloes']);?>
-                    <?php if(!empty($_SESSION['username']) && $_SESSION['username'] != '' && in_array("งานแจ้งซ่อม",$checkRloes)):?>
+                    <?php if(!empty($_SESSION['username']) && $_SESSION['username'] != '' && in_array("งานแจ้งซ่อม",$checkRloes) || in_array("งานอาคารสถานที่",$checkRloes)):?>
                     <button type="button" class="btn btn-secondary" id="ModalFormAdmin">สำหรับผู้ซ่อม</button>
                     <?php endif; ?>
                     <a href="<?=base_url('Repair/PrintOrder/').$Order[0]->repair_order?>" target="_blank"
