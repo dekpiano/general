@@ -45,7 +45,19 @@ $('#TBShowDataBookingAdmin').DataTable({
             render: function(data, type, row) {
                 return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-success ' + (row.booking_admin_approve == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div>';
             }
-        }
+        },
+        {
+            data: 'booking_id',
+            render: function(data, type, row) {
+                return '<a href="" class="btn btn-primary">ลายเซ็น</a>';
+            }
+        },
+        {
+            data: 'booking_id',
+            render: function(data, type, row) {
+                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/'+ data +'" class="btn btn-primary">เอกสาร</a>';
+            }
+        },
     ]
 });
 

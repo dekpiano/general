@@ -142,7 +142,7 @@ class ConUserRepair extends BaseController
 
                // print_r($Teach);exit();
                if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
-                $MailAdmin = ['surawut.c@skj.ac.th','dekpiano@skj.ac.th'];
+                $MailAdmin = ['surawut.c@skj.ac.th','dekpiano@skj.ac.th','trin.p@skj.ac.th'];
                }else{
                 $MailAdmin = 'dekpiano@skj.ac.th'; 
                }

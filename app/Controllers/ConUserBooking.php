@@ -432,7 +432,7 @@ class ConUserBooking extends BaseController
 
         $data['Booking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
       
-       // echo '<pre>';print_r($data['Booking']); exit();
+      // echo '<pre>';print_r($data['Booking']); exit();
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
@@ -593,5 +593,151 @@ class ConUserBooking extends BaseController
 
         echo $DBbooking->where('booking_id',$this->request->getPost('BookingID'))->update($NoApprove);
     }
+
+    public function BookingRequestform($IDBooking){
+        $path = (dirname(dirname(dirname(dirname(dirname(__FILE__))))));
+		require $path . '/librarie_skj/mpdf/vendor/autoload.php';
+        $session = session();
+        $Datethai = new Datethai();  
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+        $DBAdminRloes = $database->table('tb_admin_rloes');
+        $DBpers = \Config\Database::connect('personnel');
+        $DBpersonnel = $database->table('personnel'); 
+        $DBSkj = \Config\Database::connect('skj');
+        $DBposition = $DBSkj->table('tb_position');
+
+        $DBbooking
+        ->select('booking_order,booking_telephone,booking_number,booking_title,booking_locationroom,booking_Booker,booking_other ,booking_admin_approve,booking_equipment,booking_admin_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname,posi_name,DATEDIFF(booking_dateEnd,booking_dateStart) AS SUMDAY');
+        $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
+        $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
+        $DBbooking->join('skjacth_skj.tb_position',"skjacth_personnel.tb_personnel.pers_position = skjacth_skj.tb_position.posi_id");
+        $DBbooking->Where('booking_id',$IDBooking);
+        $Booking =  $DBbooking->get()->getRow();
+
+        $Manege = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
+        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id")
+        ->where('admin_rloes_id',4)->get()->getRow();
+
+        $DeputyExecutive = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
+        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id")
+        ->where('admin_rloes_id',2)->get()->getRow();
+
+        $mpdf = new \Mpdf\Mpdf(
+            array(
+                'format' => 'A4',
+                'mode' => 'utf-8',
+                'default_font' => 'thsarabun',
+                'default_font_size' => 16
+            )
+        );
+        $mpdf->SetTitle('แบบคำขอใช้อาคารสถานที่ ของ '.$Booking->pers_prefix.$Booking->pers_firstname.' '.$Booking->pers_lastname);
+
+        $html = "<div style='text-align: center;font-size:24px;'><b>แบบคำขอใช้อาคารสถานที่</b></div>";
+        $html .= "<div style='text-align: right; margin-top: 10px;'>เขียนที่ โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</div>";
+        $html .= "<div style='text-align: right; margin-right: 130px;'>".$Datethai->thai_date_fullmonth_ALL(strtotime($Booking->booking_dateStart))."</div>";
+        $html .= "<div style='margin-top: 20px;'>เรียน ผู้อำนวยการโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</div>";
+        $html .= "<div style='margin-top: 10px;text-indent: 50px;'>ข้าพเจ้า ".$Booking->pers_prefix.$Booking->pers_firstname.' '.$Booking->pers_lastname."   ตำแหน่ง ".$Booking->posi_name."  ฝ่าย/กลุ่มงาน/กลุ่มสาระการเรียนรู้ วิทยาศาสตร์และเทคโนโลยี  เบอร์โทรศัพท์ที่สามารถติดต่อได้ 091-0518473</div>";
+        $html .= "<div style='margin-top: 0px;'>มีความประสงค์ขอใช้อาคารสถานที่ของโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์ ดังต่อไปนี้</div>";
+        $html .= "<div style='margin-top: 0px;text-indent: 20px;'><b>".$Booking->location_name."</b>  เพื่อ ".$Booking->booking_title."</div>";
+        $html .= "<div style='margin-top: 0px;text-indent: 0px;'>กำหนดเวลา ".(($Booking->SUMDAY)+1)." วัน  ใน".$Datethai->thai_date_fullmonth_ALL(strtotime($Booking->booking_dateStart)). " ตั้งแต่เวลา ".date('H.i',strtotime($Booking->booking_timeStart))." น. ถึง ".$Datethai->thai_date_fullmonth_ALL(strtotime($Booking->booking_dateEnd))." เวลา ".date('H.i',strtotime($Booking->booking_timeEnd))." น. โดยมีบุคคลจะมาร่วมใช้อาคารสถานที่ประมาณ ".$Booking->booking_number." คน</div>";
+       
+        $html .= "<div style='margin-top: 0px;text-indent: 0px;'>วัสดุ/ครุภัณฑ์ที่ต้องการใช้</div>";
+
+        $subEqui = explode("|",$Booking->booking_equipment);
+        foreach ($subEqui as $key => $v_subEqui) {
+           if($v_subEqui == "เครื่องคอมพิวเตอร์"){
+            $CheckMarkCom = "<img src='uploads/admin/check-mark.png' style='width:20px;' />";
+           }elseif($v_subEqui == "จอโปรเจ็คเตอร์"){
+            $CheckMarkProject = "<img src='uploads/admin/check-mark.png' style='width:20px;' />";
+           }elseif($v_subEqui == "เครื่องฉายแผ่นใส"){
+            $CheckMarkVision= "<img src='uploads/admin/check-mark.png' style='width:20px;' />";
+           }elseif($v_subEqui == "เครื่องขยายเสียง"){
+            $CheckMarkAudio= "<img src='uploads/admin/check-mark.png' style='width:20px;' />";
+           }
+
+           if($Booking->booking_other != ""){
+            $CheckMarkAOther= "<img src='uploads/admin/check-mark.png' style='width:20px;' />";
+           }
+
+        }
+
+        $html .= "<div style='margin-top: 0px;text-indent: 50px;'>( ".@$CheckMarkAudio." ) เครื่องเสียง  ( ".@$CheckMarkProject." ) จอโปรเจคเตอร์  ( ".@$CheckMarkVision." ) เครื่องฉายแผ่นใส ( ".@$CheckMarkCom." ) เครื่องคอมพิวเตอร์</div>";      
+        $html .= "<div style='margin-top: 0px;text-indent: 50px;'>( ".@$CheckMarkAOther." )  อื่นๆ  ".$Booking->booking_other."</div>";
+        $html .= "<div style='margin-top: 0px;text-indent: 50px;'>โดยข้าพเจ้ายินดีจะปฏิบัติตามระเบียบการใช้สถานที่ดังกล่าวอย่างเคร่งครัดและจะรับผิดชอบต่อความเสียหาย ของทรัพย์สินทั้งหมดและระหว่างการปฏิบัติงาน และดูแลสถานที่ดังกล่าวให้อยู่สภาพเรียบร้อยทุกประการ</div>";
+
+        $html .= "<div style='margin-top: 40px;text-align:right'>ลงชื่อ.......................................................ผู้ยื่นคำขอ</div>";
+        $html .= "<div style='margin-top: 0px;margin-right: 50px;text-align:right'>(".$Booking->pers_prefix.$Booking->pers_firstname.' '.$Booking->pers_lastname.")</div>";
+
+        $html .="
+        <style>
+        table, th, td {
+            margin-top: 60px;
+            width: 100%; /* ตารางกว้าง 100% */
+            border: 1px solid black; /* เพิ่มเส้นขอบ */
+            border-collapse: collapse; /* ให้เส้นขอบรวมกัน */;
+            
+        }
+        th, td {
+            padding: 10px; /* เพิ่มระยะห่างภายใน */
+            text-align: center; /* จัดข้อความชิดซ้าย */
+            font-size:1.7rem;
+        }
+        .center-text{
+            text-align:center;
+        }
+        </style>
+        <table>
+            <tr> <!-- สร้างแถว -->
+                <td>
+                    ความเห็นของหัวหน้างานอาคารสถานที่ฯ
+                    .............................................................................................. <br>
+                    ..............................................................................................
+                    <br>
+                    <br>
+                    <div class='center-text'>
+                    ลงชื่อ...................................................... <br>
+                    (".$Manege->pers_prefix.$Manege->pers_firstname.' '.$Manege->pers_lastname.")
+                    </div>
+
+                </td>
+                <td>
+                    ความเห็นของรองผู้อำนวยการฝ่ายบริหารทั่วไป
+                    .............................................................................................. <br>
+                    ..............................................................................................
+                    <br>
+                    <br>
+                    <div class='center-text'>
+                    ลงชื่อ...................................................... <br>
+                    (".$DeputyExecutive->pers_prefix.$DeputyExecutive->pers_firstname.' '.$DeputyExecutive->pers_lastname.")
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan=2>
+                    ความเห็นของผู้อำนวยการสถานศึกษา  <br>
+                    ............................................................................................................................................................................................ <br>
+                    ............................................................................................................................................................................................
+                    <br>
+                    <br>
+                    <div class='center-text'>
+                    ลงชื่อ.............................................................ผู้อนุญาต<br>
+                    (นางสาวอร่าม  วัฒนะ)<br>
+                    ตำแหน่ง ผู้อำนวยการสถาศึกษา
+                    </div>
+                </td>
+            </tr>
+        </table>
+        ";
+
+          // เพิ่ม HTML เข้าไปใน PDF
+          $mpdf->WriteHTML($html);
+ 
+          // สร้างไฟล์ PDF
+          $this->response->setHeader('Content-Type', 'application/pdf');
+ 
+          $mpdf->Output('example.pdf', 'I');
+    }
+
 
 }

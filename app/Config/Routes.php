@@ -38,6 +38,7 @@ $routes->get('Booking/View/(:any)', 'ConUserBooking::BookingView/$1');
 $routes->get('Booking/Edit/(:any)', 'ConUserBooking::BookingEdit/$1');
 $routes->get('Booking/Approve/Admin', 'ConUserBooking::BookingViewApproveAdmin');
 $routes->get('Booking/Approve/Executive', 'ConUserBooking::BookingViewApproveExecutive');
+$routes->get('Booking/Approve/File/Requestform/(:any)', 'ConUserBooking::BookingRequestform/$1');
 $routes->match(['get', 'post'],'Booking/DB/Insert', 'ConUserBooking::BookingInsert');
 $routes->match(['get', 'post'],'Booking/DB/Update', 'ConUserBooking::BookingUpdate');
 $routes->match(['get', 'post'],'Booking/DB/Cancel', 'ConUserBooking::BookingCancel');

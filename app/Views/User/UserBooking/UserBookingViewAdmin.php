@@ -17,13 +17,15 @@
                     <table class="table table-hover display nowrap"  id="TBShowDataBookingAdmin">
                         <thead>
                             <tr>
-                            <th>เลขที่จอง</th>
+                            <th>เลขที่จอง </th>
                                 <th>หัวข้อ</th>
                                 <th>ชื่อห้อง</th>
                                 <th>ชื่อผู้จอง</th>
                                 <th>สถานะ</th>
                                 <th>เหตุผล</th>                              
                                 <th>อนุมัติโดย Admin</th>
+                                <th>ลายเซ็น</th>
+                                <th>เอกสาร</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
