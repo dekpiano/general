@@ -65,7 +65,8 @@
     </html>
 
     <?php if($uri->getSegment(1) == 'Booking') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=20.1"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=20.7"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=17"></script>
     <?php endif; ?>
@@ -153,4 +154,6 @@ $(".selectorTime").flatpickr({
       // Lazy load on scroll
       document.addEventListener('scroll', lazyLoad);
     });
+
+    
   </script>

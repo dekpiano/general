@@ -50,6 +50,10 @@ $routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Admin', 'ConUserBoo
 $routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Executive', 'ConUserBooking::BookingDataTableApproveExecutive');
 $routes->match(['get', 'post'],'Booking/DB/BookingApproveAdmin', 'ConUserBooking::BookingCheckApproveAdmin');
 $routes->match(['get', 'post'],'Booking/DB/BookingNoApproveAdmin', 'ConUserBooking::BookingNoApproveAdmin');
+$routes->match(['get', 'post'],'Booking/DB/BookingSignatureAdmin/Save', 'ConUserBooking::BookingSignatureAdminSave');
+$routes->match(['get', 'post'],'Booking/DB/BookingSignatureAdmin/Show/(:any)', 'ConUserBooking::BookingSignatureAdminShow/$1');
+$routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Save', 'ConUserBooking::BookingSignatureExecutiveSave');
+$routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Show/(:any)', 'ConUserBooking::BookingSignatureExecutiveShow/$1');
 
 //User งานจองรถ
 $routes->get('CarBooking', 'ConUserCarBooking::CarBookingMain');

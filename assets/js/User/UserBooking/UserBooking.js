@@ -1,3 +1,4 @@
+
 $('#TBShowDataBooking').DataTable({
     responsive: true,
     order: [
@@ -49,13 +50,13 @@ $('#TBShowDataBookingAdmin').DataTable({
         {
             data: 'booking_id',
             render: function(data, type, row) {
-                return '<a href="" class="btn btn-primary">ลายเซ็น</a>';
+                return '<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalSignatureAdmin" id="FormSignatureAdmin" data-idBooking="'+data+'">ลายเซ็น</a>';
             }
         },
         {
             data: 'booking_id',
             render: function(data, type, row) {
-                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/'+ data +'" class="btn btn-primary">เอกสาร</a>';
+                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/'+ data +'" class="btn btn-primary '+(row.booking_executive_approve != "อนุมัติ" ? "disabled":"")+'">เอกสาร</a> <div>ดาวโหลดได้ก็ต่อเมื่อ ผู้บริหารอนุมัติ</div>';
             }
         },
     ]
@@ -116,7 +117,19 @@ $('#TBShowDataBookingExecutive').DataTable({
             render: function(data, type, row) {
                 return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-success ' + (row.booking_executive_approve == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div>';
             }
-        }
+        },
+        {
+            data: 'booking_id',
+            render: function(data, type, row) {
+                return '<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalSignatureExecutive" id="FormSignatureExecutive" data-idBooking="'+data+'">ลายเซ็น</a>';
+            }
+        },
+        {
+            data: 'booking_id',
+            render: function(data, type, row) {
+                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/'+ data +'" class="btn btn-primary">เอกสาร</a>';
+            }
+        },
     ]
 });
 
@@ -286,7 +299,6 @@ $(document).on('change', '#booking_timeEnd', function() {
 });
 
 
-
 var calendarEl = document.getElementById('calendar');
 
 var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -325,3 +337,4 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth'
 });
 calendar.render();
+

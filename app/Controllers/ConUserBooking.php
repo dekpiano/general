@@ -470,7 +470,7 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,location_name,pers_prefix,pers_firstname,pers_lastname')
+       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,booking_executive_approve,location_name,pers_prefix,pers_firstname,pers_lastname')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
        //->where('booking_admin_approve','อนุมัติ')
@@ -489,6 +489,7 @@ class ConUserBooking extends BaseController
                 'booking_Booker' => $value->booking_Booker,
                 'booking_admin_approve' => $value->booking_admin_approve,
                 'booking_admin_reason' => $value->booking_admin_reason,
+                'booking_executive_approve' => $value->booking_executive_approve,
                 'booking_telephone' => $value->booking_telephone,
                 'booker' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname
             ];        
@@ -737,6 +738,76 @@ class ConUserBooking extends BaseController
           $this->response->setHeader('Content-Type', 'application/pdf');
  
           $mpdf->Output('example.pdf', 'I');
+    }
+
+    //--------- ลายเซ็น Admin ------------
+    public function BookingSignatureAdminSave(){
+
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $SignatureAdmin = $this->request->getPost('signature');
+        $BookingID = $this->request->getPost('BookingID');
+
+        if (!empty($SignatureAdmin) && !empty($BookingID)) {
+            
+            $data = array(
+                'booking_admin_signature' => $SignatureAdmin
+            );
+
+            $DBbooking->where('booking_id',$BookingID)->update($data);
+
+            return $this->response->setJSON(['status' => 'success']);
+        }
+
+        return $this->response->setJSON(['status' => 'error']);
+    }
+
+    public function BookingSignatureAdminShow($IDBooking){
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $SelSignature = $DBbooking->select('booking_admin_signature')->where('booking_id',$IDBooking)->get()->getRow();
+
+        return $this->response->setJSON($SelSignature);
+
+    }
+
+    //--------- ลายเซ็นผู้บริหาร ------------
+    public function BookingSignatureExecutiveSave(){
+
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $SignatureExecutive = $this->request->getPost('signature');
+        $BookingID = $this->request->getPost('BookingID');
+
+        if (!empty($SignatureExecutive) && !empty($BookingID)) {
+            
+            $data = array(
+                'booking_executive_signature' => $SignatureExecutive
+            );
+
+            $DBbooking->where('booking_id',$BookingID)->update($data);
+
+            return $this->response->setJSON(['status' => 'success']);
+        }
+
+        return $this->response->setJSON(['status' => 'error']);
+    }
+
+    public function BookingSignatureExecutiveShow($IDBooking){
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $SelSignature = $DBbooking->select('booking_executive_signature')->where('booking_id',$IDBooking)->get()->getRow();
+
+        return $this->response->setJSON($SelSignature);
+
     }
 
 
