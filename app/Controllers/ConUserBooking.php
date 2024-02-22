@@ -134,7 +134,7 @@ class ConUserBooking extends BaseController
      
             // Send to Users     
             $email->setTo([
-                "dekpiano@skj.ac.th","juthaporn.p@skj.ac.th"
+                "dekpiano@skj.ac.th","trin.p@skj.ac.th"
             ]);
 
             $email->setSubject("แจ้งการจอง เลขที่ ".$this->request->getVar('booking_order'));
@@ -307,7 +307,7 @@ class ConUserBooking extends BaseController
        $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,location_name')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
        ->where('booking_admin_approve','อนุมัติ')
-       ->where('booking_executive_approve','อนุมัติ')
+       //->where('booking_executive_approve','อนุมัติ')
        ->get()->getResult();
 
         foreach ($S_data as $key => $value) {
@@ -668,7 +668,7 @@ class ConUserBooking extends BaseController
         $html .= "<div style='margin-top: 0px;text-indent: 50px;'>โดยข้าพเจ้ายินดีจะปฏิบัติตามระเบียบการใช้สถานที่ดังกล่าวอย่างเคร่งครัดและจะรับผิดชอบต่อความเสียหาย ของทรัพย์สินทั้งหมดและระหว่างการปฏิบัติงาน และดูแลสถานที่ดังกล่าวให้อยู่สภาพเรียบร้อยทุกประการ</div>";
 
         $html .= "<div style='margin-top: 40px;text-align:right'>ลงชื่อ.......................................................ผู้ยื่นคำขอ</div>";
-        $html .= "<div style='margin-top: 0px;margin-right: 50px;text-align:right'>(".$Booking->pers_prefix.$Booking->pers_firstname.' '.$Booking->pers_lastname.")</div>";
+        $html .= "<div style='margin-top: 0px;margin-right: 60px;text-align:right'>(".$Booking->pers_prefix.$Booking->pers_firstname.' '.$Booking->pers_lastname.")</div>";
 
         $html .="
         <style>

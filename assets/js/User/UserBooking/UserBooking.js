@@ -56,7 +56,7 @@ $('#TBShowDataBookingAdmin').DataTable({
         {
             data: 'booking_id',
             render: function(data, type, row) {
-                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/'+ data +'" class="btn btn-primary '+(row.booking_executive_approve != "อนุมัติ" ? "disabled":"")+'">เอกสาร</a> <div>ดาวโหลดได้ก็ต่อเมื่อ ผู้บริหารอนุมัติ</div>';
+                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/'+ data +'" class="btn btn-primary">เอกสาร</a>';
             }
         },
     ]

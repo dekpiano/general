@@ -28,6 +28,7 @@
                                 <th>ชื่อผู้จอง</th>
                                 <th>สถานะ</th>
                                 <th>เหตุผล</th>
+                                <th>เอกสาร</th>
                                 <?php if(isset($_SESSION['username']) && !isset($All)) : ?>
                                 <th>คำสั่ง</th>
                                 <?php endif; ?>
@@ -76,6 +77,10 @@
                                     </span>
                                 </td>
                                 <td><?=$v_Booking->booking_admin_reason?></td>
+                                <td> 
+                                    <a href="http://" class="btn btn-primary <?=($v_Booking->booking_admin_approve == 'อนุมัติ' ?"":"disabled")?>">ดาวโหลดเอกสาร</a> <br>
+                                    <small>ดาวโหลดเอกสารได้ก็ต่อเมื่อได้รับอนุมัติ</small>
+                                </td>
                                 <?php if(isset($_SESSION['username']) && !isset($All)) :  ?>
                                 <td>
                                     <?php $CheckDisble = $v_Booking->booking_admin_approve == "ยกเลิกโดยผู้จอง"?"disabled":""?>
