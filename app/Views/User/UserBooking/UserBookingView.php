@@ -78,7 +78,7 @@
                                 </td>
                                 <td><?=$v_Booking->booking_admin_reason?></td>
                                 <td> 
-                                    <a href="http://" class="btn btn-primary <?=($v_Booking->booking_admin_approve == 'อนุมัติ' ?"":"disabled")?>">ดาวโหลดเอกสาร</a> <br>
+                                    <a target="_blank" href="../../Booking/Approve/File/Requestform/<?=$v_Booking->booking_id?>" class="btn btn-primary <?=($v_Booking->booking_admin_approve == 'อนุมัติ' ?"":"disabled")?>">ดาวโหลดเอกสาร</a> <br>
                                     <small>ดาวโหลดเอกสารได้ก็ต่อเมื่อได้รับอนุมัติ</small>
                                 </td>
                                 <?php if(isset($_SESSION['username']) && !isset($All)) :  ?>
