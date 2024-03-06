@@ -54,7 +54,7 @@
                                     <option value="อาคาร 2"> อาคาร 2</option>
                                     <option value="อาคาร 3"> อาคาร 3</option>
                                     <option value="อาคาร 4"> อาคาร 4</option>
-                                    <option value="อาคาร 5"> อาคาร 5</option>
+                                    <option value="อาคาร 5"> อาคาร 5 โรงอาหาร</option>
                                     <option value="อาคาร 6"> อาคาร 6</option>
                                     <option value="อาคาร 7"> อาคาร 7</option>
                                     <option value="อาคาร 8"> อาคาร 8</option>

@@ -85,7 +85,13 @@
                             <tr>
                                 <th scope="row">วันที่ดำเนินการ</th>
                                 <td id="show_repair_datework">
-                                    <?=$Datethai->thai_date_and_time(strtotime($Order[0]->repair_datework)) ?? 'รอดำเนินการ'?>
+                                    <?php 
+                                    if($Order[0]->repair_datework == '0000-00-00 00:00:00' || $Order[0]->repair_datework == null){
+                                        echo "รอดำเนินการ";
+                                    }else{
+                                        echo $Datethai->thai_date_and_time(strtotime($Order[0]->repair_datework));
+                                    }
+                                    ?>
                                 </td>
                             </tr>
                             <tr>
@@ -169,7 +175,7 @@
                     </div>
                     <div class="mb-3 row">
                         <label for="repair_datework" class="col-sm-3 col-form-label">วันที่ดำเนินการ</label>
-                        <div class="col-sm-9">
+                        <div class="col-sm-9"> 
                             <input type="text" readonly class="form-control-plaintext" id="" name=""
                                 value="<?php echo $Datethai->thai_date_and_time(strtotime(date('Y-m-d H:i:s')));?>">
                             <input type="hidden" readonly class="form-control-plaintext" id="repair_datework"

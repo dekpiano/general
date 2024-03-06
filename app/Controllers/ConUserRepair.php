@@ -360,7 +360,8 @@ class ConUserRepair extends BaseController
                 'format' => 'A4',
                 'mode' => 'utf-8',
                 'default_font' => 'thsarabun',
-                'default_font_size' => 16
+                'default_font_size' => 16,
+                'margin_top' => 0
             )
         );
 
@@ -369,7 +370,7 @@ class ConUserRepair extends BaseController
         $html_footer .= "โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์ สังกัดกองการศึกษา ศาสนา และวัฒนธรรม องค์การบริหารส่วนจังหวัดนครสวรรค์</div>";
         $mpdf->SetHTMLFooter($html_footer);
        
-       $html = view('User/UserRepair/UserRepairPrintOrder',$data);
+        $html = view('User/UserRepair/UserRepairPrintOrder',$data);
          // เพิ่ม HTML เข้าไปใน PDF
          $mpdf->WriteHTML($html);
  
