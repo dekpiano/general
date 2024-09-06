@@ -57,7 +57,17 @@ $routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Show/(:any)
 
 //User งานจองรถ
 $routes->get('CarBooking', 'ConUserCarBooking::CarBookingMain');
+$routes->get('CarBooking/View', 'ConUserCarBooking::CarBookingView');
 $routes->get('CarBooking/CheckCar', 'ConUserCarBooking::CarBookingCheckCar');
+$routes->get('CarBooking/Add/(:any)', 'ConUserCarBooking::CarBookingAdd/$1');
+$routes->match(['get', 'post'],'Booking/DB/ShowTimeCarBooking', 'ConUserCarBooking::ShowTimeCarBooking');
+$routes->match(['get', 'post'],'CarBooking/DB/DataTable/View', 'ConUserCarBooking::CarBookingDataTableView');
+
+$routes->match(['get', 'post'],'CarBooking/DB/Insert', 'ConUserCarBooking::CarBookingInsert');
+$routes->get('CarBooking/Approve/Admin', 'ConUserCarBooking::CarBookingViewApproveAdmin');
+$routes->match(['get', 'post'],'CarBooking/DB/DataTable/Approve/Admin', 'ConUserCarBooking::CarBookingDataTableApproveAdmin');
+$routes->match(['get', 'post'],'CarBooking/DB/AppoveCarReservationAdmin', 'ConUserCarBooking::CarBookingApproveAdmin');
+$routes->match(['get', 'post'],'CarBooking/DB/NoAppoveCarReservationAdmin', 'ConUserCarBooking::CarBookingNoApproveAdmin');
 
 // User แจ้งซ่อม
 $routes->get('Repair', 'ConUserRepair::RepairMain');
@@ -97,9 +107,13 @@ $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Update/Img', 'ConA
 
 //Admin งานจองรถ
 $routes->get('Admin/Car/CarMain', 'ConAdminCar::CarMain');
+$routes->get('Admin/Car/CarDriver', 'ConAdminCar::CarDriver');
 $routes->match(['get', 'post'],'Admin/Car/ShowData', 'ConAdminCar::CarShowData');
 $routes->match(['get', 'post'],'Admin/Car/Insert', 'ConAdminCar::CarInsert');
-
+$routes->match(['get', 'post'],'Admin/Car/Delete', 'ConAdminCar::CarDelete');
+$routes->match(['get', 'post'],'Admin/CarDriver/ShowData', 'ConAdminCar::CarDriverShowData');
+$routes->match(['get', 'post'],'Admin/CarDriver/Insert', 'ConAdminCar::CarDriverInsert');
+$routes->match(['get', 'post'],'Admin/CarDriver/Delete', 'ConAdminCar::CarDriverDelete');
 
 /*
  * --------------------------------------------------------------------

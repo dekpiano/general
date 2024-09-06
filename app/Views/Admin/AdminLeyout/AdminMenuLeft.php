@@ -57,6 +57,11 @@
                                 <div data-i18n="Without menu">รถยนต์</div>
                             </a>
                         </li>
+                        <li class="menu-item <?php echo $uri->getSegment(3) == "CarDriver"?"active":""?>">
+                            <a href="<?=base_url('Admin/Car/CarDriver')?>" class="menu-link">
+                                <div data-i18n="Without menu">คนขับรถ</div>
+                            </a>
+                        </li>
 
                     </ul>
                 </li>

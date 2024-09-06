@@ -22,12 +22,12 @@
                                 <div class="d-flex align-items-center justify-content-between pb-1">
                                     <div class="avatar me-2" style="width: 4.375rem;height: 4.375rem;">
                                         <span class="avatar-initial rounded bg-label-info">
-                                            <i class='bx bx-calendar bx-lg'></i>
+                                            <i class='bx bxs-car bx-lg'></i>
                                         </span>
                                     </div>
                                     <div>
-                                        <h1 class="ms-1 mb-0  text-white"><?=$CountLocationRoomAll;?></h1>
-                                        <p class="mb-1 h5 text-white">จองรถ</p>
+                                        <h1 class="ms-1 mb-0  text-white"><?=$CountCarAll;?></h1>
+                                        <p class="mb-1 h3 text-white">จองรถ</p>
                                     </div>
                                 </div>
 
@@ -36,7 +36,7 @@
                     </a>
                 </div>
                 <div class="col-sm-6 col-lg-3 mb-4">
-                    <a href="<?=base_url('Booking/Select')?>">
+                    <a href="<?=base_url('CarBooking/View')?>">
                         <div class="card cards h-100 bg-warning text-white">
                             <div class="card-body">
                                 <div class="d-flex align-items-center justify-content-between pb-1">
@@ -46,7 +46,7 @@
                                         </span>
                                     </div>
                                     <div>
-                                        <h1 class="ms-1 mb-0  text-white"><?=$CountLocationRoomAll;?></h1>
+                                        <h1 class="ms-1 mb-0  text-white"><?=$CountCarReservationAll;?></h1>
                                         <p class="mb-1 h5 text-white">สถานะจองรถ</p>
                                     </div>
                                 </div>
@@ -76,10 +76,10 @@
                 </div>
 
 
-                <?php if(isset($_SESSION['username']) && @$_SESSION['status'] =="AdminGeneral" || @$_SESSION['status'] =="ExecutiveGeneral"):?>
+                <?php if(isset($_SESSION['username']) && in_array("งานยานพาหนะ", explode(',',@$_SESSION['rloes']))  || @$_SESSION['status'] =="ExecutiveGeneral"):?>
                 <div class="col-sm-6 col-lg-3 mb-4 <?=isset($_SESSION['username']) ?"":"offset-md-3" ?>">
                     <?php if(@$_SESSION['status'] =="AdminGeneral"):?>
-                    <a href="<?=base_url('Booking/Approve/Admin')?>">
+                    <a href="<?=base_url('CarBooking/Approve/Admin')?>">
                         <?php elseif(@$_SESSION['status'] =="ExecutiveGeneral"): ?>
                         <a href="<?=base_url('Booking/Approve/Executive')?>">
                             <?php endif;?>
@@ -91,7 +91,7 @@
                                                     class="bx bx-time-five"></i></span>
                                         </div>
                                         <div>
-                                            <h6 class="ms-1 mb-0 text-white">ยอดจองทั้งหมด <?=$CountbookingAll;?> รายการ
+                                            <h6 class="ms-1 mb-0 text-white">ยอดจองทั้งหมด <?=$CountCarReservationAll;?> รายการ
                                             </h6>
                                             <h4 class="ms-1 mb-0 text-white">รออนุมัติ <?=$NumRowsWaitApprove;?> รายการ
                                             </h4>
@@ -105,6 +105,7 @@
                 </div>
                 <?php endif; ?>
             </div>
+
             <div class="card">
                 <div class="card-body">
                     <div id='calendar'></div>

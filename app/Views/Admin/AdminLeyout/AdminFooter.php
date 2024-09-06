@@ -71,7 +71,7 @@
     <script src="<?=base_url()?>/assets/js/Admin/AdminRoles/AdminRolesMain.js?v=2"></script>
     <?php endif;?>
     <?php if($uri->getSegment(2) == 'Car') : ?>
-    <script src="<?=base_url()?>/assets/js/Admin/AdminCar/AdminCarMain.js?v=1.2"></script>
+    <script src="<?=base_url()?>/assets/js/Admin/AdminCar/AdminCarMain.js?v=1.6"></script>
     <?php endif;?>
 
     <script>

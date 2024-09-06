@@ -29,13 +29,13 @@ class ConUserCarBooking extends BaseController
         $data['UrlMenuSub'] = 'CarBookingMain';
 
         $database = \Config\Database::connect();
-        $builder = $database->table('tb_location');
-        $data['CountLocationRoomAll'] = $builder->countAll();
+        $DBSchoolCar = $database->table('tb_school_car');
+        $DBCarReservation = $database->table('tb_car_reservation');
+        $data['CountCarAll'] = $DBSchoolCar->countAll();
+        $data['CountCarReservationAll'] = $DBCarReservation->countAll();
 
-        $DBbooking = $database->table('tb_booking');
-        $data['CountbookingAll'] = $DBbooking->countAll();
-        $data['NumRowsWaitApprove'] = $DBbooking->where('booking_admin_approve','ไม่อนุมัติ')->get()->getNumRows();
-        $data['NumRowsApprove'] = $DBbooking->where('booking_admin_approve','อนุมัติ')->get()->getNumRows();
+        $data['NumRowsWaitApprove'] = $DBCarReservation->where('car_reserv_status !=','อนุมัติ')->get()->getNumRows();
+        $data['NumRowsApprove'] = $DBCarReservation->where('car_reserv_status','อนุมัติ')->get()->getNumRows();
 
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
@@ -54,16 +54,69 @@ class ConUserCarBooking extends BaseController
       
 
         $database = \Config\Database::connect();
-        $builder = $database->table('tb_location');
-        $data['LocationRoomAll'] = $builder->get()->getResult();
-         //echo "<pre>";print_r($data['LocationRoomAll']); exit();
+        $builder = $database->table('tb_school_car');
+        $data['CheckCar'] = $builder->get()->getResult();
+         //echo "<pre>";print_r($data['CheckCar']); exit();
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
                 .view('User/UserCarBooking/UserCarBookingCheck')
                 .view('User/UserLeyout/UserFooter');
     }
 
-    public function CarBookingAdd($LocationID = null)
+    public function CarBookingDataTableView(){
+        $session = session();
+        $Datethai = new Datethai();  
+        $database = \Config\Database::connect();
+        $DBCarReservation = $database->table('tb_car_reservation');
+        $DBpers = \Config\Database::connect('personnel');
+       $DBpersonnel = $DBpers->table('tb_personnel');
+
+       $S_data = $DBCarReservation->select('
+       skjacth_general.tb_car_reservation.*,
+        skjacth_general.tb_school_car.car_img,
+        skjacth_general.tb_school_car.car_registration,
+        skjacth_general.tb_school_car.car_province,
+        skjacth_general.tb_school_car.car_category,
+        skjacth_personnel.tb_personnel.pers_prefix,
+        skjacth_personnel.tb_personnel.pers_firstname,
+        skjacth_personnel.tb_personnel.pers_lastname
+       ')
+       ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
+       ->join('skjacth_personnel.tb_personnel',"skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID")
+       ->get()->getResult();
+       $data = array();
+        foreach ($S_data as $key => $value) {
+            $CheckDriver = $DBpersonnel->select('pers_prefix,pers_firstname,pers_lastname')->where('pers_id',$value->car_reserv_driver)->get()->getResult();
+            if($value->car_reserv_driver){
+                $Fullname = $CheckDriver[0]->pers_prefix.$CheckDriver[0]->pers_firstname.' '.$CheckDriver[0]->pers_lastname;
+            }else{
+                $Fullname = '';
+            }
+
+            $data[]=[
+                'car_reserv_order' => $value->car_reserv_order,
+                'car_reserv_carID' => $value->car_reserv_carID,
+                'car_registration' => $value->car_registration,
+                'car_reserv_driver' => $Fullname,
+                'car_province' => $value->car_province,
+                'car_category' => $value->car_category,
+                'car_reserv_location' => $value->car_reserv_location,
+                'car_reserv_detail' => $value->car_reserv_detail,
+                'car_reserv_memberID' => $value->car_reserv_memberID,
+                'car_reserv_status' => $value->car_reserv_status,
+                'car_img' => $value->car_img,
+                'Member' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname,
+                'Date' => $Datethai->thai_date_fullmonth(strtotime($value->car_reserv_StartDate)).':'.$value->car_reserv_StartTime.' ถึง '.$Datethai->thai_date_fullmonth(strtotime($value->car_reserv_EndDate)).' '.$value->car_reserv_EndTime
+            ];        
+        }
+        $response = array(           
+            "aaData" => $data
+         );
+         echo json_encode($response);
+    } 
+
+
+    public function CarBookingAdd($CarID = null)
     {
         $session = session();
         $data = $this->DataMain();
@@ -74,22 +127,19 @@ class ConUserCarBooking extends BaseController
         $data['Datethai'] = new Datethai();      
       
         $database = \Config\Database::connect();
-        $DBlocation = $database->table('tb_location');
-        $tb_booking = $database->table('tb_booking');
+        $DBSchoolCar = $database->table('tb_school_car');
+        $DBCarReservation = $database->table('tb_car_reservation');
         $myTime = Time::now('asia/bangkok', 'th_TH');
 
-        $data['loca'] = $DBlocation->where('location_ID',$LocationID)->get()->getRow();
-        $data['BookignToday'] = $tb_booking
-        ->select('booking_title,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd')        
-        ->where('booking_locationroom',$LocationID)
-        ->get()->getResult();
-        $data['CarBookingNow'] = $tb_booking->orderBy('booking_id','DESC')->get()->getRow();
+        $data['Car'] = $DBSchoolCar->where('car_ID',$CarID)->get()->getRow();
        
-        if(isset($data['CarBookingNow']->booking_order) == ""){
-            $data['BookLatest'] = "BK_".date('Y')."0001";
+        $data['CarBookingNow'] = $DBCarReservation->orderBy('car_reserv_id','DESC')->get()->getRow();
+       
+        if(isset($data['CarBookingNow']->car_reserv_order) == ""){
+            $data['car_reserv_order'] = "OrderCar_".date('Y')."0001";
         }else{
-           $sub = explode('_',$data['CarBookingNow']->booking_order);          
-           $data['BookLatest'] = $sub[0]."_".(((int)$sub[1])+1);
+           $sub = explode('_',$data['CarBookingNow']->car_reserv_order);          
+           $data['car_reserv_order'] = $sub[0]."_".(((int)$sub[1])+1);
         }
         
         
@@ -103,31 +153,33 @@ class ConUserCarBooking extends BaseController
 
         $session = session();
         $database = \Config\Database::connect();
-        $DBlocation = $database->table('tb_booking');
+        $DBCarReservation = $database->table('tb_car_reservation');
+
         
-        if($this->request->getVar('booking_equipment') != ""){
-          $equipment = implode('|',$this->request->getVar('booking_equipment'));
-        }else{
-            $equipment = "";
-        }
         $data = [
-            'booking_locationroom' => $this->request->getVar('booking_locationroom'),
-            'booking_order' => $this->request->getVar('booking_order'),
-            'booking_number' => $this->request->getVar('booking_number'),
-            'booking_title' => $this->request->getVar('booking_title'),
-            'booking_dateStart' => $this->request->getVar('booking_dateStart'),
-            'booking_timeStart' => $this->request->getVar('booking_timeStart'),
-            'booking_dateEnd' => $this->request->getVar('booking_dateEnd'),
-            'booking_timeEnd' => $this->request->getVar('booking_timeEnd'),
-            'booking_typeuse' => $this->request->getVar('booking_typeuse'),
-            'booking_other' => $this->request->getVar('booking_other'),
-            'booking_Booker' => $this->request->getVar('booking_Booker'),
-            'booking_telephone' => $this->request->getVar('booking_telephone'),
-            'booking_equipment' => $equipment,
-            'booking_admin_approve' => "รอตรวจสอบ" 
+            'car_reserv_order' => $this->request->getVar('car_reserv_order'),
+            'car_reserv_memberID' => $this->request->getVar('car_reserv_memberID'),
+            'car_reserv_location' => $this->request->getVar('car_reserv_location'),
+            'car_reserv_detail' => $this->request->getVar('car_reserv_detail'),
+            'car_reserv_number' => $this->request->getVar('car_reserv_number'),
+            'car_reserv_StartDate' => $this->request->getVar('car_reserv_StartDate'),
+            'car_reserv_StartTime' => $this->request->getVar('car_reserv_StartTime'),
+            'car_reserv_EndDate' => $this->request->getVar('car_reserv_EndDate'),
+            'car_reserv_EndTime' => $this->request->getVar('car_reserv_EndTime'),
+            'car_reserv_carID' => $this->request->getVar('car_reserv_carID'),
+            'car_reserv_phone' => $this->request->getVar('car_reserv_phone'),            
+            'car_reserv_status' => "รอตรวจสอบ" 
         ];
-   
+        //print_r($this->request->getVar('car_reserv_order'));exit();
+      
+
+        if($DBCarReservation->insert($data)){
+            echo 1;
+        }
+
+        exit();
         if($DBlocation->insert($data)){
+           
             $email = \Config\Services::email(); // loading for use
            
             $email->setFrom('admin_booking@skj.ac.th',"ระบบการจองอาคารสถานที่");
@@ -192,18 +244,80 @@ class ConUserCarBooking extends BaseController
         //print_r($this->request->getVar());
     }
 
-    public function CarBookingView($Key){
+    // --------------- ของแอดมิน อนุมัตื ApproveAdmin ---------------------------
+
+    public function CarBookingDataTableApproveAdmin(){
+        $session = session();
+        $Datethai = new Datethai();  
+        $database = \Config\Database::connect();
+        $DBCarReservation = $database->table('tb_car_reservation');
+
+       $S_data = $DBCarReservation->select('
+       skjacth_general.tb_car_reservation.*,
+        skjacth_general.tb_school_car.car_img,
+        skjacth_general.tb_school_car.car_registration,
+        skjacth_general.tb_school_car.car_province,
+        skjacth_general.tb_school_car.car_category,
+        skjacth_personnel.tb_personnel.pers_prefix,
+        skjacth_personnel.tb_personnel.pers_firstname,
+        skjacth_personnel.tb_personnel.pers_lastname
+       ')
+       ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
+       ->join('skjacth_personnel.tb_personnel',"skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID")
+       ->get()->getResult();
+
+       $DBpers = \Config\Database::connect('personnel');
+       $DBpersonnel = $DBpers->table('tb_personnel');
+
+       
+
+       $data = array();
+        foreach ($S_data as $key => $value) {
+
+            $CheckDriver = $DBpersonnel->select('pers_prefix,pers_firstname,pers_lastname')->where('pers_id',$value->car_reserv_driver)->get()->getResult();
+            if($value->car_reserv_driver){
+                $Fullname = $CheckDriver[0]->pers_prefix.$CheckDriver[0]->pers_firstname.' '.$CheckDriver[0]->pers_lastname;
+            }else{
+                $Fullname = '';
+            }
+
+            $data[]=[
+                'car_reserv_order' => $value->car_reserv_order,
+                'car_reserv_carID' => $value->car_reserv_carID,
+                'car_reserv_id' => $value->car_reserv_id,
+                'car_registration' => $value->car_registration,
+                'car_reserv_driver' => $Fullname,
+                'car_province' => $value->car_province,
+                'car_category' => $value->car_category,
+                'car_reserv_location' => $value->car_reserv_location,
+                'car_reserv_detail' => $value->car_reserv_detail,
+                'car_reserv_memberID' => $value->car_reserv_memberID,
+                'car_reserv_status' => $value->car_reserv_status,
+                'car_img' => $value->car_img,
+                'Member' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname,
+                'Date' => $Datethai->thai_date_fullmonth(strtotime($value->car_reserv_StartDate)).':'.$value->car_reserv_StartTime.' ถึง '.$Datethai->thai_date_fullmonth(strtotime($value->car_reserv_EndDate)).' '.$value->car_reserv_EndTime
+            ];        
+        }
+        $response = array(           
+            "aaData" => $data
+         );
+         echo json_encode($response);
+    } 
+
+    // ---------- ขอ แอดมิน อนุมัตื --------------------
+
+    public function CarBookingView(){
 
         $session = session();
         $data = $this->DataMain();
-        $data['title']="ดูข้อมูลจองห้องประชุมและสถานที่";
-        $data['description']="ดูข้อมูลจองห้องประชุมและสถานที่";
+        $data['title']="ตารางการจองรถ";
+        $data['description']="ดูตารางการจองรถ";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingView';     
         $data['Datethai'] = new Datethai();   
 
         $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
+        $DBCarReservation = $database->table('tb_car_reservation');
 
         $DBpersonnel = $database->table('personnel');
 
@@ -211,80 +325,43 @@ class ConUserCarBooking extends BaseController
 
         $DBpers = \Config\Database::connect('personnel');
 
-        if(isset($_SESSION['id']) == 1){
-            if($Key == 'All'){
-                $data['All'] = $Key;
-                $data['CheckAll'] = 1;
-            }else{
-                $array =['booking_locationroom'=> $Key,'booking_Booker'=>$_SESSION['id']];
-                $Where = $DBbooking->where($array);
-                $data['CheckAll'] = 0;
-            }            
-        }else{
-            if($Key == 'All'){
-                $data['All'] = $Key;
-                $data['CheckAll'] = 1;
-            }else{
-                $array =['booking_locationroom'=> $Key];
-                $Where = $DBbooking->where($array);
-                $data['CheckAll'] = 0;
-            }
-           
-        }
-      
-       $DBbooking
-        ->select('booking_order,booking_telephone,booking_title,booking_locationroom,booking_Booker,booking_admin_approve,booking_admin_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
-        $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
-        $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
-        $Where;
-        $data['CarBooking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
+
+        $data['CarBooking'] =  $DBCarReservation->orderBy('car_reserv_id','DESC')->get()->getResult();
       
         //echo '<pre>';print_r($data['CarBooking']); exit();
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
                 .view('User/UserCarBooking/UserCarBookingView')
-          
-          
                 .view('User/UserLeyout/UserFooter');
     }
 
-    public function CarBookingEdit($Key){
-
+    public function CarBookingApproveAdmin(){
         $session = session();
-        $data = $this->DataMain();
-        $data['title']="แก้ไขข้อมูลจองห้องประชุมและสถานที่";
-        $data['description']="แก้ไขข้อมูลจองห้องประชุมและสถานที่";
-        $data['UrlMenuMain'] = 'CarBooking';
-        $data['UrlMenuSub'] = 'Edit';     
-        $data['Datethai'] = new Datethai();   
-
         $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
+        $DBCarReservation = $database->table('tb_car_reservation');
 
-        $DBpersonnel = $database->table('personnel');
+        $data = array(
+            'car_reserv_driver' => $this->request->getVar('Driver'),
+            'car_reserv_status' => 'อนุมัติ',
+            'car_reserv_approver' => $_SESSION['id']
+        );
+        $DBCarReservation->where('car_reserv_id',$this->request->getVar('carbookingID'));
+        echo $DBCarReservation->update($data);
+    }
 
-        //echo '<pre>';print_r($DBpersonnel); exit();
-
-        $DBpers = \Config\Database::connect('personnel');
-
+    public function CarBookingNoApproveAdmin(){
+        $session = session();
         $database = \Config\Database::connect();
-        $builder = $database->table('tb_location');
-        $data['LocationList'] = $builder->select('location_ID,location_name')->get()->getResult();
-      
-       $DBbooking
-        ->select('tb_booking.*,location_ID,location_name,location_img,location_detail,pers_prefix,pers_firstname,pers_lastname');
-        $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
-        $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
-        $DBbooking->where('booking_id',$Key);
-        $data['CarBooking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
-      
-       //echo '<pre>';print_r($data['CarBooking']); exit();
-        
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserCarBooking/UserCarBookingEdit')
-                .view('User/UserLeyout/UserFooter');
+        $DBCarReservation = $database->table('tb_car_reservation');
+
+        $data = array(
+            'car_reserv_driver' => "",
+            'car_reserv_status' => 'ไม่อนุมัติ',
+            'car_reserv_approver' => $_SESSION['id']
+        );
+        $DBCarReservation->where('car_reserv_id',$this->request->getVar('carbookingID'));
+        echo $DBCarReservation->update($data);
     }
 
     public function CarBookingCancel(){
@@ -302,20 +379,34 @@ class ConUserCarBooking extends BaseController
     public function ShowTimeCarBooking(){
         $session = session();
         $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
+        $DBCarReservation = $database->table('tb_car_reservation');
 
-       $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,location_name')
-       ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-       ->where('booking_admin_approve','อนุมัติ')
-       ->where('booking_executive_approve','อนุมัติ')
+       $S_data = $DBCarReservation->select('
+       tb_car_reservation.car_reserv_StartDate,
+        tb_car_reservation.car_reserv_StartTime,
+        tb_car_reservation.car_reserv_EndDate,
+        tb_car_reservation.car_reserv_EndTime,
+        tb_car_reservation.car_reserv_detail,
+        tb_car_reservation.car_reserv_id,
+        tb_car_reservation.car_reserv_location,
+        tb_car_reservation.car_reserv_status,
+        tb_car_reservation.car_reserv_carID,
+        tb_school_car.car_registration,
+        tb_school_car.car_province,
+        tb_school_car.car_category
+       ')
+       ->join('tb_school_car','tb_school_car.car_ID = tb_car_reservation.car_reserv_carID')
+    //    ->where('booking_admin_approve','อนุมัติ')
+    //    ->where('booking_executive_approve','อนุมัติ')
        ->get()->getResult();
 
         foreach ($S_data as $key => $value) {
             $data[]=[
-                'id' => $value->booking_locationroom,
-                'title'=> date('H:i',strtotime($value->booking_timeStart)).' - '.date('H:i',strtotime($value->booking_timeEnd)).' '.$value->booking_title.' '.$value->location_name,
-                'start' => $value->booking_dateStart.' '.$value->booking_timeStart,
-                'end' => date("Y-m-d", strtotime("+1 day",strtotime($value->booking_dateEnd))).' '.$value->booking_timeEnd
+                'id' => $value->car_reserv_id,
+                'title'=> $value->car_category.' '.$value->car_registration.' '.$value->car_province.' ไปที่'.$value->car_reserv_location.' เพื่อ'.$value->car_reserv_detail,
+                'start' => $value->car_reserv_StartDate.' '.$value->car_reserv_StartTime,
+                'end' => date("Y-m-d", strtotime($value->car_reserv_EndDate)).' '.$value->car_reserv_EndTime,
+                'approved' => $value->car_reserv_status
             ];        
         }
 
@@ -419,20 +510,31 @@ class ConUserCarBooking extends BaseController
             header("Location:".base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])); exit();
         } 
         $data = $this->DataMain();
-        $data['title']="ดูข้อมูลจองห้องประชุมและสถานที่ (Admin)";
-        $data['description']="ดูข้อมูลจองห้องประชุมและสถานที่ (Admin)";
+        $data['title']="ดูข้อมูลจองรถ (Admin)";
+        $data['description']="ดูข้อมูลจองรถ (Admin)";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingView';     
         $data['Datethai'] = new Datethai();   
 
         $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
+        $DBCarDriver= $database->table('tb_car_driver');
         $DBpersonnel = $database->table('personnel');
         $DBpers = \Config\Database::connect('personnel');
 
-        $data['CarBooking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
+       
+        $data['CarDriver'] =  $DBCarDriver->select('
+            skjacth_general.tb_car_driver.cardriver_id,
+            skjacth_personnel.tb_personnel.pers_prefix,
+            skjacth_personnel.tb_personnel.pers_firstname,
+            skjacth_personnel.tb_personnel.pers_lastname,
+            skjacth_personnel.tb_personnel.pers_phone,
+            skjacth_personnel.tb_personnel.pers_img,
+            skjacth_personnel.tb_personnel.pers_id
+        ')
+        ->join('skjacth_personnel.tb_personnel','skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_driver.cardriver_userID')
+        ->get()->getResult();
       
-       // echo '<pre>';print_r($data['CarBooking']); exit();
+       //echo '<pre>';print_r($data['CarDriver']); exit();
         
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
@@ -464,41 +566,7 @@ class ConUserCarBooking extends BaseController
                 .view('User/UserLeyout/UserFooter');
     }
 
-    public function CarBookingDataTableApproveAdmin(){
-        $session = session();
-        $Datethai = new Datethai();  
-        $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
-
-       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,location_name,pers_prefix,pers_firstname,pers_lastname')
-       ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-       ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
-       //->where('booking_admin_approve','อนุมัติ')
-       ->get()->getResult();
-       $data = array();
-        foreach ($S_data as $key => $value) {
-            $data[]=[
-                'booking_id' => $value->booking_id,
-                'booking_order' => $value->booking_order,
-                'booking_title' => $value->booking_title,
-                'booking_dateStart' => $Datethai->thai_date_and_time_short(strtotime($value->booking_dateStart)),
-                'booking_dateEnd' => $Datethai->thai_date_and_time_short(strtotime($value->booking_dateEnd)),
-                'booking_timeStart' => $value->booking_timeStart,
-                'booking_timeEnd' => $value->booking_timeEnd,
-                'location_name' => $value->location_name,
-                'booking_Booker' => $value->booking_Booker,
-                'booking_admin_approve' => $value->booking_admin_approve,
-                'booking_admin_reason' => $value->booking_admin_reason,
-                'booking_telephone' => $value->booking_telephone,
-                'booker' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname
-            ];        
-        }
-
-        $response = array(           
-            "aaData" => $data
-         );
-         echo json_encode($response);
-    } 
+  
 
     public function CarBookingDataTableApproveExecutive(){
         $session = session();
@@ -507,7 +575,7 @@ class ConUserCarBooking extends BaseController
         $DBbooking = $database->table('tb_booking');
 
        $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,location_name,pers_prefix,pers_firstname,pers_lastname,booking_executive_approve,booking_executive_reason')
-       ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
+       ->join('tb_school_car','tb_booking.booking_locationroom = tb_school_car.location_ID')
        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
        //->where('booking_admin_approve','อนุมัติ')
        ->get()->getResult();
@@ -579,19 +647,5 @@ class ConUserCarBooking extends BaseController
 
     }
 
-    public function CarBookingNoApproveAdmin(){
-        $session = session();
-        $Datethai = new Datethai();  
-        $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
-
-        if($_SESSION['status'] === "ExecutiveGeneral"){
-            $NoApprove = ['booking_executive_approve'=>'ไม่อนุมัติ','booking_executive_reason'=>$this->request->getPost('booking_admin_reason'),'booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
-        }elseif($_SESSION['status'] === "AdminGeneral"){
-            $NoApprove = ['booking_admin_approve'=>'ไม่อนุมัติ','booking_admin_reason'=>$this->request->getPost('booking_admin_reason'),'booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
-        }
-
-        echo $DBbooking->where('booking_id',$this->request->getPost('CarBookingID'))->update($NoApprove);
-    }
 
 }

@@ -67,7 +67,7 @@ transform: scale(1.1);
                 </div>
 
 
-                <?php if(isset($_SESSION['username']) && @$_SESSION['status'] =="AdminGeneral" || @$_SESSION['status'] =="ExecutiveGeneral"):?>
+                <?php if(isset($_SESSION['username']) && in_array("งานอาคารสถานที่", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral"):?>
                 <div class="col-sm-6 col-lg-3 mb-4 <?=isset($_SESSION['username']) ?"":"offset-md-3" ?>">
                     <?php if(@$_SESSION['status'] =="AdminGeneral"):?>
                     <a href="<?=base_url('Booking/Approve/Admin')?>">
