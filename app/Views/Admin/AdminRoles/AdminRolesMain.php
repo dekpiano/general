@@ -97,7 +97,7 @@
 
             <div class="card mt-3">
                 <div class="card-header">
-                    <h5>งานบุคคล</h5>
+                    <h5>งานเจ้าหน้าที่ทั่วไป</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -106,7 +106,7 @@
                             <label for="">เจ้าหน้าที่</label>
                             <div class="mt-2">
                                 <select class="form-select form-select-lg SettingGeneralRloes"
-                                    rloes-id="<?=$Manager[$i]->admin_rloes_id;?>" Key-nanetype="งานบุคคล">
+                                    rloes-id="<?=$Manager[$i]->admin_rloes_id;?>" Key-nanetype="เจ้าหน้าที่ทั่วไป">
                                     <option value="">เลือกเจ้าหน้าที่</option>
                                     <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
                                     <option
@@ -157,12 +157,40 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <?php for($i=11; $i<=13; $i++): ?>
+                        <?php for($i=12; $i<=14; $i++): ?>
                         <div class="col-md-4 mt-2">
                             <label for="">เจ้าหน้าที่</label>
                             <div class="mt-2">
                                 <select class="form-select form-select-lg SettingGeneralRloes"
                                     rloes-id="<?=$Manager[$i]->admin_rloes_id;?>" Key-nanetype="งานยานพาหนะ">
+                                    <option value="">เลือกเจ้าหน้าที่</option>
+                                    <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
+                                    <option
+                                        <?=$Manager[$i]->admin_rloes_userid == $v_NameTeacher->pers_id ? 'selected' : '';?>
+                                        value="<?=$v_NameTeacher->pers_id?>">
+                                        <?=$v_NameTeacher->pers_prefix.$v_NameTeacher->pers_firstname." ".$v_NameTeacher->pers_lastname?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>งานบุคคล</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <?php for($i=15; $i<=17; $i++): ?>
+                        <div class="col-md-4 mt-2">
+                            <label for="">เจ้าหน้าที่</label>
+                            <div class="mt-2">
+                                <select class="form-select form-select-lg SettingGeneralRloes"
+                                    rloes-id="<?=$Manager[$i]->admin_rloes_id;?>" Key-nanetype="งานบุคคล">
                                     <option value="">เลือกเจ้าหน้าที่</option>
                                     <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
                                     <option

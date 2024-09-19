@@ -29,6 +29,9 @@
                 </li>
 
                 <!-- Layouts -->
+                <?php $SubRloes = explode(',',$_SESSION['rloes']); ?>
+
+                <?php if(in_array("งานอาคารสถานที่",$SubRloes)) :?>
                 <li class="menu-item <?php echo $uri->getSegment(2) == "LocationRoom"?"active open":""?>">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -44,7 +47,9 @@
 
                     </ul>
                 </li>
+                <?php endif; ?>
                 <!-- Layouts -->
+                <?php if(in_array("งานยานพาหนะ",$SubRloes)) :?>
                 <li class="menu-item <?php echo $uri->getSegment(2) == "Car"?"active open":""?>">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -62,10 +67,11 @@
                                 <div data-i18n="Without menu">คนขับรถ</div>
                             </a>
                         </li>
-
                     </ul>
                 </li>
+                <?php endif; ?>
 
+                <?php if(in_array("งานบุคคล",$SubRloes)) :?>
                 <li class="menu-item <?php echo $uri->getSegment(2) == "WorkPerson"?"active open":""?>">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -81,18 +87,20 @@
 
                     </ul>
                 </li>
-
+                <?php endif; ?>
             </ul>
 
-             <div>
+            <?php if($_SESSION['id'] == "pers_021") : ?>
+            <div>
                 <ul class="menu-inner py-1">
-                <li class="menu-item <?php echo $uri->getSegment(2) == "Rloes"?"active":""?>">
-                        <a href="<?=base_url('Admin/Rloes/Setting');?>" class="menu-link" >
+                    <li class="menu-item <?php echo $uri->getSegment(2) == "Rloes"?"active":""?>">
+                        <a href="<?=base_url('Admin/Rloes/Setting');?>" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-spreadsheet"></i>
                             <div data-i18n="Analytics">กำหนดสิทธิ์ใช้งาน</div>
                         </a>
                     </li>
                 </ul>
             </div>
+            <?php endif; ?>
         </aside>
         <!-- / Menu -->

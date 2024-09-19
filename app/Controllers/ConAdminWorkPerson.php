@@ -59,7 +59,7 @@ class ConAdminWorkPerson extends BaseController
         ->where('posi_id >=',"posi_007")
         ->groupBy('skjacth_skj.tb_position.posi_id')
         ->get()->getResult();
-        //echo '<pre>'; print_r($data['Learning']); exit();
+        //echo '<pre>'; print_r($data['Support']); exit();
 
         return view('Admin/AdminLeyout/AdminHeader',$data)
                 .view('Admin/AdminLeyout/AdminMenuLeft')
@@ -246,6 +246,7 @@ class ConAdminWorkPerson extends BaseController
         ];
         $DBPers->where('pers_id', $this->request->getVar('pers_id'));
         echo $DBPers->update($data);
+        //echo $this->request->getVar('pers_britday');
     }
 
     public function PersonnelUpdateImg(){ 

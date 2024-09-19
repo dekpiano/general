@@ -120,7 +120,7 @@ $(".selectorEdit").flatpickr({
     // ปรับปีในวันที่ที่ถูกเลือก
     const selectedDate = instance.selectedDates[0];
     if (selectedDate) {
-      selectedDate.setFullYear(selectedDate.getFullYear() + 543);
+      selectedDate.setFullYear(selectedDate.getFullYear());
       instance.setDate(selectedDate);
     }
 }
