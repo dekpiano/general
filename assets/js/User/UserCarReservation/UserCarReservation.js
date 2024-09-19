@@ -129,7 +129,8 @@ $('#TBShowDataCarBookingAdmin').DataTable({
         {
             data: 'car_reserv_status',
             render: function(data, type, row) {
-                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" data-bs-toggle="modal" data-bs-target="#ModalApproveAdmin" class="btn btn-primary" id="BtnApproveCarBooking" carbooking-id="' + row.car_reserv_id + '">ดำเนินการ </button> <button type="button" id="BtnClaseBooking" class="btn btn-danger" booking-id="' + row.car_reserv_id + '">ยกเลิก</button>  </div>';
+                if(row.car_reserv_status != "อนุมัติ"){ var disab = "disabled";}
+                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" data-bs-toggle="modal" data-bs-target="#ModalApproveAdmin" class="btn btn-primary" id="BtnApproveCarBooking" carbooking-id="' + row.car_reserv_id + '"><i class="bx bx-edit-alt"></i> ดำเนินการ </button> <button type="button" id="BtnClaseBooking" class="btn btn-danger" booking-id="' + row.car_reserv_id + '"><i class="bx bx-x"></i> ยกเลิก</button> <a href="Admin/Print/' + row.car_reserv_id + '" target="_blank"  id="BtnClaseBooking" class="btn btn-info '+disab+'"><i class="bx bxs-printer" ></i> พิมพ์ใบอนุญาต</a>  </div>';
             }
         }
     ]

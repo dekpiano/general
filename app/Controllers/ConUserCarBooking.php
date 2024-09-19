@@ -647,5 +647,161 @@ class ConUserCarBooking extends BaseController
 
     }
 
+    public function PrintApproveCarBooking($KeyCarBooking){
+
+        $session = session();
+        $Datethai = new Datethai();  
+        $database = \Config\Database::connect();
+        $DBCarBooking = $database->table('tb_car_reservation');
+        $DBAdminRloe = $database->table('tb_admin_rloes');
+        $DBpers = \Config\Database::connect('personnel');
+        $DBpersonnel = $DBpers->table('tb_personnel');
+        $DBskj = \Config\Database::connect('skj');
+        $DBposition = $DBpers->table('tb_position');
+        //print_r($DBposition);exit();
+
+        $ViewCarBooking = $DBCarBooking->select("     
+        CONCAT(driver.pers_prefix,driver.pers_firstname,' ',driver.pers_lastname) AS DriverName,
+        driverPosi.posi_name AS DriverPosi,
+        CONCAT(booker.pers_prefix,booker.pers_firstname,' ',booker.pers_lastname) AS BookerName,
+        bookerPosi.posi_name AS BookerPosi,
+        CONCAT(approver.pers_prefix,approver.pers_firstname,' ',approver.pers_lastname) AS ApproverName,
+        approverPosi.posi_name AS ApproverPosi,
+        skjacth_general.tb_car_reservation.*,
+        skjacth_general.tb_school_car.car_registration,
+        skjacth_general.tb_school_car.car_province,
+        skjacth_general.tb_school_car.car_category,
+        skjacth_general.tb_school_car.car_brand,
+        skjacth_general.tb_school_car.car_model
+        ")
+        ->join('skjacth_personnel.tb_personnel AS driver','driver.pers_id = skjacth_general.tb_car_reservation.car_reserv_driver')
+        ->join('skjacth_personnel.tb_personnel AS booker','booker.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID')
+        ->join('skjacth_personnel.tb_personnel AS approver','approver.pers_id = skjacth_general.tb_car_reservation.car_reserv_approver')
+        ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
+        ->join('skjacth_skj.tb_position AS driverPosi','driverPosi.posi_id = driver.pers_position')
+        ->join('skjacth_skj.tb_position AS bookerPosi','bookerPosi.posi_id = booker.pers_position')
+        ->join('skjacth_skj.tb_position AS approverPosi','approverPosi.posi_id = approver.pers_position')
+        ->where('skjacth_general.tb_car_reservation.car_reserv_id',$KeyCarBooking)
+        ->get()->getRow();
+
+       
+        $ExecutiveGeneral = $DBAdminRloe->select('
+        CONCAT(skjacth_personnel.tb_personnel.pers_prefix,skjacth_personnel.tb_personnel.pers_firstname," ",skjacth_personnel.tb_personnel.pers_lastname) AS ExecutiveName,
+        skjacth_skj.tb_position.posi_name,
+        skjacth_personnel.tb_personnel.pers_academic
+        ')
+        ->join('skjacth_personnel.tb_personnel','skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_admin_rloes.admin_rloes_userid')
+        ->join('skjacth_skj.tb_position','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
+        ->where('admin_rloes_nanetype','หัวหน้าบริหารทั่วไป')
+        ->get()->getRow();
+
+        $DeputyDirectorGeneral = $DBAdminRloe->select('
+        CONCAT(skjacth_personnel.tb_personnel.pers_prefix,skjacth_personnel.tb_personnel.pers_firstname," ",skjacth_personnel.tb_personnel.pers_lastname) AS ExecutiveName,
+        skjacth_skj.tb_position.posi_name,
+        skjacth_personnel.tb_personnel.pers_academic
+        ')
+        ->join('skjacth_personnel.tb_personnel','skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_admin_rloes.admin_rloes_userid')
+        ->join('skjacth_skj.tb_position','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
+        ->where('admin_rloes_nanetype','รองวิชาทั่วไป')
+        ->get()->getRow();
+
+        //echo '<pre>';print_r($DeputyDirectorGeneral);exit();
+
+        $path = (dirname(dirname(dirname(dirname(dirname(__FILE__))))));
+		require $path . '/librarie_skj/mpdf/vendor/autoload.php';
+        $session = session();
+        $mpdf = new \Mpdf\Mpdf(
+            array(
+                'format' => 'A4',
+                'mode' => 'utf-8',
+                'default_font' => 'thsarabun',
+                'default_font_size' => 16
+            )
+        );
+        
+        $mpdf->SetTitle('แบบคำขอใช้อาคารสถานที่ ของ ');
+
+        $html = '
+        <style>
+        @page {
+            margin-top: 10mm;  /* ระยะห่างจากขอบบน */
+            margin-bottom: 10mm; /* ระยะห่างจากขอบล่าง */
+        }
+            </style>
+        <h3 style="text-align: center;margin-top:-20px">ใบขออนุญาตใช้รถส่วนกลาง</h3>
+
+            <div style="margin-left:18rem;">องค์การบริหารส่วนจังหวัดนครสวรรค์</div>
+            <div style="margin-left:18rem;">'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_created_at)).'</div>
+         
+
+            <div style="margin-top:-5px">เรียน: ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</div>
+            <div style="margin-left:3rem;">ข้าพเจ้า '.$ViewCarBooking->BookerName.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ตำแหน่ง '.$ViewCarBooking->BookerPosi.'</div>
+
+            <div>ขออนุญาตใช้รถยนต์ส่วนกลางไปที่ '.$ViewCarBooking->car_reserv_location.'</div>
+            <div>เพื่อปฏิบัติงานเรื่อง  '.$ViewCarBooking->car_reserv_detail.'</div>
+
+            <div> จำนวนผู้ไปปฏิบัติงาน '.$ViewCarBooking->car_reserv_number.' คน </div>
+            <div>ออกเดินทางใน'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_StartDate)).' เวลา '.date('H:i',strtotime($ViewCarBooking->car_reserv_StartTime)).' น. ถึง'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_EndDate)).' เวลา '.date('H:i',strtotime($ViewCarBooking->car_reserv_EndTime)).' น. </div>
+          
+            <div style="margin-left:18rem;margin-top:10px;">
+                <div style="text-align:center;">
+                    <div>(ลงชื่อ) ............................................ ผู้ขออนุญาต</div>
+                    <div style="margin-left:0px;">('.$ViewCarBooking->BookerName.')</div>
+                    <div>ตำแหน่ง '.$ViewCarBooking->BookerPosi.'</div>
+                </div>            
+            </div>
+
+            <div style="position: absolute;">
+                <div style="text-align:left;">
+                    <div style="text-align:center;">(ลงชื่อ) ............................................ หัวหน้าฝ่ายบริหารทั่วไป</div>
+                    <div style="margin-left:28px;">('.$ExecutiveGeneral->ExecutiveName.')</div>
+                    <div style="margin-left:27px;">ตำแหน่ง '.$ExecutiveGeneral->posi_name.' '.$ExecutiveGeneral->pers_academic.'</div>
+                </div>            
+            </div>
+
+            <div style="margin-top:5rem;">
+                <div>(ลงชื่อ) ............................................ หัวหน้าส่วนราชการประจำหน่วยการบริหารราชการส่วนท้องถิ่น/หรือผู้แทน</div>
+                <div style="margin-left:28px;">('.$DeputyDirectorGeneral->ExecutiveName.')</div>
+                <div style="margin-left:0px;">ตำแหน่ง '.$DeputyDirectorGeneral->posi_name.' '.$DeputyDirectorGeneral->pers_academic.'</div>
+            </div>
+
+            <div style="margin-top:1rem;">
+                <div>สมควรจ่ายรถยนต์ ยี่ห้อ '.$ViewCarBooking->car_brand.' หมายเลขทะเบียน  '.$ViewCarBooking->car_registration.' '.$ViewCarBooking->car_province.' โดยให้ '.$ViewCarBooking->DriverName.' เป็นผู้รับ </div>
+            </div>
+           
+            <div style="margin-left:17rem;margin-top:10px;">
+                <div style="text-align:center;">
+                    <div>(ลงชื่อ) ............................................ พนักงานขับรถยนต์</div>
+                    <div style="margin-left:-30px;">('.$ViewCarBooking->DriverName.')</div>
+                    <div style="margin-left:-30px;">ตำแหน่ง '.$ViewCarBooking->DriverPosi.'</div>
+                </div>            
+            </div>
+
+            <div style="margin-left:17rem;margin-top:40px;">
+                <div style="text-align:center;">
+                    <div>(ลงชื่อ) ............................................ ผู้อนุญาต</div>
+                    <div style="margin-left:-30px;">(นางสาวอร่าม  วัฒนะ)</div>
+                    <div style="margin-left:-30px; font-size:17px;">
+                    ผู้อำนวยการกองการศึกษา ศาสนาและวัฒนธรรม รักษาการในตำแหน่ง <br>
+                    ผู้อำนวนการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
+                    </div>
+                </div>            
+            </div>
+
+            <div style="margin-top:20px;"> 
+            เล่มที่.......... เลขที่.......... ลงวันที่...........................
+            </div>
+    
+        ';
+
+        // เพิ่ม HTML เข้าไปใน PDF
+        $mpdf->WriteHTML($html);
+
+        // สร้างไฟล์ PDF
+        $this->response->setHeader('Content-Type', 'application/pdf');
+
+        $mpdf->Output('example.pdf', 'I');
+    }
+
 
 }

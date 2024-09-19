@@ -69,6 +69,8 @@ $routes->match(['get', 'post'],'CarBooking/DB/DataTable/Approve/Admin', 'ConUser
 $routes->match(['get', 'post'],'CarBooking/DB/AppoveCarReservationAdmin', 'ConUserCarBooking::CarBookingApproveAdmin');
 $routes->match(['get', 'post'],'CarBooking/DB/NoAppoveCarReservationAdmin', 'ConUserCarBooking::CarBookingNoApproveAdmin');
 
+$routes->get('CarBooking/Approve/Admin/Print/(:any)', 'ConUserCarBooking::PrintApproveCarBooking/$1');
+
 // User แจ้งซ่อม
 $routes->get('Repair', 'ConUserRepair::RepairMain');
 $routes->get('Repair/Add', 'ConUserRepair::RepairAdd');
