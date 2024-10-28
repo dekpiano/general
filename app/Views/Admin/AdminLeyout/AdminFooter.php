@@ -65,7 +65,7 @@
     <script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=6"></script>
     <?php endif;?>
     <?php if($uri->getSegment(2) == 'WorkPerson') : ?>
-    <script src="<?=base_url()?>/assets/js/Admin/AdminPersonnal/AdminPersonnalMain.js?v=7"></script>
+    <script src="<?=base_url()?>/assets/js/Admin/AdminPersonnal/AdminPersonnalMain.js?v=8"></script>
     <?php endif;?>
     <?php if($uri->getSegment(2) == 'Rloes') : ?>
     <script src="<?=base_url()?>/assets/js/Admin/AdminRoles/AdminRolesMain.js?v=2"></script>

@@ -120,7 +120,7 @@
 
                                     <div class="row g-3">
                                         <div class="col-md-4">
-                                            <?php $prefix = array('นาง','นางสาว','ว่าที่ร้อยตรี','ว่าที่ร้อยตรีหญิง'); ?>
+                                            <?php $prefix = array('นาย','นาง','นางสาว','ว่าที่ร้อยตรี','ว่าที่ร้อยตรีหญิง'); ?>
                                             <label for="pers_prefix" class="form-label">คำนำหน้า</label>
                                             <select class="form-select" id="pers_prefix" name="pers_prefix" required="">
                                                 <option value="">เลือก...</option>
