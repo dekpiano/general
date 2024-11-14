@@ -326,7 +326,9 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
                             title: evt.title,
                             start: evt.start,
                             end: evt.end,
-                            allDay: true
+                            allDay: true,
+                            backgroundColor:evt.backgroundColor,
+                            borderColor:evt.backgroundColor
                         });
                     });
                     successCallback(events);

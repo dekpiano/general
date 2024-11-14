@@ -310,12 +310,36 @@ class ConUserBooking extends BaseController
        //->where('booking_executive_approve','อนุมัติ')
        ->get()->getResult();
 
+      
+
         foreach ($S_data as $key => $value) {
+            $color = '';
+            switch ($value->booking_locationroom) {
+                case '1':
+                    $color = '#3788d8';
+                    break;
+                case '2':
+                    $color = '#ff9f89';
+                    break;
+                case '3':
+                    $color = '#a4bdfc';
+                    break;
+                case '4':
+                    $color = '#7ae7bf ';
+                    break;
+                case '5':
+                    $color = '#ffb878 ';
+                    break;
+                default:
+                    $color = '#46d6db'; // สีเริ่มต้น
+            }
+
             $data[]=[
                 'id' => $value->booking_locationroom,
-                'title'=> date('H:i',strtotime($value->booking_timeStart)).' - '.date('H:i',strtotime($value->booking_timeEnd)).' '.$value->booking_title.' '.$value->location_name,
+                'title'=> date('H:i',strtotime($value->booking_timeStart)).' - '.date('H:i',strtotime($value->booking_timeEnd)).' '.$value->location_name.' '.$value->booking_title,
                 'start' => $value->booking_dateStart.' '.$value->booking_timeStart,
-                'end' => date("Y-m-d", strtotime("+1 day",strtotime($value->booking_dateEnd))).' '.$value->booking_timeEnd
+                'end' => date("Y-m-d", strtotime("+1 day",strtotime($value->booking_dateEnd))).' '.$value->booking_timeEnd,
+                'backgroundColor' => $color
             ];        
         }
 
