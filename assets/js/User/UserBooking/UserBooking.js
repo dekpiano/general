@@ -264,7 +264,9 @@ $(document).on('click', '#BtnCancelBooking', function() {
 
 
 $(document).on('change', '#booking_timeStart', function() {
+        
     $.post('../../Booking/DB/CheckDateBooking', {
+        booking_locationroom:$('#booking_locationroom').val(),
         booking_dateStart: $('#booking_dateStart').val(),
         booking_timeStart: $('#booking_timeStart').val()
     }, function(data) {
@@ -283,6 +285,7 @@ $(document).on('change', '#booking_timeStart', function() {
 
 $(document).on('change', '#booking_timeEnd', function() {
     $.post('../../Booking/DB/CheckTimeBooking', {
+        booking_locationroom:$('#booking_locationroom').val(),
         booking_dateEnd: $('#booking_dateEnd').val(),
         booking_timeEnd: $('#booking_timeEnd').val()
     }, function(data) {
