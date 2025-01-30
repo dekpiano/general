@@ -306,7 +306,7 @@ var calendarEl = document.getElementById('calendar');
 
 var calendar = new FullCalendar.Calendar(calendarEl, {
     headerToolbar: {
-        left: 'prevYear,prev,next,nextYear today',
+        left: 'prevYear,prev,next,nextYear',
         center: 'title',
         right: 'dayGridMonth,dayGridWeek,dayGridDay'
     },
@@ -336,10 +336,14 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
             });
         },
         eventColor: '#378006',
-
+        
 
     }, ],
-    initialView: 'dayGridMonth'
+    initialView: 'dayGridMonth',
+    eventClick: function(info) {
+        alert("วันที่: " + info.event.start.toLocaleDateString() + "\n"+
+                "เวลา: " + info.event.title + "\n");
+    }
 });
 calendar.render();
 

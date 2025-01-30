@@ -105,7 +105,22 @@
                 </div>
                 <?php endif; ?>
             </div>
+            <style>
+            .fc-toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                /* ให้ขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ */
+                justify-content: center;
+                /* จัดให้อยู่ตรงกลาง */
+                gap: 5px;
+                /* เพิ่มระยะห่างระหว่างปุ่ม */
+            }
 
+            .fc-button {
+                padding: 5px 10px;
+                font-size: 14px;
+            }
+            </style>
             <div class="card">
                 <div class="card-body">
                     <div id='calendar'></div>

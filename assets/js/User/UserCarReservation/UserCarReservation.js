@@ -344,7 +344,11 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
 
 
     }, ],
-    initialView: 'dayGridMonth'
+    initialView: 'dayGridMonth',
+    eventClick: function(info) {
+        alert("วันที่: " + info.event.start.toLocaleDateString() + "\n"+
+                "เวลา: " + info.event.title + "\n");
+    }
 });
 calendar.render();
 
