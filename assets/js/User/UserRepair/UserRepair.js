@@ -138,10 +138,24 @@ $(document).on('change', '#repair_posi', function() {
 
 $(document).on('submit', '#FormAddRepair', function(e) {
     e.preventDefault();
+
+    
+    if (signaturePad.isEmpty()) {
+        Swal.fire(
+            'แจ้งเตือน!', 'กรุณาลงลายมือชื่อก่อนบันทึก!',
+            'warning'
+        )
+        return;
+    }
+
+    var dataURL = signaturePad.toDataURL('image/svg+xml');
+    var formData = new FormData(this);
+    formData.append('Signature', dataURL); // เพิ่มคีย์และค่าที่ต้องการส่ง
+
     $.ajax({
         url: "../Repair/DB/Insert",
         method: "POST",
-        data: new FormData(this),
+        data: formData,
         processData: false,
         contentType: false,
         cache: false,
@@ -171,7 +185,7 @@ $(document).on('submit', '#FormAddRepair', function(e) {
             } else if (data == "ErrorhCaptcha") {
                 Swal.fire(
                     'แจ้งเตือน!', 'ยืนยันความเป็นมนุษย์ด้วย!',
-                    'error'
+                    'warning'
                 )
             }
             $('#BtnSubRepair').removeClass("disabled");
@@ -188,15 +202,26 @@ $(document).on('click', '#ModalFormAdmin', function() {
     //$('#ModalShowRepair').modal('hide');
 });
 
-var canvas = document.getElementById("signature-pad");
+const canvas = document.getElementById("signature-pad");
+const clearBtn = document.getElementById("clear");
 
-var signaturePad = new SignaturePad(canvas, {
+const signaturePad = new SignaturePad(canvas, {
     backgroundColor: 'rgb(250,250,250)',
     penColor: 'rgb(0,0,250)'
 });
 
+// ปุ่มล้างลายเซ็น
+clearBtn.addEventListener("click", () => {
+    signaturePad.clear();
+});
+
 $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
     e.preventDefault();
+
+    if (signaturePad.isEmpty()) {
+        alert("กรุณาเซ็นก่อนบันทึก!");
+        return;
+    }
 
     var dataURL = signaturePad.toDataURL('image/svg+xml');
     var formData = new FormData(this);

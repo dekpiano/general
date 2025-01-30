@@ -130,7 +130,8 @@ class ConUserRepair extends BaseController
                 'repair_detail' => $this->request->getVar('repair_detail'),
                 'repair_status' => 'รอดำเนินการ',
                 'repair_Repairman' => '',
-                'repair_imguser' => isset($newName) ?$newName:""
+                'repair_imguser' => isset($newName) ?$newName:"",
+                'repair_usersignature' => $this->request->getPost('Signature')
             ];
             if($TBrepair->insert($data)){
                 $DBpers = \Config\Database::connect('personnel');
@@ -302,7 +303,7 @@ class ConUserRepair extends BaseController
                 'repair_Repairman' => $this->request->getPost('repair_Repairman'),
                 'repair_cause' => $this->request->getPost('repair_cause'),
                 'repair_imgwork'  => $newName,
-                'repair_usersignature' => $this->request->getPost('Signature')
+                'repair_adminsignature' => $this->request->getPost('Signature')
             ];
 
            
@@ -312,7 +313,7 @@ class ConUserRepair extends BaseController
                 'repair_datework' => $this->request->getPost('repair_datework'),
                 'repair_Repairman' => $this->request->getPost('repair_Repairman'),
                 'repair_cause' => $this->request->getPost('repair_cause'),
-                'repair_usersignature' => $this->request->getPost('Signature')
+                'repair_adminsignature' => $this->request->getPost('Signature')
             ];
         }
             $TBrepair->where('repair_order', $this->request->getPost('repair_order'));

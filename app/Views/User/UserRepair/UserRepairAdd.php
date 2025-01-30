@@ -21,7 +21,7 @@
                     <h5 class="mb-0">ข้อมูลทั่วไป</h5>
                 </div>
                 <div class="card-body">
-                    <form id="FormAddRepair" enctype="multipart/form-data">
+                    <form id="FormAddRepair" enctype="multipart/form-data" class="needs-validation" novalidate>
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label class="col-form-label" for="basic-default-name">วันที่แจ้งซ่อม</label>
@@ -38,12 +38,18 @@
                                     <option value="<?=$v_Posi->posi_id?>"> <?=$v_Posi->posi_name?></option>
                                     <?php endforeach; ?>
                                 </select>
+                                <div class="invalid-feedback">
+                                    กรุณาเลือกตำแหน่ง
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <label class="col-form-label" for="repair_userID">ชื่อผู้แจ้งซ่อม</label>
                                 <select name="repair_userID" id="repair_userID" class="form-select" required>
                                     <option value="" selected="" disabled="">-- กรุณาเลือกชื่อผู้แจ้งซ่อม --</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                กรุณาเลือกชื่อผู้แจ้งซ่อม
+                                </div>
                             </div>
 
                             <div class="col-md-2">
@@ -64,6 +70,9 @@
                                     <option value="อาคารโดมเอนกประสงค์"> อาคารโดมเอนกประสงค์</option>
                                     <option value="อาคารเอนกประสงค์"> อาคารเอนกประสงค์</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                กรุณาเลือกอาคาร
+                                </div>
                             </div>
                             <div class="col-md-2">
                                 <label class="col-form-label" for="repair_class">ชั้น</label>
@@ -74,6 +83,9 @@
                                     <option value="3"> 3</option>
                                     <option value="4"> 4</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                กรุณาเลือกชั้น
+                                </div>
                             </div>
                             <div class="col-md-2">
                                 <label class="col-form-label" for="repair_room">ห้อง</label>
@@ -84,6 +96,9 @@
                                 <label class="col-form-label" for="repair_phone">เบอร์โทรติดต่อ</label>
                                 <input type="text" class="form-control" name="repair_phone" id="repair_phone"
                                     placeholder="ระบุเบอร์โทรติดต่อได้" required>
+                                    <div class="invalid-feedback">
+                                กรุณากรอกเบอร์โทรติดต่อ
+                                </div>
                             </div>
                         </div>
 
@@ -99,18 +114,26 @@
                                     <option value="โสตทัศนอุปกรณ์"> โสตทัศนอุปกรณ์</option>
                                     <option value="งานอาคารสถานที่"> งานอาคารสถานที่</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                กรุณาระบุรายการแจ้งซ่อม
+                                </div>
 
                                 <label class="col-form-label" for="repair_detail">ปัญหา /อาการ / หมายเหตุ</label>
                                 <textarea id="repair_detail" name="repair_detail" class="form-control"
                                     placeholder="ปัญหา /อาการ / หมายเหตุ" required></textarea>
+                                    <div class="invalid-feedback">
+                                กรุณาระบุอาการเสีย
+                                </div>
                             </div>
                             <div class="col-md-6">
 
                                 <div class="text-center">
-                                     <h5 class="">รูปภาพแจ้งซ่อม <small>(อาการเสียหรือปัญหา)</small></h5>
+                                    <h5 class="">รูปภาพแจ้งซ่อม <small>(อาการเสียหรือปัญหา)</small></h5>
                                     <small>** จะอัพโหลดไฟล์ภาพหรือไม่โหลดก็ได้ ** (ให้ถ่ายรูปแนวนอน)</small>
                                     <div class="input-group">
-                                        <input type="file" class="form-control" id="repair_imguser" name="repair_imguser" onchange="document.getElementById('imageResult').src = window.URL.createObjectURL(this.files[0])">
+                                        <input type="file" class="form-control" id="repair_imguser"
+                                            name="repair_imguser"
+                                            onchange="document.getElementById('imageResult').src = window.URL.createObjectURL(this.files[0])">
                                         <label class="input-group-text" for="repair_imguser">เลือกรูปภาพ</label>
                                     </div>
                                     <img src="" id="imageResult" class="img-fluid" alt="">
@@ -119,8 +142,29 @@
                             </div>
                         </div>
 
-                        <div class="row justify-content-center">
-                            <div class="col-12 text-center">
+                        <div class="row ">
+                            <style>
+                            canvas {
+                                border: 2px solid #000;
+
+                                max-width: 500px;
+                                /* ป้องกันการขยายเกิน */
+                                height: 200px;
+                                background-color: #fff;
+                            }
+                            </style>
+                            <center>
+                                <div class="">
+                                    <div>
+                                        ลายมือชื่อผู้แจ้งซ่อม
+                                    </div>
+                                    <canvas id="signature-pad" width=350 height=200></canvas><br>
+                                    <a href="javascript:;" class="btn btn-sm btn-warning" id="clear">ล้างลายเซ็น</a>
+                                </div>
+                            </center>
+
+
+                            <div class="col-12 text-center mt-5">
                                 <div class="h-captcha" data-sitekey="d81a802c-de6b-4de5-8a61-a87205c2de0a"></div>
                                 <button type="submit" class="btn btn-primary" id="BtnSubRepair">บันทึกแจ้งซ่อม</button>
                             </div>

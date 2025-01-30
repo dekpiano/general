@@ -1,4 +1,3 @@
-
 <div class="layout-page">
     <?php echo view('User/UserLeyout/UserNavbar'); ?>
     <!-- Content wrapper -->
@@ -121,12 +120,12 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th scope="col">ลายมือชื่อผู้แจ้งซ่อม</th>
-                                <td scope="col" id="show_repair_usersignature">
+                                <th scope="col">ลายมือชื่อผู้รับเรื่อง</th>
+                                <td scope="col" id="show_repair_adminsignature">
                                     <?php
-                                        if($Order[0]->repair_usersignature != "") :
+                                        if($Order[0]->repair_adminsignature != "") :
                                     ?>
-                                    <img src="<?=$Order[0]->repair_usersignature?>" class="img-fluid" alt="" srcset="">
+                                    <img src="<?=$Order[0]->repair_adminsignature?>" class="img-fluid" alt="" srcset="">
                                     <?php else: ?>
                                     รอดำเนินการ
                                     <?php endif; ?>
@@ -166,16 +165,20 @@
                         <label for="staticEmail" class="col-sm-3 col-form-label">สถานะการดำเนินการ</label>
                         <div class="col-sm-9">
                             <select class="form-select" name="repair_status" id="repair_status">
-                                <option <?=$Order[0]->repair_status == "รอดำเนินการ"?"selected":""?> value="รอดำเนินการ">รอดำเนินการ</option>
-                                <option <?=$Order[0]->repair_status == "กำลังดำเนินการ"?"selected":""?> value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-                                <option <?=$Order[0]->repair_status == "ดำเนินการเรียบร้อย"?"selected":""?> value="ดำเนินการเรียบร้อย">ดำเนินการเรียบร้อย</option>
-                                <option <?=$Order[0]->repair_status == "ยกเลิก"?"selected":""?> value="ยกเลิก">ยกเลิก</option>
+                                <option <?=$Order[0]->repair_status == "รอดำเนินการ"?"selected":""?>
+                                    value="รอดำเนินการ">รอดำเนินการ</option>
+                                <option <?=$Order[0]->repair_status == "กำลังดำเนินการ"?"selected":""?>
+                                    value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                                <option <?=$Order[0]->repair_status == "ดำเนินการเรียบร้อย"?"selected":""?>
+                                    value="ดำเนินการเรียบร้อย">ดำเนินการเรียบร้อย</option>
+                                <option <?=$Order[0]->repair_status == "ยกเลิก"?"selected":""?> value="ยกเลิก">ยกเลิก
+                                </option>
                             </select>
                         </div>
                     </div>
                     <div class="mb-3 row">
                         <label for="repair_datework" class="col-sm-3 col-form-label">วันที่ดำเนินการ</label>
-                        <div class="col-sm-9"> 
+                        <div class="col-sm-9">
                             <input type="text" readonly class="form-control-plaintext" id="" name=""
                                 value="<?php echo $Datethai->thai_date_and_time(strtotime(date('Y-m-d H:i:s')));?>">
                             <input type="hidden" readonly class="form-control-plaintext" id="repair_datework"
@@ -194,7 +197,8 @@
                     <div class="mb-3 row">
                         <label for="repair_cause" class="col-sm-3 col-form-label">สาเหตุ/วิธีแก้ไข</label>
                         <div class="col-sm-9">
-                            <textarea class="form-control" name="repair_cause" id="repair_cause" rows="3"><?=$Order[0]->repair_cause;?></textarea>
+                            <textarea class="form-control" name="repair_cause" id="repair_cause"
+                                rows="3"><?=$Order[0]->repair_cause;?></textarea>
                         </div>
                     </div>
                     <div class="mb-3 row">
@@ -203,15 +207,27 @@
                             <input type="hidden" name="imgwork" id="imgwork" value="<?=$Order[0]->repair_imgwork;?>">
                             <input class="form-control" type="file" name="repair_imgwork" id="repair_imgwork">
                             <img src="<?=base_url('uploads/admin/Repair/').$Order[0]->repair_imgwork?>"
-                                        class="img-fluid" alt="" srcset="">
+                                class="img-fluid" alt="" srcset="">
                         </div>
 
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputPassword" class="col-sm-3 col-form-label">ลายมือชื่อผู้แจ้งซ่อม</label>
+                        <style>
+                        canvas {
+                            border: 2px solid #000;
+                            width: 100%;
+                            max-width: 500px;
+                            /* ป้องกันการขยายเกิน */
+                            height: 200px;
+                            background-color: #fff;
+                        }
+                        </style>
+                        <label for="inputPassword" class="col-sm-3 col-form-label">ลายมือชื่อผู้รับเรื่อง</label>
                         <div class="col-sm-9">
                             <canvas id="signature-pad" width=350 height=200></canvas>
+                            <a href="#" class="btn btn-warning" id="clear">ล้างลายเซ็น</a>
                         </div>
+
                     </div>
                     <div class="mb-3 row">
                         <label for="inputPassword" class="col-sm-3 col-form-label"></label>

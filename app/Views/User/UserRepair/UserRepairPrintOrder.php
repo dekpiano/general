@@ -94,8 +94,8 @@
         <tr>
             <td style="width: 50.0000%;text-align: center;">
                 <?php if($RepairUser[0]->repair_usersignature) : ?>
-                <!-- <img src="" alt=""
-                    style="width: 25%;margin-bottom: -29px;margin-top: -0px;position: absolute;"> -->
+                <img src="<?=$RepairUser[0]->repair_usersignature?>" alt=""
+                    style="width: 25%;margin-bottom: -29px;margin-top: -0px;position: absolute;">
                 <br>
                 <?php endif; ?>
                 ลงชื่อ ............................................
@@ -106,9 +106,9 @@
                 </div>
             </td>
             <td style="width: 50.0000%; text-align: center;">
-                <?php if($RepairUser[0]->repair_usersignature) : ?>
-                <!-- <img src="" alt=""
-                    style="width: 25%;margin-bottom: -29px;margin-top: -0px;position: absolute;"> -->
+                <?php if($RepairUser[0]->repair_adminsignature) : ?>
+                <img src="<?=$RepairUser[0]->repair_adminsignature;?>" alt=""
+                    style="width: 25%;margin-bottom: -29px;margin-top: -0px;position: absolute;">
                 <br>
                 <?php endif; ?>
                 <div style="" id="isPasted">ลงชื่อ ............................................
