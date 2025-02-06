@@ -8,7 +8,7 @@
         <div class="container-xxl flex-grow-1 container-p-y demo">
             <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a
                         href="<?=base_url('Booking/Select')?>">สถานที่</a> /</span>
-                
+
                 <?php if($CheckAll == 1){
                     echo $Title = 'ข้อมูลการจองทั้งหมด';
                 }else{
@@ -19,14 +19,15 @@
             <div class="card">
                 <h5 class="card-header"><?=$Title?></h5>
                 <div class="table-responsive text-nowrap p-3">
-                    <table class="table table-hover display nowrap"  id="TBShowDataBooking">
+                    <table class="table table-hover display nowrap" id="TBShowDataBooking" width="100%">
                         <thead>
                             <tr>
-                            <th>เลขที่จอง</th>
+                                <th>สถานะ</th>
+                                <th>เลขที่จอง</th>
                                 <th>หัวข้อ</th>
                                 <th>ชื่อห้อง</th>
                                 <th>ชื่อผู้จอง</th>
-                                <th>สถานะ</th>
+
                                 <th>เหตุผล</th>
                                 <th>เอกสาร</th>
                                 <?php if(isset($_SESSION['username']) && !isset($All)) : ?>
@@ -37,9 +38,21 @@
                         <tbody class="table-border-bottom-0">
                             <?php foreach ($Booking as $key => $v_Booking):?>
                             <tr>
-                            <td>
-                            <?=$v_Booking->booking_order?>
-                            </td>
+                                <td>
+                                    <?php if($v_Booking->booking_admin_approve == 'รอตรวจสอบ'){
+                                        $Color =  "warning";
+                                    }elseif($v_Booking->booking_admin_approve == 'อนุมัติ'){
+                                        $Color =  "success";
+                                    }else{
+                                        $Color =  "danger";
+                                    }?>
+                                    <span class="badge rounded-pill bg-<?=$Color;?> me-1">
+                                        <?=$v_Booking->booking_admin_approve?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?=$v_Booking->booking_order?>
+                                </td>
                                 <td>
                                     <?=$v_Booking->booking_title?>
                                     <div>
@@ -59,26 +72,18 @@
                                     </div>
                                 </td>
                                 <td><?=$v_Booking->pers_prefix.$v_Booking->pers_firstname.' '.$v_Booking->pers_lastname?>
-                                <div>
-                                <small>โทรศัพท์ : <?=$v_Booking->booking_telephone?></small>
-                                </div>
-                                
-                            </td>
-                                <td>
-                                    <?php if($v_Booking->booking_admin_approve == 'รอตรวจสอบ'){
-                                        $Color =  "warning";
-                                    }elseif($v_Booking->booking_admin_approve == 'อนุมัติ'){
-                                        $Color =  "success";
-                                    }else{
-                                        $Color =  "danger";
-                                    }?>
-                                    <span class="badge bg-label-<?=$Color;?> me-1">
-                                        <?=$v_Booking->booking_admin_approve?>
-                                    </span>
+                                    <div>
+                                        <small>โทรศัพท์ : <?=$v_Booking->booking_telephone?></small>
+                                    </div>
+
                                 </td>
+
                                 <td><?=$v_Booking->booking_admin_reason?></td>
-                                <td> 
-                                    <a target="_blank" href="../../Booking/Approve/File/Requestform/<?=$v_Booking->booking_id?>" class="btn btn-primary <?=($v_Booking->booking_admin_approve == 'อนุมัติ' ?"":"disabled")?>">ดาวโหลดเอกสาร</a> <br>
+                                <td>
+                                    <a target="_blank"
+                                        href="../../Booking/Approve/File/Requestform/<?=$v_Booking->booking_id?>"
+                                        class="btn btn-primary <?=($v_Booking->booking_admin_approve == 'อนุมัติ' ?"":"disabled")?>">ดาวโหลดเอกสาร</a>
+                                    <br>
                                     <small>ดาวโหลดเอกสารได้ก็ต่อเมื่อได้รับอนุมัติ</small>
                                 </td>
                                 <?php if(isset($_SESSION['username']) && !isset($All)) :  ?>

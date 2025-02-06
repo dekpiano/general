@@ -304,7 +304,7 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,location_name')
+       $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,location_name')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
        ->where('booking_admin_approve','อนุมัติ')
        //->where('booking_executive_approve','อนุมัติ')
@@ -339,7 +339,8 @@ class ConUserBooking extends BaseController
                 'title'=> date('H:i',strtotime($value->booking_timeStart)).' - '.date('H:i',strtotime($value->booking_timeEnd)).' '.$value->location_name.' '.$value->booking_title,
                 'start' => $value->booking_dateStart.' '.$value->booking_timeStart,
                 'end' => date("Y-m-d", strtotime("+1 day",strtotime($value->booking_dateEnd))).' '.$value->booking_timeEnd,
-                'backgroundColor' => $color
+                'backgroundColor' => $color,
+                'booking_admin_approve' => $value->booking_admin_approve
             ];        
         }
 
@@ -750,8 +751,7 @@ class ConUserBooking extends BaseController
                     <br>
                     <div class='center-text'>
                     ลงชื่อ.............................................................ผู้อนุญาต<br>
-                    (นางสาวอร่าม  วัฒนะ)<br>
-                    ผู้อำนวยการกองการศึกษา ศาสนาและวัฒนธรรม รักษาการในตำแหน่ง <br>
+                    (นายพงษ์ศักดิ์ เงินสันเทียะ)<br>                   
 	ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
 
                     </div>

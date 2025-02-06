@@ -37,15 +37,18 @@
     <!-- endbuild -->
     <script src="https://hcaptcha.com/1/api.js" async defer></script>
 
-    <script src="<?=base_url()?>/assets/js/fullcalendar.global.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
     <!-- moment -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
 
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -64,9 +67,12 @@
 
     </html>
 
-    <?php if($uri->getSegment(1) == 'Booking') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=22.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.15/index.global.min.js"></script>
+
+    <?php if($uri->getSegment(1) == 'Booking') : ?>       
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=22.5"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
+    
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=18"></script>
     <?php elseif($uri->getSegment(1) == 'CarBooking') : ?>

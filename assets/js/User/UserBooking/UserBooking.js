@@ -2,7 +2,7 @@
 $('#TBShowDataBooking').DataTable({
     responsive: true,
     order: [
-        [0, 'desc']
+        [1, 'desc']
     ],
 });
 $('#TBShowDataBookingAdmin').DataTable({
@@ -301,6 +301,16 @@ $(document).on('change', '#booking_timeEnd', function() {
     });
 });
 
+function formatThaiDate(date) {
+    let thaiDate = new Intl.DateTimeFormat('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long'
+    }).format(new Date(date));
+
+    return thaiDate;
+}
 
 var calendarEl = document.getElementById('calendar');
 
@@ -313,6 +323,7 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
     navLinks: true, // can click day/week names to navigate views
     editable: false,
     locale: 'th',
+    dayHeaderFormat: { weekday: 'long' },
     eventSources: [{
         events: function(fetchInfo, successCallback, failureCallback) {
             jQuery.ajax({
@@ -328,10 +339,12 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
                             end: evt.end,
                             allDay: true,
                             backgroundColor:evt.backgroundColor,
-                            borderColor:evt.backgroundColor
+                            borderColor:evt.backgroundColor,                            
+                            bookingApprove:evt.booking_admin_approve
                         });
                     });
                     successCallback(events);
+                    
                 },
             });
         },
@@ -340,9 +353,15 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
 
     }, ],
     initialView: 'dayGridMonth',
-    eventClick: function(info) {
-        alert("วันที่: " + info.event.start.toLocaleDateString() + "\n"+
-                "เวลา: " + info.event.title + "\n");
+    eventClick: function(info) {        
+        Swal.fire({
+            title: `สถานะ : ${info.event.extendedProps.bookingApprove}`,
+            html: `<b>วันเข้าใช้บริการ</b> : ${formatThaiDate(info.event.start)} <br>
+                   <b>เวลา:</b> ${info.event.title || "ไม่มีรายละเอียด"}`,
+            icon: 'info'
+        });
+
+       
     }
 });
 calendar.render();
