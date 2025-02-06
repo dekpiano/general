@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default"
+<html lang="th" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default"
     data-assets-path="<?=base_url()?>/assets/" data-template="vertical-menu-template-free">
 
 <head>
@@ -45,8 +45,8 @@
     <link rel="stylesheet" href="<?=base_url()?>/assets/vendor/css/theme-default.css"
         class="template-customizer-theme-css" />
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/demo.css?v=1" />
-    <link rel="stylesheet" href="<?=base_url()?>/assets/css/flatpickr.css?v=1" />
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> -->
+    <!-- <link rel="stylesheet" href="<?=base_url()?>/assets/css/flatpickr.css?v=2" /> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="<?=base_url()?>/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
