@@ -6,7 +6,7 @@
     <div class="content-wrapper">
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
-            <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a href="<?=base_url('CarBooking/CheckCar')?>">รถ</a>
+            <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a href="<?=base_url('CarBooking/CheckCar')?>">ยานพาหนะ</a>
                     / <?=$title?></span>
             </h4>
 

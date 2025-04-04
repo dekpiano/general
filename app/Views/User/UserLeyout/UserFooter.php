@@ -76,7 +76,7 @@
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=18"></script>
     <?php elseif($uri->getSegment(1) == 'CarBooking') : ?>
-        <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservation.js?v=1.8"></script>
+        <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservation.js?v=2"></script>
     <?php endif; ?>
 
     <script>

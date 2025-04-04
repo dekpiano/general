@@ -12,7 +12,7 @@ $('#TBShowDataCarBooking').DataTable({
         'url': '../CarBooking/DB/DataTable/View'
     },
     order: [
-        [0, 'desc']
+        [1, 'desc']
     ],
     'columns': [
         {
@@ -20,6 +20,8 @@ $('#TBShowDataCarBooking').DataTable({
             render: function(data, type, row) {
                 if(data == "อนุมัติ"){
                     return '<span class="badge rounded-pill bg-success">'+data+'</span>';
+                }else if(data == "ไม่อนุมัติ"){
+                    return '<span class="badge rounded-pill bg-danger">'+data+'</span>';
                 }else{
                     return '<span class="badge rounded-pill bg-warning">'+data+'</span>';
                 }
@@ -75,7 +77,7 @@ $('#TBShowDataCarBookingAdmin').DataTable({
             { "width": "20%", "targets": 4 } 
     ],
     order: [
-        [0, 'desc']
+        [1, 'desc']
     ],
     'columns': [
         { data: 'car_reserv_status',
@@ -157,7 +159,7 @@ $(document).on('submit', '#FormAddCarReservation', function(e) {
                     confirmButtonText: 'ตกลง!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = "../../Booking/View/" + data;
+                        window.location.href = "../../CarBooking/View";
                     }
                 })
             }

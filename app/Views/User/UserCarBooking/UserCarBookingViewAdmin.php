@@ -7,12 +7,12 @@
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
             <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a
-                        href="<?=base_url('Booking/Select')?>">สถานที่</a> / ข้อมูลการจองทั้งหมด</span>
+                        href="<?=base_url('CarBooking/CheckCar')?>">เลือกรถ</a> / ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</span>
 
             </h4>
 
             <div class="card">
-                <h5 class="card-header">ข้อมูลการจองทั้งหมด</h5>
+                <h5 class="card-header">ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</h5>
                 <div class="table-responsive text-nowrap p-3">
                     <table class="table table-hover display nowrap" id="TBShowDataCarBookingAdmin">
                         <thead>

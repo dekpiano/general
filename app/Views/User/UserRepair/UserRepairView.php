@@ -45,9 +45,13 @@
                                     </div>
                                     <div id="show_repair_detail"><?=$Order[0]->repair_detail?></div>
                                     <div id="show_repair_imguser">
+                                        <?php  if(!empty($Order[0]->repair_imguser)) : ?>
                                         <img src="<?=base_url('uploads/admin/Repair/User/').$Order[0]->repair_imguser?>"
                                             class="img-fluid" alt="" srcset="">
-
+                                            <?php else: ?>
+                                                <?php echo "(ไม่ได้แนบภาพมาด้วย!)"; ?>
+                                            <?php endif; ?>
+                                            
                                     </div>
                                 </td>
                             </tr>

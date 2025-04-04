@@ -10,6 +10,15 @@
                     <a href="<?=base_url('CarBooking/CheckCar');?>">รถ</a>
                     /</span> จองรถ
             </h4>
+            <?php  
+                $Type = explode(',', $_SESSION['rloes']);
+                if(in_array('งานยานพาหนะ',$Type)){
+                    $CheckWho = 1;               
+                }else{
+                    $CheckWho = 0;               
+                }
+            ?>
+
 
             <div class="row">
                 <div class="col-md-6 col-lg-4 mb-3">
@@ -57,7 +66,7 @@
                                 </div>
 
 
-
+                                <?php  if(!$CheckWho) : ?>
                                 <div class="form-floating mb-3">
                                     <input type="hidden" class="form-control" id="car_reserv_memberID" required
                                         name="car_reserv_memberID" placeholder="ใส่ชื่อผู้จอง"
@@ -66,8 +75,20 @@
                                     <input type="text" class="form-control" id="" required name=""
                                         placeholder="ใส่ชื่อผู้จอง" aria-describedby="floatingInputHelp"
                                         value="<?=$_SESSION['username']?>" readonly>
-                                    <label for="floatingInput">ชื่อผู้จอง</label>
+                                    <label for="floatingInput">ชื่อผู้จองรถ</label>
                                 </div>
+                                <?php else: ?>
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="car_reserv_memberID" name="car_reserv_memberID" required>
+                                        <option value="0">-- กรุณาเลือกผู้จองรถ --</option>
+                                        <?php foreach($SelPres as $r_SelPres):?>
+                                        <option value="<?=$r_SelPres->pers_id?>"><?=$r_SelPres->pers_prefix.$r_SelPres->pers_firstname.' '.$r_SelPres->pers_lastname?></option>
+                                        <?php endforeach;?>
+                                    </select>
+                                    <label for="floatingInput">ขื่อผู้จอง</label>
+                                </div>
+                                <?php endif; ?>
+
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="car_reserv_location" required
                                         name="car_reserv_location" placeholder="ระบุสถานที่ที่ไป"
@@ -123,10 +144,10 @@
                                     </div>
                                 </div>
                                 <div class="form-floating mb-3">
-                                    <input type="tel" class="form-control" id="car_reserv_phone" required
+                                    <input type="tel" class="form-control" id="car_reserv_phone" 
                                         name="car_reserv_phone" placeholder="ระบุเบอร์โทรศัพท์"
                                         aria-describedby="floatingInputHelp">
-                                    <label for="floatingInput">เบอร์โทรศัพท์</label>
+                                    <label for="floatingInput">เบอร์โทรศัพท์ (ไม่มีต้องกรอก)</label>
                                 </div>
 
 

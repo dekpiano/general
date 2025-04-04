@@ -44,8 +44,14 @@
         </tr>
         <tr>
             <td></td>
-            <td><img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>"
-                    style="width: 300px;height:180px;"></td>
+            <td>
+                <?php  if(empty($RepairUser[0]->repair_imguser)) : ?>
+                    (ไม่ได้แนบภาพมาด้วย!)
+                <?php else: ?>
+                    <img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>"
+                    style="width: 300px;height:180px;">
+                    <?php endif; ?>
+                </td>
 
         </tr>
     </tbody>

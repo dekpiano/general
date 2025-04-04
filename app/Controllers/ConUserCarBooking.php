@@ -128,6 +128,12 @@ class ConUserCarBooking extends BaseController
       
         $database = \Config\Database::connect();
         $DBSchoolCar = $database->table('tb_school_car');
+        $DBpers = \Config\Database::connect('personnel');
+        $DBpersonnel = $DBpers->table('tb_personnel');
+        $data['SelPres'] = $DBpersonnel->where('pers_status','กำลังใช้งาน')
+        ->orderBy('pers_position','ASC')
+        ->get()->getResult();
+        //echo '<pre>';print_r($SelPres); exit();
         $DBCarReservation = $database->table('tb_car_reservation');
         $myTime = Time::now('asia/bangkok', 'th_TH');
 
@@ -174,29 +180,29 @@ class ConUserCarBooking extends BaseController
       
 
         if($DBCarReservation->insert($data)){
-            echo 1;
+            
+            $Check = 1;
         }
 
-        exit();
-        if($DBlocation->insert($data)){
+        if($Check){
            
             $email = \Config\Services::email(); // loading for use
            
-            $email->setFrom('admin_booking@skj.ac.th',"ระบบการจองอาคารสถานที่");
+            $email->setFrom('adminCarBooking@skj.ac.th',"ระบบการจองยานพาหนะ");
      
             // Send to Users     
             $email->setTo([
-                "dekpiano@skj.ac.th","juthaporn.p@skj.ac.th"
+                "dekpiano@skj.ac.th"//,"panwad.r@skj.ac.th"
             ]);
 
-            $email->setSubject("แจ้งการจอง เลขที่ ".$this->request->getVar('booking_order'));
+            $email->setSubject("แจ้งการจองยานพาหนะ เลขที่ ".$this->request->getVar('car_reserv_order'));
 
             $html = "<a href='https://general.skj.ac.th/CarBooking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
             $email->setMessage($html);
 
             // Send email
             if ($email->send()) {
-                echo $this->request->getVar('booking_locationroom');
+                echo 1;
             } else {
                 $data = $email->printDebugger(['headers']);
                 print_r($data);
