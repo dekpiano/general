@@ -639,10 +639,12 @@ class ConUserBooking extends BaseController
         ->select('booking_order,booking_telephone,booking_number,booking_title,booking_locationroom,booking_Booker,booking_other ,booking_admin_approve,booking_equipment,booking_admin_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname,posi_name,DATEDIFF(booking_dateEnd,booking_dateStart) AS SUMDAY,lear_namethai');
         $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
         $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
-        $DBbooking->join('skjacth_skj.tb_learning',"skjacth_skj.tb_learning.lear_id = skjacth_personnel.tb_personnel.pers_learning");
+        $DBbooking->join('skjacth_skj.tb_learning',"skjacth_skj.tb_learning.lear_id = skjacth_personnel.tb_personnel.pers_learning","left");
         $DBbooking->join('skjacth_skj.tb_position',"skjacth_personnel.tb_personnel.pers_position = skjacth_skj.tb_position.posi_id");
         $DBbooking->Where('booking_id',$IDBooking);
         $Booking =  $DBbooking->get()->getRow();
+
+        //print_r($Booking->pers_prefix); exit();
 
         $Manege = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
         ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id")

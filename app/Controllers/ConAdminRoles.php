@@ -32,10 +32,11 @@ class ConAdminRoles extends BaseController
         $data['Manager'] = $tb_admin_rloes->select('admin_rloes_userid,admin_rloes_id,admin_rloes_nanetype')->get()->getResult();
 
         $data['NameTeacher'] = $DBPers->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_position,pers_learning')
-        ->orderBy('pers_learning')
+        ->where('pers_status','กำลังใช้งาน')
+        ->orderBy('pers_position','ASC')
         ->get()->getResult();
 
-        //echo '<pre>'; print_r($data['Manager']); exit();
+        //echo '<pre>'; print_r($data['NameTeacher']); exit();
 
         return view('Admin/AdminLeyout/AdminHeader',$data)
                 .view('Admin/AdminLeyout/AdminMenuLeft')
