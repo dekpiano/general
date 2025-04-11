@@ -116,7 +116,7 @@
             </style>
             <div class="card">
                 <div class="card-body">
-                    <div id='calendar'></div>
+                    <div id='CalendarBooking'></div>
                 </div>
             </div>
 

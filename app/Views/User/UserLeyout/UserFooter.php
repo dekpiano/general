@@ -51,7 +51,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
     <!-- Vendors JS -->
     <script src="<?=base_url()?>/assets/vendor/libs/apex-charts/apexcharts.js"></script>
 
@@ -70,8 +70,9 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.15/index.global.min.js"></script>
 
     <?php if($uri->getSegment(1) == 'Booking') : ?>       
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=22.5"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=23"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingCrop.js?v=2"></script>
     
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=18"></script>
@@ -110,16 +111,56 @@ $(function() {
     <script>
 flatpickr.localize(flatpickr.l10ns.th);
 
-$(".selector").flatpickr({
-    dateFormat: "Y-m-d",
-    altInput: true,
-    onChange: (selectedDates, dateStr, instance) => {
-        moment.locale('th');
-        thai_DM = moment(selectedDates[0]).format('Do MMMM');
-        thai_Y = parseInt(moment(selectedDates[0]).format('YYYY')) + 543;
-        instance.altInput.value = thai_DM + " " + thai_Y;
+function setBuddhistYear(instance) {
+      const yearEl = instance.currentYearElement;
+      const buddhistYear = parseInt(yearEl.value);
+      if (buddhistYear < 2500) {
+        yearEl.value = buddhistYear + 543;
+      }
     }
-});
+
+    flatpickr(".selector", {
+      locale: "th",
+      dateFormat: "Y-m-d",
+      altInput: false,
+      altFormat: "d/m/Y",
+      parseDate: function(dateStr, format) {
+        const parts = dateStr.split('/');
+        parts[2] = parseInt(parts[2]) - 543;
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+      },
+      formatDate: function(date, format) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear() + 543;
+        return `${day}/${month}/${year}`;
+      },
+      onReady: function(selectedDates, dateStr, instance) {
+        setTimeout(() => setBuddhistYear(instance), 5);
+      },
+      onYearChange: function(selectedDates, dateStr, instance) {
+        setTimeout(() => setBuddhistYear(instance), 5);
+      },
+      onMonthChange: function(selectedDates, dateStr, instance) {
+        setTimeout(() => setBuddhistYear(instance), 5);
+      },
+      onOpen: function(selectedDates, dateStr, instance) {
+        setTimeout(() => setBuddhistYear(instance), 5);
+      }
+    });
+
+  
+
+// $(".selector").flatpickr({
+//     dateFormat: "Y-m-d",
+//     altInput: true,
+//     onChange: (selectedDates, dateStr, instance) => {
+//         moment.locale('th');
+//         thai_DM = moment(selectedDates[0]).format('Do MMMM');
+//         thai_Y = parseInt(moment(selectedDates[0]).format('YYYY')) + 543;
+//         instance.altInput.value = thai_DM + " " + thai_Y;
+//     }
+// });
 
 $(".selectorEdit").flatpickr({
     //dateFormat: "Y-m-d",

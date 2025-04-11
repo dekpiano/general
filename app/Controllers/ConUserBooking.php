@@ -83,12 +83,15 @@ class ConUserBooking extends BaseController
         ->select('booking_title,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd')        
         ->where('booking_locationroom',$LocationID)
         ->get()->getResult();
+
         $data['BookingNow'] = $tb_booking->orderBy('booking_id','DESC')->get()->getRow();
+       
        
         if(isset($data['BookingNow']->booking_order) == ""){
             $data['BookLatest'] = "BK_".date('Y')."0001";
         }else{
-           $sub = explode('_',$data['BookingNow']->booking_order);          
+           $sub = explode('_',$data['BookingNow']->booking_order);      
+          
            $data['BookLatest'] = $sub[0]."_".(((int)$sub[1])+1);
         }
         
@@ -97,6 +100,14 @@ class ConUserBooking extends BaseController
                 .view('User/UserLeyout/UserMenuLeft')
                 .view('User/UserBooking/UserBookingAdd')
                 .view('User/UserLeyout/UserFooter');
+    }
+
+    function thaidate_to_mysql($dateStr) {
+        $parts = explode('/', $dateStr);
+        if (count($parts) === 3) {
+            return ($parts[2] - 543) . '-' . str_pad($parts[1], 2, '0', STR_PAD_LEFT) . '-' . str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+        }
+        return null;
     }
 
     public function BookingInsert(){
@@ -110,21 +121,38 @@ class ConUserBooking extends BaseController
         }else{
             $equipment = "";
         }
+            $base64 = $this->request->getPost('booking_imgWork');
+            if($base64){
+                $data = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $base64));
+                $filename = 'img_' . time() . '.png';
+                $path = 'uploads/User/Booking/';
+                if (!is_dir($path)) {
+                    mkdir($path, 0755, true);
+                }
+                file_put_contents($path . $filename, $data);
+            }else{
+                $filename = "";
+            }
+
+            $booking_dateStart = $this->thaidate_to_mysql($this->request->getVar('booking_dateStart'));
+            $booking_dateEnd = $this->thaidate_to_mysql($this->request->getVar('booking_dateEnd'));
+
         $data = [
             'booking_locationroom' => $this->request->getVar('booking_locationroom'),
             'booking_order' => $this->request->getVar('booking_order'),
             'booking_number' => $this->request->getVar('booking_number'),
             'booking_title' => $this->request->getVar('booking_title'),
-            'booking_dateStart' => $this->request->getVar('booking_dateStart'),
+            'booking_dateStart' =>  $booking_dateStart,
             'booking_timeStart' => $this->request->getVar('booking_timeStart'),
-            'booking_dateEnd' => $this->request->getVar('booking_dateEnd'),
+            'booking_dateEnd' => $booking_dateEnd,
             'booking_timeEnd' => $this->request->getVar('booking_timeEnd'),
             'booking_typeuse' => $this->request->getVar('booking_typeuse'),
             'booking_other' => $this->request->getVar('booking_other'),
             'booking_Booker' => $this->request->getVar('booking_Booker'),
             'booking_telephone' => $this->request->getVar('booking_telephone'),
             'booking_equipment' => $equipment,
-            'booking_admin_approve' => "รอตรวจสอบ" 
+            'booking_admin_approve' => "รอตรวจสอบ",
+            'booking_imgWork' => $filename
         ];
    
         if($DBlocation->insert($data)){
@@ -134,7 +162,7 @@ class ConUserBooking extends BaseController
      
             // Send to Users     
             $email->setTo([
-                "dekpiano@skj.ac.th","trin.p@skj.ac.th"
+                "dekpiano@skj.ac.th"
             ]);
 
             $email->setSubject("แจ้งการจอง เลขที่ ".$this->request->getVar('booking_order'));
@@ -347,18 +375,75 @@ class ConUserBooking extends BaseController
         return $this->response->setJSON($data, true);
     }
 
+    function convertBuddhistToGregorian($dateStr)
+    {
+        // รับรูปแบบ: 03/04/2568
+        $parts = explode('/', $dateStr);
+        
+        if (count($parts) === 3) {
+            // ดึงวัน/เดือน/ปี
+            $day = (int)$parts[0];
+            $month = (int)$parts[1];
+            $year = (int)$parts[2];
+
+            // แปลง พ.ศ. → ค.ศ.
+            if ($year > 2400) {
+                $year -= 543;
+            }
+
+            // คืนค่าในรูปแบบ Y-m-d
+            return sprintf('%04d-%02d-%02d', $year, $month, $day);
+        }
+
+        return null; // รูปแบบไม่ถูกต้อง
+    }
+
     public function CheckDateBooking(){
         // print_r($this->request->getVar());
         $session = session();
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
+        $locationroom       = $this->request->getPost('booking_locationroom');
+        $dateStart          = $this->request->getPost('booking_dateStart');
+        $timeStart          = $this->request->getPost('booking_timeStart');
+        $dateEnd            = $this->request->getPost('booking_dateEnd');
+        $timeEnd            = $this->request->getPost('booking_timeEnd');
+
+         // ถ้ายังไม่กรอกครบ ให้ส่งข้อความว่า "รอตรวจสอบ"
+        if (!$dateStart || !$timeStart || !$dateEnd || !$timeEnd) {
+            return $this->response->setJSON([
+                'status' => null,
+                'message' => '🕐 เลือกวันและเวลาให้ครบก่อนระบบจะตรวจสอบการจอง',
+                'class' => 'alert alert-warning'
+            ]);
+        }
+
+        $gDateStart = $this->convertBuddhistToGregorian($dateStart);
+        $gDateEnd   = $this->convertBuddhistToGregorian($dateEnd);
+
+        $proposedStart = date('Y-m-d H:i:s',strtotime($gDateStart . ' ' . $timeStart));
+        $proposedEnd   = date('Y-m-d H:i:s',strtotime($gDateEnd   . ' ' . $timeEnd));
 
         $CheckDateBookign = $DBbooking
-        ->where('booking_locationroom',$this->request->getVar('booking_locationroom'))
-        ->where('booking_dateStart',$this->request->getVar('booking_dateStart'))
-        ->where('booking_timeStart <=',$this->request->getVar('booking_timeStart'))
-        ->get()->getNumRows();
-        echo $CheckDateBookign;
+        ->where('booking_locationroom', $locationroom)
+        ->where("STR_TO_DATE(CONCAT(booking_dateStart, ' ', booking_timeStart), '%Y-%m-%d %H:%i:%s') < '$proposedEnd'", null, false)
+        ->where("STR_TO_DATE(CONCAT(booking_dateEnd, ' ', booking_timeEnd), '%Y-%m-%d %H:%i:%s') > '$proposedStart'", null, false)
+        ->get()->getResult();
+        //print_r($CheckDateBookign);
+        if(!$CheckDateBookign){
+            return $this->response->setJSON([
+                'status' => 1,
+                'message' => '✔️สามารถทำการจองวันและเวลาที่เลือกได้',
+                'class' => 'alert alert-success'
+            ]);
+        }else{
+            return $this->response->setJSON([
+                'status' => 0,
+                'message' => '❌ มีการจองในช่วงเวลานี้แล้ว กรุณาเลือกวันและเวลาที่ว่าง หรือเลือกห้องสถานที่อื่น',
+                'class' => 'alert alert-danger'
+            ]);
+        }
+       
     }
 
     public function CheckTimeBooking(){

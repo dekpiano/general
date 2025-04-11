@@ -262,44 +262,29 @@ $(document).on('click', '#BtnCancelBooking', function() {
     })
 });
 
-
-$(document).on('change', '#booking_timeStart', function() {
-        
+$('#BtnSubBooking').prop('disabled', true);
+$(document).on('change', '#booking_dateStart, #booking_timeStart, #booking_dateEnd, #booking_timeEnd', function() {
+   
     $.post('../../Booking/DB/CheckDateBooking', {
         booking_locationroom:$('#booking_locationroom').val(),
         booking_dateStart: $('#booking_dateStart').val(),
-        booking_timeStart: $('#booking_timeStart').val()
-    }, function(data) {
-        console.log(data);
-        if (data > 0) {
-            Swal.fire(
-                'กรุณาเลือกใหม่',
-                'ช่วงวัน หรือ เวลา มีผู้จองแล้ว!',
-                'warning'
-            )
-            $('#booking_timeStart').val('');
-        }
-
-    });
-});
-
-$(document).on('change', '#booking_timeEnd', function() {
-    $.post('../../Booking/DB/CheckTimeBooking', {
-        booking_locationroom:$('#booking_locationroom').val(),
+        booking_timeStart: $('#booking_timeStart').val(),
         booking_dateEnd: $('#booking_dateEnd').val(),
         booking_timeEnd: $('#booking_timeEnd').val()
     }, function(data) {
         console.log(data);
-        if (data > 0) {
-            Swal.fire(
-                'กรุณาเลือกใหม่',
-                'ช่วงวัน หรือ เวลา มีผู้จองแล้ว!',
-                'warning'
-            )
-            $('#booking_timeEnd').val('');
+        $('#AlertMessage').html(data.message);
+        $('#AlertMessage').removeClass().addClass(data.class);
+        if (data.status == 0) {
+            $('#BtnSubBooking').prop('disabled', true);
+            //$('#booking_timeStart').val('');
+        }else{
+            $('#BtnSubBooking').prop('disabled', false);
         }
+
     });
 });
+
 
 function formatThaiDate(date) {
     let thaiDate = new Intl.DateTimeFormat('th-TH', {
@@ -312,7 +297,7 @@ function formatThaiDate(date) {
     return thaiDate;
 }
 
-var calendarEl = document.getElementById('calendar');
+var calendarEl = document.getElementById('CalendarBooking');
 
 var calendar = new FullCalendar.Calendar(calendarEl, {
     headerToolbar: {
@@ -354,15 +339,21 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
     }, ],
     initialView: 'dayGridMonth',
     eventClick: function(info) {        
+        if(info.event.extendedProps.bookingApprove == "อนุมัติ"){
+           var Icon = "success";
+        }else if(info.event.extendedProps.bookingApprove == "รออนุมัติ"){
+            var Icon = "warning";
+        }
         Swal.fire({
             title: `สถานะ : ${info.event.extendedProps.bookingApprove}`,
             html: `<b>วันเข้าใช้บริการ</b> : ${formatThaiDate(info.event.start)} <br>
                    <b>เวลา:</b> ${info.event.title || "ไม่มีรายละเอียด"}`,
-            icon: 'info'
+            icon: Icon
         });
 
        
     }
 });
 calendar.render();
+
 

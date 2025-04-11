@@ -1,3 +1,9 @@
+.flatpickr-calendar .flatpickr-days .flatpickr-day.selected, .flatpickr-calendar .flatpickr-days .flatpickr-day.selected.inRange, .flatpickr-calendar .flatpickr-days .flatpickr-day.selected:focus, .flatpickr-calendar .flatpickr-days .flatpickr-day.selected:hover, .flatpickr-calendar .flatpickr-days .flatpickr-day.selected.nextMonthDay, .flatpickr-calendar .flatpickr-days .flatpickr-day.selected.prevMonthDay, .flatpickr-calendar .flatpickr-days .flatpickr-day.startRange, .flatpickr-calendar .flatpickr-days .flatpickr-day.startRange.inRange, .flatpickr-calendar .flatpickr-days .flatpickr-day.startRange:focus, .flatpickr-calendar .flatpickr-days .flatpickr-day.startRange:hover, .flatpickr-calendar .flatpickr-days .flatpickr-day.startRange.nextMonthDay, .flatpickr-calendar .flatpickr-days .flatpickr-day.startRange.prevMonthDay, .flatpickr-calendar .flatpickr-days .flatpickr-day.endRange, .flatpickr-calendar .flatpickr-days .flatpickr-day.endRange.inRange, .flatpickr-calendar .flatpickr-days .flatpickr-day.endRange:focus, .flatpickr-calendar .flatpickr-days .flatpickr-day.endRange:hover, .flatpickr-calendar .flatpickr-days .flatpickr-day.endRange.nextMonthDay, .flatpickr-calendar .flatpickr-days .flatpickr-day.endRange.prevMonthDay, .flatpickr-calendar .flatpickr-days .flatpickr-day.week.selected {
+    background-color: var(--bs-primary);
+    box-shadow: 0 .125rem .25rem 0 rgba(var(--bs-primary-rgb), 0.4);
+    color: #fff;
+}
+
 .flatpickr-calendar {
     position: absolute;
     visibility: hidden;
