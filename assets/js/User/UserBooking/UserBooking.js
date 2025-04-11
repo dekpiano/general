@@ -1,3 +1,18 @@
+document.querySelectorAll('.CheckUserLogin').forEach(btn => {
+    btn.onclick = e => {
+      e.preventDefault();
+      Swal.fire({
+        title: 'เข้าสู่ระบบก่อนจอง?',
+        html: "คุณต้องเป็นบุคลากรเท่านั้นที่มี มีอีเมล @skj.ac.th <br> ถ้าไม่ใช่บุคลากรให้ติดต่อเจ้าหน้าที่ฝ่ายอาคารสถานที่",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ตกลง',
+        cancelButtonText: 'ยกเลิก'
+      }).then(r => {
+        if (r.isConfirmed) location.href = btn.dataset.url;
+      });
+    };
+  });
 
 $('#TBShowDataBooking').DataTable({
     responsive: true,
@@ -325,7 +340,8 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
                             allDay: true,
                             backgroundColor:evt.backgroundColor,
                             borderColor:evt.backgroundColor,                            
-                            bookingApprove:evt.booking_admin_approve
+                            bookingApprove:evt.booking_admin_approve,
+                            bookingAdminReason:evt.booking_admin_reason,
                         });
                     });
                     successCallback(events);
@@ -341,13 +357,16 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
     eventClick: function(info) {        
         if(info.event.extendedProps.bookingApprove == "อนุมัติ"){
            var Icon = "success";
-        }else if(info.event.extendedProps.bookingApprove == "รออนุมัติ"){
+        }else if(info.event.extendedProps.bookingApprove == "รอตรวจสอบ"){
             var Icon = "warning";
+        }else if(info.event.extendedProps.bookingApprove == "ไม่อนุมัติ"){
+            var Icon = "error";
         }
         Swal.fire({
             title: `สถานะ : ${info.event.extendedProps.bookingApprove}`,
             html: `<b>วันเข้าใช้บริการ</b> : ${formatThaiDate(info.event.start)} <br>
-                   <b>เวลา:</b> ${info.event.title || "ไม่มีรายละเอียด"}`,
+                   <b>เวลา:</b> ${info.event.title || "ไม่มีรายละเอียด"}<br>
+                   <b>หมายเหตุ :</b> ${info.event.extendedProps.bookingAdminReason || "-"}<br>`,
             icon: Icon
         });
 

@@ -332,9 +332,9 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,location_name')
+       $S_data = $DBbooking->select('booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,location_name,booking_admin_reason')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-       ->where('booking_admin_approve','อนุมัติ')
+       //->where('booking_admin_approve','อนุมัติ')
        //->where('booking_executive_approve','อนุมัติ')
        ->get()->getResult();
 
@@ -342,33 +342,33 @@ class ConUserBooking extends BaseController
 
         foreach ($S_data as $key => $value) {
             $color = '';
-            switch ($value->booking_locationroom) {
-                case '1':
-                    $color = '#3788d8';
+            switch ($value->booking_admin_approve) {
+                case 'รอตรวจสอบ':
+                    $color = '#ffab00';
+                    $icon = '⏳';
                     break;
-                case '2':
-                    $color = '#ff9f89';
+                case 'อนุมัติ':
+                    $color = '#71dd37';
+                    $icon = '✔';
                     break;
-                case '3':
-                    $color = '#a4bdfc';
-                    break;
-                case '4':
-                    $color = '#7ae7bf ';
-                    break;
-                case '5':
-                    $color = '#ffb878 ';
-                    break;
+                case 'ไม่อนุมัติ':
+                    $color = '#ff3e1d';
+                    $icon = '⨉';
+                    break;                
                 default:
-                    $color = '#46d6db'; // สีเริ่มต้น
+                    $color = '#fd7e14'; // สีเริ่มต้น
             }
+            
+            
 
             $data[]=[
                 'id' => $value->booking_locationroom,
-                'title'=> date('H:i',strtotime($value->booking_timeStart)).' - '.date('H:i',strtotime($value->booking_timeEnd)).' '.$value->location_name.' '.$value->booking_title,
+                'title'=> $icon.' '.date('H:i',strtotime($value->booking_timeStart)).' - '.date('H:i',strtotime($value->booking_timeEnd)).' '.$value->location_name.' '.$value->booking_title,
                 'start' => $value->booking_dateStart.' '.$value->booking_timeStart,
                 'end' => date("Y-m-d", strtotime("+1 day",strtotime($value->booking_dateEnd))).' '.$value->booking_timeEnd,
                 'backgroundColor' => $color,
-                'booking_admin_approve' => $value->booking_admin_approve
+                'booking_admin_approve' => $value->booking_admin_approve,
+                'booking_admin_reason' => $value->booking_admin_reason
             ];        
         }
 

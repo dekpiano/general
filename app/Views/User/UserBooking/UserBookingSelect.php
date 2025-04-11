@@ -34,8 +34,8 @@
                                         จอง
                                     </a>
                                     <?php else: ?>
-                                    <a href="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"
-                                        class="btn btn-primary">
+                                    <a href="#" data-url="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"
+                                        class="btn btn-primary CheckUserLogin">
                                         จอง
                                     </a>
                                     <?php endif;?>

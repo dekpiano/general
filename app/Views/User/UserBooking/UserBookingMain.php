@@ -26,7 +26,7 @@
                                     </div>
                                     <h4 class="ms-1 mb-0  text-white"><?=$CountLocationRoomAll;?></h4>
                                 </div>
-                                <p class="mb-1 h5 text-white">เลือกห้องประชุม / สถานที่</p>
+                                <p class="mb-1 h5 text-white">จองห้องประชุม / สถานที่</p>
                             </div>
                         </div>
                     </a>
@@ -116,6 +116,10 @@
             </style>
             <div class="card">
                 <div class="card-body">
+                    <p><span class="badge bg-warning">⏳ รอตรวจสอบ</span>
+                    <span class="badge bg-success">✔ อนุมัติ</span>
+                    <span class="badge bg-danger">⨉ ไม่อนุมัติ</span>                    
+                    </p>
                     <div id='CalendarBooking'></div>
                 </div>
             </div>
