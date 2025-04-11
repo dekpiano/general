@@ -55,8 +55,10 @@
                                 <div class="row mb-3">
                                 <div class="col-md-4">
                                         <label class="form-label" for="">เลขที่จอง</label>
-                                        <input type="text" id="booking_order" name="booking_order" class="form-control-plaintext" placeholder="ชื่อห้อง"
+                                        <input type="text" id="" name="" class="form-control-plaintext" placeholder="ชื่อห้อง"
                                             value="<?=$BookLatest?>" readonly>
+                                            <input type="text" id="booking_order" name="booking_order" class="form-control-plaintext" placeholder="ชื่อห้อง"
+                                            value="<?=$BookLatest?>" hidden>
                                        
                                     </div>
                                     <div class="col-md-4">
