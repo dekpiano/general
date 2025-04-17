@@ -123,6 +123,10 @@
             </style>
             <div class="card">
                 <div class="card-body">
+                    <p><span class="badge bg-warning">⏳ รอตรวจสอบ</span>
+                    <span class="badge bg-success">✔ อนุมัติ</span>
+                    <span class="badge bg-danger">⨉ ไม่อนุมัติ</span>                    
+                    </p>
                     <div id='calendar'></div>
                 </div>
             </div>

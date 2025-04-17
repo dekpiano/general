@@ -132,7 +132,7 @@ $('#TBShowDataCarBookingAdmin').DataTable({
             data: 'car_reserv_status',
             render: function(data, type, row) {
                 if(row.car_reserv_status != "อนุมัติ"){ var disab = "disabled";}
-                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" data-bs-toggle="modal" data-bs-target="#ModalApproveAdmin" class="btn btn-primary" id="BtnApproveCarBooking" carbooking-id="' + row.car_reserv_id + '"><i class="bx bx-edit-alt"></i> ดำเนินการ </button> <button type="button" id="BtnClaseBooking" class="btn btn-danger" booking-id="' + row.car_reserv_id + '"><i class="bx bx-x"></i> ยกเลิก</button> <a href="Admin/Print/' + row.car_reserv_id + '" target="_blank"  id="BtnClaseBooking" class="btn btn-info '+disab+'"><i class="bx bxs-printer" ></i> พิมพ์ใบอนุญาต</a>  </div>';
+                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" data-bs-toggle="modal" data-bs-target="#ModalApproveAdmin" class="btn btn-primary" id="BtnApproveCarBooking" carbooking-id="' + row.car_reserv_id + '"><i class="bx bx-edit-alt"></i> ดำเนินการ </button> <button type="button" id="BtnClaseBooking" class="btn btn-danger" booking-id="' + row.car_reserv_id + '"><i class="bx bx-x"></i> ยกเลิก</button> <a href="Admin/Print/' + row.car_reserv_id + '" target="_blank"  id="BtnClaseBooking" class="btn btn-info '+disab+'"><i class="bx bxs-printer" ></i> พิมพ์ใบอนุญาต</a>  </div> <div>โดย '+row.car_reserv_approver+'</div> ';
             }
         }
     ]
@@ -303,6 +303,16 @@ $(document).on('change', '#booking_timeEnd', function() {
     });
 });
 
+function formatThaiDate(date) {
+    let thaiDate = new Intl.DateTimeFormat('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long'
+    }).format(new Date(date));
+
+    return thaiDate;
+}
 
 var calendarEl = document.getElementById('calendar');
 
@@ -328,14 +338,15 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
                         }else if(evt.approved == "อนุมัติ"){
                             var Color = '#71dd37';
                         }else{
-                            var Color = '#ff3e1d';
+                            var Color = '#ff3e1d';  
                         }
                         events.push({
                             id: evt.id,
                             title: evt.title,
                             start: evt.start,
                             end: evt.end,
-                            backgroundColor: Color
+                            backgroundColor: Color,
+                            CarAppend: evt.approved,
                         });
                     });
                     successCallback(events);
@@ -348,8 +359,23 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
     }, ],
     initialView: 'dayGridMonth',
     eventClick: function(info) {
-        alert("วันที่: " + info.event.start.toLocaleDateString() + "\n"+
-                "เวลา: " + info.event.title + "\n");
+        // alert("วันที่: " + info.event.start.toLocaleDateString() + "\n"+
+        //         "เวลา: " + info.event.title + "\n");
+
+                if (info.event.extendedProps.CarAppend == "อนุมัติ") {
+                    var Icon = "success";
+                } else if (info.event.extendedProps.CarAppend == "รอตรวจสอบ") {
+                    var Icon = "warning";
+                } else if (info.event.extendedProps.CarAppend == "ไม่อนุมัติ") {
+                    var Icon = "error";
+                }
+                Swal.fire({
+                    title: `สถานะ : ${info.event.extendedProps.CarAppend}`,
+                    html: `<b>วันที่ใช้บริการ</b> : ${formatThaiDate(info.event.start)} <br>
+                           <b>โดยใช้ :</b> ${info.event.title || "ไม่มีรายละเอียด"}<br>
+                           `,
+                    icon: Icon
+                });
     }
 });
 calendar.render();

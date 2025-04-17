@@ -257,6 +257,8 @@ class ConUserCarBooking extends BaseController
         $Datethai = new Datethai();  
         $database = \Config\Database::connect();
         $DBCarReservation = $database->table('tb_car_reservation');
+        $DBpers = \Config\Database::connect('personnel');
+       $DBpersonnel = $DBpers->table('tb_personnel');
 
        $S_data = $DBCarReservation->select('
        skjacth_general.tb_car_reservation.*,
@@ -264,35 +266,37 @@ class ConUserCarBooking extends BaseController
         skjacth_general.tb_school_car.car_registration,
         skjacth_general.tb_school_car.car_province,
         skjacth_general.tb_school_car.car_category,
-        skjacth_personnel.tb_personnel.pers_prefix,
-        skjacth_personnel.tb_personnel.pers_firstname,
-        skjacth_personnel.tb_personnel.pers_lastname
+        CONCAT(p1.pers_prefix, p1.pers_firstname, " ", p1.pers_lastname) AS carReservMemberID,
+        CONCAT(p2.pers_prefix, p2.pers_firstname, " ", p2.pers_lastname) AS carReservDriver,
+        CONCAT(p3.pers_prefix, p3.pers_firstname, " ", p3.pers_lastname) AS carReservApprover
        ')
        ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
-       ->join('skjacth_personnel.tb_personnel',"skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID")
+       ->join('skjacth_personnel.tb_personnel AS p1', 'tb_car_reservation.car_reserv_memberID = p1.pers_id')
+        ->join('skjacth_personnel.tb_personnel AS p2', 'tb_car_reservation.car_reserv_driver = p2.pers_id', 'left')
+        ->join('skjacth_personnel.tb_personnel AS p3', 'tb_car_reservation.car_reserv_approver = p3.pers_id', 'left')
+
        ->get()->getResult();
 
-       $DBpers = \Config\Database::connect('personnel');
-       $DBpersonnel = $DBpers->table('tb_personnel');
+       
 
        
 
        $data = array();
         foreach ($S_data as $key => $value) {
 
-            $CheckDriver = $DBpersonnel->select('pers_prefix,pers_firstname,pers_lastname')->where('pers_id',$value->car_reserv_driver)->get()->getResult();
-            if($value->car_reserv_driver){
-                $Fullname = $CheckDriver[0]->pers_prefix.$CheckDriver[0]->pers_firstname.' '.$CheckDriver[0]->pers_lastname;
-            }else{
-                $Fullname = '';
-            }
+            // $CheckDriver = $DBpersonnel->select('pers_prefix,pers_firstname,pers_lastname')->where('pers_id',$value->car_reserv_driver)->get()->getResult();
+            // if($value->car_reserv_driver){
+            //     $Fullname = $CheckDriver[0]->pers_prefix.$CheckDriver[0]->pers_firstname.' '.$CheckDriver[0]->pers_lastname;
+            // }else{
+            //     $Fullname = '';
+            // }
 
             $data[]=[
                 'car_reserv_order' => $value->car_reserv_order,
                 'car_reserv_carID' => $value->car_reserv_carID,
                 'car_reserv_id' => $value->car_reserv_id,
                 'car_registration' => $value->car_registration,
-                'car_reserv_driver' => $Fullname,
+                'car_reserv_driver' =>  $value->carReservDriver,
                 'car_province' => $value->car_province,
                 'car_category' => $value->car_category,
                 'car_reserv_location' => $value->car_reserv_location,
@@ -300,7 +304,8 @@ class ConUserCarBooking extends BaseController
                 'car_reserv_memberID' => $value->car_reserv_memberID,
                 'car_reserv_status' => $value->car_reserv_status,
                 'car_img' => $value->car_img,
-                'Member' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname,
+                'Member' => $value->carReservMemberID,
+                'car_reserv_approver' => $value->carReservApprover,
                 'Date' => $Datethai->thai_date_fullmonth(strtotime($value->car_reserv_StartDate)).':'.$value->car_reserv_StartTime.' ถึง '.$Datethai->thai_date_fullmonth(strtotime($value->car_reserv_EndDate)).' '.$value->car_reserv_EndTime
             ];        
         }
@@ -407,6 +412,23 @@ class ConUserCarBooking extends BaseController
        ->get()->getResult();
 
         foreach ($S_data as $key => $value) {
+            switch ($value->car_reserv_status) {
+                case 'รอตรวจสอบ':
+                    $color = '#ffab00';
+                    $icon = '⏳';
+                    break;
+                case 'อนุมัติ':
+                    $color = '#71dd37';
+                    $icon = '✔';
+                    break;
+                case 'ไม่อนุมัติ':
+                    $color = '#ff3e1d';
+                    $icon = '⨉';
+                    break;                
+                default:
+                    $color = '#fd7e14'; // สีเริ่มต้น
+            }
+
             $data[]=[
                 'id' => $value->car_reserv_id,
                 'title'=> $value->car_category.' '.$value->car_registration.' '.$value->car_province.' ไปที่'.$value->car_reserv_location.' เพื่อ'.$value->car_reserv_detail,
