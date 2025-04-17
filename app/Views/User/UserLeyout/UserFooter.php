@@ -70,7 +70,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.15/index.global.min.js"></script>
 
     <?php if($uri->getSegment(1) == 'Booking') : ?>       
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=24"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=25.1"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingCrop.js?v=2"></script>
     

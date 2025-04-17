@@ -29,14 +29,16 @@ class ConAdminRoles extends BaseController
         $DB_Personnel = \Config\Database::connect('personnel');
         $DBPers = $DB_Personnel->table('tb_personnel');
 
-        $data['Manager'] = $tb_admin_rloes->select('admin_rloes_userid,admin_rloes_id,admin_rloes_nanetype')->get()->getResult();
+        $data['Manager'] = $tb_admin_rloes->select('admin_rloes_userid,admin_rloes_id,admin_rloes_nanetype,admin_rloes_level,admin_rloes_status')
+        ->orderBy('admin_rloes_level','ASC')
+        ->get()->getResult();
 
         $data['NameTeacher'] = $DBPers->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_position,pers_learning')
         ->where('pers_status','กำลังใช้งาน')
         ->orderBy('pers_position','ASC')
         ->get()->getResult();
 
-        //echo '<pre>'; print_r($data['NameTeacher']); exit();
+        //echo '<pre>'; print_r($data['Manager']); exit();
 
         return view('Admin/AdminLeyout/AdminHeader',$data)
                 .view('Admin/AdminLeyout/AdminMenuLeft')
@@ -47,8 +49,10 @@ class ConAdminRoles extends BaseController
     public function RloesSettingManager() {      
         $database = \Config\Database::connect();
         $DBrloes = $database->table('tb_admin_rloes');
-        $data = array('admin_rloes_userid' => $this->request->getVar('TeachID'),'admin_rloes_nanetype'=>$this->request->getVar('Keytype'));
+        $data = array('admin_rloes_userid' => $this->request->getVar('TeachID'));
 
+        $DBrloes->where('admin_rloes_level',$this->request->getVar('RloesLevel'));
+        $DBrloes->where('admin_rloes_nanetype',$this->request->getVar('Keytype'));
         $DBrloes->where('admin_rloes_id',$this->request->getVar('RloesID'));
         $result = $DBrloes->update($data);
         echo $result;

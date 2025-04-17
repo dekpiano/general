@@ -1,12 +1,15 @@
+$('.select2Rloes').select2({
+    placeholder: "เลือกตัวเลือก",
+    allowClear: true
+  });
+
 $(document).on("change", ".SettingGeneralRloes", function() {
-
-    console.log($(this).val());
-    console.log($(this).attr('rloes-id'));
-
+ 
     $.post("../../Admin/Rloes/RloesSettingManager", {
         TeachID: $(this).val(),
+        RloesLevel: $(this).attr('rloes-level'),
+        Keytype: $(this).attr('Key-nanetype'), 
         RloesID: $(this).attr('rloes-id'),
-        Keytype: $(this).attr('Key-nanetype')
     }, function(data, status) {
         if (data == 1) {
             Swal.fire({

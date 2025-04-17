@@ -582,9 +582,14 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,booking_executive_approve,location_name,pers_prefix,pers_firstname,pers_lastname')
+       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,booking_executive_approve,location_name,
+        CONCAT(p1.pers_prefix, p1.pers_firstname, " ", p1.pers_lastname) AS booker_name,
+        CONCAT(p2.pers_prefix, p2.pers_firstname, " ", p2.pers_lastname) AS admin_name,
+        CONCAT(p3.pers_prefix, p3.pers_firstname, " ", p3.pers_lastname) AS executive_name')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-       ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
+       ->join('skjacth_personnel.tb_personnel AS p1', 'tb_booking.booking_Booker = p1.pers_id')
+        ->join('skjacth_personnel.tb_personnel AS p2', 'tb_booking.booking_admin_check = p2.pers_id', 'left')
+        ->join('skjacth_personnel.tb_personnel AS p3', 'tb_booking.booking_executive_approve = p3.pers_id', 'left')
        //->where('booking_admin_approve','อนุมัติ')
        ->get()->getResult();
        $data = array();
@@ -603,7 +608,9 @@ class ConUserBooking extends BaseController
                 'booking_admin_reason' => $value->booking_admin_reason,
                 'booking_executive_approve' => $value->booking_executive_approve,
                 'booking_telephone' => $value->booking_telephone,
-                'booker' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname
+                'booker' => $value->booker_name,
+                'admin_name' => $value->admin_name,
+                'executive_name' => $value->executive_name,
             ];        
         }
 
@@ -675,9 +682,9 @@ class ConUserBooking extends BaseController
                 "dekpiano@skj.ac.th"
             ]);
 
-            $email->setSubject("การจองรออนุมัติจากผู้บริหาร");
+            $email->setSubject("การจองรออนุมัติจากผู้ดูและระบบ เลขที่ ".$this->request->getVar('booking_order'));
 
-            $html = "<a href='https://general.skj.ac.th/Booking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+            $html = "<a class='' href='https://general.skj.ac.th/Booking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
             $email->setMessage($html);
 
             // Send email
@@ -731,13 +738,21 @@ class ConUserBooking extends BaseController
 
         //print_r($Booking->pers_prefix); exit();
 
-        $Manege = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
+        $DeputyManege = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
         ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id")
-        ->where('admin_rloes_id',4)->get()->getRow();
+        ->where('admin_rloes_level','หัวหน้า')
+        ->where('admin_rloes_nanetype',"งานอาคารสถานที่")
+        ->get()->getRow();
 
         $DeputyExecutive = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
-        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id")
-        ->where('admin_rloes_id',2)->get()->getRow();
+        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id","left")
+        ->where('admin_rloes_nanetype',"รองผู้อำนวยการบริหารทั่วไป")->get()->getRow();
+
+        $DeputyDirector = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
+        ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id","left")
+        ->where('admin_rloes_nanetype',"ผู้อำนวยการโรงเรียน")->get()->getRow();
+        //print_r($DeputyExecutive); exit();
+       
 
         $mpdf = new \Mpdf\Mpdf(
             array(
@@ -813,7 +828,7 @@ class ConUserBooking extends BaseController
                     <br>
                     <div class='center-text'>
                     ลงชื่อ...................................................... <br>
-                    (".$Manege->pers_prefix.$Manege->pers_firstname.' '.$Manege->pers_lastname.")
+                    (".$DeputyManege->pers_prefix.$DeputyManege->pers_firstname.' '.$DeputyManege->pers_lastname.")
                     </div>
 
                 </td>
@@ -838,7 +853,7 @@ class ConUserBooking extends BaseController
                     <br>
                     <div class='center-text'>
                     ลงชื่อ.............................................................ผู้อนุญาต<br>
-                    (นายพงษ์ศักดิ์ เงินสันเทียะ)<br>                   
+                    (".$DeputyDirector->pers_prefix.$DeputyDirector->pers_firstname.' '.$DeputyDirector->pers_lastname.")<br>                   
 	ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
 
                     </div>

@@ -1,18 +1,18 @@
 document.querySelectorAll('.CheckUserLogin').forEach(btn => {
     btn.onclick = e => {
-      e.preventDefault();
-      Swal.fire({
-        title: 'เข้าสู่ระบบก่อนจอง?',
-        html: "คุณต้องเป็นบุคลากรเท่านั้นที่มี มีอีเมล @skj.ac.th <br> ถ้าไม่ใช่บุคลากรให้ติดต่อเจ้าหน้าที่ฝ่ายอาคารสถานที่",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'ตกลง',
-        cancelButtonText: 'ยกเลิก'
-      }).then(r => {
-        if (r.isConfirmed) location.href = btn.dataset.url;
-      });
+        e.preventDefault();
+        Swal.fire({
+            title: 'เข้าสู่ระบบก่อนจอง?',
+            html: "คุณต้องเป็นบุคลากรเท่านั้นที่มี มีอีเมล @skj.ac.th <br> ถ้าไม่ใช่บุคลากรให้ติดต่อเจ้าหน้าที่ฝ่ายอาคารสถานที่",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ตกลง',
+            cancelButtonText: 'ยกเลิก'
+        }).then(r => {
+            if (r.isConfirmed) location.href = btn.dataset.url;
+        });
     };
-  });
+});
 
 $('#TBShowDataBooking').DataTable({
     responsive: true,
@@ -23,6 +23,11 @@ $('#TBShowDataBooking').DataTable({
 $('#TBShowDataBookingAdmin').DataTable({
     responsive: true,
     'serverMethod': 'post',
+    scrollX: true,
+    autoWidth: false, 
+    columnDefs: [
+        { width: '30%', targets: 1 },
+      ],
     'ajax': {
         'url': '../../Booking/DB/DataTable/Approve/Admin'
     },
@@ -34,19 +39,19 @@ $('#TBShowDataBookingAdmin').DataTable({
         { data: 'booking_title' },
         {
             data: 'location_name',
-            render: function(data, type, row) {
+            render: function (data, type, row) {
                 return data + "<br><small>" + row.booking_dateStart + ' ถึง ' + row.booking_dateEnd + '</small>';
             }
         },
         {
             data: 'booker',
-            render: function(data, type, row) {
+            render: function (data, type, row) {
                 return data + '<br><small>' + row.booking_telephone + '</small>';
             }
         },
         {
             data: 'booking_admin_approve',
-            render: function(data, type, row) {
+            render: function (data, type, row) {
                 if (data === "อนุมัติ") {
                     return '<span class="badge bg-label-success me-1">' + data + '</span>';
                 } else {
@@ -58,20 +63,20 @@ $('#TBShowDataBookingAdmin').DataTable({
         { data: 'booking_admin_reason' },
         {
             data: 'booking_id',
-            render: function(data, type, row) {
-                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-success ' + (row.booking_admin_approve == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div>';
+            render: function (data, type, row) {
+                return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-sm btn-success ' + (row.booking_admin_approve == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-sm btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div> <div><small>โดย '+(row.booking_admin_approve == "อนุมัติ" || row.booking_admin_approve == "ไม่อนุมัติ" ?row.admin_name : "รออนุมัติ")+'</small></div>';
             }
         },
         {
             data: 'booking_id',
-            render: function(data, type, row) {
-                return '<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalSignatureAdmin" id="FormSignatureAdmin" data-idBooking="'+data+'">ลายเซ็น</a>';
+            render: function (data, type, row) {
+                return '<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalSignatureAdmin" id="FormSignatureAdmin" data-idBooking="' + data + '">ลายเซ็น</a>';
             }
         },
         {
             data: 'booking_id',
-            render: function(data, type, row) {
-                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/'+ data +'" class="btn btn-primary">เอกสาร</a>';
+            render: function (data, type, row) {
+                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/' + data + '" class="btn btn-primary">เอกสาร</a>';
             }
         },
     ]
@@ -91,19 +96,19 @@ $('#TBShowDataBookingExecutive').DataTable({
         { data: 'booking_title' },
         {
             data: 'location_name',
-            render: function(data, type, row) {
+            render: function (data, type, row) {
                 return data + "<br><small>" + row.booking_dateStart + ' ถึง ' + row.booking_dateEnd + '</small>';
             }
         },
         {
             data: 'booker',
-            render: function(data, type, row) {
+            render: function (data, type, row) {
                 return data + '<br><small>' + row.booking_telephone + '</small>';
             }
         },
         {
             data: 'booking_admin_approve',
-            render: function(data, type, row) {
+            render: function (data, type, row) {
                 if (data === "อนุมัติ") {
                     return '<span class="badge bg-label-success me-1"><i class="bx bxs-check-circle"></i>' + data + '</span>';
                 } else if (data === "ไม่อนุมัติ") {
@@ -116,7 +121,7 @@ $('#TBShowDataBookingExecutive').DataTable({
         },
         {
             data: 'booking_executive_approve',
-            render: function(data, type, row) {
+            render: function (data, type, row) {
                 if (data === "อนุมัติ") {
                     return '<span class="badge bg-label-success me-1"><i class="bx bxs-check-circle"></i>' + data + '</span>';
                 } else if (data === "ไม่อนุมัติ") {
@@ -129,26 +134,26 @@ $('#TBShowDataBookingExecutive').DataTable({
         },
         {
             data: 'booking_id',
-            render: function(data, type, row) {
+            render: function (data, type, row) {
                 return '<div class="btn-group" role="group" aria-label="Basic mixed styles example"> <button type="button" class="btn btn-success ' + (row.booking_executive_approve == "อนุมัติ" ? "disabled" : "") + '" id="BtnApproveBooking" booking-id="' + data + '">อนุมัติ </button> <button type="button" id="BtnNoApproveBooking" class="btn btn-danger" booking-id="' + data + '">ไม่อนุมัติ</button> </div>';
             }
         },
         {
             data: 'booking_id',
-            render: function(data, type, row) {
-                return '<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalSignatureExecutive" id="FormSignatureExecutive" data-idBooking="'+data+'">ลายเซ็น</a>';
+            render: function (data, type, row) {
+                return '<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalSignatureExecutive" id="FormSignatureExecutive" data-idBooking="' + data + '">ลายเซ็น</a>';
             }
         },
         {
             data: 'booking_id',
-            render: function(data, type, row) {
-                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/'+ data +'" class="btn btn-primary">เอกสาร</a>';
+            render: function (data, type, row) {
+                return '<a target="_blank" href="../../Booking/Approve/File/Requestform/' + data + '" class="btn btn-primary">เอกสาร</a>';
             }
         },
     ]
 });
 
-$(document).on('click', '#BtnApproveBooking', function() {
+$(document).on('click', '#BtnApproveBooking', function () {
     let Booking_id = $(this).attr('booking-id');
     Swal.fire({
         title: 'แจ้งเตือน?',
@@ -160,7 +165,7 @@ $(document).on('click', '#BtnApproveBooking', function() {
     }).then((result) => {
         if (result.isConfirmed) {
 
-            $.post('../../Booking/DB/BookingApproveAdmin', { BookingID: Booking_id }, function(data) {
+            $.post('../../Booking/DB/BookingApproveAdmin', { BookingID: Booking_id }, function (data) {
                 console.log(data);
                 $('#TBShowDataBookingAdmin').DataTable().ajax.reload();
                 //location.reload(true);
@@ -171,17 +176,23 @@ $(document).on('click', '#BtnApproveBooking', function() {
     })
 });
 
-$(document).on('click', '#BtnNoApproveBooking', function() {
+$(document).on('click', '#BtnNoApproveBooking', function () {
     let Booking_id = $(this).attr('booking-id');
     Swal.fire({
         title: 'เหตุผลที่ไม่อนุมัติ!',
-        input: 'textarea'
-    }).then(function(result) {
-        if (result.value) {
+        input: 'textarea',
+        inputPlaceholder: 'กรอกเหตุผลที่นี่... (กรณีไม่กรอกให้ใส่ - )',
+        inputValidator: (value) => {
+            if (!value) {
+              return 'กรุณากรอกเหตุผลก่อน!';
+            }
+          }
+    }).then(function (result) {
+        if (result.isConfirmed) {
             $.post('../../Booking/DB/BookingNoApproveAdmin', {
                 BookingID: Booking_id,
                 booking_admin_reason: result.value
-            }, function(data) {
+            }, function (data) {
                 Swal.fire("ดำเนินการ ไม่อนุมัติ เรียบร้อยแล้ว!");
                 $('#TBShowDataBookingAdmin').DataTable().ajax.reload();
             });
@@ -192,17 +203,17 @@ $(document).on('click', '#BtnNoApproveBooking', function() {
 
 
 
-$(document).on('submit', '#FormAddBooking', function(e) {
+$(document).on('submit', '#FormAddBooking', function (e) {
     e.preventDefault();
     $.ajax({
         url: "../../Booking/DB/Insert",
         method: "POST",
         data: $(this).serialize(),
-        beforeSend: function() {
+        beforeSend: function () {
             $('#BtnSubBooking').html('<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span class="">กำลังบันทึก...</span>');
             $('#BtnSubBooking').addClass("disabled");
         },
-        success: function(data) {
+        success: function (data) {
             console.log(data);
             if (data > 0) {
                 Swal.fire({
@@ -224,17 +235,17 @@ $(document).on('submit', '#FormAddBooking', function(e) {
     });
 });
 
-$(document).on('submit', '#FormEditBooking', function(e) {
+$(document).on('submit', '#FormEditBooking', function (e) {
     e.preventDefault();
     $.ajax({
         url: "../../Booking/DB/Update",
         method: "POST",
         data: $(this).serialize(),
-        beforeSend: function() {
+        beforeSend: function () {
             $('#BtnSubBooking').html('<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span class="">กำลังบันทึก...</span>');
             $('#BtnSubBooking').addClass("disabled");
         },
-        success: function(data) {
+        success: function (data) {
             console.log(data);
             if (data > 0) {
                 Swal.fire({
@@ -256,7 +267,7 @@ $(document).on('submit', '#FormEditBooking', function(e) {
     });
 });
 
-$(document).on('click', '#BtnCancelBooking', function() {
+$(document).on('click', '#BtnCancelBooking', function () {
     //alert($(this).attr('key-id'));
     Swal.fire({
         title: 'ต้องการยกเลิกการจองหรือไม่?',
@@ -268,7 +279,7 @@ $(document).on('click', '#BtnCancelBooking', function() {
     }).then((result) => {
         if (result.isConfirmed) {
 
-            $.post('../../Booking/DB/Cancel', { KeyID: $(this).attr('key-id') }, function(data) {
+            $.post('../../Booking/DB/Cancel', { KeyID: $(this).attr('key-id') }, function (data) {
                 console.log(data);
                 // $('#TBShowDataBooking').DataTable().ajax.reload();
                 location.reload(true);
@@ -278,22 +289,22 @@ $(document).on('click', '#BtnCancelBooking', function() {
 });
 
 $('#BtnSubBooking').prop('disabled', true);
-$(document).on('change', '#booking_dateStart, #booking_timeStart, #booking_dateEnd, #booking_timeEnd', function() {
-   
+$(document).on('change', '#booking_dateStart, #booking_timeStart, #booking_dateEnd, #booking_timeEnd', function () {
+
     $.post('../../Booking/DB/CheckDateBooking', {
-        booking_locationroom:$('#booking_locationroom').val(),
+        booking_locationroom: $('#booking_locationroom').val(),
         booking_dateStart: $('#booking_dateStart').val(),
         booking_timeStart: $('#booking_timeStart').val(),
         booking_dateEnd: $('#booking_dateEnd').val(),
         booking_timeEnd: $('#booking_timeEnd').val()
-    }, function(data) {
+    }, function (data) {
         console.log(data);
         $('#AlertMessage').html(data.message);
         $('#AlertMessage').removeClass().addClass(data.class);
         if (data.status == 0) {
             $('#BtnSubBooking').prop('disabled', true);
             //$('#booking_timeStart').val('');
-        }else{
+        } else {
             $('#BtnSubBooking').prop('disabled', false);
         }
 
@@ -325,11 +336,11 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
     locale: 'th',
     dayHeaderFormat: { weekday: 'long' },
     eventSources: [{
-        events: function(fetchInfo, successCallback, failureCallback) {
+        events: function (fetchInfo, successCallback, failureCallback) {
             jQuery.ajax({
                 url: "Booking/DB/ShowTimeBooking",
                 type: "POST",
-                success: function(res) {
+                success: function (res) {
                     var events = [];
                     res.forEach(evt => {
                         events.push({
@@ -338,28 +349,28 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
                             start: evt.start,
                             end: evt.end,
                             allDay: true,
-                            backgroundColor:evt.backgroundColor,
-                            borderColor:evt.backgroundColor,                            
-                            bookingApprove:evt.booking_admin_approve,
-                            bookingAdminReason:evt.booking_admin_reason,
+                            backgroundColor: evt.backgroundColor,
+                            borderColor: evt.backgroundColor,
+                            bookingApprove: evt.booking_admin_approve,
+                            bookingAdminReason: evt.booking_admin_reason,
                         });
                     });
                     successCallback(events);
-                    
+
                 },
             });
         },
         eventColor: '#378006',
-        
 
-    }, ],
+
+    },],
     initialView: 'dayGridMonth',
-    eventClick: function(info) {        
-        if(info.event.extendedProps.bookingApprove == "อนุมัติ"){
-           var Icon = "success";
-        }else if(info.event.extendedProps.bookingApprove == "รอตรวจสอบ"){
+    eventClick: function (info) {
+        if (info.event.extendedProps.bookingApprove == "อนุมัติ") {
+            var Icon = "success";
+        } else if (info.event.extendedProps.bookingApprove == "รอตรวจสอบ") {
             var Icon = "warning";
-        }else if(info.event.extendedProps.bookingApprove == "ไม่อนุมัติ"){
+        } else if (info.event.extendedProps.bookingApprove == "ไม่อนุมัติ") {
             var Icon = "error";
         }
         Swal.fire({
@@ -370,7 +381,7 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
             icon: Icon
         });
 
-       
+
     }
 });
 calendar.render();

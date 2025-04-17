@@ -1,3 +1,12 @@
+<style>
+  /* คอลัมน์ที่ 2 ให้ขึ้นบรรทัดใหม่ */
+table.dataTable td:nth-child(2),
+table.dataTable th:nth-child(2) {
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+</style>
 <!-- Layout container -->
 <div class="layout-page">
     <?php echo view('User/UserLeyout/UserNavbar'); ?>
@@ -14,7 +23,7 @@
             <div class="card">
                 <h5 class="card-header">ข้อมูลการจองทั้งหมด</h5>
                 <div class="table-responsive text-nowrap p-3">
-                    <table class="table table-hover display nowrap"  id="TBShowDataBookingAdmin">
+                    <table class="table table-hover display nowrap"  id="TBShowDataBookingAdmin" style="width:100%">
                         <thead>
                             <tr>
                             <th>เลขที่จอง </th>
@@ -23,7 +32,7 @@
                                 <th>ชื่อผู้จอง</th>
                                 <th>สถานะ</th>
                                 <th>เหตุผล</th>                              
-                                <th>อนุมัติโดย Admin</th>
+                                <th>อนุมัติ</th>
                                 <th>ลายเซ็น</th>
                                 <th>เอกสาร</th>
                             </tr>
