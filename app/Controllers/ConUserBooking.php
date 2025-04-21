@@ -66,6 +66,10 @@ class ConUserBooking extends BaseController
     public function BookingAdd($LocationID = null)
     {
         $session = session();
+        if(!$session->get('username')){
+            header("Location:".base_url()); exit();
+        } 
+
         $data = $this->DataMain();
         $data['title']="จองห้อง / สถานที่";
         $data['description']="จองห้องสำหรับใช้ภายในโรงเรียน";

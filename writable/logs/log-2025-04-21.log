@@ -1,0 +1,58 @@
+INFO - 2025-04-21 09:11:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-04-21 09:11:42 --> Undefined array key "username"
+in APPPATH\Views\User\UserBooking\UserBookingAdd.php on line 227.
+ 1 APPPATH\Views\User\UserBooking\UserBookingAdd.php(227): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "username"', 'D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingAdd.php', 227)
+ 2 SYSTEMPATH\View\View.php(213): include('D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingAdd.php')
+ 3 SYSTEMPATH\View\View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1184): CodeIgniter\View\View->render('User/UserBooking/UserBookingAdd', [], true)
+ 5 APPPATH\Controllers\ConUserBooking.php(101): view('User/UserBooking/UserBookingAdd')
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingAdd('1')
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-04-21 09:11:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:12:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:12:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:12:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:12:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:12:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:12:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-04-21 09:12:17 --> Undefined array key "username"
+in APPPATH\Views\User\UserBooking\UserBookingAdd.php on line 227.
+ 1 APPPATH\Views\User\UserBooking\UserBookingAdd.php(227): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "username"', 'D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingAdd.php', 227)
+ 2 SYSTEMPATH\View\View.php(213): include('D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingAdd.php')
+ 3 SYSTEMPATH\View\View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1184): CodeIgniter\View\View->render('User/UserBooking/UserBookingAdd', [], true)
+ 5 APPPATH\Controllers\ConUserBooking.php(101): view('User/UserBooking/UserBookingAdd')
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingAdd('1')
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-04-21 09:13:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-04-21 09:13:40 --> Undefined array key "id"
+in APPPATH\Views\User\UserBooking\UserBookingAdd.php on line 231.
+ 1 APPPATH\Views\User\UserBooking\UserBookingAdd.php(231): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "id"', 'D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingAdd.php', 231)
+ 2 SYSTEMPATH\View\View.php(213): include('D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingAdd.php')
+ 3 SYSTEMPATH\View\View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1184): CodeIgniter\View\View->render('User/UserBooking/UserBookingAdd', [], true)
+ 5 APPPATH\Controllers\ConUserBooking.php(101): view('User/UserBooking/UserBookingAdd')
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingAdd('1')
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-04-21 09:13:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:15:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:15:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:15:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:15:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-04-21 09:16:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
