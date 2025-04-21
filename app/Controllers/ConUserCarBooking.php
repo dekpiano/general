@@ -832,4 +832,42 @@ class ConUserCarBooking extends BaseController
     }
 
 
+    public function BookingCarChart(){
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_car_reservation');
+
+        $pie = $DBbooking->select('car_reserv_carID, COUNT(*) as count,car_registration,car_category')
+                    ->join('tb_school_car','tb_school_car.car_ID = tb_car_reservation.car_reserv_carID')
+                    ->groupBy('car_reserv_carID')
+                    ->get()->getResult();
+
+                    $pieLabels = [];
+                    $pieSeries = [];
+                    foreach ($pie as $row) {
+                        $pieLabels[] = $row->car_registration.' '.$row->car_category;
+                        $pieSeries[] = (int)$row->count;
+                    }
+
+         // ตัวอย่างข้อมูล Top ผู้ใช้งาน
+        $bar = $DBbooking->select('car_reserv_memberID, COUNT(*) as total,pers_prefix,pers_firstname,pers_lastname')
+                ->join('skjacth_personnel.tb_personnel','tb_car_reservation.car_reserv_memberID = skjacth_personnel.tb_personnel.pers_id')
+                ->groupBy('car_reserv_memberID')
+                ->orderBy('total', 'DESC')
+                ->limit(5)
+                ->get()->getResult();
+                $barLabels = [];
+                $barSeries = [];
+                foreach ($bar as $row) {
+                    $barLabels[] = $row->pers_firstname;
+                    $barSeries[] = (int)$row->total;
+                }
+
+        $data = [
+            'pie' => ['labels' => $pieLabels, 'series' => $pieSeries],
+            'bar' => ['categories' => $barLabels, 'series' => $barSeries]
+        ];
+        return $this->response->setJSON($data);
+    }
+
 }

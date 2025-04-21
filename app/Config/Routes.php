@@ -55,6 +55,8 @@ $routes->match(['get', 'post'],'Booking/DB/BookingSignatureAdmin/Show/(:any)', '
 $routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Save', 'ConUserBooking::BookingSignatureExecutiveSave');
 $routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Show/(:any)', 'ConUserBooking::BookingSignatureExecutiveShow/$1');
 
+$routes->match(['get', 'post'],'Booking/DB/BookingChart', 'ConUserBooking::BookingChart');
+
 //User งานจองรถ
 $routes->get('CarBooking', 'ConUserCarBooking::CarBookingMain');
 $routes->get('CarBooking/View', 'ConUserCarBooking::CarBookingView');
@@ -70,6 +72,7 @@ $routes->match(['get', 'post'],'CarBooking/DB/AppoveCarReservationAdmin', 'ConUs
 $routes->match(['get', 'post'],'CarBooking/DB/NoAppoveCarReservationAdmin', 'ConUserCarBooking::CarBookingNoApproveAdmin');
 
 $routes->get('CarBooking/Approve/Admin/Print/(:any)', 'ConUserCarBooking::PrintApproveCarBooking/$1');
+$routes->match(['get', 'post'],'Booking/DB/BookingCarChart', 'ConUserCarBooking::BookingCarChart');
 
 // User แจ้งซ่อม
 $routes->get('Repair', 'ConUserRepair::RepairMain');

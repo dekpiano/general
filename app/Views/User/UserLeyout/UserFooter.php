@@ -53,7 +53,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
     <!-- Vendors JS -->
-    <script src="<?=base_url()?>/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <!-- Main JS -->
     <script src="<?=base_url()?>/assets/js/main.js"></script>
@@ -73,11 +73,13 @@
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=25.1"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingCrop.js?v=2"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingChart.js?v=1.3"></script>
     
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=18"></script>
     <?php elseif($uri->getSegment(1) == 'CarBooking') : ?>
         <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservation.js?v=3"></script>
+        <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservationChart.js?v=1.3"></script>
     <?php endif; ?>
 
     <script>

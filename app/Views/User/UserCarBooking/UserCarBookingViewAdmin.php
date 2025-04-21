@@ -11,7 +11,33 @@
 
             </h4>
 
-            <div class="card">
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                        <h6>สัดส่วนการใช้ทรัพยากร</h6>
+                            <div class="chart-box">
+                                <div id="pie-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                        <h6>ผู้ใช้งานระบบจองมากที่สุด 5 อันดับแรก</h6>
+                            <div class="chart-box">
+                            <div id="bar-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+
+            <div class="card mt-3">
                 <h5 class="card-header">ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</h5>
                 <div class="table-responsive text-nowrap p-3">
                     <table class="table table-hover display nowrap" id="TBShowDataCarBookingAdmin">

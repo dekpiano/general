@@ -670,9 +670,9 @@ class ConUserBooking extends BaseController
 
         if($_SESSION['status'] === "ExecutiveGeneral"){
             $Approve = ['booking_executive_approve'=>'อนุมัติ','booking_executive_reason'=>'','booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
-        }elseif($_SESSION['status'] === "AdminGeneral"){
-            $Approve = ['booking_admin_approve'=>'อนุมัติ','booking_admin_reason'=>'','booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
         }
+            $Approve = ['booking_admin_approve'=>'อนุมัติ','booking_admin_reason'=>'','booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
+        
 
         $upApprove = $DBbooking->where('booking_id',$this->request->getPost('BookingID'))
         ->update($Approve);
@@ -711,9 +711,10 @@ class ConUserBooking extends BaseController
 
         if($_SESSION['status'] === "ExecutiveGeneral"){
             $NoApprove = ['booking_executive_approve'=>'ไม่อนุมัติ','booking_executive_reason'=>$this->request->getPost('booking_admin_reason'),'booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
-        }elseif($_SESSION['status'] === "AdminGeneral"){
-            $NoApprove = ['booking_admin_approve'=>'ไม่อนุมัติ','booking_admin_reason'=>$this->request->getPost('booking_admin_reason'),'booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
         }
+        //elseif($_SESSION['status'] === "AdminGeneral"){
+            $NoApprove = ['booking_admin_approve'=>'ไม่อนุมัติ','booking_admin_reason'=>$this->request->getPost('booking_admin_reason'),'booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
+        //}
 
         echo $DBbooking->where('booking_id',$this->request->getPost('BookingID'))->update($NoApprove);
     }
@@ -740,14 +741,14 @@ class ConUserBooking extends BaseController
         $DBbooking->Where('booking_id',$IDBooking);
         $Booking =  $DBbooking->get()->getRow();
 
-        //print_r($Booking->pers_prefix); exit();
+        
 
         $DeputyManege = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
         ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id")
-        ->where('admin_rloes_level','หัวหน้า')
+        ->where('admin_rloes_level','1/หัวหน้า')
         ->where('admin_rloes_nanetype',"งานอาคารสถานที่")
         ->get()->getRow();
-
+       
         $DeputyExecutive = $DBAdminRloes->select('pers_prefix,pers_firstname,pers_lastname')
         ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id","left")
         ->where('admin_rloes_nanetype',"รองผู้อำนวยการบริหารทั่วไป")->get()->getRow();
@@ -943,6 +944,49 @@ class ConUserBooking extends BaseController
 
         return $this->response->setJSON($SelSignature);
 
+    }
+
+
+    // ----------------- สถิติ ---------------------
+
+    public function BookingChart(){
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+
+        $pie = $DBbooking->select('booking_locationroom, COUNT(*) as count,location_name')
+                    ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
+                    ->groupBy('booking_locationroom')
+                    ->get()->getResult();
+
+                    $pieLabels = [];
+                    $pieSeries = [];
+                    foreach ($pie as $row) {
+                        $pieLabels[] = $row->location_name;
+                        $pieSeries[] = (int)$row->count;
+                    }
+
+         // ตัวอย่างข้อมูล Top ผู้ใช้งาน
+        $bar = $DBbooking->select('booking_Booker, COUNT(*) as total,pers_prefix,pers_firstname,pers_lastname')
+                ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
+                ->groupBy('booking_Booker')
+                ->orderBy('total', 'DESC')
+                ->limit(5)
+                ->get()->getResult();
+                $barLabels = [];
+                $barSeries = [];
+                foreach ($bar as $row) {
+                    $barLabels[] = $row->pers_firstname;
+                    $barSeries[] = (int)$row->total;
+                }
+
+        
+
+        $data = [
+            'pie' => ['labels' => $pieLabels, 'series' => $pieSeries],
+            'bar' => ['categories' => $barLabels, 'series' => $barSeries]
+        ];
+        return $this->response->setJSON($data);
     }
 
 
