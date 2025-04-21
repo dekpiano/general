@@ -11,7 +11,7 @@
                 <span class="text-muted fw-light"></span> กำหนดสิทธิ์ใช้งานในระบบบริหารทั่วไป
             </h4>
             <div class="card">
-            <div class="card-header">
+                <div class="card-header">
                     <h5>ผู้บริหาร</h5>
                 </div>
                 <div class="card-body">
@@ -22,6 +22,7 @@
                             <label for=""><?php echo $v_Manager->admin_rloes_nanetype;?></label>
                             <div class="mt-3">
                                 <select class="select2Rloes form-select form-select-lg SettingGeneralRloes"
+                                    rloes-id="<?=$v_Manager->admin_rloes_id;?>"
                                     rloes-level="<?=$v_Manager->admin_rloes_level;?>"
                                     Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
                                     <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
@@ -56,9 +57,9 @@
                             echo $SubLevel[1]; ?></label>
                             <div class="mt-2">
                                 <select class="select2Rloes form-select form-select-lg SettingGeneralRloes"
-                                rloes-id="<?=$v_Manager->admin_rloes_id;?>"
-                                rloes-level="<?=$v_Manager->admin_rloes_level;?>"
-                                Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
+                                    rloes-id="<?=$v_Manager->admin_rloes_id;?>"
+                                    rloes-level="<?=$v_Manager->admin_rloes_level;?>"
+                                    Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
                                     <option value="">เลือกเจ้าหน้าที่</option>
                                     <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
                                     <option
@@ -92,9 +93,9 @@
                             echo $SubLevel[1]; ?></label>
                             <div class="mt-2">
                                 <select class="select2Rloes form-select form-select-lg SettingGeneralRloes"
-                                rloes-id="<?=$v_Manager->admin_rloes_id;?>"
-                                rloes-level="<?=$v_Manager->admin_rloes_level;?>"
-                                Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
+                                    rloes-id="<?=$v_Manager->admin_rloes_id;?>"
+                                    rloes-level="<?=$v_Manager->admin_rloes_level;?>"
+                                    Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
                                     <option value="">เลือกเจ้าหน้าที่</option>
                                     <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
                                     <option
@@ -129,9 +130,9 @@
                             echo $SubLevel[1]; ?></label>
                             <div class="mt-2">
                                 <select class="select2Rloes form-select form-select-lg SettingGeneralRloes"
-                                rloes-id="<?=$v_Manager->admin_rloes_id;?>"
-                                rloes-level="<?=$v_Manager->admin_rloes_level;?>"
-                                Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
+                                    rloes-id="<?=$v_Manager->admin_rloes_id;?>"
+                                    rloes-level="<?=$v_Manager->admin_rloes_level;?>"
+                                    Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
                                     <option value="">เลือกเจ้าหน้าที่</option>
                                     <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
                                     <option
@@ -165,9 +166,9 @@
                             echo $SubLevel[1]; ?></label>
                             <div class="mt-2">
                                 <select class="select2Rloes form-select form-select-lg SettingGeneralRloes"
-                                rloes-id="<?=$v_Manager->admin_rloes_id;?>"
-                                rloes-level="<?=$v_Manager->admin_rloes_level;?>"
-                                Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
+                                    rloes-id="<?=$v_Manager->admin_rloes_id;?>"
+                                    rloes-level="<?=$v_Manager->admin_rloes_level;?>"
+                                    Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
                                     <option value="">เลือกเจ้าหน้าที่</option>
                                     <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
                                     <option
@@ -185,7 +186,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card mt-3">
                 <div class="card-header">
                     <h5>งานบุคลากร</h5>
@@ -201,9 +202,9 @@
                             echo $SubLevel[1]; ?></label>
                             <div class="mt-2">
                                 <select class="select2Rloes form-select form-select-lg SettingGeneralRloes"
-                                rloes-id="<?=$v_Manager->admin_rloes_id;?>"
-                                rloes-level="<?=$v_Manager->admin_rloes_level;?>"
-                                Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
+                                    rloes-id="<?=$v_Manager->admin_rloes_id;?>"
+                                    rloes-level="<?=$v_Manager->admin_rloes_level;?>"
+                                    Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
                                     <option value="">เลือกเจ้าหน้าที่</option>
                                     <?php  foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
                                     <option
@@ -221,7 +222,7 @@
                     </div>
                 </div>
             </div>
-      
+
 
         </div>
         <!-- / Content -->
@@ -234,4 +235,3 @@
     <!-- Content wrapper -->
 </div>
 <!-- / Layout page -->
-

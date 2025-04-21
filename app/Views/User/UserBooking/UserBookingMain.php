@@ -74,7 +74,7 @@
                     <?php if(@$_SESSION['status'] =="AdminGeneral"):?>
                     <a href="<?=base_url('Booking/Approve/Admin')?>">
                         <?php elseif(@$_SESSION['status'] =="ExecutiveGeneral"): ?>
-                        <a href="<?=base_url('Booking/Approve/Executive')?>">
+                        <a href="<?=base_url('Booking/Approve/Admin')?>">
                             <?php endif;?>
                             <div class="card h-100 bg-info text-white">
                                 <div class="card-body ">

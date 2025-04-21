@@ -4,7 +4,7 @@ $('.select2Rloes').select2({
   });
 
 $(document).on("change", ".SettingGeneralRloes", function() {
- 
+
     $.post("../../Admin/Rloes/RloesSettingManager", {
         TeachID: $(this).val(),
         RloesLevel: $(this).attr('rloes-level'),
