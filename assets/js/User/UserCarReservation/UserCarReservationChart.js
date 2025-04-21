@@ -1,4 +1,4 @@
-let pieChart, barChart, lineChart;
+let pieChart, barChart, lineChart, PieApprove;
 
 function renderCharts() {
     const chartHeight = 200;
@@ -35,6 +35,14 @@ function renderCharts() {
     barChart = new ApexCharts(document.querySelector("#bar-chart"), barOptions);
     barChart.render();
 
+    const PieOptApprove = {
+        chart: { type: 'donut',height: chartHeight },
+        series: [],
+        labels: []
+    };
+    PieApprove = new ApexCharts(document.querySelector("#chart-Approve"), PieOptApprove);
+    PieApprove.render();
+
     updateCharts();
 }
 
@@ -52,6 +60,11 @@ function updateCharts() {
             barChart.updateOptions({
                 xaxis: { categories: data.bar.categories },
                 series: [{ name: 'จำนวนครั้งที่จอง', data: data.bar.series }]
+            });
+
+            PieApprove.updateOptions({
+                labels: data.Approve.labels,
+                series: data.Approve.series
             });
 
         })

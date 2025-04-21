@@ -980,11 +980,22 @@ class ConUserBooking extends BaseController
                     $barSeries[] = (int)$row->total;
                 }
 
-        
+                 // ตัวอย่างข้อมูล การอนุมัติ
+            $PieApprove = $DBbooking->select('booking_admin_approve, COUNT(*) as total')                
+                ->groupBy('booking_admin_approve')
+                ->orderBy('total', 'DESC')
+                ->get()->getResult();
+                $ApproveLabels = [];
+                $ApproveSeries = [];
+                foreach ($PieApprove as $row) {
+                    $ApproveLabels[] = $row->booking_admin_approve;
+                    $ApproveSeries[] = (int)$row->total;
+                }
 
         $data = [
             'pie' => ['labels' => $pieLabels, 'series' => $pieSeries],
-            'bar' => ['categories' => $barLabels, 'series' => $barSeries]
+            'bar' => ['categories' => $barLabels, 'series' => $barSeries],
+            'Approve' => ['labels' => $ApproveLabels, 'series' => $ApproveSeries]
         ];
         return $this->response->setJSON($data);
     }

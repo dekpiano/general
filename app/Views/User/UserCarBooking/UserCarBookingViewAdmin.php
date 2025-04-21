@@ -34,7 +34,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                        <h6>การอนุมัติ</h6>
+                            <div class="chart-box">
+                            <div id="chart-Approve"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="card mt-3">

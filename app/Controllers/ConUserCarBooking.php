@@ -863,9 +863,22 @@ class ConUserCarBooking extends BaseController
                     $barSeries[] = (int)$row->total;
                 }
 
+                // ตัวอย่างข้อมูล การอนุมัติ
+            $PieApprove = $DBbooking->select('car_reserv_status, COUNT(*) as total')                
+            ->groupBy('car_reserv_status')
+            ->orderBy('total', 'DESC')
+            ->get()->getResult();
+            $ApproveLabels = [];
+            $ApproveSeries = [];
+            foreach ($PieApprove as $row) {
+                $ApproveLabels[] = $row->car_reserv_status;
+                $ApproveSeries[] = (int)$row->total;
+            }
+
         $data = [
             'pie' => ['labels' => $pieLabels, 'series' => $pieSeries],
-            'bar' => ['categories' => $barLabels, 'series' => $barSeries]
+            'bar' => ['categories' => $barLabels, 'series' => $barSeries],
+            'Approve' => ['labels' => $ApproveLabels, 'series' => $ApproveSeries]
         ];
         return $this->response->setJSON($data);
     }
