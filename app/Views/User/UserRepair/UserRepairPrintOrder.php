@@ -46,12 +46,12 @@
             <td></td>
             <td>
                 <?php  if(empty($RepairUser[0]->repair_imguser)) : ?>
-                    (ไม่ได้แนบภาพมาด้วย!)
+                (ไม่ได้แนบภาพมาด้วย!)
                 <?php else: ?>
-                    <img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>"
+                <img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>"
                     style="width: 300px;height:180px;">
-                    <?php endif; ?>
-                </td>
+                <?php endif; ?>
+            </td>
 
         </tr>
     </tbody>
@@ -69,14 +69,18 @@
     <tr>
         <td style="width: 20.7602%; text-align: right;">ผู้รับซ่อม :&nbsp;</td>
         <td style="width: 79.1228%;">
+            <?php if(!isset($Repairman[0]->pers_prefix)) : ?>
+            รอดำเดินการ
+            <?php else: ?>
             <?=@$Repairman[0]->pers_prefix.@$Repairman[0]->pers_firstname.' '.@$Repairman[0]->pers_lastname?></td>
+        <?php endif; ?>
     </tr>
     <tr>
         <td style="width: 20.7602%; text-align: right;">วันที่ซ่อม :&nbsp;</td>
         <td style="width: 79.1228%;">
             <?php 
                     if($RepairUser[0]->repair_datework == '0000-00-00 00:00:00' || $RepairUser[0]->repair_datework == null){
-                       
+                       echo 'รอดำเดินการ';
                     }else{
                         echo $Datethai->thai_date_and_time(strtotime($RepairUser[0]->repair_datework));
                     }
@@ -85,8 +89,15 @@
         </td>
     </tr>
     <tr>
-        <td style="width: 20.7602%; text-align: right;">สาเหตุ/วิธีแก้ไข :&nbsp;</td>
-        <td style="width: 79.1228%;"><?=$RepairUser[0]->repair_cause?></td>
+        <td style="width: 20.7602%; text-align: right;">สาเหตุ/วิธีแก้ไข :</td>
+        <td style="width: 79.1228%;">
+        <?php if($RepairUser[0]->repair_cause){
+                echo $RepairUser[0]->repair_cause;
+            }else{
+                echo 'รอดำเดินการ';
+            }?>
+           
+        </td>
     </tr>
 </table>
 </p>

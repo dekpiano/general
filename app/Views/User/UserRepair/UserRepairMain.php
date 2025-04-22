@@ -24,7 +24,7 @@
                 </li>
 
                 <li class="nav-item me-3 mb-2">
-                    <a class="nav-link active" href="pages-account-settings-connections.html"><i
+                    <a class="nav-link active" href="<?=base_url('Repair/RepairStatistics')?>"><i
                             class="bx bx-link-alt me-1"></i> สถิติแจ้งซ่อม</a>
                 </li>
             </ul>

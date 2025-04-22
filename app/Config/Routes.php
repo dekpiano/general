@@ -19,8 +19,8 @@ $routes->set404Override();
 // where controller filters or CSRF protection are bypassed.
 // If you don't want to define all routes, please use the Auto Routing (Improved).
 // Set `$autoRoutesImproved` to true in `app/Config/Feature.php` and set the following to true.
-$routes->setAutoRoute(false);
-
+//$routes->setAutoRoute(false);
+$routes->setAutoRoute(true);
 /*
  * --------------------------------------------------------------------
  * Route Definitions
@@ -84,6 +84,8 @@ $routes->match(['get', 'post'],'Repair/DB/CheckRepairFullDetail', 'ConUserRepair
 $routes->match(['get', 'post'],'Repair/DB/UpdateWork', 'ConUserRepair::RepairUpdateWork');
 $routes->get('Repair/PrintOrder/(:any)', 'ConUserRepair::PrintOrder/$1');
 $routes->get('Repair/View/(:any)', 'ConUserRepair::ViewOrder/$1');
+$routes->get('Repair/RepairStatistics', 'ConUserRepair::RepairStatistics');
+$routes->match(['get', 'post'],'Repair/DB/StatisticsCaselist', 'ConUserRepair::RepairStatisticsCaselist');
 
 $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
 //$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
@@ -120,6 +122,8 @@ $routes->match(['get', 'post'],'Admin/CarDriver/ShowData', 'ConAdminCar::CarDriv
 $routes->match(['get', 'post'],'Admin/CarDriver/Insert', 'ConAdminCar::CarDriverInsert');
 $routes->match(['get', 'post'],'Admin/CarDriver/Delete', 'ConAdminCar::CarDriverDelete');
 
+
+$routes->post('Webhook', 'Webhook::index');
 /*
  * --------------------------------------------------------------------
  * Additional Routing
