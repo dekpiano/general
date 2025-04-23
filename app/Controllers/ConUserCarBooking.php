@@ -730,9 +730,18 @@ class ConUserCarBooking extends BaseController
         ')
         ->join('skjacth_personnel.tb_personnel','skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_admin_rloes.admin_rloes_userid')
         ->join('skjacth_skj.tb_position','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
-        ->where('admin_rloes_nanetype','รองวิชาทั่วไป')
+        ->where('admin_rloes_nanetype','รองผู้อำนวยการบริหารทั่วไป')
         ->get()->getRow();
 
+        $DeputyDirector = $DBAdminRloe->select('
+        CONCAT(skjacth_personnel.tb_personnel.pers_prefix,skjacth_personnel.tb_personnel.pers_firstname," ",skjacth_personnel.tb_personnel.pers_lastname) AS ExecutiveName,
+        skjacth_skj.tb_position.posi_name,
+        skjacth_personnel.tb_personnel.pers_academic
+        ')
+        ->join('skjacth_personnel.tb_personnel','skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_admin_rloes.admin_rloes_userid')
+        ->join('skjacth_skj.tb_position','skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
+        ->where('admin_rloes_nanetype','ผู้อำนวยการโรงเรียน')
+        ->get()->getRow();
         //echo '<pre>';print_r($DeputyDirectorGeneral);exit();
 
         $path = (dirname(dirname(dirname(dirname(dirname(__FILE__))))));
@@ -775,7 +784,7 @@ class ConUserCarBooking extends BaseController
                 <div style="text-align:center;">
                     <div>(ลงชื่อ) ............................................ ผู้ขออนุญาต</div>
                     <div style="margin-left:0px;">('.$ViewCarBooking->BookerName.')</div>
-                    <div>ตำแหน่ง '.$ViewCarBooking->BookerPosi.'</div>
+                    <div >ตำแหน่ง '.$ViewCarBooking->BookerPosi.'</div>
                 </div>            
             </div>
 
@@ -783,7 +792,7 @@ class ConUserCarBooking extends BaseController
                 <div style="text-align:left;">
                     <div style="text-align:center;">(ลงชื่อ) ............................................ หัวหน้าฝ่ายบริหารทั่วไป</div>
                     <div style="margin-left:28px;">('.$ExecutiveGeneral->ExecutiveName.')</div>
-                    <div style="margin-left:27px;">ตำแหน่ง '.$ExecutiveGeneral->posi_name.' '.$ExecutiveGeneral->pers_academic.'</div>
+                    <div style="margin-left:40px;">ตำแหน่ง '.$ExecutiveGeneral->posi_name.' '.$ExecutiveGeneral->pers_academic.'</div>
                 </div>            
             </div>
 
@@ -808,10 +817,9 @@ class ConUserCarBooking extends BaseController
             <div style="margin-left:17rem;margin-top:40px;">
                 <div style="text-align:center;">
                     <div>(ลงชื่อ) ............................................ ผู้อนุญาต</div>
-                    <div style="margin-left:-30px;">(นางสาวอร่าม  วัฒนะ)</div>
+                    <div style="margin-left:-20px;">('.$DeputyDirector->ExecutiveName.')</div>
                     <div style="margin-left:-30px; font-size:17px;">
-                    ผู้อำนวยการกองการศึกษา ศาสนาและวัฒนธรรม รักษาการในตำแหน่ง <br>
-                    ผู้อำนวนการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
+                    ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
                     </div>
                 </div>            
             </div>
