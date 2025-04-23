@@ -15,15 +15,15 @@ class Webhook extends BaseController
             $replyToken = $event['replyToken'];
             $source = $event['source'];
 
-            $messageText = '';
+            $messageText = 'เดี๋ยวมีงานมาใหม่จะแจ้งให้ทราบนะครับ';
 
-            if ($source['type'] === 'group') {
-                $messageText = "📌 Group ID: {$source['groupId']}";
-            } elseif ($source['type'] === 'user') {
-                $messageText = "👤 User ID: {$source['userId']}";
-            } else {
-                $messageText = "📎 ไม่พบ groupId หรือ userId";
-            }
+            // if ($source['type'] === 'group') {
+            //     $messageText = "📌 Group ID: {$source['groupId']}";
+            // } elseif ($source['type'] === 'user') {
+            //     $messageText = "👤 User ID: {$source['userId']}";
+            // } else {
+            //     $messageText = "📎 ไม่พบ groupId หรือ userId";
+            // }
 
             // ตอบกลับไปที่ LINE
             $replyMessage = [

@@ -2,7 +2,7 @@
 fetch('../Repair/DB/StatisticsCaselist')
 .then(response => response.json())
 .then(data => {
-    //console.log(data.Bar); // Log the data to check its structure
+    console.log(data.Bar); // Log the data to check its structure
     
     const BarCategories = data.Bar.map(item => item.repair_caselist);
     const BarSeriesData = data.Bar.map(item => parseInt(item.total));

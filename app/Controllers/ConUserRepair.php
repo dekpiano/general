@@ -1,8 +1,11 @@
 <?php
 
 namespace App\Controllers;
-use App\Libraries\Datethai; // Import library
+use App\Libraries\Datethai;
 use CodeIgniter\Files\File;
+
+error_reporting(-1);
+ini_set('display_errors', 1);
 
 class ConUserRepair extends BaseController
 {  
@@ -83,21 +86,62 @@ class ConUserRepair extends BaseController
         echo json_encode($data);
     }
 
+    private function sendLineMessage($userId, $messageText)
+    {
+        $accessToken = '7gfC9gYjR4S/xRSGeqlOuXo9ZVR5TSvyAUSdgDRMDn4los6yawPmupV+iq47du3cwHjMYzG9SeWz97kGTGsNm+tVww6pHgHQNk7xA3HNHUatjywK/0Pfq98hW5EmM0Xg9PpGHcRZ3zpnQ7evs8yYWwdB04t89/1O/w1cDnyilFU=';
+
+        $data = [
+            'to' => $userId,
+            'messages' => [[
+                'type' => 'text',
+                'text' => $messageText
+            ]]
+        ];
+
+        $ch = curl_init('https://api.line.me/v2/bot/message/push');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return $result;
+    }
+
 
     public function RepairInsert(){
+
+        // var_dump($_POST);
+        // var_dump($_FILES);
+        // exit;
 
         $DBrepair = \Config\Database::connect();
         $TBrepair = $DBrepair->table('tb_repair');
 
         // Your form submission handler
-        $hCaptchaSecretKey = 'ES_47c9a8452c844bf6b5bf834237aacb8d'; // Replace with your secret key
-        $hCaptchaResponse = $_POST['h-captcha-response'];
+        // $hCaptchaSecretKey = 'ES_47c9a8452c844bf6b5bf834237aacb8d'; // Replace with your secret key
+        // $hCaptchaResponse = $_POST['h-captcha-response'] ?? $_POST['g-captcha-response'];
+        // if (!$hCaptchaResponse) {
+        //     return $this->response->setJSON([
+        //         'status' => 'error',
+        //         'message' => 'ไม่ได้รับค่า Captcha'
+        //     ]);
+        // }
+        // $response = file_get_contents("https://hcaptcha.com/siteverify?secret=$hCaptchaSecretKey&response=$hCaptchaResponse");
+        // $responseData = json_decode($response);
 
-        $response = file_get_contents("https://hcaptcha.com/siteverify?secret=$hCaptchaSecretKey&response=$hCaptchaResponse");
-        $responseData = json_decode($response);
-
-       //print_r($responseData); exit();
-        if ($responseData->success) {       
+        // if (!$responseData->success) {
+        //     return $this->response->setJSON([
+        //         'status' => 'error',
+        //         'message' => 'Captcha ไม่ผ่าน'
+        //     ]);
+        // }
+       //print_r($responseData->success); exit();
+      
 
             $data = $TBrepair->select('repair_order')->orderBy('repair_ID ','DESC')->get()->getResult();
             if(!empty($data)){
@@ -117,7 +161,7 @@ class ConUserRepair extends BaseController
                 $this->resizeImage('uploads/admin/Repair/User/' . $newName, 2048, 1024);
             }
 
-            $data = [
+            $dataInsert = [
                 'repair_order' => $OrderNumber,
                 'repair_datetime' => $DateTimeToday,
                 'repair_posi' => $this->request->getVar('repair_posi'),
@@ -133,57 +177,64 @@ class ConUserRepair extends BaseController
                 'repair_imguser' => isset($newName) ?$newName:"",
                 'repair_usersignature' => $this->request->getPost('Signature')
             ];
-            if($TBrepair->insert($data)){
+            if($TBrepair->insert($dataInsert)){
                 $DBpers = \Config\Database::connect('personnel');
                 $TBPres = $DBpers->table('tb_personnel');
 
-                $Teach = $TBPres->select('pers_prefix,pers_firstname,pers_lastname,pers_username')
-                ->where('pers_id',$this->request->getVar('repair_userID'))
-                ->get()->getResult();
-
-               // print_r($Teach);exit();
-               if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
-                $MailAdmin = ['surawut.c@skj.ac.th','dekpiano@skj.ac.th','trin.p@skj.ac.th'];
-               }else{
-                $MailAdmin = 'dekpiano@skj.ac.th'; 
-               }
+                $Repair = $TBrepair->select('repair_order')
+                ->orderBy('repair_order',"DESC")
+                ->limit(1)
+                ->get()->getRow();
                 
-                $email = \Config\Services::email();
-                $email->setFrom('adminRepair@skj.ac.th', 'จากระบบแจ้งซ่อมออนไลน์');
-                $email->setTo($MailAdmin);
-                $email->setSubject('แจ้งซ่อมจาก '.$Teach[0]->pers_prefix.$Teach[0]->pers_firstname.' '.$Teach[0]->pers_lastname);
+                // 2. สร้างข้อความ
+                $msg = "🛠️ มีงานแจ้งซ่อมมาใหม่\n";
+                $msg .= "📌 ประเภท: {$this->request->getVar('repair_caselist')}\n";
+                $msg .= "📍 สถานที่: {$this->request->getVar('repair_building')} ชั้น {$this->request->getVar('repair_class')} ห้อง {$this->request->getVar('repair_room')}\n";
+                $msg .= "📝 รายละเอียด: {$this->request->getVar('repair_detail')}\n";
+                $msg .= "👉 รับงาน: " . base_url("/Repair/View/".$Repair->repair_order);
 
-                // กำหนดข้อความในรูปแบบ HTML
-                $htmlMessage = '<h4>ระบบแจ้งซ่อม รายละเอียด</h4>';
-                $htmlMessage .= '<p>ใบแจ้งซ่อม : '.$OrderNumber.'</p>';
-                $htmlMessage .= '<p>วันที่แจ้งซ่อม : '.$DateTimeToday.'</p>';
-                $htmlMessage .= '<p>เบอร์โทรติดต่อ : '.$this->request->getVar('repair_phone').'</p>';
-                $htmlMessage .= '<p>รายการแจ้งซ่อม : '.$this->request->getVar('repair_caselist').'</p>';
-                $htmlMessage .= '<p>รายละเอียด : '.$this->request->getVar('repair_detail').' อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
-                $htmlMessage .= 'ดูทั้งหมด <a href="'.base_url('Repair/View/'.$OrderNumber).'">'.base_url('Repair/View/'.$OrderNumber).'</a>';
+                // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
+                $this->sendLineMessage('U7b64519800ef574a685172890b80344b', $msg);
+                echo 1;
+               // print_r($Teach);exit();
+            //    if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
+            //     $MailAdmin = ['surawut.c@skj.ac.th','dekpiano@skj.ac.th','trin.p@skj.ac.th'];
+            //    }else{
+            //     $MailAdmin = 'dekpiano@skj.ac.th'; 
+            //    }
+                
+            //     $email = \Config\Services::email();
+            //     $email->setFrom('adminRepair@skj.ac.th', 'จากระบบแจ้งซ่อมออนไลน์');
+            //     $email->setTo($MailAdmin);
+            //     $email->setSubject('แจ้งซ่อมจาก '.$Teach[0]->pers_prefix.$Teach[0]->pers_firstname.' '.$Teach[0]->pers_lastname);
 
-                // กำหนดข้อความในรูปแบบ HTML ใน setMessage()
-                $email->setMessage($htmlMessage);
+            //     // กำหนดข้อความในรูปแบบ HTML
+            //     $htmlMessage = '<h4>ระบบแจ้งซ่อม รายละเอียด</h4>';
+            //     $htmlMessage .= '<p>ใบแจ้งซ่อม : '.$OrderNumber.'</p>';
+            //     $htmlMessage .= '<p>วันที่แจ้งซ่อม : '.$DateTimeToday.'</p>';
+            //     $htmlMessage .= '<p>เบอร์โทรติดต่อ : '.$this->request->getVar('repair_phone').'</p>';
+            //     $htmlMessage .= '<p>รายการแจ้งซ่อม : '.$this->request->getVar('repair_caselist').'</p>';
+            //     $htmlMessage .= '<p>รายละเอียด : '.$this->request->getVar('repair_detail').' อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
+            //     $htmlMessage .= 'ดูทั้งหมด <a href="'.base_url('Repair/View/'.$OrderNumber).'">'.base_url('Repair/View/'.$OrderNumber).'</a>';
 
-                // กำหนด mailType ให้เป็น 'html'
-                $email->setMailType('html');
+            //     // กำหนดข้อความในรูปแบบ HTML ใน setMessage()
+            //     $email->setMessage($htmlMessage);
 
-                if ($email->send()) {
-                    echo 1;
-                } else {
-                    // $data = $email->printDebugger(['headers']);
-                    // print_r($data);
-                    echo "ErrorSendEmail";
-                }
+            //     // กำหนด mailType ให้เป็น 'html'
+            //     $email->setMailType('html');
+
+            //     if ($email->send()) {
+            //         echo 1;
+            //     } else {
+            //         // $data = $email->printDebugger(['headers']);
+            //         // print_r($data);
+            //         echo "ErrorSendEmail";
+            //     }
                 
             }else{
                 echo "ErrorInsert";
             }
-            
-
-        } else {
-            echo "ErrorhCaptcha";
-        }
+       
     }
 
     public function DataTableShowRepari(){
@@ -380,5 +431,40 @@ class ConUserRepair extends BaseController
 
          $mpdf->Output('example.pdf', 'I');
     
+    }
+
+    public function RepairStatistics(){
+        $session = session();
+        $data = $this->DataMain();
+        $data['title']="สถิติการแจ้งซ่อม";
+        $data['description']="สถิติการแจ้งซ่อม";
+        $data['UrlMenuMain'] = 'Repair';
+        $data['UrlMenuSub'] = 'RepairStatistics';
+        $data['Datethai'] = new Datethai();
+
+        return view('User/UserLeyout/UserHeader',$data)
+                .view('User/UserLeyout/UserMenuLeft')
+                .view('User/UserRepair/UserRepairStatistics')
+                .view('User/UserLeyout/UserFooter');
+    }
+
+    public function RepairStatisticsCaselist(){
+        $session = session();
+        $database = \Config\Database::connect();
+        $DBRepair = $database->table('tb_repair');
+
+        $data['Bar'] = $DBRepair
+        ->select('repair_caselist, COUNT(*) as total')
+        ->groupBy('repair_caselist')
+        ->get()
+        ->getResult();
+
+        $data['Pie'] = $DBRepair
+        ->select('repair_status, COUNT(*) as total')
+        ->groupBy('repair_status')
+        ->get()
+        ->getResult();
+
+        return $this->response->setJSON($data);
     }
 }

@@ -136,36 +136,42 @@ $(document).on('change', '#repair_posi', function() {
     }, 'json');
 });
 
-$(document).on('submit', '#FormAddRepair', function(e) {
-    e.preventDefault();
+document.addEventListener('submit', async function (e) {
+    if (e.target && e.target.id === 'FormAddRepair') {
+        e.preventDefault();
 
-    
-    if (signaturePad.isEmpty()) {
-        Swal.fire(
-            'แจ้งเตือน!', 'กรุณาลงลายมือชื่อก่อนบันทึก!',
-            'warning'
-        )
-        return;
-    }
+        const token = document.querySelector('textarea[name="h-captcha-response"]')?.value;
+        if (!token) {
+            alert('❌ กรุณายืนยันว่าไม่ใช่บอท (Captcha)');
+            return;
+        }
 
-    var dataURL = signaturePad.toDataURL('image/svg+xml');
-    var formData = new FormData(this);
-    formData.append('Signature', dataURL); // เพิ่มคีย์และค่าที่ต้องการส่ง
+        if (signaturePad.isEmpty()) {
+            Swal.fire('แจ้งเตือน!', 'กรุณาลงลายมือชื่อก่อนบันทึก!', 'warning');
+            return;
+        }
 
-    $.ajax({
-        url: "../Repair/DB/Insert",
-        method: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        cache: false,
-        beforeSend: function() {
-            $('#BtnSubRepair').html('<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span class="">กำลังบันทึก...</span>');
-            $('#BtnSubRepair').addClass("disabled");
-        },
-        success: function(data) {
-            console.log(data);
-            if (data == 1) {
+        const dataURL = signaturePad.toDataURL('image/svg+xml');
+        const form = document.getElementById('FormAddRepair');
+        const formData = new FormData(form);
+
+        formData.append('h-captcha-response', token);
+        formData.append('Signature', dataURL);
+
+        // เปลี่ยนปุ่มขณะส่ง
+        const btn = document.getElementById('BtnSubRepair');
+        btn.innerHTML = '<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span>กำลังบันทึก...</span>';
+        btn.classList.add("disabled");
+
+        try {
+            const res = await fetch('../Repair/DB/Insert', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.text();
+
+            if (data == "1") {
                 Swal.fire({
                     title: 'แจ้งเตือน?',
                     text: "บันทึกแจ้งซ่อมสำเร็จ!",
@@ -176,24 +182,27 @@ $(document).on('submit', '#FormAddRepair', function(e) {
                     if (result.isConfirmed) {
                         window.location.href = "../Repair";
                     }
-                })
+                });
             } else if (data == "ErrorSendEmail") {
-                Swal.fire(
-                    'แจ้งเตือน!', 'ส่ง Email ผืดพลาด!',
-                    'error'
-                )
+                Swal.fire('แจ้งเตือน!', 'ส่ง Email ผิดพลาด!', 'error');
             } else if (data == "ErrorhCaptcha") {
-                Swal.fire(
-                    'แจ้งเตือน!', 'ยืนยันความเป็นมนุษย์ด้วย!',
-                    'warning'
-                )
+                Swal.fire('แจ้งเตือน!', 'ยืนยันความเป็นมนุษย์ด้วย!', 'warning');
+            } else {
+                console.error('🔴 ไม่รู้จักคำตอบ:', data);
             }
-            $('#BtnSubRepair').removeClass("disabled");
-            $('#spinner').remove();
-            $('#BtnSubRepair').html("บันทึกแจ้งซ่อม");
+
+        } catch (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดระหว่างส่งข้อมูล', 'error');
         }
-    });
+
+        // ปิดสถานะรอโหลด
+        btn.classList.remove("disabled");
+        document.getElementById('spinner')?.remove();
+        btn.innerHTML = "บันทึกแจ้งซ่อม";
+    }
 });
+
 
 
 $(document).on('click', '#ModalFormAdmin', function() {
