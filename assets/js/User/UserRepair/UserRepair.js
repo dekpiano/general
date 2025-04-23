@@ -171,7 +171,7 @@ document.addEventListener('submit', async function (e) {
 
             const data = await res.text();
 
-            if (data == "1") {
+            if (data) {
                 Swal.fire({
                     title: 'แจ้งเตือน?',
                     text: "บันทึกแจ้งซ่อมสำเร็จ!",
@@ -244,7 +244,7 @@ $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
         contentType: false,
         cache: false,
         success: function(res) {
-            console.log(res);
+            //console.log(res);
             $('#ModalRepairSaveAdmin').hide();
             $('.modal-backdrop').hide();
             if (res == 1) {

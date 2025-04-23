@@ -31,73 +31,91 @@
 
                             </div>
                             <div class="col-md-4">
-                                <label class="col-form-label" for="repair_posi">ตำแหน่ง</label>
-                                <select name="repair_posi" id="repair_posi" class="form-select" required>
-                                    <option value="" selected="" disabled="">-- กรุณาเลือกตำแหน่ง --</option>
-                                    <?php foreach ($Posi as $key => $v_Posi) :?>
-                                    <option value="<?=$v_Posi->posi_id?>"> <?=$v_Posi->posi_name?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                               
+                                <div class="form-floating mt-3">
+                                    <select name="repair_posi" id="repair_posi" class="form-select" required>
+                                        <option value="" selected="" disabled="">-- กรุณาเลือกตำแหน่ง --</option>
+                                        <?php foreach ($Posi as $key => $v_Posi) :?>
+                                        <option value="<?=$v_Posi->posi_id?>"> <?=$v_Posi->posi_name?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <label for="repair_posi">ตำแหน่ง</label>
+                                </div>
                                 <div class="invalid-feedback">
                                     กรุณาเลือกตำแหน่ง
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <label class="col-form-label" for="repair_userID">ชื่อผู้แจ้งซ่อม</label>
-                                <select name="repair_userID" id="repair_userID" class="form-select" required>
-                                    <option value="" selected="" disabled="">-- กรุณาเลือกชื่อผู้แจ้งซ่อม --</option>
-                                </select>
+                               
+                                <div class="form-floating mt-3">
+                                    <select name="repair_userID" id="repair_userID" class="form-select" required>
+                                        <option value="" selected="" disabled="">-- กรุณาเลือกชื่อผู้แจ้งซ่อม --</option>
+                                    </select>
+                                    <label for="repair_userID">ชื่อผู้แจ้งซ่อม</label>
+                                </div>
                                 <div class="invalid-feedback">
                                 กรุณาเลือกชื่อผู้แจ้งซ่อม
                                 </div>
                             </div>
 
                             <div class="col-md-2">
-                                <label class="col-form-label" for="repair_building">อาคาร</label>
-                                <select name="repair_building" id="repair_building" class="form-select" required="">
-                                    <option value="" selected="" disabled="">-- กรุณาเลือกอาคาร --</option>
-                                    <option value="อาคาร 1"> อาคาร 1</option>
-                                    <option value="อาคาร 2"> อาคาร 2</option>
-                                    <option value="อาคาร 3"> อาคาร 3</option>
-                                    <option value="อาคาร 4"> อาคาร 4</option>
-                                    <option value="อาคาร 5"> อาคาร 5 โรงอาหาร</option>
-                                    <option value="อาคาร 6"> อาคาร 6</option>
-                                    <option value="อาคาร 7"> อาคาร 7</option>
-                                    <option value="อาคาร 8"> อาคาร 8</option>
-                                    <option value="อาคาร 9"> อาคาร 9</option>
-                                    <option value="อาคารเจ้าพระยา"> อาคารเจ้าพระยา</option>
-                                    <option value="อาคารกีฬา"> อาคารกีฬา</option>
-                                    <option value="อาคารโดมเอนกประสงค์"> อาคารโดมเอนกประสงค์</option>
-                                    <option value="อาคารเอนกประสงค์"> อาคารเอนกประสงค์</option>
-                                </select>
+                             
+                                <div class="form-floating mt-3">
+                                    <select name="repair_building" id="repair_building" class="form-select" required="">
+                                        <option value="" selected="" disabled="">-- กรุณาเลือกอาคาร --</option>
+                                        <option value="อาคาร 1"> อาคาร 1</option>
+                                        <option value="อาคาร 2"> อาคาร 2</option>
+                                        <option value="อาคาร 3"> อาคาร 3</option>
+                                        <option value="อาคาร 4"> อาคาร 4</option>
+                                        <option value="อาคาร 5"> อาคาร 5 โรงอาหาร</option>
+                                        <option value="อาคาร 6"> อาคาร 6</option>
+                                        <option value="อาคาร 7"> อาคาร 7</option>
+                                        <option value="อาคาร 8"> อาคาร 8</option>
+                                        <option value="อาคาร 9"> อาคาร 9</option>
+                                        <option value="อาคารเจ้าพระยา"> อาคารเจ้าพระยา</option>
+                                        <option value="อาคารกีฬา"> อาคารกีฬา</option>
+                                        <option value="อาคารโดมเอนกประสงค์"> อาคารโดมเอนกประสงค์</option>
+                                        <option value="อาคารเอนกประสงค์"> อาคารเอนกประสงค์</option>
+                                    </select>
+                                    <label for="repair_building">อาคาร</label>
+                                </div>
                                 <div class="invalid-feedback">
                                 กรุณาเลือกอาคาร
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <label class="col-form-label" for="repair_class">ชั้น</label>
-                                <select name="repair_class" id="repair_class" class="form-select" required>
-                                    <option value="" selected="" disabled="">-- กรุณาเลือกชั้น --</option>
-                                    <option value="1"> 1</option>
-                                    <option value="2"> 2</option>
-                                    <option value="3"> 3</option>
-                                    <option value="4"> 4</option>
-                                </select>
+                               
+                                <div class="form-floating mt-3">
+                                    <select name="repair_class" id="repair_class" class="form-select" required>
+                                        <option value="" selected="" disabled="">-- กรุณาเลือกชั้น --</option>
+                                        <option value="1"> 1</option>
+                                        <option value="2"> 2</option>
+                                        <option value="3"> 3</option>
+                                        <option value="4"> 4</option>
+                                    </select>
+                                    <label for="repair_class">ชั้น</label>
+                                </div>
                                 <div class="invalid-feedback">
                                 กรุณาเลือกชั้น
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <label class="col-form-label" for="repair_room">ห้อง</label>
-                                <input type="text" class="form-control" name="repair_room" id="repair_room"
-                                    placeholder="Ex. 421 ">
+                               
+                                <div class="form-floating mt-3">
+                                    <input type="text" class="form-control" name="repair_room" id="repair_room"
+                                        placeholder="Ex. 421 ">
+                                    <label for="repair_room">ห้อง</label>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="col-form-label" for="repair_phone">เบอร์โทรติดต่อ</label>
-                                <input type="text" class="form-control" name="repair_phone" id="repair_phone"
-                                    placeholder="ระบุเบอร์โทรติดต่อได้" required>
-                                    <div class="invalid-feedback">
-                                กรุณากรอกเบอร์โทรติดต่อ
+                             
+                                <div class="form-floating mt-3">
+                                    <input type="text" class="form-control" name="repair_phone" id="repair_phone"
+                                        placeholder="ระบุเบอร์โทรติดต่อได้" required>
+                                    <label for="repair_phone">เบอร์โทรติดต่อ</label>
+                                </div>
+                                <div class="invalid-feedback">
+                                    กรุณากรอกเบอร์โทรติดต่อ
                                 </div>
                             </div>
                         </div>
@@ -105,24 +123,30 @@
                         <hr>
                         <div class="row mb-3">
                             <div class="col-md-6 mb-3">
-                                <label class="col-form-label" for="repair_caselist">รายการแจ้งซ่อม</label>
-                                <select name="repair_caselist" id="repair_caselist" class="form-select" required="">
-                                    <option value="" selected="" disabled="">-- กรุณาระบุรายการแจ้งซ่อม --</option>
-                                    <option value="คอมพิวเตอร์/โปรเจคเตอร์"> คอมพิวเตอร์/โปรเจคเตอร์</option>
-                                    <option value="ปริ้นเตอร์/สแกนเนอร์"> ปริ้นเตอร์/สแกนเนอร์</option>
-                                    <option value="ระบบเครือข่าย"> ระบบเครือข่าย</option>
-                                    <option value="โสตทัศนอุปกรณ์"> โสตทัศนอุปกรณ์</option>
-                                    <option value="งานอาคารสถานที่"> งานอาคารสถานที่</option>
-                                </select>
+                             
+                                <div class="form-floating mt-3">
+                                    <select name="repair_caselist" id="repair_caselist" class="form-select" required="">
+                                        <option value="" selected="" disabled="">-- กรุณาระบุรายการแจ้งซ่อม --</option>
+                                        <option value="คอมพิวเตอร์/โปรเจคเตอร์"> คอมพิวเตอร์/โปรเจคเตอร์</option>
+                                        <option value="ปริ้นเตอร์/สแกนเนอร์"> ปริ้นเตอร์/สแกนเนอร์</option>
+                                        <option value="ระบบเครือข่าย"> ระบบเครือข่าย</option>
+                                        <option value="โสตทัศนอุปกรณ์"> โสตทัศนอุปกรณ์</option>
+                                        <option value="งานอาคารสถานที่"> งานอาคารสถานที่</option>
+                                    </select>
+                                    <label for="repair_caselist">รายการแจ้งซ่อม</label>
+                                </div>
                                 <div class="invalid-feedback">
                                 กรุณาระบุรายการแจ้งซ่อม
                                 </div>
 
-                                <label class="col-form-label" for="repair_detail">ปัญหา /อาการ / หมายเหตุ</label>
-                                <textarea id="repair_detail" name="repair_detail" class="form-control"
-                                    placeholder="ปัญหา /อาการ / หมายเหตุ" required></textarea>
-                                    <div class="invalid-feedback">
-                                กรุณาระบุอาการเสีย
+                               
+                                <div class="form-floating mt-3">
+                                    <textarea id="repair_detail" name="repair_detail" class="form-control"
+                                        placeholder="ปัญหา /อาการ / หมายเหตุ" required></textarea>
+                                    <label for="repair_detail">ปัญหา /อาการ / หมายเหตุ</label>
+                                </div>
+                                <div class="invalid-feedback">
+                                    กรุณาระบุอาการเสีย
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -130,11 +154,11 @@
                                 <div class="text-center">
                                     <h5 class="">รูปภาพแจ้งซ่อม <small>(อาการเสียหรือปัญหา)</small></h5>
                                     <small>** จะอัพโหลดไฟล์ภาพหรือไม่โหลดก็ได้ ** (ให้ถ่ายรูปแนวนอน)</small>
-                                    <div class="input-group">
+                                    <div class="form-floating mt-3">
                                         <input type="file" class="form-control" id="repair_imguser"
                                             name="repair_imguser"
                                             onchange="document.getElementById('imageResult').src = window.URL.createObjectURL(this.files[0])">
-                                        <label class="input-group-text" for="repair_imguser">เลือกรูปภาพ</label>
+                                        <label for="repair_imguser">เลือกรูปภาพ</label>
                                     </div>
                                     <img src="" id="imageResult" class="img-fluid" alt="">
                                 </div>

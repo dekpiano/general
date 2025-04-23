@@ -76,7 +76,7 @@
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingChart.js?v=1.3"></script>
     
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=19"></script>   
+    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=20"></script>   
       <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepairStatistics.js?v=1.3"></script>
     <?php elseif($uri->getSegment(1) == 'CarBooking') : ?>
         <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservation.js?v=3"></script>

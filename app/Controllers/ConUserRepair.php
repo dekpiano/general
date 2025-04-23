@@ -121,26 +121,27 @@ class ConUserRepair extends BaseController
 
         $DBrepair = \Config\Database::connect();
         $TBrepair = $DBrepair->table('tb_repair');
+        $Datethai = new Datethai();
+        
 
-        // Your form submission handler
-        // $hCaptchaSecretKey = 'ES_47c9a8452c844bf6b5bf834237aacb8d'; // Replace with your secret key
-        // $hCaptchaResponse = $_POST['h-captcha-response'] ?? $_POST['g-captcha-response'];
-        // if (!$hCaptchaResponse) {
-        //     return $this->response->setJSON([
-        //         'status' => 'error',
-        //         'message' => 'ไม่ได้รับค่า Captcha'
-        //     ]);
-        // }
-        // $response = file_get_contents("https://hcaptcha.com/siteverify?secret=$hCaptchaSecretKey&response=$hCaptchaResponse");
-        // $responseData = json_decode($response);
+        $hCaptchaSecretKey = 'ES_47c9a8452c844bf6b5bf834237aacb8d'; // Replace with your secret key
+        $hCaptchaResponse = $_POST['h-captcha-response'];
+        if (!$hCaptchaResponse) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'ไม่ได้รับค่า Captcha'
+            ]);
+        }
+        $response = file_get_contents("https://hcaptcha.com/siteverify?secret=$hCaptchaSecretKey&response=$hCaptchaResponse");
+        $responseData = json_decode($response);
 
-        // if (!$responseData->success) {
-        //     return $this->response->setJSON([
-        //         'status' => 'error',
-        //         'message' => 'Captcha ไม่ผ่าน'
-        //     ]);
-        // }
-       //print_r($responseData->success); exit();
+        if (!$responseData->success) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Captcha ไม่ผ่าน'
+            ]);
+        }
+       
       
 
             $data = $TBrepair->select('repair_order')->orderBy('repair_ID ','DESC')->get()->getResult();
@@ -191,6 +192,7 @@ class ConUserRepair extends BaseController
                 $msg .= "📌 ประเภท: {$this->request->getVar('repair_caselist')}\n";
                 $msg .= "📍 สถานที่: {$this->request->getVar('repair_building')} ชั้น {$this->request->getVar('repair_class')} ห้อง {$this->request->getVar('repair_room')}\n";
                 $msg .= "📝 รายละเอียด: {$this->request->getVar('repair_detail')}\n";
+                $msg .= "📅 วันที่แจ้ง: {$Datethai->thai_date_fullmonth(strtotime(date('Y-m-d H:i:s')))}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Repair/View/".$Repair->repair_order);
 
                 // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)

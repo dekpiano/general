@@ -1,37 +1,32 @@
-
+alert("test");
 fetch('../Repair/DB/StatisticsCaselist')
 .then(response => response.json())
 .then(data => {
-    console.log(data.Bar); // Log the data to check its structure
+    console.log(data);
     
-    const BarCategories = data.Bar.map(item => item.repair_caselist);
-    const BarSeriesData = data.Bar.map(item => parseInt(item.total));
-
-    const PieCategories = data.Pie.map(item => item.repair_status);
-    const PieSeriesData = data.Pie.map(item => parseInt(item.total));
-   
-    var optionsBar = { // Renamed to optionsBar
-        chart: { type: 'bar' },
-        series: [{
-            name: 'จำนวนงาน',
-            data: BarSeriesData
-        }],
-        xaxis: {
-            categories: BarCategories
-        },
-        title: { text: 'จำนวนงานซ่อมแต่ละประเภท' }
-    };
+  const categories = data.map(item => item.rep_type);
+  const seriesData = data.map(item => parseInt(item.total));
+var options = {
+    chart: { type: 'bar' },
+    series: [{
+      name: 'จำนวนงาน',
+      data: seriesData
+    }],
+    xaxis: {
+      categories: categories
+    },
+    title: { text: 'จำนวนงานซ่อมแต่ละประเภท' }
+  };
   
-    new ApexCharts(document.querySelector("#chart-type"), optionsBar).render();
-
-    var optionsDonut = { // Renamed to optionsDonut
-    chart: { type: 'donut' },
-    series: PieSeriesData,
-    labels: PieCategories,
-    title: { text: 'สถานะงานซ่อม' }
-    };
-
-    new ApexCharts(document.querySelector("#chart-status"), optionsDonut).render();
+  new ApexCharts(document.querySelector("#chart-type"), options).render();
 })
 .catch(error => console.error('Error loading chart data:', error));
 
+  var options = {
+    chart: { type: 'donut' },
+    series: [35, 20, 40, 5],
+    labels: ['รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จแล้ว', 'ยกเลิก'],
+    title: { text: 'สถานะงานซ่อม' }
+  };
+  
+  new ApexCharts(document.querySelector("#chart-status"), options).render();
