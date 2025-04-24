@@ -1,4 +1,4 @@
-alert("test");
+
 fetch('../Repair/DB/StatisticsCaselist')
 .then(response => response.json())
 .then(data => {
