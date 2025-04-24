@@ -19,6 +19,14 @@ class ConUserCarBooking extends BaseController
         return $data;
     }
 
+    function thaidate_to_mysql($dateStr) {
+        $parts = explode('/', $dateStr);
+        if (count($parts) === 3) {
+            return ($parts[2] - 543) . '-' . str_pad($parts[1], 2, '0', STR_PAD_LEFT) . '-' . str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+        }
+        return null;
+    }
+
     public function CarBookingMain()
     {
         $session = session();
@@ -195,15 +203,18 @@ class ConUserCarBooking extends BaseController
         $DBpersonnel = $DBpers->table('tb_personnel');
         $Datethai = new Datethai();
         
+        $Car_dateStart = $this->thaidate_to_mysql($this->request->getVar('car_reserv_StartDate'));
+        $Car_dateEnd = $this->thaidate_to_mysql($this->request->getVar('car_reserv_EndDate'));
+
         $data = [
             'car_reserv_order' => $this->request->getVar('car_reserv_order'),
             'car_reserv_memberID' => $this->request->getVar('car_reserv_memberID'),
             'car_reserv_location' => $this->request->getVar('car_reserv_location'),
             'car_reserv_detail' => $this->request->getVar('car_reserv_detail'),
             'car_reserv_number' => $this->request->getVar('car_reserv_number'),
-            'car_reserv_StartDate' => $this->request->getVar('car_reserv_StartDate'),
+            'car_reserv_StartDate' => $Car_dateStart,
             'car_reserv_StartTime' => $this->request->getVar('car_reserv_StartTime'),
-            'car_reserv_EndDate' => $this->request->getVar('car_reserv_EndDate'),
+            'car_reserv_EndDate' => $Car_dateEnd,
             'car_reserv_EndTime' => $this->request->getVar('car_reserv_EndTime'),
             'car_reserv_carID' => $this->request->getVar('car_reserv_carID'),
             'car_reserv_phone' => $this->request->getVar('car_reserv_phone'),            
@@ -237,7 +248,7 @@ class ConUserCarBooking extends BaseController
             ->where('tb_car_reservation.car_reserv_id', $DataNow)
             ->get()->getRowArray();
 
-            
+
             // 2. สร้างข้อความ
             $msg = "📣 แจ้งเตือนการขอใช้รถราชการ\n";
             $msg .= "👤 ผู้ขอ: {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}\n";

@@ -110,7 +110,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-floating mb-3">
-                                            <input type="date" class="form-control" id="car_reserv_StartDate" required
+                                            <input type="date" class="form-control selector" id="car_reserv_StartDate" required
                                                 name="car_reserv_StartDate" placeholder="ระบุออกเดินทางวันที่"
                                                 aria-describedby="floatingInputHelp">
                                             <label for="floatingInput">ออกเดินทางวันที่</label>
@@ -118,7 +118,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating mb-3">
-                                            <input type="time" class="form-control" id="car_reserv_StartTime" required
+                                            <input type="time" class="form-control selectorTime" id="car_reserv_StartTime" required
                                                 name="car_reserv_StartTime" placeholder="ระบุเวลาออก"
                                                 aria-describedby="floatingInputHelp">
                                             <label for="floatingInput">เวลาออก</label>
@@ -128,7 +128,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-floating mb-3">
-                                            <input type="date" class="form-control" id="car_reserv_EndDate" required
+                                            <input type="date" class="form-control selector" id="car_reserv_EndDate" required
                                                 name="car_reserv_EndDate" placeholder="ระบุเดินทางกลับวันที่"
                                                 aria-describedby="floatingInputHelp">
                                             <label for="floatingInput">เดินทางกลับวันที่</label>
@@ -136,7 +136,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating mb-3">
-                                            <input type="time" class="form-control" id="car_reserv_EndTime" required
+                                            <input type="time" class="form-control selectorTime" id="car_reserv_EndTime" required
                                                 name="car_reserv_EndTime" placeholder="ระบุเวลากลับ"
                                                 aria-describedby="floatingInputHelp">
                                             <label for="floatingInput">เวลากลับ</label>
