@@ -166,6 +166,10 @@ $(document).on('submit', '#FormAddCarReservation', function(e) {
             $('#BtnSubBooking').removeClass("disabled");
             $('#spinner').remove();
             $('#BtnSubBooking').html("จอง");
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText); // Log the error response to the console
+           
         }
     });
 });

@@ -33,11 +33,11 @@
 
     <script src="<?=base_url()?>/assets/vendor/js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-    
+
     <!-- endbuild -->
     <script src="https://hcaptcha.com/1/api.js" async defer></script>
 
-    
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
     <!-- moment -->
@@ -69,19 +69,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.15/index.global.min.js"></script>
 
-    <?php if($uri->getSegment(1) == 'Booking') : ?>       
+    <?php if($uri->getSegment(1) == 'Booking') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=25.1"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingCrop.js?v=2"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingChart.js?v=1.3"></script>
-    
+
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=20"></script>   
-      <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepairStatistics.js?v=1.4"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=20"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepairStatistics.js?v=1.4"></script>
     <?php elseif($uri->getSegment(1) == 'CarBooking') : ?>
-        <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservation.js?v=3"></script>
-        <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservationChart.js?v=1.3"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservation.js?v=4"></script> 
+    <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservationChart.js?v=1.3"></script>   
     <?php endif; ?>
+
 
     <script>
 // Example starter JavaScript for disabling form submissions if there are invalid fields
@@ -115,44 +116,44 @@ $(function() {
 flatpickr.localize(flatpickr.l10ns.th);
 
 function setBuddhistYear(instance) {
-      const yearEl = instance.currentYearElement;
-      const buddhistYear = parseInt(yearEl.value);
-      if (buddhistYear < 2500) {
+    const yearEl = instance.currentYearElement;
+    const buddhistYear = parseInt(yearEl.value);
+    if (buddhistYear < 2500) {
         yearEl.value = buddhistYear + 543;
-      }
     }
+}
 
-    flatpickr(".selector", {
-      locale: "th",
-      dateFormat: "Y-m-d",
-      altInput: false,
-      altFormat: "d/m/Y",
-      parseDate: function(dateStr, format) {
+flatpickr(".selector", {
+    locale: "th",
+    dateFormat: "Y-m-d",
+    altInput: false,
+    altFormat: "d/m/Y",
+    parseDate: function(dateStr, format) {
         const parts = dateStr.split('/');
         parts[2] = parseInt(parts[2]) - 543;
         return new Date(parts[2], parts[1] - 1, parts[0]);
-      },
-      formatDate: function(date, format) {
+    },
+    formatDate: function(date, format) {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear() + 543;
         return `${day}/${month}/${year}`;
-      },
-      onReady: function(selectedDates, dateStr, instance) {
+    },
+    onReady: function(selectedDates, dateStr, instance) {
         setTimeout(() => setBuddhistYear(instance), 5);
-      },
-      onYearChange: function(selectedDates, dateStr, instance) {
+    },
+    onYearChange: function(selectedDates, dateStr, instance) {
         setTimeout(() => setBuddhistYear(instance), 5);
-      },
-      onMonthChange: function(selectedDates, dateStr, instance) {
+    },
+    onMonthChange: function(selectedDates, dateStr, instance) {
         setTimeout(() => setBuddhistYear(instance), 5);
-      },
-      onOpen: function(selectedDates, dateStr, instance) {
+    },
+    onOpen: function(selectedDates, dateStr, instance) {
         setTimeout(() => setBuddhistYear(instance), 5);
-      }
-    });
+    }
+});
 
-  
+
 
 // $(".selector").flatpickr({
 //     dateFormat: "Y-m-d",
@@ -169,14 +170,14 @@ $(".selectorEdit").flatpickr({
     //dateFormat: "Y-m-d",
     altFormat: "j F Y",
     altInput: true,
-    onReady: function (selectedDates, dateStr, instance) {
-    // ปรับปีในวันที่ที่ถูกเลือก
-    const selectedDate = instance.selectedDates[0];
-    if (selectedDate) {
-      selectedDate.setFullYear(selectedDate.getFullYear() + 543);
-      instance.setDate(selectedDate);
+    onReady: function(selectedDates, dateStr, instance) {
+        // ปรับปีในวันที่ที่ถูกเลือก
+        const selectedDate = instance.selectedDates[0];
+        if (selectedDate) {
+            selectedDate.setFullYear(selectedDate.getFullYear() + 543);
+            instance.setDate(selectedDate);
+        }
     }
-}
 });
 
 $(".selectorTime").flatpickr({
@@ -187,25 +188,23 @@ $(".selectorTime").flatpickr({
 });
     </script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-      var lazyLoadImages = document.querySelectorAll('.lazy-load');
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    var lazyLoadImages = document.querySelectorAll('.lazy-load');
 
-      var lazyLoad = function () {
-        lazyLoadImages.forEach(function (img) {
-          if (img.getBoundingClientRect().top < window.innerHeight && img.dataset.src) {
-            img.src = img.dataset.src;
-            img.removeAttribute('data-src');
-          }
+    var lazyLoad = function() {
+        lazyLoadImages.forEach(function(img) {
+            if (img.getBoundingClientRect().top < window.innerHeight && img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            }
         });
-      };
+    };
 
-      // Initial load
-      lazyLoad();
+    // Initial load
+    lazyLoad();
 
-      // Lazy load on scroll
-      document.addEventListener('scroll', lazyLoad);
-    });
-
-    
-  </script>
+    // Lazy load on scroll
+    document.addEventListener('scroll', lazyLoad);
+});
+    </script>

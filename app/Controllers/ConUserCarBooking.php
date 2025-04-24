@@ -42,6 +42,33 @@ class ConUserCarBooking extends BaseController
                 .view('User/UserCarBooking/UserCarBookingMain')
                 .view('User/UserLeyout/UserFooter');
     }
+
+    private function sendLineMessage($userId, $messageText)
+    {
+        $accessToken = 'sNlR5f0V6R5ymIr7KPd5Xp8orbv7moKfar4WUYQF2uOwLvIVJrl0QYkd6vdNArphKzH9Uu0kIeOyjIXOjYkAnXcLmdCR0zJeAOakv8LrwTjlqXi9i0nJrYe/9aBFQsSuvybozfMDE6Ao/C1kmaqDgAdB04t89/1O/w1cDnyilFU=';
+
+        $data = [
+            'to' => $userId,
+            'messages' => [[
+                'type' => 'text',
+                'text' => $messageText
+            ]]
+        ];
+
+        $ch = curl_init('https://api.line.me/v2/bot/message/push');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return $result;
+    }
+
     
     public function CarBookingCheckCar()
     {
@@ -119,6 +146,10 @@ class ConUserCarBooking extends BaseController
     public function CarBookingAdd($CarID = null)
     {
         $session = session();
+        if(!$session->get('username')){
+            header("Location:".base_url()); exit();
+        } 
+        $session = session();
         $data = $this->DataMain();
         $data['title']="จองห้อง / สถานที่";
         $data['description']="จองห้องสำหรับใช้ภายในโรงเรียน";
@@ -160,7 +191,9 @@ class ConUserCarBooking extends BaseController
         $session = session();
         $database = \Config\Database::connect();
         $DBCarReservation = $database->table('tb_car_reservation');
-
+        $DBpers = \Config\Database::connect('personnel');
+        $DBpersonnel = $DBpers->table('tb_personnel');
+        $Datethai = new Datethai();
         
         $data = [
             'car_reserv_order' => $this->request->getVar('car_reserv_order'),
@@ -180,34 +213,70 @@ class ConUserCarBooking extends BaseController
       
 
         if($DBCarReservation->insert($data)){
+            $DataNow = $database->insertID();            
+
+            $Car = $DBCarReservation->select('
+            skjacth_general.tb_school_car.car_registration,
+            skjacth_general.tb_school_car.car_province,
+            skjacth_general.tb_school_car.car_category,
+            skjacth_general.tb_car_reservation.car_reserv_location,
+            skjacth_general.tb_car_reservation.car_reserv_memberID,
+            skjacth_general.tb_car_reservation.car_reserv_created_at,
+            skjacth_general.tb_car_reservation.car_reserv_detail,
+            skjacth_personnel.tb_personnel.pers_prefix,
+            skjacth_personnel.tb_personnel.pers_firstname,
+            skjacth_personnel.tb_personnel.pers_lastname,
+            skjacth_general.tb_car_reservation.car_reserv_number,
+            skjacth_general.tb_car_reservation.car_reserv_StartDate,
+            skjacth_general.tb_car_reservation.car_reserv_StartTime,
+            skjacth_general.tb_car_reservation.car_reserv_EndDate,
+            skjacth_general.tb_car_reservation.car_reserv_EndTime
+            ')
+            ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
+            ->join('skjacth_personnel.tb_personnel','skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID')
+            ->where('tb_car_reservation.car_reserv_id', $DataNow)
+            ->get()->getRowArray();
+
             
-            $Check = 1;
+            // 2. สร้างข้อความ
+            $msg = "📣 แจ้งเตือนการขอใช้รถราชการ\n";
+            $msg .= "👤 ผู้ขอ: {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}\n";
+            $msg .= "📅 วันที่ขอ: {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_created_at']))}\n";
+            $msg .= "🗓 เวลา: {$Car['car_reserv_detail']}\n";
+            $msg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
+            $msg .= "🎯 วัตถุประสงค์: {$Car['car_reserv_detail']}\n";
+            $msg .= "👉 รับงาน: " . base_url("/CarBooking/Approve/Admin");
+
+            // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
+
+            $this->sendLineMessage('U7b64519800ef574a685172890b80344b', $msg);
+            echo 1;
         }
 
-        if($Check){
+        // if($Check){
            
-            $email = \Config\Services::email(); // loading for use
+        //     $email = \Config\Services::email(); // loading for use
            
-            $email->setFrom('adminCarBooking@skj.ac.th',"ระบบการจองยานพาหนะ");
+        //     $email->setFrom('adminCarBooking@skj.ac.th',"ระบบการจองยานพาหนะ");
      
-            // Send to Users     
-            $email->setTo([
-                "dekpiano@skj.ac.th"//,"panwad.r@skj.ac.th"
-            ]);
+        //     // Send to Users     
+        //     $email->setTo([
+        //         "dekpiano@skj.ac.th"//,"panwad.r@skj.ac.th"
+        //     ]);
 
-            $email->setSubject("แจ้งการจองยานพาหนะ เลขที่ ".$this->request->getVar('car_reserv_order'));
+        //     $email->setSubject("แจ้งการจองยานพาหนะ เลขที่ ".$this->request->getVar('car_reserv_order'));
 
-            $html = "<a href='https://general.skj.ac.th/CarBooking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
-            $email->setMessage($html);
+        //     $html = "<a href='https://general.skj.ac.th/CarBooking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+        //     $email->setMessage($html);
 
-            // Send email
-            if ($email->send()) {
-                echo 1;
-            } else {
-                $data = $email->printDebugger(['headers']);
-                print_r($data);
-            }
-        }
+        //     // Send email
+        //     if ($email->send()) {
+        //         echo 1;
+        //     } else {
+        //         $data = $email->printDebugger(['headers']);
+        //         print_r($data);
+        //     }
+        // }
         
 
         //echo $this->request->getVar('booking_locationroom');
