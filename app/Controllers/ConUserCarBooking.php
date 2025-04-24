@@ -253,7 +253,7 @@ class ConUserCarBooking extends BaseController
             $msg = "📣 แจ้งเตือนการขอใช้รถราชการ\n";
             $msg .= "👤 ผู้ขอ: {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}\n";
             $msg .= "📅 วันที่ขอ: {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_created_at']))}\n";
-            $msg .= "🗓 เวลา: {$Car['car_reserv_detail']}\n";
+            
             $msg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
             $msg .= "🎯 วัตถุประสงค์: {$Car['car_reserv_detail']}\n";
             $msg .= "👉 รับงาน: " . base_url("/CarBooking/Approve/Admin");

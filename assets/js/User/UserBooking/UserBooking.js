@@ -231,7 +231,9 @@ $(document).on('submit', '#FormAddBooking', function (e) {
             $('#BtnSubBooking').removeClass("disabled");
             $('#spinner').remove();
             $('#BtnSubBooking').html("จอง");
-        }
+        },error: function (xhr, status, error) {  
+                console.log(xhr.responseText); // Log the error response for debugging                
+            }
     });
 });
 
@@ -246,7 +248,7 @@ $(document).on('submit', '#FormEditBooking', function (e) {
             $('#BtnSubBooking').addClass("disabled");
         },
         success: function (data) {
-            console.log(data);
+            //console.log(data);
             if (data > 0) {
                 Swal.fire({
                     title: 'แจ้งเตือน?',
@@ -298,7 +300,7 @@ $(document).on('change', '#booking_dateStart, #booking_timeStart, #booking_dateE
         booking_dateEnd: $('#booking_dateEnd').val(),
         booking_timeEnd: $('#booking_timeEnd').val()
     }, function (data) {
-        console.log(data);
+       // console.log(data);
         $('#AlertMessage').html(data.message);
         $('#AlertMessage').removeClass().addClass(data.class);
         if (data.status == 0) {

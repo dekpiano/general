@@ -19,6 +19,32 @@ class ConUserBooking extends BaseController
         return $data;
     }
 
+    private function sendLineMessage($userId, $messageText)
+    {
+        $accessToken = '6uPLX8E6wzICMzMr16kab9Qrf1gorrrbHBJHJ4rK7HFCsP/258uqhgqbf8i9VoopJX4o/4T9Go4gfKzQmxQryJG+LvnYfD3tHtrKXJ24SfsFEKXcW6xFBepKWOGRsoito2pr5neKVHNmSfjfDdwNowdB04t89/1O/w1cDnyilFU=';
+
+        $data = [
+            'to' => $userId,
+            'messages' => [[
+                'type' => 'text',
+                'text' => $messageText
+            ]]
+        ];
+
+        $ch = curl_init('https://api.line.me/v2/bot/message/push');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return $result;
+    }
+
     public function BookingMain()
     {
         $session = session();
@@ -118,7 +144,8 @@ class ConUserBooking extends BaseController
 
         $session = session();
         $database = \Config\Database::connect();
-        $DBlocation = $database->table('tb_booking');
+        $DBbooking = $database->table('tb_booking');
+        $Datethai = new Datethai();
         
         if($this->request->getVar('booking_equipment') != ""){
           $equipment = implode('|',$this->request->getVar('booking_equipment'));
@@ -159,30 +186,58 @@ class ConUserBooking extends BaseController
             'booking_imgWork' => $filename
         ];
    
-        if($DBlocation->insert($data)){
-            $email = \Config\Services::email(); // loading for use
-           
-            $email->setFrom('admin_booking@skj.ac.th',"ระบบการจองอาคารสถานที่");
-     
-            // Send to Users     
-            $email->setTo([
-                "dekpiano@skj.ac.th"
-            ]);
+        if($DBbooking->insert($data)){
+            $DataNow = $database->insertID();
 
-            $email->setSubject("แจ้งการจอง เลขที่ ".$this->request->getVar('booking_order'));
+            $Booking = $DBbooking->select('
+            skjacth_personnel.tb_personnel.pers_prefix,
+            skjacth_personnel.tb_personnel.pers_firstname,
+            skjacth_personnel.tb_personnel.pers_lastname,
+            skjacth_general.tb_location.location_name,
+            skjacth_general.tb_booking.booking_title,
+            skjacth_general.tb_booking.booking_dateStart,
+            skjacth_general.tb_booking.booking_dateEnd,
+            skjacth_general.tb_booking.booking_typeuse
+            ')
+            ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
+            ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
+            ->where('booking_id',$DataNow)
+            ->get()->getRowArray();
+            
+            $msg = "📣 แจ้งเตือนการขอใช้รถราชการ\n";
+            $msg .= "👤 ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}\n";
+            $msg .= "📅 วันที่ขอ: {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}\n";
+            $msg .= "⛪ สถานที่: {$Booking['location_name']}\n";
+            $msg .= "🎯 วัตถุประสงค์: {$Booking['booking_title']}\n";
+            $msg .= "👉 รับงาน: " . base_url("/Booking/Approve/Admin");
 
-            $html = "<a href='https://general.skj.ac.th/Booking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
-            $email->setMessage($html);
+            // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
 
-            // Send email
-            if ($email->send()) {
-                echo $this->request->getVar('booking_locationroom');
-            } else {
-                $data = $email->printDebugger(['headers']);
-                print_r($data);
-            }
+            $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
+            echo 1;
         }
         
+            // $email = \Config\Services::email(); // loading for use
+           
+            // $email->setFrom('admin_booking@skj.ac.th',"ระบบการจองอาคารสถานที่");
+     
+            // // Send to Users     
+            // $email->setTo([
+            //     "dekpiano@skj.ac.th"
+            // ]);
+
+            // $email->setSubject("แจ้งการจอง เลขที่ ".$this->request->getVar('booking_order'));
+
+            // $html = "<a href='https://general.skj.ac.th/Booking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+            // $email->setMessage($html);
+
+            // // Send email
+            // if ($email->send()) {
+            //     echo $this->request->getVar('booking_locationroom');
+            // } else {
+            //     $data = $email->printDebugger(['headers']);
+            //     print_r($data);
+            // }
 
         //echo $this->request->getVar('booking_locationroom');
         //print_r($this->request->getVar());
