@@ -64,7 +64,7 @@ $routes->get('CarBooking/CheckCar', 'ConUserCarBooking::CarBookingCheckCar');
 $routes->get('CarBooking/Add/(:any)', 'ConUserCarBooking::CarBookingAdd/$1');
 $routes->match(['get', 'post'],'Booking/DB/ShowTimeCarBooking', 'ConUserCarBooking::ShowTimeCarBooking');
 $routes->match(['get', 'post'],'CarBooking/DB/DataTable/View', 'ConUserCarBooking::CarBookingDataTableView');
-
+$routes->match(['get', 'post'],'Booking/DB/CheckDateCarBooking', 'ConUserCarBooking::CheckDateCarBooking');
 $routes->match(['get', 'post'],'CarBooking/DB/Insert', 'ConUserCarBooking::CarBookingInsert');
 $routes->get('CarBooking/Approve/Admin', 'ConUserCarBooking::CarBookingViewApproveAdmin');
 $routes->match(['get', 'post'],'CarBooking/DB/DataTable/Approve/Admin', 'ConUserCarBooking::CarBookingDataTableApproveAdmin');

@@ -196,7 +196,7 @@ class ConUserRepair extends BaseController
                 $msg .= "👉 รับงาน: " . base_url("/Repair/View/".$Repair->repair_order);
 
                 // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
-                $this->sendLineMessage('U7b64519800ef574a685172890b80344b', $msg);
+                $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
                 echo 1;
                // print_r($Teach);exit();
             //    if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){

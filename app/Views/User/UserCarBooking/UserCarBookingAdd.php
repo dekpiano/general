@@ -7,8 +7,8 @@
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
             <h4 class="py-3 mb-4"><span class="text-muted fw-light">
-                    <a href="<?=base_url('CarBooking/CheckCar');?>">รถ</a>
-                    /</span> จองรถ
+                    <a href="<?=base_url('CarBooking/CheckCar');?>">เลือกยานพาหนะ</a>
+                    /</span> จองยานพาหนะ
             </h4>
             <?php  
                 $Type = explode(',', $_SESSION['rloes']);
@@ -41,7 +41,7 @@
                             <form id="FormAddCarReservation" class="needs-validation" novalidate>
 
                                 <input type="hidden" class="form-control" id="car_reserv_carID" name="car_reserv_carID"
-                                    placeholder="เลือกวันที่จอง" value="<?=$uri->getSegment(3);?>"
+                                    placeholder="รหัสรถ" value="<?=$uri->getSegment(3);?>"
                                     aria-describedby="floatingInputHelp" required readonly>
 
                                 <div class="row">
@@ -142,6 +142,7 @@
                                             <label for="floatingInput">เวลากลับ</label>
                                         </div>
                                     </div>
+                                    <div class="alert-warning" id="AlertMessage"></div>
                                 </div>
                                 <div class="form-floating mb-3">
                                     <input type="tel" class="form-control" id="car_reserv_phone" 
@@ -151,7 +152,7 @@
                                 </div>
 
 
-                                <button type="submit" id="BtnSubBooking" class="btn btn-primary">จองรถ</button>
+                                <button type="submit" id="BtnSubBooking" class="btn btn-primary">จองยานพาหนะ</button>
                             </form>
                         </div>
                     </div>

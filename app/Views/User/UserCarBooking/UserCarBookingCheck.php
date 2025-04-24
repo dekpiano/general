@@ -9,7 +9,7 @@
 
         <h4 class="py-3 mb-4"><span class="text-muted fw-light">
                     <a href="<?=base_url('CarBooking');?>">หน้าแรก</a>
-                    /</span> เลือกรถยนต์
+                    /</span> เลือกยานพาหนะ</h4>
             </h4>
             <div class=" mt-3">
                 <div class="">

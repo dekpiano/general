@@ -260,7 +260,7 @@ class ConUserCarBooking extends BaseController
 
             // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
 
-            $this->sendLineMessage('U7b64519800ef574a685172890b80344b', $msg);
+            $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
             echo 1;
         }
 
@@ -521,30 +521,76 @@ class ConUserCarBooking extends BaseController
         return $this->response->setJSON($data, true);
     }
 
+    // ------------------เช็ควันที่ แปลงวันที่ -------------------
+    function convertBuddhistToGregorian($dateStr)
+    {
+        // รับรูปแบบ: 03/04/2568
+        $parts = explode('/', $dateStr);
+        
+        if (count($parts) === 3) {
+            // ดึงวัน/เดือน/ปี
+            $day = (int)$parts[0];
+            $month = (int)$parts[1];
+            $year = (int)$parts[2];
+
+            // แปลง พ.ศ. → ค.ศ.
+            if ($year > 2400) {
+                $year -= 543;
+            }
+
+            // คืนค่าในรูปแบบ Y-m-d
+            return sprintf('%04d-%02d-%02d', $year, $month, $day);
+        }
+
+        return null; // รูปแบบไม่ถูกต้อง
+    }
+
     public function CheckDateCarBooking(){
         // print_r($this->request->getVar());
         $session = session();
         $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
+        $DBbooking = $database->table('tb_car_reservation');
+        $CarID              = $this->request->getPost('car_reserv_carID');
+        $dateStart          = $this->request->getPost('car_reserv_StartDate');
+        $timeStart          = $this->request->getPost('car_reserv_StartTime');
+        $dateEnd            = $this->request->getPost('car_reserv_EndDate');
+        $timeEnd            = $this->request->getPost('car_reserv_EndTime');
 
-        $CheckDateBookign = $DBbooking
-        ->where('booking_dateStart',$this->request->getVar('booking_dateStart'))
-        ->where('booking_timeStart <=',$this->request->getVar('booking_timeStart'))
-        ->get()->getNumRows();
-        echo $CheckDateBookign;
-    }
+         // ถ้ายังไม่กรอกครบ ให้ส่งข้อความว่า "รอตรวจสอบ"
+        if (!$dateStart || !$timeStart || !$dateEnd || !$timeEnd) {
+            return $this->response->setJSON([
+                'status' => null,
+                'message' => '🕐 เลือกวันและเวลาให้ครบก่อนระบบจะตรวจสอบการจอง',
+                'class' => 'alert alert-warning'
+            ]);
+        }
 
-    public function CheckTimeCarBooking(){
-        // print_r($this->request->getVar());
-        $session = session();
-        $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
+        $gDateStart = $this->convertBuddhistToGregorian($dateStart);
+        $gDateEnd   = $this->convertBuddhistToGregorian($dateEnd);
 
-        $CheckDateBookign = $DBbooking
-        ->where('booking_dateEnd',$this->request->getVar('booking_dateEnd'))
-        ->where('booking_timeEnd >=',$this->request->getVar('booking_timeEnd'))
-        ->get()->getNumRows();
-        echo $CheckDateBookign;
+        $proposedStart = date('Y-m-d H:i:s',strtotime($gDateStart . ' ' . $timeStart));
+        $proposedEnd   = date('Y-m-d H:i:s',strtotime($gDateEnd   . ' ' . $timeEnd));
+
+        $CheckDateCarBookign = $DBbooking
+        ->where('car_reserv_carID', $CarID)
+        ->where("STR_TO_DATE(CONCAT(car_reserv_StartDate, ' ', car_reserv_StartTime), '%Y-%m-%d %H:%i:%s') < '$proposedEnd'", null, false)
+        ->where("STR_TO_DATE(CONCAT(car_reserv_EndDate, ' ', car_reserv_EndTime), '%Y-%m-%d %H:%i:%s') > '$proposedStart'", null, false)
+        ->get()->getResult();
+        //print_r($CheckDateBookign);
+        if(!$CheckDateCarBookign){
+            return $this->response->setJSON([
+                'status' => 1,
+                'message' => '✔️สามารถทำการจองวันและเวลาที่เลือกได้',
+                'class' => 'alert alert-success'
+            ]);
+        }else{
+            return $this->response->setJSON([
+                'status' => 0,
+                'message' => '❌ มีการจองในช่วงเวลานี้แล้ว กรุณาเลือกวันและเวลาที่ว่าง หรือเลือกยานพาหนะอื่น',
+                'class' => 'alert alert-danger'
+            ]);
+        }
+       
     }
 
     public function DictationInsert()

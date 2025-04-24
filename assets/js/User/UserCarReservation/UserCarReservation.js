@@ -272,38 +272,61 @@ $(document).on('click', '#BtnCancelBooking', function() {
 });
 
 
-$(document).on('change', '#booking_timeStart', function() {
-    $.post('../../Booking/DB/CheckDateBooking', {
-        booking_dateStart: $('#booking_dateStart').val(),
-        booking_timeStart: $('#booking_timeStart').val()
-    }, function(data) {
+// $(document).on('change', '#booking_timeStart', function() {
+//     $.post('../../Booking/DB/CheckDateBooking', {
+//         booking_dateStart: $('#booking_dateStart').val(),
+//         booking_timeStart: $('#booking_timeStart').val()
+//     }, function(data) {
+//         console.log(data);
+//         if (data > 0) {
+//             Swal.fire(
+//                 'กรุณาเลือกใหม่',
+//                 'ช่วงวัน หรือ เวลา มีผู้จองแล้ว!',
+//                 'warning'
+//             )
+//             $('#booking_timeStart').val('');
+//         }
+
+//     });
+// });
+
+// $(document).on('change', '#booking_timeEnd', function() {
+//     $.post('../../Booking/DB/CheckTimeBooking', {
+//         booking_dateEnd: $('#booking_dateEnd').val(),
+//         booking_timeEnd: $('#booking_timeEnd').val()
+//     }, function(data) {
+//         console.log(data);
+//         if (data > 0) {
+//             Swal.fire(
+//                 'กรุณาเลือกใหม่',
+//                 'ช่วงวัน หรือ เวลา มีผู้จองแล้ว!',
+//                 'warning'
+//             )
+//             $('#booking_timeEnd').val('');
+//         }
+//     });
+// });
+
+$('#BtnSubBooking').prop('disabled', true);
+$(document).on('change', '#car_reserv_StartDate, #car_reserv_StartTime, #car_reserv_EndDate, #car_reserv_EndTime', function () {
+
+    $.post('../../Booking/DB/CheckDateCarBooking', {
+        car_reserv_carID: $('#car_reserv_carID').val(),
+        car_reserv_StartDate: $('#car_reserv_StartDate').val(),
+        car_reserv_StartTime: $('#car_reserv_StartTime').val(),
+        car_reserv_EndDate: $('#car_reserv_EndDate').val(),
+        car_reserv_EndTime: $('#car_reserv_EndTime').val()
+    }, function (data) {
         console.log(data);
-        if (data > 0) {
-            Swal.fire(
-                'กรุณาเลือกใหม่',
-                'ช่วงวัน หรือ เวลา มีผู้จองแล้ว!',
-                'warning'
-            )
-            $('#booking_timeStart').val('');
+        $('#AlertMessage').html(data.message);
+        $('#AlertMessage').removeClass().addClass(data.class);
+        if (data.status == 0) {
+            $('#BtnSubBooking').prop('disabled', true);
+            //$('#booking_timeStart').val('');
+        } else {
+            $('#BtnSubBooking').prop('disabled', false);
         }
 
-    });
-});
-
-$(document).on('change', '#booking_timeEnd', function() {
-    $.post('../../Booking/DB/CheckTimeBooking', {
-        booking_dateEnd: $('#booking_dateEnd').val(),
-        booking_timeEnd: $('#booking_timeEnd').val()
-    }, function(data) {
-        console.log(data);
-        if (data > 0) {
-            Swal.fire(
-                'กรุณาเลือกใหม่',
-                'ช่วงวัน หรือ เวลา มีผู้จองแล้ว!',
-                'warning'
-            )
-            $('#booking_timeEnd').val('');
-        }
     });
 });
 
