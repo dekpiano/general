@@ -204,7 +204,7 @@ class ConUserBooking extends BaseController
             ->where('booking_id',$DataNow)
             ->get()->getRowArray();
             
-            $msg = "📣 แจ้งเตือนการขอใช้รถราชการ\n";
+            $msg = "📣 แจ้งเตือนการขอใช้อาคารสถานที่ SKJ\n";
             $msg .= "👤 ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}\n";
             $msg .= "📅 วันที่ขอ: {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}\n";
             $msg .= "⛪ สถานที่: {$Booking['location_name']}\n";
