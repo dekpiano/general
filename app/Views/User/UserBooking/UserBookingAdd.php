@@ -53,7 +53,7 @@
                     <div class="card">
                         <div class="card-body">
                             <form id="FormAddBooking" class="needs-validation" novalidate>
-                                <div class="row mb-3">
+                                <div class="row mb-3 g-3">
                                     <div class="col-md-4">
                                         <div class="form-floating">
                                             <input type="text" id="" name="" class="form-control" placeholder="ชื่อห้อง"
@@ -220,7 +220,7 @@
                                 <canvas id="croppedCanvas" width="100%" style="display:none;"></canvas>
                                 <input type="hidden" id="booking_imgWork" name="booking_imgWork" class="form-control">
                                 <hr>
-                                <div class="row mb-3">
+                                <div class="row mb-3 g-3">
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" id="" name="" class="form-control"

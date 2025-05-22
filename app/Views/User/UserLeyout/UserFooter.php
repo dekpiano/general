@@ -115,43 +115,80 @@ $(function() {
     <script>
 flatpickr.localize(flatpickr.l10ns.th);
 
-function setBuddhistYear(instance) {
-    const yearEl = instance.currentYearElement;
-    const buddhistYear = parseInt(yearEl.value);
-    if (buddhistYear < 2500) {
-        yearEl.value = buddhistYear + 543;
-    }
-}
+// function setBuddhistYear(instance) {
+//     const yearEl = instance.currentYearElement;
+//     const buddhistYear = parseInt(yearEl.value);
+//     if (buddhistYear < 2500) {
+//         yearEl.value = buddhistYear + 543;
+//     }
+// }
+
+// flatpickr("#booking_dateStart", {
+//     locale: "th",
+//     dateFormat: "Y-m-d",
+//     allowInput: true,
+//     // ถ้าต้องการโชว์ พ.ศ. ให้ใช้ formatDate แค่อันเดียวแบบนี้
+//     formatDate: (date, format, locale) => {
+//         let day = String(date.getDate()).padStart(2, '0');
+//         let month = String(date.getMonth() + 1).padStart(2, '0');
+//         let year = date.getFullYear() + 543;
+//         return `${day}/${month}/${year}`;
+//     },
+//     parseDate: (dateStr, format) => {
+//         // กรณีกรอกเอง
+//         if (!dateStr) return null;
+//         let parts = dateStr.split('/');
+//         if (parts.length !== 3) return null;
+//         let y = parseInt(parts[2], 10) - 543;
+//         let m = parseInt(parts[1], 10) - 1;
+//         let d = parseInt(parts[0], 10);
+//         return new Date(y, m, d);
+//     }
+// });
 
 flatpickr(".selector", {
-    locale: "th",
+    
     dateFormat: "Y-m-d",
-    altInput: false,
-    altFormat: "d/m/Y",
-    parseDate: function(dateStr, format) {
-        const parts = dateStr.split('/');
-        parts[2] = parseInt(parts[2]) - 543;
-        return new Date(parts[2], parts[1] - 1, parts[0]);
-    },
-    formatDate: function(date, format) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear() + 543;
+    allowInput: false,
+    altFormat: "d/m/Y", 
+    // ถ้าต้องการโชว์ พ.ศ. ให้ใช้ formatDate แค่อันเดียวแบบนี้
+    formatDate: (date, format, locale) => {
+        let day = String(date.getDate()).padStart(2, '0');
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let year = date.getFullYear() + 543;
         return `${day}/${month}/${year}`;
-    },
-    onReady: function(selectedDates, dateStr, instance) {
-        setTimeout(() => setBuddhistYear(instance), 5);
-    },
-    onYearChange: function(selectedDates, dateStr, instance) {
-        setTimeout(() => setBuddhistYear(instance), 5);
-    },
-    onMonthChange: function(selectedDates, dateStr, instance) {
-        setTimeout(() => setBuddhistYear(instance), 5);
-    },
-    onOpen: function(selectedDates, dateStr, instance) {
-        setTimeout(() => setBuddhistYear(instance), 5);
     }
 });
+
+// flatpickr(".selector", {
+//     locale: "th",
+//     dateFormat: "Y-m-d",
+//     altInput: false,
+//     altFormat: "d/m/Y",
+//     parseDate: function(dateStr, format) {
+//         const parts = dateStr.split('/');
+//         parts[2] = parseInt(parts[2]) - 543;
+//         return new Date(parts[2], parts[1] - 1, parts[0]);
+//     },
+//     formatDate: function(date, format) {
+//         const day = String(date.getDate()).padStart(2, '0');
+//         const month = String(date.getMonth() + 1).padStart(2, '0');
+//         const year = date.getFullYear() + 543;
+//         return `${day}/${month}/${year}`;
+//     },
+//     onReady: function(selectedDates, dateStr, instance) {
+//         setTimeout(() => setBuddhistYear(instance), 5);
+//     },
+//     onYearChange: function(selectedDates, dateStr, instance) {
+//         setTimeout(() => setBuddhistYear(instance), 5);
+//     },
+//     onMonthChange: function(selectedDates, dateStr, instance) {
+//         setTimeout(() => setBuddhistYear(instance), 5);
+//     },
+//     onOpen: function(selectedDates, dateStr, instance) {
+//         setTimeout(() => setBuddhistYear(instance), 5);
+//     }
+// });
 
 
 
