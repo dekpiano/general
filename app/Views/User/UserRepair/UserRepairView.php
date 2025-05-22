@@ -48,10 +48,10 @@
                                         <?php  if(!empty($Order[0]->repair_imguser)) : ?>
                                         <img src="<?=base_url('uploads/admin/Repair/User/').$Order[0]->repair_imguser?>"
                                             class="img-fluid" alt="" srcset="">
-                                            <?php else: ?>
-                                                <?php echo "(ไม่ได้แนบภาพมาด้วย!)"; ?>
-                                            <?php endif; ?>
-                                            
+                                        <?php else: ?>
+                                        <?php echo "(ไม่ได้แนบภาพมาด้วย!)"; ?>
+                                        <?php endif; ?>
+
                                     </div>
                                 </td>
                             </tr>
@@ -211,8 +211,20 @@
                             <input type="hidden" name="imgwork" id="imgwork" value="<?=$Order[0]->repair_imgwork;?>">
                             <input class="form-control" type="file" name="repair_imgwork" id="repair_imgwork">
                             <img src="<?=base_url('uploads/admin/Repair/').$Order[0]->repair_imgwork?>"
-                                class="img-fluid" alt="" srcset="">
+                                class="img-fluid" id="preview_imgwork" alt="" srcset="">
+
+                            <script>
+                            repair_imgwork.onchange = e => {
+                                const [file] = repair_imgwork.files;
+                                if (file) {
+                                    preview_imgwork.src = URL.createObjectURL(file);
+                                    preview_imgwork.style.display = "block";
+                                }
+                            };
+                            </script>
                         </div>
+
+
 
                     </div>
                     <div class="mb-3 row">
@@ -236,7 +248,11 @@
                     <div class="mb-3 row">
                         <label for="inputPassword" class="col-sm-3 col-form-label"></label>
                         <div class="col-sm-9">
-                            <button type="submit" id="BtnSave" class="btn btn-primary">บันทึกการซ่อม</button>
+                            <button type="submit" id="BtnSave" class="btn btn-primary">
+                                <span id="btnSaveText">บันทึกการซ่อม</span>
+                                <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2"
+                                    style="display:none;" role="status" aria-hidden="true"></span>
+                            </button>
                         </div>
                     </div>
                 </form>

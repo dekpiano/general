@@ -232,6 +232,11 @@ $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
         return;
     }
 
+     // ปุ่ม loading
+    $('#btnSaveRepair').prop('disabled', true);
+    $('#btnSaveText').text('กำลังบันทึก...');
+    $('#btnSpinner').show();
+
     var dataURL = signaturePad.toDataURL('image/svg+xml');
     var formData = new FormData(this);
     formData.append('Signature', dataURL); // เพิ่มคีย์และค่าที่ต้องการส่ง
@@ -244,7 +249,11 @@ $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
         contentType: false,
         cache: false,
         success: function(res) {
-            //console.log(res);
+
+            $('#btnSaveRepair').prop('disabled', false);
+            $('#btnSaveText').text('บันทึกข้อมูล');
+            $('#btnSpinner').hide();
+
             $('#ModalRepairSaveAdmin').hide();
             $('.modal-backdrop').hide();
             if (res == 1) {
@@ -267,6 +276,12 @@ $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
                 )
             }
            
+        },
+        error: function() {
+            $('#btnSaveRepair').prop('disabled', false);
+            $('#btnSaveText').text('บันทึกข้อมูล');
+            $('#btnSpinner').hide();
+            Swal.fire('แจ้งเตือน!', 'เกิดข้อผิดพลาดระหว่างบันทึก!', 'error');
         }
     });
 });

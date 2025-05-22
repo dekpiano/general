@@ -31,7 +31,7 @@ class ConUserCarBooking extends BaseController
     {
         $session = session();
         $data = $this->DataMain();
-        $data['title']="หน้าแรก | จองรถ";
+        $data['title']="ระบบจองรถ";
         $data['description']="ระบบสำหรับจองรถภายในโรงเรียน";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingMain';

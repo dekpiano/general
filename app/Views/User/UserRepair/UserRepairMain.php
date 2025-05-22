@@ -12,22 +12,26 @@
     <div class="content-wrapper">
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
-
-            <ul class="nav nav-pills flex-column flex-md-row mb-3">
-                <li class="nav-item me-3 mb-2">
-                    <a class="nav-link active" href="<?=base_url('Repair/Add')?>"><i class="bx bx-bell me-1"></i>
-                        แจ้งซ่อม/แจ้งปัญหา</a>
-                </li>
-                <li class="nav-item me-3 mb-2">
-                    <a class="nav-link active" href="<?=base_url('Repair')?>"><i class="bx bx-user me-1"></i>
-                        สถานะการซ่อม</a>
-                </li>
-
-                <li class="nav-item me-3 mb-2">
-                    <a class="nav-link active" href="<?=base_url('Repair/RepairStatistics')?>"><i
-                            class="bx bx-link-alt me-1"></i> สถิติแจ้งซ่อม</a>
-                </li>
-            </ul>
+            <div class="repair-menu-mobile">
+                <a class="repair-btn-mobile" href="<?=base_url('Repair/Add')?>">
+                    <span class="repair-icon-mobile">
+                        <i class="bi bi-bell"></i>
+                    </span>
+                    <span class="repair-label-mobile">แจ้งซ่อม/แจ้งปัญหา</span>
+                </a>
+                <a class="repair-btn-mobile" href="<?=base_url('Repair')?>">
+                    <span class="repair-icon-mobile">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    <span class="repair-label-mobile">สถานะการซ่อม</span>
+                </a>
+                <a class="repair-btn-mobile" href="<?=base_url('Repair/RepairStatistics')?>">
+                    <span class="repair-icon-mobile">
+                        <i class="bi bi-bar-chart"></i>
+                    </span>
+                    <span class="repair-label-mobile">สถิติแจ้งซ่อม</span>
+                </a>
+            </div>
 
             <div class="card p-3">
                 <h5 class="card-header">ตารางแจ้งซ่อม</h5>
@@ -47,6 +51,97 @@
                     white-space: nowrap;
                     display: inline-block;
                     animation: typing 3s steps(40, end) infinite;
+                }
+
+                .repair-menu-mobile {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                    margin: 16px 0;
+                }
+
+                .repair-btn-mobile {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    background: #fff;
+                    border: none;
+                    border-radius: 1rem;
+                    box-shadow: 0 1px 6px rgba(44, 76, 255, 0.10);
+                    padding: 18px 16px;
+                    font-size: 1.1rem;
+                    transition: box-shadow 0.18s, background 0.18s;
+                }
+
+                .repair-btn-mobile:active,
+                .repair-btn-mobile:focus {
+                    background: #eaf0ff;
+                    box-shadow: 0 3px 16px rgba(44, 76, 255, 0.20);
+                }
+
+                .repair-icon-mobile {
+                    background: #556cff;
+                    color: #fff;
+                    border-radius: 50%;
+                    font-size: 1.55rem;
+                    width: 2.8rem;
+                    height: 2.8rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 16px;
+                }
+
+                .repair-label-mobile {
+                    font-weight: 600;
+                    color: #333;
+                    font-size: 1.07rem;
+                    letter-spacing: 0.02em;
+                }
+
+                .repair-btn-mobile {
+                    /* ...เดิม... */
+                    transition: box-shadow 0.18s, background 0.18s, transform 0.18s;
+                }
+
+                .repair-btn-mobile:hover,
+                .repair-btn-mobile:focus,
+                .repair-btn-mobile:active {
+                    background: #f1f4ff;
+                    box-shadow: 0 3px 16px rgba(44, 76, 255, 0.18);
+                    transform: translateY(-2px) scale(1.03);
+                }
+
+                .repair-btn-mobile:hover .repair-icon-mobile,
+                .repair-btn-mobile:focus .repair-icon-mobile,
+                .repair-btn-mobile:active .repair-icon-mobile {
+                    background: #3245d6;
+                    transform: scale(1.13) rotate(-6deg);
+                    transition: background 0.16s, transform 0.18s;
+                }
+
+                .repair-btn-mobile:hover .repair-label-mobile,
+                .repair-btn-mobile:focus .repair-label-mobile,
+                .repair-btn-mobile:active .repair-label-mobile {
+                    color: #1d275a;
+                    font-weight: 700;
+                }
+
+
+                /* Responsive: บนจอใหญ่ >600px ให้แสดงแนวนอน */
+                @media (min-width: 600px) {
+                    .repair-menu-mobile {
+                        flex-direction: row;
+                        justify-content: flex-start;
+                        gap: 18px;
+                    }
+
+                    .repair-btn-mobile {
+                        width: auto;
+                        min-width: 170px;
+                        justify-content: flex-start;
+                    }
+
                 }
                 </style>
                 <table class="table table-hover nowrap dataTable dtr-inline collapsed" id="TbDataRepair">
@@ -173,4 +268,3 @@
         </div>
     </div>
 </div>
-

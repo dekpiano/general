@@ -81,6 +81,7 @@ class ConLogin extends BaseController
                             $newdata = [
                                 'username'  => $User['pers_prefix'].$User['pers_firstname'].' '.$User['pers_lastname'],
                                 'id'     => $User['pers_id'],
+                                'pers_img' => $User['pers_img'],
                                 'logged_in' => true,
                                 'rloes' => $User2['rloesAll'],
                                 'status' => (isset($User2) != "" ?$User2['admin_rloes_status']:"Member")

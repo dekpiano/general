@@ -29,8 +29,8 @@ class ConUserRepair extends BaseController
         $builder = $database->table('tb_location');
 
         $data = $this->DataMain();
-        $data['title']="ระบบงานแจ้งซ่อม";
-        $data['description']="หน้าแรกระบบงานแจ้งซ่อม";
+        $data['title']="ระบบงานแจ้งซ่อมออนไลน์";
+        $data['description']="หน้าแรกระบบงานแจ้งซ่อมออนไลน์";
         $data['UrlMenuMain'] = 'Repair';
         $data['UrlMenuSub'] = '';
         $data['Datethai'] = new Datethai();
