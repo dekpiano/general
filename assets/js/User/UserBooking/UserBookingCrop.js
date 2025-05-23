@@ -16,14 +16,24 @@ $('#imageInput').on('change', function (e) {
     }
 
     croppieInstance = new Croppie($('#croppieContainer')[0], {
-        viewport: { width: 500, height: 300, type: 'square' }, // 16:9 aspect ratio
-        boundary: { width: 510, height: 310 },
+        viewport: { width: 320, height: 180, type: 'square' }, // 16:9 แนวนอน
+        boundary: { width: 350, height: 200 },
+        enableOrientation: true , // สำคัญ!m
       showZoomer: true
     });
 
     croppieInstance.bind({ url: e.target.result });
   };
   reader.readAsDataURL(file);
+});
+
+// หมุนซ้าย
+$('#rotateLeftBtn').on('click', function() {
+    if (croppieInstance) croppieInstance.rotate(-90);
+});
+// หมุนขวา
+$('#rotateRightBtn').on('click', function() {
+    if (croppieInstance) croppieInstance.rotate(90);
 });
 
 $('#cropBtn').on('click', function () {

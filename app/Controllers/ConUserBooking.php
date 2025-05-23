@@ -641,7 +641,7 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,booking_executive_approve,location_name,
+       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,booking_executive_approve,location_name,booking_imgWork,
         CONCAT(p1.pers_prefix, p1.pers_firstname, " ", p1.pers_lastname) AS booker_name,
         CONCAT(p2.pers_prefix, p2.pers_firstname, " ", p2.pers_lastname) AS admin_name,
         CONCAT(p3.pers_prefix, p3.pers_firstname, " ", p3.pers_lastname) AS executive_name')
@@ -670,6 +670,7 @@ class ConUserBooking extends BaseController
                 'booker' => $value->booker_name,
                 'admin_name' => $value->admin_name,
                 'executive_name' => $value->executive_name,
+                'booking_imgWork' => $value->booking_imgWork,
             ];        
         }
 

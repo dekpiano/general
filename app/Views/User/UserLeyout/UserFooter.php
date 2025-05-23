@@ -72,7 +72,7 @@
     <?php if($uri->getSegment(1) == 'Booking') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=26"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingCrop.js?v=2"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingCrop.js?v=3"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingChart.js?v=1.3"></script>
 
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>

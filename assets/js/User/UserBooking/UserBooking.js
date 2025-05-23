@@ -40,7 +40,7 @@ $('#TBShowDataBookingAdmin').DataTable({
         {
             data: 'location_name',
             render: function (data, type, row) {
-                return data + "<br><small>" + row.booking_dateStart + ' ถึง ' + row.booking_dateEnd + '</small>';
+                return data + "<br><small>" + row.booking_dateStart + ' ถึง ' + row.booking_dateEnd + '</small><br><small> ผังงาน : <a href="../../uploads/User/Booking/' + row.booking_imgWork+'" class="open-popup" data-bs-toggle="modal" data-bs-target="#myModal">เปิดดู</a></small>';
             }
         },
         {
@@ -325,6 +325,17 @@ function formatThaiDate(date) {
     return thaiDate;
 }
 
+
+$(document).on('click', 'a.open-popup', function(e) {
+    e.preventDefault();
+    var url = $(this).attr('href');
+    $('#modalBody').html('<div class="text-center py-3">กำลังโหลด...</div>');
+    $('#myModal').modal('show');
+    //$.get(url, function(data) {
+        $('#modalBody').html('<img src="' + url + '" class="img-fluid" alt="Image">');
+    //});
+});
+
 var calendarEl = document.getElementById('CalendarBooking');
 
 var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -387,5 +398,4 @@ var calendar = new FullCalendar.Calendar(calendarEl, {
     }
 });
 calendar.render();
-
 

@@ -206,6 +206,8 @@
                                                 <input type="file" id="imageInput" accept="image/*"
                                                     class="form-control">
                                                 <div id="croppieContainer" class="mt-3"></div>
+                                                <button type="button" class="btn btn-warning" id="rotateLeftBtn">⟲ หมุนซ้าย</button>
+<button type="button" class="btn btn-warning" id="rotateRightBtn">⟳ หมุนขวา</button>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
