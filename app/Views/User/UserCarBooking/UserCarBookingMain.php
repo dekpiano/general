@@ -58,7 +58,7 @@
 
                 <div class="col-sm-6 col-lg-3 mb-4">
                     <a target="_blank"
-                        href="https://www.canva.com/design/DAF1VkidVas/KTSxUIGCXwAmE8OLcTfXyg/view?utm_content=DAF1VkidVas&utm_campaign=designshare&utm_medium=link&utm_source=editor">
+                        href="https://www.canva.com/design/DAGotnnu12w/mkKLBaHyz0OPtCi64k9lNA/view?utm_content=DAGotnnu12w&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hb833e4e0bb">
                         <div class="h-100 cards border border-success rounded d-flex">
                             <div class="card-body align-self-center">
                                 <div class="d-flex align-items-center mb-2 pb-1">
