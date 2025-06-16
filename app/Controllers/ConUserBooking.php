@@ -734,28 +734,100 @@ class ConUserBooking extends BaseController
         $Datethai = new Datethai();  
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
+        $DBpersonnel = \Config\Database::connect('personnel');
+        $DBpers = $DBpersonnel->table('personnel'); 
+
+      
 
         if($_SESSION['status'] === "ExecutiveGeneral"){
             $Approve = ['booking_executive_approve'=>'อนุมัติ','booking_executive_reason'=>'','booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
+        }else if($_SESSION['status'] === "AdminGeneral"){
+             $Approve = ['booking_admin_approve'=>'อนุมัติ','booking_admin_reason'=>'','booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];             
         }
-            $Approve = ['booking_admin_approve'=>'อนุมัติ','booking_admin_reason'=>'','booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
-        
 
-        $upApprove = $DBbooking->where('booking_id',$this->request->getPost('BookingID'))
-        ->update($Approve);
+        $upApprove = $DBbooking->where('booking_id',$this->request->getPost('BookingID'))->update($Approve);
         if($upApprove){
+            
+            $CheckUserForEmail = $DBbooking->select('
+            skjacth_personnel.tb_personnel.pers_username,
+            skjacth_general.tb_booking.booking_order,
+            skjacth_personnel.tb_personnel.pers_prefix,
+            skjacth_personnel.tb_personnel.pers_firstname,
+            skjacth_personnel.tb_personnel.pers_lastname,
+            skjacth_general.tb_booking.booking_dateStart,
+            skjacth_general.tb_booking.booking_dateEnd,
+            skjacth_general.tb_location.location_name,
+            skjacth_general.tb_booking.booking_title')
+            ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
+            ->join('skjacth_general.tb_location','skjacth_general.tb_booking.booking_locationroom = skjacth_general.tb_location.location_ID')
+            ->where('booking_id',$this->request->getPost('BookingID'))
+            ->get()->getRow();
+            
+            //echo '<pre>';print_r(); exit();
             $email = \Config\Services::email(); // loading for use
            
-            $email->setFrom('admin_booking@skj.ac.th',"ระบบการจองอาคารสถานที่");
+            $email->setFrom($_SESSION['email'],"ระบบการจองอาคารสถานที่");
      
             // Send to Users     
             $email->setTo([
-                "dekpiano@skj.ac.th"
+                $CheckUserForEmail->pers_username
             ]);
 
-            $email->setSubject("การจองรออนุมัติจากผู้ดูและระบบ เลขที่ ".$this->request->getVar('booking_order'));
+            $email->setSubject("การจองรออนุมัติจากผู้ดูและระบบ เลขที่ ".$CheckUserForEmail->booking_order);
 
-            $html = "<a class='' href='https://general.skj.ac.th/Booking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+            // $html = "<a class='' href='https://general.skj.ac.th/Booking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+
+            $html = '
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>แจ้งเตือนการขอใช้อาคารสถานที่ SKJ</title>
+                </head>
+                <body style="font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+                    <div class="email-container" style="max-width: 600px; margin: 30px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); overflow: hidden; border: 1px solid #e0e0e0;">
+                        <div class="header" style="background-color: #007bff; color: #ffffff; padding: 25px 30px; text-align: center; font-size: 24px; font-weight: bold;">
+                            <span class="icon" style="font-size: 30px; margin-right: 10px; vertical-align: middle;">📣</span> แจ้งเตือนการขอใช้อาคารสถานที่ SKJ
+                        </div>
+                        <div class="content" style="padding: 30px; color: #333333; line-height: 1.6;">
+                            <p style="margin-bottom: 15px; font-size: 16px;">เรียน '.$CheckUserForEmail->pers_prefix.$CheckUserForEmail->pers_firstname." ".$CheckUserForEmail->pers_lastname.',</p>
+                            <p style="margin-bottom: 15px; font-size: 16px;">การขอใช้อาคารสถานที่ได้รับการอนุมัติแล้ว </p>
+
+                            <table class="info-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                                
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top; border-bottom: 1px solid #eeeeee; font-weight: bold; color: #555555; width: 120px;">📅 วันที่ขอ:</td>
+                                    <td style="padding: 12px 0; vertical-align: top; border-bottom: 1px solid #eeeeee;">'.$Datethai->thai_date_fullmonth(strtotime($CheckUserForEmail->booking_dateStart)).' - '.$Datethai->thai_date_fullmonth(strtotime($CheckUserForEmail->booking_dateEnd)).'</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top; border-bottom: 1px solid #eeeeee; font-weight: bold; color: #555555; width: 120px;">⛪ สถานที่:</td>
+                                    <td style="padding: 12px 0; vertical-align: top; border-bottom: 1px solid #eeeeee;">'.$CheckUserForEmail->location_name.'</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top; border-bottom: none; font-weight: bold; color: #555555; width: 120px;">🎯 วัตถุประสงค์:</td>
+                                    <td style="padding: 12px 0; vertical-align: top; border-bottom: none;">'.$CheckUserForEmail->booking_title.'</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top; border-bottom: 1px solid #eeeeee; font-weight: bold; color: #555555; width: 120px;">👤 เจ้าหน้าที่ผู้อนุมัติ:</td>
+                                    <td style="padding: 12px 0; vertical-align: top; border-bottom: 1px solid #eeeeee;">'.$_SESSION['username'].'</td>
+                                </tr>
+                            </table>
+
+                            <p style="margin-top: 30px; margin-bottom: 15px; font-size: 16px;">ขอบคุณครับ/ค่ะ</p>
+                            <p style="margin-bottom: 15px; font-size: 16px;">ระบบการจองอาคารสถานที่ SKJ</p>
+                        </div>
+                        <div class="button-container" style="text-align: center; padding: 20px 30px 30px;">
+                            <a href="https://general.skj.ac.th/Booking/View/All" class="button" target="_blank" style="display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 25px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 17px; transition: background-color 0.3s ease;">ตรวจสอบข้อมูลและอนุมัติ</a>
+                        </div>
+                        <div class="footer" style="text-align: center; padding: 20px; font-size: 13px; color: #999999; border-top: 1px solid #eeeeee; margin-top: 20px;">
+                            <p style="margin: 0;">อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ</p>
+                            <p style="margin: 5px 0 0;">&copy; 2025 SKJ. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>';
+
             $email->setMessage($html);
 
             // Send email
