@@ -49,7 +49,8 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"></script>
+    <script src="<?=base_url()?>/assets/js/select2.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
     <!-- Vendors JS -->
@@ -113,6 +114,9 @@ $(function() {
     </script>
 
     <script>
+        $('.select2Teach').select2();
+         $('#booking_telephone').inputmask('99-9999-9999');
+
 flatpickr.localize(flatpickr.l10ns.th);
 
 // function setBuddhistYear(instance) {

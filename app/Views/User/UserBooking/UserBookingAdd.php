@@ -206,8 +206,10 @@
                                                 <input type="file" id="imageInput" accept="image/*"
                                                     class="form-control">
                                                 <div id="croppieContainer" class="mt-3"></div>
-                                                <button type="button" class="btn btn-warning" id="rotateLeftBtn">⟲ หมุนซ้าย</button>
-<button type="button" class="btn btn-warning" id="rotateRightBtn">⟳ หมุนขวา</button>
+                                                <button type="button" class="btn btn-warning" id="rotateLeftBtn">⟲
+                                                    หมุนซ้าย</button>
+                                                <button type="button" class="btn btn-warning" id="rotateRightBtn">⟳
+                                                    หมุนขวา</button>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
@@ -224,18 +226,39 @@
                                 <hr>
                                 <div class="row mb-3 g-3">
                                     <div class="col-md-6">
+                                        <?php   
+                                           $ExRloes = explode(",",$_SESSION['rloes']);                                           
+                                           if(!in_array('งานอาคารสถานที่', $ExRloes)) : ?>
                                         <div class="form-floating">
                                             <input type="text" id="" name="" class="form-control"
                                                 placeholder="ชื่อผู้จอง" value="<?=$_SESSION['username']?>" readonly>
-                                            <label for="">ชื่อผู้จอง</label>
+                                            <label for="">ชื่อผู้จอง </label>
                                         </div>
                                         <input type="hidden" id="booking_Booker" name="booking_Booker"
                                             class="form-control" value="<?=$_SESSION['id']?>" readonly required>
+                                        <?php else: ?>
+                                            <style>
+                                                .form-floating .select2-container + .hidden-label {
+    display: none;
+}
+
+                                            </style>
+                                        <div class="form-floating">
+                                            <select class="form-select select2Teach" id="booking_Booker" name="booking_Booker" required> 
+                                                <option value="">-- เลือกผู้จอง --</option>
+                                                <?php foreach ($ListUser as $key => $value): ?>
+                                                <option value="<?=$value->pers_id?>"><?=$value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <label for="">ชื่อผู้จอง </label>
+                                        </div>
+
+                                        <?php endif; ?>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" id="booking_telephone" name="booking_telephone"
-                                                class="form-control" placeholder="ใส่เบอร์โทรศัพท์">
+                                                class="form-control" placeholder="ใส่เบอร์โทรศัพท์" >
                                             <label for="booking_telephone">เบอร์โทรศัพท์</label>
                                         </div>
                                         <div class="invalid-feedback">

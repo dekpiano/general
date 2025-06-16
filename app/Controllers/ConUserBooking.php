@@ -102,6 +102,9 @@ class ConUserBooking extends BaseController
         $data['UrlMenuMain'] = 'Booking';
         $data['UrlMenuSub'] = 'BookingAdd'; 
         $data['Datethai'] = new Datethai();      
+
+        $databasepers = \Config\Database::connect('personnel');
+        $DBpers = $databasepers->table('tb_personnel');
       
         $database = \Config\Database::connect();
         $DBlocation = $database->table('tb_location');
@@ -125,7 +128,15 @@ class ConUserBooking extends BaseController
            $data['BookLatest'] = $sub[0]."_".(((int)$sub[1])+1);
         }
         
-        
+        $data['ListUser'] = $DBpers->select('pers_id,pers_prefix,pers_firstname,pers_lastname')
+        ->where('pers_status','กำลังใช้งาน')
+        ->orderBy('pers_position','ASC')
+        ->orderBy('pers_learning','ASC')
+        ->get()->getResult();
+
+        //print_r($data['ListUser']);exit();
+
+
         return view('User/UserLeyout/UserHeader',$data)
                 .view('User/UserLeyout/UserMenuLeft')
                 .view('User/UserBooking/UserBookingAdd')
