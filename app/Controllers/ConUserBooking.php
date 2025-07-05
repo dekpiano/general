@@ -498,6 +498,7 @@ class ConUserBooking extends BaseController
         ->where('booking_locationroom', $locationroom)
         ->where("STR_TO_DATE(CONCAT(booking_dateStart, ' ', booking_timeStart), '%Y-%m-%d %H:%i:%s') < '$proposedEnd'", null, false)
         ->where("STR_TO_DATE(CONCAT(booking_dateEnd, ' ', booking_timeEnd), '%Y-%m-%d %H:%i:%s') > '$proposedStart'", null, false)
+        ->where('booking_admin_approve !=', 'ไม่อนุมัติ')
         ->get()->getResult();
         //print_r($CheckDateBookign);
         if(!$CheckDateBookign){
