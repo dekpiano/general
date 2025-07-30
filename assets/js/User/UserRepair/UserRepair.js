@@ -1,7 +1,7 @@
 function toThaiDateString(date) {
     let monthNames = [
         "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
-        "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม.",
+        "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
         "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
     ];
 
@@ -45,33 +45,69 @@ function ShowDataLocationRoom() {
             'url': 'Repair/DataTable/ShowRepari'
         },
         order: [
-            [2, 'desc']
+            [3, 'desc']
         ],
         'columns': [
-            { data: 'repair_datetime' },
             {
                 data: 'repair_status',
+                className: 'all',
                 render: function(data, type, row) {
-                    if (data == "รอดำเนินการ") {
-                        return '<span class="badge  bg-label-warning ">' + data + '</span>';
-                    } else if (data == "กำลังดำเนินการ") {
-                        return '<span class="badge  bg-label-primary loading-text">' + data + '</span>';
-                    } else if (data == "ดำเนินการเรียบร้อย") {
-                        return '<span class="badge  bg-label-success">' + data + '</span>';
-                    } else {
-                        return '<span class="badge  bg-label-danger">' + data + '</span>';
+                    let icon = '';
+                    let className = '';
+                    let extraClass = '';
+                    switch (data) {
+                        case "รอดำเนินการ":
+                            icon = 'bi-clock-history';
+                            className = 'badge bg-label-warning';
+                            break;
+                        case "กำลังดำเนินการ":
+                            icon = 'bi-gear';
+                            className = 'badge bg-label-primary';
+                            extraClass = 'loading-text';
+                            break;
+                        case "ดำเนินการเรียบร้อย":
+                            icon = 'bi-check-circle';
+                            className = 'badge bg-label-success';
+                            break;
+                        default:
+                            icon = 'bi-x-circle';
+                            className = 'badge bg-label-danger';
                     }
-
+                    return `<span class="${className} ${extraClass}"><i class="bi ${icon} me-1"></i> ${data}</span>`;
                 }
             },
-            { data: 'repair_order' },
-            { data: 'UserFullname' },
-            { data: 'repair_caselist' },
-
+            {
+                data: 'repair_caselist',
+                className: 'all',
+                render: function(data, type, row) {
+                    return `<i class="bi bi-list-check text-muted me-2"></i>${data}`;
+                }
+            },
+            {
+                data: 'repair_datetime',
+                render: function(data, type, row) {
+                    if (type === 'display' && data) {
+                        return '<i class="bi bi-calendar-check text-muted me-2"></i>' + data;
+                    }
+                    return data;
+                }
+            },
+            {
+                data: 'repair_order',
+                render: function(data, type, row) {
+                    return `<i class="bi bi-file-earmark-text text-muted me-2"></i>${data}`;
+                }
+            },
+            {
+                data: 'UserFullname',
+                render: function(data, type, row) {
+                    return `<i class="bi bi-person text-muted me-2"></i>${data}`;
+                }
+            },
             {
                 data: 'repair_ID',
                 render: function(data, type, row) {
-                    return '<a href="Repair/View/'+row.repair_order+'" data-id="' + row.repair_ID + '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>';
+                    return '<a href="Repair/View/' + row.repair_order + '" data-id="' + row.repair_ID + '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>';
                 }
             }
         ]
@@ -136,70 +172,119 @@ $(document).on('change', '#repair_posi', function() {
     }, 'json');
 });
 
-document.addEventListener('submit', async function (e) {
+document.addEventListener('submit', async function(e) {
     if (e.target && e.target.id === 'FormAddRepair') {
         e.preventDefault();
 
-        const token = document.querySelector('textarea[name="h-captcha-response"]')?.value;
-        if (!token) {
-            alert('❌ กรุณายืนยันว่าไม่ใช่บอท (Captcha)');
+        const form = e.target;
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
             return;
         }
 
-        if (signaturePad.isEmpty()) {
-            Swal.fire('แจ้งเตือน!', 'กรุณาลงลายมือชื่อก่อนบันทึก!', 'warning');
-            return;
-        }
-
-        const dataURL = signaturePad.toDataURL('image/svg+xml');
-        const form = document.getElementById('FormAddRepair');
         const formData = new FormData(form);
-
-        formData.append('h-captcha-response', token);
-        formData.append('Signature', dataURL);
-
-        // เปลี่ยนปุ่มขณะส่ง
-        const btn = document.getElementById('BtnSubRepair');
-        btn.innerHTML = '<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span>กำลังบันทึก...</span>';
-        btn.classList.add("disabled");
-
-        try {
-            const res = await fetch('../Repair/DB/Insert', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await res.text();
-
-            if (data) {
-                Swal.fire({
-                    title: 'แจ้งเตือน?',
-                    text: "บันทึกแจ้งซ่อมสำเร็จ!",
-                    icon: 'success',
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'ตกลง!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "../Repair";
-                    }
-                });
-            } else if (data == "ErrorSendEmail") {
-                Swal.fire('แจ้งเตือน!', 'ส่ง Email ผิดพลาด!', 'error');
-            } else if (data == "ErrorhCaptcha") {
-                Swal.fire('แจ้งเตือน!', 'ยืนยันความเป็นมนุษย์ด้วย!', 'warning');
-            } else {
-                console.error('🔴 ไม่รู้จักคำตอบ:', data);
-            }
-
-        } catch (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดระหว่างส่งข้อมูล', 'error');
+        const repair_posi = formData.get('repair_posi') ? $(form).find('#repair_posi option:selected').text() : 'ไม่ได้ระบุ';
+        const repair_userID = formData.get('repair_userID') ? $(form).find('#repair_userID option:selected').text() : 'ไม่ได้ระบุ';
+        const repair_building = formData.get('repair_building') || 'ไม่ได้ระบุ';
+        const repair_class = formData.get('repair_class') || 'ไม่ได้ระบุ';
+        const repair_room = formData.get('repair_room') || 'ไม่มี';
+        const repair_phone = formData.get('repair_phone') || 'ไม่ได้ระบุ';
+        const repair_caselist = formData.get('repair_caselist') || 'ไม่ได้ระบุ';
+        const repair_detail = formData.get('repair_detail') || 'ไม่มี';
+        const imageInput = form.querySelector('#repair_imguser');
+        let imageUrl = null;
+        if (imageInput.files && imageInput.files[0]) {
+            imageUrl = URL.createObjectURL(imageInput.files[0]);
         }
 
-        // ปิดสถานะรอโหลด
-        btn.classList.remove("disabled");
-        document.getElementById('spinner')?.remove();
-        btn.innerHTML = "บันทึกแจ้งซ่อม";
+        const confirmationHtml = `
+            <div style="text-align: left; padding: 1rem;">
+                <p><strong><i class="bi bi-person-badge"></i> ตำแหน่ง:</strong> ${repair_posi}</p>
+                <p><strong><i class="bi bi-person-circle"></i> ผู้แจ้งซ่อม:</strong> ${repair_userID}</p>
+                <hr>
+                <p><strong><i class="bi bi-building"></i> สถานที่:</strong> อาคาร ${repair_building} ชั้น ${repair_class} ห้อง ${repair_room}</p>
+                <p><strong><i class="bi bi-telephone"></i> เบอร์โทรติดต่อ:</strong> ${repair_phone}</p>
+                <hr>
+                <p><strong><i class="bi bi-tools"></i> รายการแจ้งซ่อม:</strong> ${repair_caselist}</p>
+                <p><strong><i class="bi bi-card-text"></i> รายละเอียด:</strong> ${repair_detail}</p>
+                ${imageUrl ? `<hr><p><strong><i class="bi bi-image"></i> รูปภาพที่แนบ:</strong></p><img src="${imageUrl}" class="img-fluid rounded">` : ''}
+            </div>
+        `;
+
+        Swal.fire({
+            title: 'โปรดยืนยันข้อมูล',
+            html: confirmationHtml,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ยืนยันการแจ้งซ่อม',
+            cancelButtonText: 'ยกเลิก',
+            onClose: () => {
+                if (imageUrl) {
+                    URL.revokeObjectURL(imageUrl); // Clean up the object URL
+                }
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const token = document.querySelector('textarea[name="h-captcha-response"]')?.value;
+                if (!token) {
+                    Swal.fire('แจ้งเตือน!', 'กรุณายืนยันว่าไม่ใช่บอท (Captcha)', 'warning');
+                    return;
+                }
+
+                if (signaturePad.isEmpty()) {
+                    Swal.fire('แจ้งเตือน!', 'กรุณาลงลายมือชื่อก่อนบันทึก!', 'warning');
+                    return;
+                }
+
+                const dataURL = signaturePad.toDataURL('image/svg+xml');
+                formData.append('h-captcha-response', token);
+                formData.append('Signature', dataURL);
+
+                const btn = document.getElementById('BtnSubRepair');
+                btn.innerHTML = '<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span>กำลังบันทึก...</span>';
+                btn.classList.add("disabled");
+
+                try {
+                    const res = await fetch('../Repair/DB/Insert', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await res.text();
+
+                    if (data) {
+                        Swal.fire({
+                            title: 'แจ้งเตือน?',
+                            text: "บันทึกแจ้งซ่อมสำเร็จ!",
+                            icon: 'success',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'ตกลง!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "../Repair";
+                            }
+                        });
+                    } else if (data == "ErrorSendEmail") {
+                        Swal.fire('แจ้งเตือน!', 'ส่ง Email ผิดพลาด!', 'error');
+                    } else if (data == "ErrorhCaptcha") {
+                        Swal.fire('แจ้งเตือน!', 'ยืนยันความเป็นมนุษย์ด้วย!', 'warning');
+                    } else {
+                        console.error('🔴 ไม่รู้จักคำตอบ:', data);
+                    }
+
+                } catch (err) {
+                    console.error('❌ เกิดข้อผิดพลาด:', err);
+                    Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดระหว่างส่งข้อมูล', 'error');
+                } finally {
+                    btn.classList.remove("disabled");
+                    document.getElementById('spinner')?.remove();
+                    btn.innerHTML = "บันทึกแจ้งซ่อม";
+                }
+            }
+        });
     }
 });
 

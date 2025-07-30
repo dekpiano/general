@@ -1,47 +1,47 @@
-<!-- Layout container -->
 <div class="layout-page">
     <?php echo view('User/UserLeyout/UserNavbar'); ?>
 
     <!-- Content wrapper -->
     <div class="content-wrapper">
         <!-- Content -->
-        <div class="container-xxl flex-grow-1 container-p-y demo">
+        <div class="container-xxl flex-grow-1 container-p-y">
 
-            <ul class="nav nav-pills flex-column flex-md-row mb-3">
-                <li class="nav-item me-3 mb-2">
-                    <a class="nav-link active" href="<?=base_url('Repair/Add')?>"><i class="bx bx-bell me-1"></i>
-                        แจ้งซ่อม/แจ้งปัญหา</a>
-                </li>
-                <li class="nav-item me-3 mb-2">
-                    <a class="nav-link active" href="<?=base_url('Repair')?>"><i class="bx bx-user me-1"></i>
-                        สถานะการซ่อม</a>
-                </li>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-style1">
+                    <li class="breadcrumb-item">
+                        <a href="<?= base_url('Repair') ?>">งานแจ้งซ่อม</a>
+                    </li>
+                    <li class="breadcrumb-item active">สถิติการแจ้งซ่อม</li>
+                </ol>
+            </nav>
 
-                <li class="nav-item me-3 mb-2">
-                    <a class="nav-link active" href="pages-account-settings-connections.html"><i
-                            class="bx bx-link-alt me-1"></i> สถิติแจ้งซ่อม</a>
-                </li>
-            </ul>
+            <h4 class="py-3 mb-4">
+                สถิติการแจ้งซ่อม
+            </h4>
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-lg-6 mb-4">
                     <div class="card">
+                        <h5 class="card-header">สถิติแยกตามประเภท</h5>
                         <div class="card-body">
-                            <div id="chart-type"></div>
+                            <div id="chart-type" style="min-height: 365px;"></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-lg-6 mb-4">
                     <div class="card">
+                        <h5 class="card-header">สถิติแยกตามสถานะ</h5>
                         <div class="card-body">
-                            <div id="chart-status"></div>
+                            <div id="chart-status" style="min-height: 365px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
+        <!-- / Content -->
+
+        <div class="content-backdrop fade"></div>
     </div>
     <!-- Content wrapper -->
 </div>
-<!-- / Layout page -->

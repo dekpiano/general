@@ -47,6 +47,7 @@
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/demo.css?v=1" />
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/flatpickr.css?v=3" />
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/select2.css?v=2" />
+    <link rel="stylesheet" href="<?=base_url()?>/assets/css/user-repair.css?v=1" />
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> -->
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="<?=base_url()?>/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
@@ -68,32 +69,6 @@
     <script src="<?=base_url()?>/assets/js/config.js"></script>
 </head>
 
-<style>
-    .light-style .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 4.60rem;
-    color: #697a8d;
-    padding-left: .875rem;
 
-}
-
-.light-style .select2-container--default .select2-selection--single {
-    height: calc(2.60em + 0.875rem + 2px);
-}
-
-/* ฟอร์มที่มี .was-validated */
-.was-validated select:valid+.select2 .select2-selection,
-.was-validated .is-valid+.select2 .select2-selection {
-    border-color: #71dd37 !important;
-    /* สีเขียวของ BS 5 */
-    /*padding-right: calc(1.5em + 0.75rem);*/
-}
-
-.was-validated select:invalid+.select2 .select2-selection,
-.was-validated .is-invalid+.select2 .select2-selection {
-    border-color: #dc3545 !important;
-    /* สีแดง */
-   /* padding-right: calc(1.5em + 0.75rem);*/
-}
-</style>
 
 <body style="font-family:'Sarabun'">

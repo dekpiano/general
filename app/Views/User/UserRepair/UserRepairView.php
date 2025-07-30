@@ -3,147 +3,130 @@
     <!-- Content wrapper -->
     <div class="content-wrapper">
         <!-- Content -->
-        <div class="container-xxl flex-grow-1 container-p-y demo">
-            <h4 class="py-3 mb-4 row justify-content-between">
-                <div class="col-md-6">
-                    <span class="text-muted fw-light"><a href="<?=base_url('Repair')?>">งานแจ้งซ่อม</a> /</span>
-                    <?=$title?>
-                </div>
-                <div class="col-md-6 mt-xs-3 text-md-end text-sm-center">
+        <div class="container-xxl flex-grow-1 container-p-y">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-style1 mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="<?= base_url('Repair') ?>">งานแจ้งซ่อม</a>
+                        </li>
+                        <li class="breadcrumb-item active"><?=$title?></li>
+                    </ol>
+                </nav>
+                <div>
                     <?php $checkRloes = explode(",",@$_SESSION['rloes']);?>
                     <?php if(!empty($_SESSION['username']) && $_SESSION['username'] != '' && in_array("งานแจ้งซ่อม",$checkRloes) || in_array("งานอาคารสถานที่",$checkRloes)):?>
-                    <button type="button" class="btn btn-secondary" id="ModalFormAdmin">สำหรับผู้ซ่อม</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="ModalFormAdmin">สำหรับผู้ซ่อม</button>
                     <?php endif; ?>
                     <a href="<?=base_url('Repair/PrintOrder/').$Order[0]->repair_order?>" target="_blank"
-                        class="btn btn-primary PrintOrder">พิมพ์ใบแจ้งซ่อม</a>
+                        class="btn btn-primary btn-sm PrintOrder">พิมพ์ใบแจ้งซ่อม</a>
                 </div>
-            </h4>
+            </div>
 
-            <div class="card">
-                <div class="card-body">
-                    <div class="bg-primary text-white p-2">
-                        ข้อมูลการแจ้งปัญหา
+            <div class="row">
+                <div class="col-lg-7 mb-4">
+                    <div class="card">
+                        <h5 class="card-header">ข้อมูลการแจ้งปัญหา</h5>
+                        <div class="card-body">
+                            <dl class="row mb-4">
+                                <dt class="col-sm-4 fw-medium">หมายเลขใบแจ้งซ่อม:</dt>
+                                <dd class="col-sm-8" id="show_repair_order"><?=$Order[0]->repair_order?></dd>
+
+                                <dt class="col-sm-4 fw-medium">วันที่แจ้งซ่อม:</dt>
+                                <dd class="col-sm-8" id="show_repair_datetime"><?=$Datethai->thai_date_and_time(strtotime($Order[0]->repair_datetime))?></dd>
+
+                                <dt class="col-sm-4 fw-medium">ผู้แจ้งซ่อม:</dt>
+                                <dd class="col-sm-8" id="show_repair_userID"><?=$Order[0]->pers_prefix.$Order[0]->pers_firstname.' '.$Order[0]->pers_lastname?></dd>
+
+                                <dt class="col-sm-4 fw-medium">ตำแหน่ง:</dt>
+                                <dd class="col-sm-8" id="show_repair_posi"><?=$Order[0]->posi_name?></dd>
+
+                                <dt class="col-sm-4 fw-medium">ประเภท:</dt>
+                                <dd class="col-sm-8" id="show_repair_caselist"><?=$Order[0]->repair_caselist?></dd>
+
+                                <dt class="col-sm-4 fw-medium">สถานที่:</dt>
+                                <dd class="col-sm-8" id="show_repair_location"><?=$Order[0]->repair_building.' ชั้น '.$Order[0]->repair_class.' ห้อง '.$Order[0]->repair_room?></dd>
+                            </dl>
+
+                            <h6 class="mb-2">รายละเอียดเพิ่มเติม</h6>
+                            <p id="show_repair_detail"><?=$Order[0]->repair_detail?></p>
+
+                            <h6 class="mt-4 mb-2">ภาพประกอบ</h6>
+                            <div id="show_repair_imguser">
+                                <?php if(!empty($Order[0]->repair_imguser)) : ?>
+                                <img src="<?=base_url('uploads/admin/Repair/User/').$Order[0]->repair_imguser?>" class="img-fluid rounded border" style="max-height: 400px;" alt="ภาพประกอบการแจ้งซ่อม">
+                                <?php else: ?>
+                                <p class="text-muted">(ไม่ได้แนบภาพมาด้วย)</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <th scope="row">หมายเลขใบแจ้งซ่อม</th>
-                                <td id="show_repair_order"> <?=$Order[0]->repair_order?></td>
-                            </tr>
-                            <tr>
-                                <th scope="col">รายการแจ้งซ่อม</th>
-                                <td scope="col">
-                                    <div>
-                                        ประเภท : <span id="show_repair_caselist"><?=$Order[0]->repair_caselist?></span>
-                                    </div>
-                                    <div>
-                                        สถานที่ : <span
-                                            id="show_repair_location"><?=$Order[0]->repair_building.' ชั้น '.$Order[0]->repair_class.' ห้อง '.$Order[0]->repair_room?></span>
-                                    </div>
-                                    <div>
-                                        <u> รายละเอียดเพิ่มเติม</u>
-                                    </div>
-                                    <div id="show_repair_detail"><?=$Order[0]->repair_detail?></div>
-                                    <div id="show_repair_imguser">
-                                        <?php  if(!empty($Order[0]->repair_imguser)) : ?>
-                                        <img src="<?=base_url('uploads/admin/Repair/User/').$Order[0]->repair_imguser?>"
-                                            class="img-fluid" alt="" srcset="">
-                                        <?php else: ?>
-                                        <?php echo "(ไม่ได้แนบภาพมาด้วย!)"; ?>
-                                        <?php endif; ?>
+                </div>
 
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col">วันที่แจ้งซ่อม</th>
-                                <td scope="col">
-                                    <span
-                                        id="show_repair_datetime"><?=$Datethai->thai_date_and_time(strtotime($Order[0]->repair_datetime))?></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col">ผู้แจ้งซ่อม</th>
-                                <td scope="col" id="show_repair_userID">
-                                    <?=$Order[0]->pers_prefix.$Order[0]->pers_firstname.' '.$Order[0]->pers_lastname?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col">ตำแหน่ง</th>
-                                <td scope="col" id="show_repair_posi"><?=$Order[0]->posi_name?></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="col-lg-5 mb-4">
+                    <div class="card">
+                        <h5 class="card-header">ข้อมูลการดำเนินการ</h5>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-5 fw-medium">สถานะ:</dt>
+                                <dd class="col-sm-7" id="show_repair_status">
+                                    <?php 
+                                        $status = $Order[0]->repair_status ?? 'รอดำเนินการ';
+                                        $badge_class = 'bg-label-secondary';
+                                        if ($status == 'กำลังดำเนินการ') $badge_class = 'bg-label-info';
+                                        if ($status == 'ดำเนินการเรียบร้อย') $badge_class = 'bg-label-success';
+                                        if ($status == 'ยกเลิก') $badge_class = 'bg-label-danger';
+                                    ?>
+                                    <span class="badge <?=$badge_class?>"><?=$status?></span>
+                                </dd>
 
-                    <div class="text-white p-2 bg-success mt-5">
-                        ข้อมูลการดำเนินการ
-                    </div>
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <th scope="col">สถานะการดำเนินการ</th>
-                                <td scope="col" id="show_repair_status"><?=$Order[0]->repair_status ?? 'รอดำเนินการ'?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">วันที่ดำเนินการ</th>
-                                <td id="show_repair_datework">
+                                <dt class="col-sm-5 fw-medium">วันที่ดำเนินการ:</dt>
+                                <dd class="col-sm-7" id="show_repair_datework">
                                     <?php 
                                     if($Order[0]->repair_datework == '0000-00-00 00:00:00' || $Order[0]->repair_datework == null){
-                                        echo "รอดำเนินการ";
+                                        echo "<span class='text-muted'>รอดำเนินการ</span>";
                                     }else{
                                         echo $Datethai->thai_date_and_time(strtotime($Order[0]->repair_datework));
                                     }
                                     ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col">ผู้ดำเนินการ</th>
-                                <td scope="col" id="show_repair_Repairman"><?=$Order[1]->Repairman ?? 'รอดำเนินการ'?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col">สาเหตุ/วิธีแก้ไข</th>
-                                <td scope="col" id="show_repair_cause"><?=$Order[0]->repair_cause ?? 'รอดำเนินการ'?>
-                                </td>
-                            </tr>
+                                </dd>
 
-                            <tr>
-                                <th scope="col">รูปภาพ</th>
-                                <td scope="col" id="show_repair_imgwork">
-                                    <?php
-                                        if($Order[0]->repair_imgwork != "") :
-                                    ?>
-                                    <img src="<?=base_url('uploads/admin/Repair/').$Order[0]->repair_imgwork?>"
-                                        class="img-fluid" alt="" srcset="">
-                                    <?php else: ?>
-                                    รอดำเนินการ
-                                    <?php endif; ?>
+                                <dt class="col-sm-5 fw-medium">ผู้ดำเนินการ:</dt>
+                                <dd class="col-sm-7" id="show_repair_Repairman"><?=$Order[1]->Repairman ?? "<span class='text-muted'>รอดำเนินการ</span>"?></dd>
+                            </dl>
 
+                            <h6 class="mt-4 mb-2">สาเหตุ/วิธีแก้ไข</h6>
+                            <p id="show_repair_cause"><?=$Order[0]->repair_cause ?? "<span class='text-muted'>รอดำเนินการ</span>"?></p>
 
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col">ลายมือชื่อผู้รับเรื่อง</th>
-                                <td scope="col" id="show_repair_adminsignature">
-                                    <?php
-                                        if($Order[0]->repair_adminsignature != "") :
-                                    ?>
-                                    <img src="<?=$Order[0]->repair_adminsignature?>" class="img-fluid" alt="" srcset="">
-                                    <?php else: ?>
-                                    รอดำเนินการ
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                            <h6 class="mt-4 mb-2">ภาพการดำเนินงาน</h6>
+                            <div id="show_repair_imgwork">
+                                <?php if(!empty($Order[0]->repair_imgwork)) : ?>
+                                <img src="<?=base_url('uploads/admin/Repair/').$Order[0]->repair_imgwork?>" class="img-fluid rounded border" style="max-height: 300px;" alt="ภาพการดำเนินงาน">
+                                <?php else: ?>
+                                <p class="text-muted">รอดำเนินการ</p>
+                                <?php endif; ?>
+                            </div>
 
+                            <h6 class="mt-4 mb-2">ลายมือชื่อผู้รับเรื่อง</h6>
+                            <div id="show_repair_adminsignature">
+                                <?php if(!empty($Order[0]->repair_adminsignature)) : ?>
+                                <img src="<?=$Order[0]->repair_adminsignature?>" class="img-fluid rounded border bg-light" style="max-height: 150px;" alt="ลายมือชื่อ">
+                                <?php else: ?>
+                                <p class="text-muted">รอดำเนินการ</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
             </div>
 
         </div>
+        <!-- / Content -->
+
+        <div class="content-backdrop fade"></div>
     </div>
+    <!-- Content wrapper -->
 </div>
 
 <!-- Modal -->
