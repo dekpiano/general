@@ -47,7 +47,7 @@
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/demo.css?v=1" />
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/flatpickr.css?v=3" />
     <link rel="stylesheet" href="<?=base_url()?>/assets/css/select2.css?v=2" />
-    <link rel="stylesheet" href="<?=base_url()?>/assets/css/user-repair.css?v=1" />
+    <link rel="stylesheet" href="<?=base_url()?>/assets/css/user-repair.css?v=2" />
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> -->
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="<?=base_url()?>/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />

@@ -69,9 +69,14 @@ body.print-page {
 }
 .print-signature-box {
     width: 50%;
-    text-align: center;
-    vertical-align: bottom;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
     padding: 0 10px;
+    box-sizing: border-box;
+    font-size: 16px;
+    text-align: center;
 }
 .print-signature-box img {
     max-width: 120px;
@@ -81,7 +86,7 @@ body.print-page {
 }
 .print-signature-box p {
     margin: 1px 0;
-    font-size: 12px;
+    font-size: 30px;
 }
 .print-signature-line {
     border-bottom: 1px dotted #000;

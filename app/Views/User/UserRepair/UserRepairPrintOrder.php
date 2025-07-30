@@ -108,7 +108,7 @@
                 </td>
                 <td class="print-signature-box">
                     <?php if($RepairUser[0]->repair_adminsignature) : ?>
-                    <img src="<?=$RepairUser[0]->repair_adminsignature;?>" alt="ลายเซ็นผู้รับซ่อม">
+                    <img src="<?=$RepairUser[0]->repair_adminsignature;?>" alt="ลายเซ็นผู้รับซ่อม" style="max-width: 200px; max-height: 100px;">
                     <?php endif; ?>
                     <div class="print-signature-line"></div>
                     <p>(<?=@$Repairman[0]->pers_prefix.@$Repairman[0]->pers_firstname.' '.@$Repairman[0]->pers_lastname ?? '...........................................'?>)</p>
@@ -117,10 +117,6 @@
                 </td>
             </tr>
         </table>
-
-        <div class="print-footer">
-            <p>เอกสารนี้จัดทำโดยระบบแจ้งซ่อมออนไลน์ โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</p>
-        </div>
 
     </div>
 </body>
