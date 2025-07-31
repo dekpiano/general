@@ -1,3 +1,49 @@
+<style>
+.location-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #eee; /* Light border for definition */
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #fff; /* Ensure card background is white */
+}
+
+.location-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.location-card .card-img-top {
+    height: 180px;
+    object-fit: cover;
+}
+
+/* Pastel Border and Text Colors */
+.border-pastel-blue {
+    border-top: 5px solid #a7d9f0; /* A slightly darker pastel blue for the border */
+}
+.text-pastel-blue {
+    color: #6bb2d1; /* A darker shade for text */
+}
+
+.border-pastel-green {
+    border-top: 5px solid #b2e0b2; /* Pastel green for the border */
+}
+.text-pastel-green {
+    color: #7ac17a; /* A darker shade for text */
+}
+
+.border-pastel-yellow {
+    border-top: 5px solid #ffe0b2; /* Pastel yellow for the border */
+}
+.text-pastel-yellow {
+    color: #d1a76b; /* A darker shade for text */
+}
+
+.location-card .card-text {
+    color: #555;
+}
+</style>
 <!-- Layout container -->
 <div class="layout-page">
     <?php echo view('User/UserLeyout/UserNavbar'); ?>
@@ -9,34 +55,40 @@
         <div class="row mb-5">
             <?php  $TypeLocation = ['ห้อง','อาคาร','สนาม'];
             foreach ($TypeLocation as $key => $v_TypeLocation) : ?>
-                 <h4 class="mt-5">ประเภท <?=$v_TypeLocation;?></h4>
+                 <h4 class="mt-3"><i class='bx bx-door-open me-2'></i>ประเภท <?=$v_TypeLocation;?></h4>
                 <hr>
             <?php foreach ($LocationRoomAll as $key => $v_LocationRoom): 
                 if($v_LocationRoom->location_category == $v_TypeLocation):?>
                
-                <div class="col-md-6 col-lg-3">
-                    <div class="card h-100">
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card location-card h-100 <?php
+                        if ($v_LocationRoom->location_category == 'ห้อง') echo 'border-pastel-blue';
+                        else if ($v_LocationRoom->location_category == 'อาคาร') echo 'border-pastel-green';
+                        else if ($v_LocationRoom->location_category == 'สนาม') echo 'border-pastel-yellow';
+                    ?>">
                         <img class="lazy-load card-img-top"
                         data-src="<?=base_url('uploads/admin/LocationRoom/'.$v_LocationRoom->location_img)?>"
                             alt="<?=$v_LocationRoom->location_name?>">
-                        <div class="card-body">
-                            <h5 class="card-title"><?=$v_LocationRoom->location_name?></h5>
-                            <p class="card-text">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title <?php
+                                if ($v_LocationRoom->location_category == 'ห้อง') echo 'text-pastel-blue';
+                                else if ($v_LocationRoom->location_category == 'อาคาร') echo 'text-pastel-green';
+                                else if ($v_LocationRoom->location_category == 'สนาม') echo 'text-pastel-yellow';
+                            ?>"><?=$v_LocationRoom->location_name?></h5>
+                            <p class="card-text flex-grow-1">
                                 <?=$v_LocationRoom->location_detail;?>
                             </p>
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between mt-auto">
                                 <div>
-                                    <!-- Button trigger modal -->
                                     <?php if(isset($_SESSION['username'])):?>
-                                    <!-- data-bs-toggle="modal" data-bs-target="#exampleModal" -->
                                     <a href="<?=base_url('Booking/Add/'.$v_LocationRoom->location_ID)?>"
                                         class="btn btn-primary">
-                                        จอง
+                                        <i class='bx bx-calendar-plus me-1'></i>จอง
                                     </a>
                                     <?php else: ?>
                                     <a href="#" data-url="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"
                                         class="btn btn-primary CheckUserLogin">
-                                        จอง
+                                        <i class='bx bx-calendar-plus me-1'></i> จอง
                                     </a>
                                     <?php endif;?>
                                 </div>
