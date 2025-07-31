@@ -215,17 +215,32 @@ class ConUserBooking extends BaseController
             ->where('booking_id',$DataNow)
             ->get()->getRowArray();
             
-            $msg = "📣 แจ้งเตือนการขอใช้อาคารสถานที่ SKJ\n";
-            $msg .= "👤 ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}\n";
-            $msg .= "📅 วันที่ขอ: {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}\n";
-            $msg .= "⛪ สถานที่: {$Booking['location_name']}\n";
-            $msg .= "🎯 วัตถุประสงค์: {$Booking['booking_title']}\n";
+            $msg = "📣 แจ้งเตือนการขอใช้อาคารสถานที่ SKJ
+";
+            $msg .= "👤 ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}
+";
+            $msg .= "📅 วันที่ขอ: {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}
+";
+            $msg .= "⛪ สถานที่: {$Booking['location_name']}
+";
+            $msg .= "🎯 วัตถุประสงค์: {$Booking['booking_title']}
+";
             $msg .= "👉 รับงาน: " . base_url("/Booking/Approve/Admin");
 
             // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
 
             $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
-            echo 1;
+            
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'บันทึกข้อมูลการจองสำเร็จ!',
+                'location_id' => $this->request->getVar('booking_locationroom')
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูลการจอง'
+            ]);
         }
         
             // $email = \Config\Services::email(); // loading for use
