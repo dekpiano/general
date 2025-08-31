@@ -57,6 +57,79 @@ class ConAdminRoles extends BaseController
         $result = $DBrloes->update($data);
         echo $result;
     }
+
+    public function AddRole()
+    {
+        $response = [
+            'success' => false,
+            'msg' => "An error occurred."
+        ];
+
+        if ($this->request->getMethod() === 'post') {
+            $database = \Config\Database::connect();
+            $builder = $database->table('tb_admin_rloes');
+
+            $data = [
+                'admin_rloes_userid' => $this->request->getPost('user_id'),
+                'admin_rloes_nanetype' => $this->request->getPost('role_group'),
+                'admin_rloes_level' => $this->request->getPost('role_level'),
+                'admin_rloes_status' => 'AdminGeneral'
+            ];
+
+            // Basic validation
+            if (empty($data['admin_rloes_userid']) || empty($data['admin_rloes_nanetype']) || empty($data['admin_rloes_level'])) {
+                $response['msg'] = "กรุณากรอกข้อมูลให้ครบถ้วน";
+                return $this->response->setJSON($response);
+            }
+
+            if ($builder->insert($data)) {
+                $response = [
+                    'success' => true,
+                    'msg' => "บันทึกข้อมูลเรียบร้อย"
+                ];
+            } else {
+                $response['msg'] = "ไม่สามารถบันทึกข้อมูลได้";
+            }
+        } else {
+            $response['msg'] = "Invalid request method.";
+        }
+
+        return $this->response->setJSON($response);
+    }
+
+    public function DeleteRole()
+    {
+        $response = [
+            'success' => false,
+            'msg' => "An error occurred."
+        ];
+
+        if ($this->request->getMethod() === 'post') {
+            $rloes_id = $this->request->getPost('rloes_id');
+
+            if (empty($rloes_id)) {
+                $response['msg'] = "Role ID is missing.";
+                return $this->response->setJSON($response);
+            }
+
+            $database = \Config\Database::connect();
+            $builder = $database->table('tb_admin_rloes');
+            
+            $builder->where('admin_rloes_id', $rloes_id);
+            if ($builder->delete()) {
+                $response = [
+                    'success' => true,
+                    'msg' => "ลบข้อมูลตำแหน่งเรียบร้อยแล้ว"
+                ];
+            } else {
+                $response['msg'] = "ไม่สามารถลบข้อมูลได้";
+            }
+        } else {
+            $response['msg'] = "Invalid request method.";
+        }
+
+        return $this->response->setJSON($response);
+    }
  
 
 }

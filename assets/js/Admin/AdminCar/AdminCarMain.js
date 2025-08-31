@@ -127,7 +127,7 @@ function ShowDataCarDriver() {
         'columns': [{
                 data: 'cardriver_id',
                 render: function(data, type, row) {
-                    return '<img style="width:100px;" class="card-img-top" src="https://general.skj.ac.th/uploads/admin/Personnal/' + row.cardriver_img + '" alt="Card image cap">';
+                    return '<img style="width:100px;" class="card-img-top" src="https://personnel.skj.ac.th/uploads/admin/Personnal/' + row.cardriver_img + '" alt="Card image cap">';
                 }
             },
             {

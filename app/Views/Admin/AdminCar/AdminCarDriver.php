@@ -6,6 +6,17 @@
     <div class="content-wrapper">
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="<?=base_url('Admin/Home')?>">หน้าแรก</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a>งานยานพาหนะ</a>
+                    </li>
+                    <li class="breadcrumb-item active">คนขับรถ</li>
+                </ol>
+            </nav>
             <div class="card">
                 <div class="card-header d-flex justify-content-between flex-column flex-md-row">
                     <div class="head-label text-center">

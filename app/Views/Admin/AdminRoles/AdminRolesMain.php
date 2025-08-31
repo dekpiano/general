@@ -43,8 +43,11 @@
             </div>
 
             <div class="card mt-3">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>งานอาคารสถานที่</h5>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRoleModal" data-role-group="งานอาคารสถานที่">
+                        <i class="bx bx-plus me-sm-1"></i> เพิ่มเจ้าหน้าที่
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -79,8 +82,11 @@
             </div>
 
             <div class="card mt-3">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>งานธุรการ</h5>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRoleModal" data-role-group="งานธุรการ">
+                        <i class="bx bx-plus me-sm-1"></i> เพิ่มเจ้าหน้าที่
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -116,8 +122,11 @@
 
 
             <div class="card mt-3">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>งานยานพาหนะ</h5>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRoleModal" data-role-group="งานยานพาหนะ">
+                        <i class="bx bx-plus me-sm-1"></i> เพิ่มเจ้าหน้าที่
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -152,8 +161,11 @@
             </div>
 
             <div class="card mt-3">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>งานแจ้งซ่อม</h5>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRoleModal" data-role-group="งานแจ้งซ่อม">
+                        <i class="bx bx-plus me-sm-1"></i> เพิ่มเจ้าหน้าที่
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -188,8 +200,11 @@
             </div>
 
             <div class="card mt-3">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>งานบุคลากร</h5>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRoleModal" data-role-group="งานบุคลากร">
+                        <i class="bx bx-plus me-sm-1"></i> เพิ่มเจ้าหน้าที่
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -235,3 +250,155 @@
     <!-- Content wrapper -->
 </div>
 <!-- / Layout page -->
+
+<!-- Add Role Modal -->
+<div class="modal fade" id="addRoleModal" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addRoleForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRoleModalLabel">เพิ่มเจ้าหน้าที่</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="modalRoleGroup" name="role_group">
+                    
+                    <div class="mb-3">
+                        <label for="modalUserSelect" class="form-label">ผู้ใช้งาน</label>
+                        <select class="form-select" id="modalUserSelect" name="user_id" required>
+                            <option value="">เลือกผู้ใช้งาน</option>
+                            <?php foreach ($NameTeacher as $key => $v_NameTeacher) : ?>
+                                <option value="<?=$v_NameTeacher->pers_id?>">
+                                    <?=$v_NameTeacher->pers_prefix.$v_NameTeacher->pers_firstname." ".$v_NameTeacher->pers_lastname?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const addRoleModal = document.getElementById('addRoleModal');
+    addRoleModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const roleGroup = button.getAttribute('data-role-group');
+        const modalTitle = addRoleModal.querySelector('.modal-title');
+        const roleGroupInput = addRoleModal.querySelector('#modalRoleGroup');
+        
+        modalTitle.textContent = 'เพิ่มเจ้าหน้าที่สำหรับ ' + roleGroup;
+        roleGroupInput.value = roleGroup;
+    });
+
+    const addRoleForm = document.getElementById('addRoleForm');
+    addRoleForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // Hide the modal
+        $('#addRoleModal').modal('hide');
+        
+        const formData = new FormData(addRoleForm);
+        // Hardcode the role_level as requested
+        formData.append('role_level', '2/เจ้าหน้าที่');
+
+        fetch('<?= base_url('Admin/Rloes/AddRole') ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: result.msg,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: result.msg
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
+                text: 'กรุณาลองใหม่อีกครั้ง'
+            });
+        });
+    });
+
+    $('#modalUserSelect').select2({
+            dropdownParent: $('#addRoleModal'),
+            width: '100%'
+        });
+
+        // Handle role deletion
+        let previousValue;
+        $('.SettingGeneralRloes').on('focus', function () {
+            previousValue = $(this).val();
+        });
+
+        $('.SettingGeneralRloes').on('change', function (e) {
+            const selectElement = $(this);
+            if (selectElement.val() === "") {
+                // Stop the original update script from running
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                Swal.fire({
+                    title: 'ยืนยันการลบ',
+                    text: "คุณต้องการนำผู้ใช้งานออกจากตำแหน่งนี้ใช่หรือไม่? การดำเนินการนี้จะลบข้อมูลตำแหน่งนี้ออกจากระบบอย่างถาวร",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ใช่, ลบเลย!',
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '<?= base_url('Admin/Rloes/DeleteRole') ?>',
+                            type: 'POST',
+                            data: {
+                                rloes_id: selectElement.attr('rloes-id')
+                            },
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire('ลบแล้ว!', response.msg, 'success');
+                                    selectElement.closest('.col-md-4').fadeOut(500, function() { $(this).remove(); });
+                                } else {
+                                    Swal.fire('เกิดข้อผิดพลาด!', response.msg, 'error');
+                                    selectElement.val(previousValue).trigger('change.select2');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+                                selectElement.val(previousValue).trigger('change.select2');
+                            }
+                        });
+                    } else {
+                        selectElement.val(previousValue).trigger('change.select2');
+                    }
+                });
+            }
+        });
+    });
+</script>

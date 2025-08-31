@@ -101,6 +101,8 @@ $routes->match(['get', 'post'],'Admin/LocationRoom/ShowData', 'ConAdminLocationR
 
 $routes->get('Admin/Rloes/Setting', 'ConAdminRoles::index');
 $routes->match(['get', 'post'],'Admin/Rloes/RloesSettingManager', 'ConAdminRoles::RloesSettingManager');
+$routes->post('Admin/Rloes/AddRole', 'ConAdminRoles::AddRole');
+$routes->post('Admin/Rloes/DeleteRole', 'ConAdminRoles::DeleteRole');
 
 //Admin Person
 $routes->get('Admin/WorkPerson/Personnel', 'ConAdminWorkPerson::index');
