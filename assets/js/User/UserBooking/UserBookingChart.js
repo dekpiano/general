@@ -47,7 +47,7 @@ function renderCharts() {
 }
 
 function updateCharts() {
-    fetch(`../../Booking/DB/BookingChart`)
+    fetch(`${BASE_URL}Booking/DB/BookingChart`)
         .then(res => res.json())
         .then(data => {
             console.log(data);

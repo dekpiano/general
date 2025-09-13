@@ -1,81 +1,73 @@
-<!-- Layout container -->
-<div class="layout-page">
-    <?php echo view('User/UserLeyout/UserNavbar'); ?>
+<?= $this->extend('User/UserLeyout/user_layout') ?>
+<?= $this->section('content') ?>
 
-    <!-- Content wrapper -->
-    <div class="content-wrapper">
-        <!-- Content -->
-        <div class="container-xxl flex-grow-1 container-p-y demo">
-            <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a
-                        href="<?=base_url('CarBooking/CheckCar')?>">เลือกรถ</a> / ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</span>
+<div class="container-xxl flex-grow-1 container-p-y demo">
+    <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a
+                href="<?=base_url('CarBooking/CheckCar')?>">เลือกรถ</a> / ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</span>
 
-            </h4>
+    </h4>
 
-            
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                        <h6>สัดส่วนการใช้ทรัพยากร</h6>
-                            <div class="chart-box">
-                                <div id="pie-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                        <h6>ผู้ใช้งานระบบจองมากที่สุด 5 อันดับแรก</h6>
-                            <div class="chart-box">
-                            <div id="bar-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                        <h6>การอนุมัติ</h6>
-                            <div class="chart-box">
-                            <div id="chart-Approve"></div>
-                            </div>
-                        </div>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                <h6>สัดส่วนการใช้ทรัพยากร</h6>
+                    <div class="chart-box">
+                        <div id="pie-chart"></div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="card mt-3">
-                <h5 class="card-header">ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</h5>
-                <div class="table-responsive text-nowrap p-3">
-                    <table class="table table-hover display nowrap" id="TBShowDataCarBookingAdmin">
-                        <thead>
-                            <tr>
-                            <tr>
-                                <th>สถานะ</th>
-                                <th>เลขที่จองรถ</th>
-                                <th>รูปรถ</th>
-                                <th>ทะเบียน</th>
-                                <th>คนขับรถ</th>
-                                <th>ไปที่</th>
-                                <th>วันที่</th>
-                                <th>หัวเรื่อง</th>
-                                <th>ชื่อผู้จอง</th>
-                                <th>อนุมัติ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-
-                        </tbody>
-                    </table>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                <h6>ผู้ใช้งานระบบจองมากที่สุด 5 อันดับแรก</h6>
+                    <div class="chart-box">
+                    <div id="bar-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                <h6>การอนุมัติ</h6>
+                    <div class="chart-box">
+                    <div id="chart-Approve"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Content wrapper -->
+
+    <div class="card mt-3">
+        <h5 class="card-header">ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</h5>
+        <div class="table-responsive text-nowrap p-3">
+            <table class="table table-hover display nowrap" id="TBShowDataCarBookingAdmin">
+                <thead>
+                    <tr>
+                    <tr>
+                        <th>สถานะ</th>
+                        <th>เลขที่จองรถ</th>
+                        <th>รูปรถ</th>
+                        <th>ทะเบียน</th>
+                        <th>คนขับรถ</th>
+                        <th>ไปที่</th>
+                        <th>วันที่</th>
+                        <th>หัวเรื่อง</th>
+                        <th>ชื่อผู้จอง</th>
+                        <th>อนุมัติ</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-<!-- / Layout page -->
 
 <!-- Modal -->
 <div class="modal fade" id="ModalApproveAdmin" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -108,3 +100,5 @@
         </div>
     </div>
 </div>
+
+<?= $this->endSection() ?>

@@ -1,66 +1,53 @@
-<!-- Layout container -->
-<div class="layout-page">
-    <?php echo view('Admin/AdminLeyout/AdminNavbar'); ?>
+<?= $this->extend('Admin/AdminLeyout/admin_layout') ?>
+<?= $this->section('content') ?>
 
-    <!-- Content wrapper -->
-    <div class="content-wrapper">
-        <!-- Content -->
-        <div class="container-xxl flex-grow-1 container-p-y demo">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="<?=base_url('Admin/Home')?>">หน้าแรก</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a>งานอาคารสถานที่</a>
-                    </li>
-                    <li class="breadcrumb-item active">ห้องประชุม / สถานที่</li>
-                </ol>
-            </nav>
-            <div class="card">
-                <div class="card-header d-flex justify-content-between flex-column flex-md-row">
-                    <div class="head-label text-center">
-                        <h5 class="card-title mb-0">ข้อมูลอาคารและสถานที่</h5>
-                    </div>
-                    <div class="dt-action-buttons text-end pt-3 pt-md-0">
-                        <div class="dt-buttons btn-group flex-wrap">
+<div class="container-xxl flex-grow-1 container-p-y demo">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="<?=base_url('Admin/Home')?>">หน้าแรก</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a>งานอาคารสถานที่</a>
+            </li>
+            <li class="breadcrumb-item active">ห้องประชุม / สถานที่</li>
+        </ol>
+    </nav>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between flex-column flex-md-row">
+            <div class="head-label text-center">
+                <h5 class="card-title mb-0">ข้อมูลอาคารและสถานที่</h5>
+            </div>
+            <div class="dt-action-buttons text-end pt-3 pt-md-0">
+                <div class="dt-buttons btn-group flex-wrap">
 
-                            <button class="btn btn-secondary create-new btn-primary" type="button"
-                                data-bs-toggle="modal" data-bs-target="#rightModal2">
-                                <span><i class="bx bx-plus me-sm-1"></i>
-                                    <span class="d-none d-sm-inline-block">
-                                        เพิ่มข้อมูลอาคารและสถานที่
-                                    </span>
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-datatable table-responsive p-3">
-                    <table class="TbDataLocationRoom table border-top">
-                        <thead>
-                            <tr>
-                                <th>รูป</th>
-                                <th>ชื่อห้องสถานที่</th>
-                                <th>รายละเอียด</th>
-                                <th>เลขที่ห้อง อาคาร</th>
-                                <th>จำนวนที่นั่ง</th>
-                                <th>คำสั่ง</th>
-                            </tr>
-                        </thead>
-                    </table>
+                    <button class="btn btn-secondary create-new btn-primary" type="button"
+                        data-bs-toggle="modal" data-bs-target="#rightModal2">
+                        <span><i class="bx bx-plus me-sm-1"></i>
+                            <span class="d-none d-sm-inline-block">
+                                เพิ่มข้อมูลอาคารและสถานที่
+                            </span>
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
-
-
-
-        <div class="content-backdrop fade"></div>
+        <div class="card-datatable table-responsive p-3">
+            <table class="TbDataLocationRoom table border-top">
+                <thead>
+                    <tr>
+                        <th>รูป</th>
+                        <th>ชื่อห้องสถานที่</th>
+                        <th>รายละเอียด</th>
+                        <th>เลขที่ห้อง อาคาร</th>
+                        <th>จำนวนที่นั่ง</th>
+                        <th>คำสั่ง</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
     </div>
-    <!-- Content wrapper -->
 </div>
-<!-- / Layout page -->
-
 
 <!-- เพิ่มหนังสือคำสั่ง Modal -->
 <div class="modal right" id="rightModal2" tabindex="-1" aria-labelledby="rightModalLabel" aria-hidden="true">
@@ -125,3 +112,9 @@
     </div>
 </div>
 <!-- End เพิ่มหนังสือคำสั่ง Modal -->
+
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="<?=base_url()?>/assets/js/Admin/AdminBooking/AdminBookingMain.js?v=6"></script>
+<?= $this->endSection() ?>

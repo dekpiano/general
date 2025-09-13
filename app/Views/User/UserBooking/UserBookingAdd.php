@@ -1,8 +1,7 @@
-<!-- Layout container -->
-<div class="layout-page">
-    <?php echo view('User/UserLeyout/UserNavbar'); ?>
+<?= $this->extend('User/UserLeyout/user_layout') ?>
+<?= $this->section('content') ?>
 
-    <!-- Content wrapper -->
+<!-- Content wrapper -->
     <div class="content-wrapper">
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y demo">
@@ -52,7 +51,8 @@
                 <div class="col-md-6 col-lg-8 mb-3">
                     <div class="card">
                         <div class="card-body">
-                            <form id="FormAddBooking" class="needs-validation" novalidate action="<?=base_url('Booking/DB/Insert')?>" method="POST">
+                            <form id="FormAddBooking" class="needs-validation" novalidate
+                                action="<?=base_url('Booking/DB/Insert')?>" method="POST">
                                 <div class="row mb-3 g-3">
                                     <div class="col-md-4">
                                         <div class="form-floating">
@@ -237,17 +237,19 @@
                                         <input type="hidden" id="booking_Booker" name="booking_Booker"
                                             class="form-control" value="<?=$_SESSION['id']?>" readonly required>
                                         <?php else: ?>
-                                            <style>
-                                                .form-floating .select2-container + .hidden-label {
-    display: none;
-}
-
-                                            </style>
+                                        <style>
+                                        .form-floating .select2-container+.hidden-label {
+                                            display: none;
+                                        }
+                                        </style>
                                         <div class="form-floating">
-                                            <select class="form-select select2Teach" id="booking_Booker" name="booking_Booker" required> 
+                                            <select class="form-select select2Teach" id="booking_Booker"
+                                                name="booking_Booker" required>
                                                 <option value="">-- เลือกผู้จอง --</option>
                                                 <?php foreach ($ListUser as $key => $value): ?>
-                                                <option value="<?=$value->pers_id?>"><?=$value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname?></option>
+                                                <option value="<?=$value->pers_id?>">
+                                                    <?=$value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname?>
+                                                </option>
                                                 <?php endforeach; ?>
                                             </select>
                                             <label for="">ชื่อผู้จอง </label>
@@ -258,7 +260,7 @@
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" id="booking_telephone" name="booking_telephone"
-                                                class="form-control" placeholder="ใส่เบอร์โทรศัพท์" >
+                                                class="form-control" placeholder="ใส่เบอร์โทรศัพท์">
                                             <label for="booking_telephone">เบอร์โทรศัพท์</label>
                                         </div>
                                         <div class="invalid-feedback">
@@ -277,104 +279,116 @@
         </div>
     </div>
     <!-- Content wrapper -->
-</div>
-<!-- / Layout page -->
-
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('FormAddBooking');
-        const btnSubmit = document.getElementById('BtnSubBooking');
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('FormAddBooking');
+    const btnSubmit = document.getElementById('BtnSubBooking');
 
-        btnSubmit.addEventListener('click', function (event) {
-            event.preventDefault(); // Prevent default form submission
+    btnSubmit.addEventListener('click', function(event) {
+        event
+            .preventDefault(); // Prevent default form submission
 
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const formData = new FormData(form);
+        let tableRows = '';
+
+        const bookingOrder = "<?=$BookLatest?>";
+        const locationName = "<?=$loca->location_name?>";
+        const bookerName =
+            "<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>";
+
+        tableRows +=
+            `<tr><td><b>เลขที่จอง</b></td><td>${bookingOrder}</td></tr>`;
+        tableRows +=
+            `<tr><td><b>ชื่อห้อง</b></td><td>${locationName}</td></tr>`;
+        tableRows +=
+            `<tr><td><b>ชื่อผู้จอง</b></td><td>${bookerName}</td></tr>`;
+
+        // Create a temporary object to hold all form data, handling multiple values for the same key
+        const tempFormData = {};
+        for (let [key, value] of formData.entries()) {
+            if (key.endsWith(
+                    '[]')) { // Handle array-like inputs (e.g., checkboxes)
+                if (!tempFormData[key]) {
+                    tempFormData[key] = [];
+                }
+                tempFormData[key].push(value);
+            } else {
+                tempFormData[key] = value;
+            }
+        }
+
+        // Now iterate through the collected data to build table rows
+        for (const key in tempFormData) {
+            // Skip keys that are already displayed as static data or are internal
+            if (key === 'booking_order' || key ===
+                'booking_locationroom' || key ===
+                'booking_imgWork' || key ===
+                'booking_Booker') {
+                continue;
             }
 
-            const formData = new FormData(form);
-            let tableRows = '';
+            let value = tempFormData[key];
+            let label = '';
 
-            const bookingOrder = "<?=$BookLatest?>";
-            const locationName = "<?=$loca->location_name?>";
-            const bookerName = "<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>";
-
-            tableRows += `<tr><td><b>เลขที่จอง</b></td><td>${bookingOrder}</td></tr>`;
-            tableRows += `<tr><td><b>ชื่อห้อง</b></td><td>${locationName}</td></tr>`;
-            tableRows += `<tr><td><b>ชื่อผู้จอง</b></td><td>${bookerName}</td></tr>`;
-
-            // Create a temporary object to hold all form data, handling multiple values for the same key
-            const tempFormData = {};
-            for (let [key, value] of formData.entries()) {
-                if (key.endsWith('[]')) { // Handle array-like inputs (e.g., checkboxes)
-                    if (!tempFormData[key]) {
-                        tempFormData[key] = [];
-                    }
-                    tempFormData[key].push(value);
-                } else {
-                    tempFormData[key] = value;
+            if (key === 'booking_equipment[]') {
+                label = 'อุปกรณ์ที่ใช้';
+                value = value.join(
+                    ', '); // Join array values with comma
+            } else {
+                switch (key) {
+                    case 'booking_number':
+                        label = 'จำนวนผู้เข้าร่วม';
+                        break;
+                    case 'booking_title':
+                        label = 'หัวข้อ';
+                        break;
+                    case 'booking_dateStart':
+                        label = 'วันที่เริ่มต้น';
+                        break;
+                    case 'booking_timeStart':
+                        label = 'เวลาที่เริ่มต้น';
+                        break;
+                    case 'booking_dateEnd':
+                        label = 'วันสิ้นสุด';
+                        break;
+                    case 'booking_timeEnd':
+                        label = 'เวลาที่สิ้นสุด';
+                        break;
+                    case 'booking_typeuse':
+                        label = 'ใช้สำหรับ';
+                        break;
+                    case 'booking_other':
+                        label = 'คำขออื่น ๆ';
+                        break;
+                    case 'booking_telephone':
+                        label = 'เบอร์โทรศัพท์';
+                        break;
+                    default:
+                        label = key;
                 }
             }
+            tableRows +=
+                `<tr><td><b>${label}</b></td><td>${value}</td></tr>`;
+        }
 
-            // Now iterate through the collected data to build table rows
-            for (const key in tempFormData) {
-                // Skip keys that are already displayed as static data or are internal
-                if (key === 'booking_order' || key === 'booking_locationroom' || key === 'booking_imgWork' || key === 'booking_Booker') {
-                    continue;
-                }
+        let imageHtml = '';
+        const bookingImgWork = formData.get(
+            'booking_imgWork');
+        if (bookingImgWork) {
+            imageHtml =
+                `<p><b>รูปภาพประกอบ:</b></p><img src="${bookingImgWork}" style="max-width: 100%; height: auto; display: block; margin: 10px auto;">`;
+        }
 
-                let value = tempFormData[key];
-                let label = '';
-
-                if (key === 'booking_equipment[]') {
-                    label = 'อุปกรณ์ที่ใช้';
-                    value = value.join(', '); // Join array values with comma
-                } else {
-                    switch (key) {
-                        case 'booking_number':
-                            label = 'จำนวนผู้เข้าร่วม';
-                            break;
-                        case 'booking_title':
-                            label = 'หัวข้อ';
-                            break;
-                        case 'booking_dateStart':
-                            label = 'วันที่เริ่มต้น';
-                            break;
-                        case 'booking_timeStart':
-                            label = 'เวลาที่เริ่มต้น';
-                            break;
-                        case 'booking_dateEnd':
-                            label = 'วันสิ้นสุด';
-                            break;
-                        case 'booking_timeEnd':
-                            label = 'เวลาที่สิ้นสุด';
-                            break;
-                        case 'booking_typeuse':
-                            label = 'ใช้สำหรับ';
-                            break;
-                        case 'booking_other':
-                            label = 'คำขออื่น ๆ';
-                            break;
-                        case 'booking_telephone':
-                            label = 'เบอร์โทรศัพท์';
-                            break;
-                        default:
-                            label = key;
-                    }
-                }
-                tableRows += `<tr><td><b>${label}</b></td><td>${value}</td></tr>`;
-            }
-
-            let imageHtml = '';
-            const bookingImgWork = formData.get('booking_imgWork');
-            if (bookingImgWork) {
-                imageHtml = `<p><b>รูปภาพประกอบ:</b></p><img src="${bookingImgWork}" style="max-width: 100%; height: auto; display: block; margin: 10px auto;">`;
-            }
-
-            Swal.fire({
-                title: 'ยืนยันการจองสถานที่?',
-                html: `<p style="font-size: 0.9em;">โปรดตรวจสอบข้อมูลให้ถูกต้องก่อนยืนยัน:</p>
+        Swal.fire({
+            title: 'ยืนยันการจองสถานที่?',
+            html: `<p style="font-size: 0.9em;">โปรดตรวจสอบข้อมูลให้ถูกต้องก่อนยืนยัน:</p>
                        <div style="overflow-x: auto;">
                            <table class="table table-bordered table-striped" style="font-size: 0.85em;">
                                <tbody>
@@ -383,49 +397,58 @@
                            </table>
                        </div>
                        ${imageHtml}`,
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'ใช่, ยืนยันการจอง!',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Submit the form via AJAX
-                    fetch(form.action, {
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ใช่, ยืนยันการจอง!',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit the form via AJAX
+                fetch(form.action, {
                         method: form.method,
                         body: formData
                     })
-                    .then(response => response.json())
+                    .then(response => response
+                        .json())
                     .then(data => {
-                        if (data.status === 'success') {
+                        if (data.status ===
+                            'success') {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'สำเร็จ!',
-                                text: data.message,
+                                text: data
+                                    .message,
                                 showConfirmButton: false,
                                 timer: 1500
                             }).then(() => {
-                                window.location.href = `<?=base_url('Booking/View/')?>${data.location_id}`;
+                                window
+                                    .location
+                                    .href =
+                                    `<?=base_url('Booking/View/')?>${data.location_id}`;
                             });
                         } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'เกิดข้อผิดพลาด!',
-                                text: data.message,
+                                text: data
+                                    .message,
                             });
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
+                        console.error('Error:',
+                            error);
                         Swal.fire({
                             icon: 'error',
                             title: 'เกิดข้อผิดพลาด!',
                             text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
                         });
                     });
-                }
-            });
+            }
         });
     });
+});
 </script>
+<?= $this->endSection() ?>

@@ -19,8 +19,7 @@ $routes->set404Override();
 // where controller filters or CSRF protection are bypassed.
 // If you don't want to define all routes, please use the Auto Routing (Improved).
 // Set `$autoRoutesImproved` to true in `app/Config/Feature.php` and set the following to true.
-//$routes->setAutoRoute(false);
-$routes->setAutoRoute(true);
+$routes->setAutoRoute(false);
 /*
  * --------------------------------------------------------------------
  * Route Definitions
@@ -124,6 +123,14 @@ $routes->match(['get', 'post'],'Admin/CarDriver/ShowData', 'ConAdminCar::CarDriv
 $routes->match(['get', 'post'],'Admin/CarDriver/Insert', 'ConAdminCar::CarDriverInsert');
 $routes->match(['get', 'post'],'Admin/CarDriver/Delete', 'ConAdminCar::CarDriverDelete');
 
+
+// User Food Report
+$routes->get('FoodReport', 'ConUserFoodReport::index');
+$routes->get('FoodReport/getFoodReportsJson', 'ConUserFoodReport::getFoodReportsJson');
+$routes->get('FoodReport/print/(:num)', 'ConUserFoodReport::print/$1');
+$routes->post('FoodReport/insert', 'ConUserFoodReport::foodReportInsert');
+$routes->post('FoodReport/update', 'ConUserFoodReport::foodReportUpdate');
+$routes->post('FoodReport/delete', 'ConUserFoodReport::foodReportDelete');
 
 $routes->post('Webhook', 'Webhook::index');
 /*

@@ -33,10 +33,7 @@ class ConUserHome extends BaseController
        
        
 
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserHome/UserPageHome')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserHome/UserPageHome', $data);
     }
 
 

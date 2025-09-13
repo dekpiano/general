@@ -1,0 +1,368 @@
+INFO - 2025-09-11 09:32:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:34:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:38:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:38:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:38:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:38:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:43:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:46:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-09-11 09:46:49 --> syntax error, unexpected token "endif", expecting end of file
+in APPPATH\Views\User\UserFoodReport\PageFoodReportMain.php on line 207.
+ 1 SYSTEMPATH\View\View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 2 SYSTEMPATH\Common.php(1184): CodeIgniter\View\View->render('User/UserFoodReport/PageFoodReportMain', [], true)
+ 3 APPPATH\Controllers\ConUserFoodReport.php(34): view('User/UserFoodReport/PageFoodReportMain', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserFoodReport->index()
+ 5 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserFoodReport))
+ 6 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 09:47:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:49:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-09-11 09:53:59 --> syntax error, unexpected single-quoted string ", "
+in APPPATH\Controllers\ConUserFoodReport.php on line 140.
+ 1 SYSTEMPATH\Autoloader\Autoloader.php(289): CodeIgniter\Autoloader\Autoloader->includeFile('D:\\xampp\\htdocs\\general\\app\\Controllers\\ConUserFoodReport.php')
+ 2 SYSTEMPATH\Autoloader\Autoloader.php(267): CodeIgniter\Autoloader\Autoloader->loadInNamespace('App\\Controllers\\ConUserFoodReport')
+ 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass('App\\Controllers\\ConUserFoodReport')
+ 4 SYSTEMPATH\CodeIgniter.php(892): class_exists('\\App\\Controllers\\ConUserFoodReport', true)
+ 5 SYSTEMPATH\CodeIgniter.php(486): CodeIgniter\CodeIgniter->startController()
+ 6 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 09:56:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 09:56:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:02:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:23:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-09-11 10:23:12 --> View themes, no current section.
+in SYSTEMPATH\View\View.php on line 394.
+ 1 APPPATH\Views\User\UserFoodReport\PageFoodReportMain.php(266): CodeIgniter\View\View->endSection()
+ 2 SYSTEMPATH\View\View.php(213): include('D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserFoodReport\\PageFoodReportMain.php')
+ 3 SYSTEMPATH\View\View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1184): CodeIgniter\View\View->render('User/UserFoodReport/PageFoodReportMain', [], true)
+ 5 APPPATH\Controllers\ConUserFoodReport.php(37): view('User/UserFoodReport/PageFoodReportMain', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserFoodReport->index()
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserFoodReport))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 10:24:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:47:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:47:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:47:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:47:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:47:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:47:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:47:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:47:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:48:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:48:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:49:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:49:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:49:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:49:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-09-11 10:49:36 --> Attempt to read property "location_ID" on null
+in APPPATH\Views\User\UserBooking\UserBookingAdd.php on line 16.
+ 1 APPPATH\Views\User\UserBooking\UserBookingAdd.php(16): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Attempt to read property "location_ID" on null', 'D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingAdd.php', 16)
+ 2 SYSTEMPATH\View\View.php(213): include('D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingAdd.php')
+ 3 SYSTEMPATH\View\View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1184): CodeIgniter\View\View->render('User/UserBooking/UserBookingAdd', [], true)
+ 5 APPPATH\Controllers\ConUserBooking.php(134): view('User/UserBooking/UserBookingAdd', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingAdd('Booking', 'DB', 'ShowTimeBooking')
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 10:50:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:50:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:51:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:51:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:54:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:54:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 10:58:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:00:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:01:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:05:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:06:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:09:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:09:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:10:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:10:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:11:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:12:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:18:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:19:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:19:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-09-11 11:19:09 --> Undefined variable $CheckAll
+in APPPATH\Views\User\UserBooking\UserBookingView.php on line 8.
+ 1 APPPATH\Views\User\UserBooking\UserBookingView.php(8): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $CheckAll', 'D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingView.php', 8)
+ 2 SYSTEMPATH\View\View.php(213): include('D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingView.php')
+ 3 SYSTEMPATH\View\View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1184): CodeIgniter\View\View->render('User/UserBooking/UserBookingView', [], true)
+ 5 APPPATH\Controllers\ConUserBooking.php(348): view('User/UserBooking/UserBookingView')
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingView('6')
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 11:33:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:33:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:33:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:33:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:33:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:33:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:33:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:33:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:34:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:34:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:34:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:34:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:34:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:34:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-09-11 11:34:38 --> Undefined variable $CheckAll
+in APPPATH\Views\User\UserBooking\UserBookingView.php on line 8.
+ 1 APPPATH\Views\User\UserBooking\UserBookingView.php(8): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $CheckAll', 'D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingView.php', 8)
+ 2 SYSTEMPATH\View\View.php(213): include('D:\\xampp\\htdocs\\general\\app\\Views\\User\\UserBooking\\UserBookingView.php')
+ 3 SYSTEMPATH\View\View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1184): CodeIgniter\View\View->render('User/UserBooking/UserBookingView', [], true)
+ 5 APPPATH\Controllers\ConUserBooking.php(370): view('User/UserBooking/UserBookingView')
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingView('2')
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 11:35:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:35:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:37:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:37:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:37:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:52:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:52:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:52:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:52:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 11:52:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:01:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:01:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:01:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:01:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:01:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:01:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:01:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:58:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:58:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:58:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:58:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:58:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:58:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-11 12:58:31 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefi...' at line 1 in D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\MySQLi\Connection.php:295
+Stack trace:
+#0 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\MySQLi\Connection.php(295): mysqli->query('SELECT `skjacth...', 0)
+#1 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `skjacth...')
+#2 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `skjacth...')
+#3 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `skjacth...', Array, false)
+#4 D:\xampp\htdocs\general\app\Controllers\ConUserBooking.php(797): CodeIgniter\Database\BaseBuilder->get()
+#5 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingCheckApproveAdmin()
+#6 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+#7 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 D:\xampp\htdocs\general\index.php(67): CodeIgniter\CodeIgniter->run()
+#9 {main}
+CRITICAL - 2025-09-11 12:58:32 --> You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefi...' at line 1
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 295.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(295): mysqli->query('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` = \'109\'', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` = \'109\'')
+ 3 SYSTEMPATH\Database\BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` = \'109\'')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` = :booking_id:', [...], false)
+ 5 APPPATH\Controllers\ConUserBooking.php(797): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingCheckApproveAdmin()
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 12:59:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:59:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:59:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:59:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:59:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 12:59:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-11 12:59:28 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefi...' at line 1 in D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\MySQLi\Connection.php:295
+Stack trace:
+#0 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\MySQLi\Connection.php(295): mysqli->query('SELECT `skjacth...', 0)
+#1 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `skjacth...')
+#2 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `skjacth...')
+#3 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `skjacth...', Array, false)
+#4 D:\xampp\htdocs\general\app\Controllers\ConUserBooking.php(797): CodeIgniter\Database\BaseBuilder->get()
+#5 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingCheckApproveAdmin()
+#6 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+#7 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 D:\xampp\htdocs\general\index.php(67): CodeIgniter\CodeIgniter->run()
+#9 {main}
+CRITICAL - 2025-09-11 12:59:28 --> You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefi...' at line 1
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 295.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(295): mysqli->query('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` = \'109\'', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` = \'109\'')
+ 3 SYSTEMPATH\Database\BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` = \'109\'')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` = :booking_id:', [...], false)
+ 5 APPPATH\Controllers\ConUserBooking.php(797): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingCheckApproveAdmin()
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 12:59:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-11 12:59:59 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefi...' at line 1 in D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\MySQLi\Connection.php:295
+Stack trace:
+#0 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\MySQLi\Connection.php(295): mysqli->query('SELECT `skjacth...', 0)
+#1 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `skjacth...')
+#2 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `skjacth...')
+#3 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `skjacth...', Array, false)
+#4 D:\xampp\htdocs\general\app\Controllers\ConUserBooking.php(797): CodeIgniter\Database\BaseBuilder->get()
+#5 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingCheckApproveAdmin()
+#6 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+#7 D:\xampp\htdocs\general\vendor\codeigniter4\framework\system\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 D:\xampp\htdocs\general\index.php(67): CodeIgniter\CodeIgniter->run()
+#9 {main}
+CRITICAL - 2025-09-11 12:59:59 --> You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefi...' at line 1
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 295.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(295): mysqli->query('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` IS NULL', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` IS NULL')
+ 3 SYSTEMPATH\Database\BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` IS NULL')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `skjacth_personnel`.`tb_personnel`.`pers_username`, `skjacth_personnel`.`tb_personnel`.`login_oauth_uid`, `// เพิ่มคอลัมน์นี้` `skjacth_general`.`tb_booking`.`booking_order`, `skjacth_personnel`.`tb_personnel`.`pers_prefix`, `skjacth_personnel`.`tb_personnel`.`pers_firstname`, `skjacth_personnel`.`tb_personnel`.`pers_lastname`, `skjacth_general`.`tb_booking`.`booking_dateStart`, `skjacth_general`.`tb_booking`.`booking_dateEnd`, `skjacth_general`.`tb_location`.`location_name`, `skjacth_general`.`tb_booking`.`booking_title`
+FROM `tb_booking`
+JOIN `skjacth_personnel`.`tb_personnel` ON `skjacth_general`.`tb_booking`.`booking_Booker` = `skjacth_personnel`.`tb_personnel`.`pers_id`
+JOIN `skjacth_general`.`tb_location` ON `skjacth_general`.`tb_booking`.`booking_locationroom` = `skjacth_general`.`tb_location`.`location_ID`
+WHERE `booking_id` IS NULL', [], false)
+ 5 APPPATH\Controllers\ConUserBooking.php(797): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingCheckApproveAdmin()
+ 7 SYSTEMPATH\CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2025-09-11 13:03:01 --> syntax error, unexpected token "`", expecting ")"
+in APPPATH\Controllers\ConUserBooking.php on line 784.
+ 1 SYSTEMPATH\Autoloader\Autoloader.php(289): CodeIgniter\Autoloader\Autoloader->includeFile('D:\\xampp\\htdocs\\general\\app\\Controllers\\ConUserBooking.php')
+ 2 SYSTEMPATH\Autoloader\Autoloader.php(267): CodeIgniter\Autoloader\Autoloader->loadInNamespace('App\\Controllers\\ConUserBooking')
+ 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass('App\\Controllers\\ConUserBooking')
+ 4 SYSTEMPATH\CodeIgniter.php(892): class_exists('\\App\\Controllers\\ConUserBooking', true)
+ 5 SYSTEMPATH\CodeIgniter.php(486): CodeIgniter\CodeIgniter->startController()
+ 6 SYSTEMPATH\CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 FCPATH\index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-09-11 13:03:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:03:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:03:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:03:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:03:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:03:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:03:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:26:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:26:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:26:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:26:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 13:26:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 15:32:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-11 15:32:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

@@ -165,11 +165,22 @@ $(document).on('click', '#BtnApproveBooking', function () {
     }).then((result) => {
         if (result.isConfirmed) {
 
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             $.post('../../Booking/DB/BookingApproveAdmin', { BookingID: Booking_id }, function (data) {
                 console.log(data);
                 $('#TBShowDataBookingAdmin').DataTable().ajax.reload();
-                //location.reload(true);
-                Swal.fire("ดำเนินการ อนุมัติเรียบร้อยแล้ว!")
+                Swal.close(); // ปิด loading
+                Swal.fire("ดำเนินการ อนุมัติเรียบร้อยแล้ว!");
+            }).fail(function() { // เพิ่ม .fail() เพื่อจัดการข้อผิดพลาด
+                Swal.close(); // ปิด loading
+                Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถดำเนินการได้", "error");
             });
 
         }
@@ -189,12 +200,24 @@ $(document).on('click', '#BtnNoApproveBooking', function () {
           }
     }).then(function (result) {
         if (result.isConfirmed) {
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             $.post('../../Booking/DB/BookingNoApproveAdmin', {
                 BookingID: Booking_id,
                 booking_admin_reason: result.value
             }, function (data) {
+                Swal.close(); // ปิด loading
                 Swal.fire("ดำเนินการ ไม่อนุมัติ เรียบร้อยแล้ว!");
                 $('#TBShowDataBookingAdmin').DataTable().ajax.reload();
+            }).fail(function() { // เพิ่ม .fail() เพื่อจัดการข้อผิดพลาด
+                Swal.close(); // ปิด loading
+                Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถดำเนินการได้", "error");
             });
         }
     })

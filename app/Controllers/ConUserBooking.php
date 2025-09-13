@@ -63,10 +63,7 @@ class ConUserBooking extends BaseController
         $data['NumRowsWaitApprove'] = $DBbooking->where('booking_admin_approve','ไม่อนุมัติ')->get()->getNumRows();
         $data['NumRowsApprove'] = $DBbooking->where('booking_admin_approve','อนุมัติ')->get()->getNumRows();
 
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserBooking/UserBookingMain')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserBooking/UserBookingMain', $data);
     }
     
     public function BookingSelect()
@@ -83,18 +80,20 @@ class ConUserBooking extends BaseController
         $builder = $database->table('tb_location');
         $data['LocationRoomAll'] = $builder->get()->getResult();
          //echo "<pre>";print_r($data['LocationRoomAll']); exit();
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserBooking/UserBookingSelect')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserBooking/UserBookingSelect', $data);
     }
 
     public function BookingAdd($LocationID = null)
     {
         $session = session();
         if(!$session->get('username')){
-            header("Location:".base_url()); exit();
+            return redirect()->to(base_url());
         } 
+
+        // Check if LocationID is provided
+        if (is_null($LocationID)) {
+            return redirect()->to(base_url('Booking/Select'))->with('error', 'กรุณาเลือกห้องสถานที่ก่อนทำการจอง');
+        }
 
         $data = $this->DataMain();
         $data['title']="จองห้อง / สถานที่";
@@ -112,6 +111,12 @@ class ConUserBooking extends BaseController
         $myTime = Time::now('asia/bangkok', 'th_TH');
 
         $data['loca'] = $DBlocation->where('location_ID',$LocationID)->get()->getRow();
+
+        // Check if location exists
+        if (is_null($data['loca'])) {
+            return redirect()->to(base_url('Booking/Select'))->with('error', 'ไม่พบห้องสถานที่ที่เลือก');
+        }
+
         $data['BookignToday'] = $tb_booking
         ->select('booking_title,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd')        
         ->where('booking_locationroom',$LocationID)
@@ -137,10 +142,7 @@ class ConUserBooking extends BaseController
         //print_r($data['ListUser']);exit();
 
 
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserBooking/UserBookingAdd')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserBooking/UserBookingAdd', $data);
     }
 
     function thaidate_to_mysql($dateStr) {
@@ -163,18 +165,36 @@ class ConUserBooking extends BaseController
         }else{
             $equipment = "";
         }
+            $filename = ""; // Initialize filename
+        try {
             $base64 = $this->request->getPost('booking_imgWork');
             if($base64){
-                $data = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $base64));
+                $img_data = preg_replace('/^data:image\/\w+;base64,/', '', $base64);
+                if ($img_data === null) { // Check if preg_replace failed
+                    throw new \Exception("Invalid base64 image data format.");
+                }
+                $data_decoded = base64_decode($img_data);
+                if ($data_decoded === false) { // Check if base64_decode failed
+                    throw new \Exception("Failed to decode base64 image data.");
+                }
+
                 $filename = 'img_' . time() . '.png';
                 $path = 'uploads/User/Booking/';
                 if (!is_dir($path)) {
                     mkdir($path, 0755, true);
                 }
-                file_put_contents($path . $filename, $data);
-            }else{
-                $filename = "";
+                if (file_put_contents($path . $filename, $data_decoded) === false) {
+                    throw new \Exception("Failed to save image file.");
+                }
             }
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            log_message('error', 'Image upload error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ' . $e->getMessage()
+            ]);
+        }
 
             $booking_dateStart = $this->thaidate_to_mysql($this->request->getVar('booking_dateStart'));
             $booking_dateEnd = $this->thaidate_to_mysql($this->request->getVar('booking_dateEnd'));
@@ -200,42 +220,53 @@ class ConUserBooking extends BaseController
         if($DBbooking->insert($data)){
             $DataNow = $database->insertID();
 
-            $Booking = $DBbooking->select('
-            skjacth_personnel.tb_personnel.pers_prefix,
+            $Booking = $DBbooking->select(
+            'skjacth_personnel.tb_personnel.pers_prefix,
             skjacth_personnel.tb_personnel.pers_firstname,
             skjacth_personnel.tb_personnel.pers_lastname,
             skjacth_general.tb_location.location_name,
             skjacth_general.tb_booking.booking_title,
             skjacth_general.tb_booking.booking_dateStart,
             skjacth_general.tb_booking.booking_dateEnd,
-            skjacth_general.tb_booking.booking_typeuse
-            ')
+            skjacth_general.tb_booking.booking_typeuse'
+            )
             ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
             ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
             ->where('booking_id',$DataNow)
             ->get()->getRowArray();
             
-            $msg = "📣 แจ้งเตือนการขอใช้อาคารสถานที่ SKJ
+            if ($Booking) {
+                $msg = "📣 แจ้งเตือนการขอใช้อาคารสถานที่ SKJ\n";
+                $msg .= "👤 ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}\n";
+                $msg .= "📅 วันที่ขอ: ".
+                    
+                        $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))
+                    
+                     ." - ".
+                    
+                        $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))
+                    
+                    ."
 ";
-            $msg .= "👤 ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}
-";
-            $msg .= "📅 วันที่ขอ: {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}
-";
-            $msg .= "⛪ สถานที่: {$Booking['location_name']}
-";
-            $msg .= "🎯 วัตถุประสงค์: {$Booking['booking_title']}
-";
-            $msg .= "👉 รับงาน: " . base_url("/Booking/Approve/Admin");
+                $msg .= "⛪ สถานที่: {$Booking['location_name']}\n";
+                $msg .= "🎯 วัตถุประสงค์: {$Booking['booking_title']}\n";
+                $msg .= "👉 รับงาน: " . base_url("/Booking/Approve/Admin");
 
-            // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
+                // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
 
-            $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
-            
-            return $this->response->setJSON([
-                'status' => 'success',
-                'message' => 'บันทึกข้อมูลการจองสำเร็จ!',
-                'location_id' => $this->request->getVar('booking_locationroom')
-            ]);
+               $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
+                
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'message' => 'บันทึกข้อมูลการจองสำเร็จ!',
+                    'location_id' => $this->request->getVar('booking_locationroom')
+                ]);
+            }else {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'บันทึกข้อมูลสำเร็จ แต่เกิดข้อผิดพลาดในการส่งการแจ้งเตือน'
+                ]);
+            }
         } else {
             return $this->response->setJSON([
                 'status' => 'error',
@@ -330,7 +361,7 @@ class ConUserBooking extends BaseController
                 $data['CheckAll'] = 1;
             }else{
                 $array =['booking_locationroom'=> $Key,'booking_Booker'=>$_SESSION['id']];
-                $Where = $DBbooking->where($array);
+                $DBbooking->where($array);
                 $data['CheckAll'] = 0;
             }            
         }else{
@@ -339,7 +370,7 @@ class ConUserBooking extends BaseController
                 $data['CheckAll'] = 1;
             }else{
                 $array =['booking_locationroom'=> $Key];
-                $Where = $DBbooking->where($array);
+                $DBbooking->where($array);
                 $data['CheckAll'] = 0;
             }
            
@@ -349,17 +380,11 @@ class ConUserBooking extends BaseController
         ->select('booking_order,booking_telephone,booking_title,booking_locationroom,booking_Booker,booking_admin_approve,booking_admin_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
         $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
         $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
-        $Where;
         $data['Booking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
       
         //echo '<pre>';print_r($data['Booking']); exit();
         
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserBooking/UserBookingView')
-          
-          
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserBooking/UserBookingView', $data);
     }
 
     public function BookingEdit($Key){
@@ -394,10 +419,7 @@ class ConUserBooking extends BaseController
       
        //echo '<pre>';print_r($data['Booking']); exit();
         
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserBooking/UserBookingEdit')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserBooking/UserBookingEdit', $data);
     }
 
     public function BookingCancel(){
@@ -632,10 +654,7 @@ class ConUserBooking extends BaseController
       
       // echo '<pre>';print_r($data['Booking']); exit();
         
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserBooking/UserBookingViewAdmin')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserBooking/UserBookingViewAdmin', $data);
     }
 
     public function BookingViewApproveExecutive(){
@@ -656,10 +675,7 @@ class ConUserBooking extends BaseController
       
        // echo '<pre>';print_r($data['Booking']); exit();
         
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserBooking/UserBookingViewExecutive')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserBooking/UserBookingViewExecutive', $data);
     }
 
     public function BookingDataTableApproveAdmin(){
@@ -853,6 +869,19 @@ class ConUserBooking extends BaseController
                 $data = $email->printDebugger(['headers']);
                 print_r($data);
             }
+
+            // ส่ง LINE แจ้งเตือน
+          
+                $line_msg = "✅ การจองได้รับการอนุมัติแล้ว!\n";
+                $line_msg .= "เลขที่จอง: {$CheckUserForEmail->booking_order}\n";
+                $line_msg .= "หัวข้อ: {$CheckUserForEmail->booking_title}\n";
+                $line_msg .= "สถานที่: {$CheckUserForEmail->location_name}\n";
+                $line_msg .= "วันที่: {$Datethai->thai_date_and_time_short(strtotime($CheckUserForEmail->booking_dateStart))} - {$Datethai->thai_date_and_time_short(strtotime($CheckUserForEmail->booking_dateEnd))}\n";
+                $line_msg .= "อนุมัติโดย: {$_SESSION['username']}\n";
+                $line_msg .= "ตรวจสอบสถานะ: " . base_url("Booking/View/All"); // หรือลิงก์เฉพาะการจองนี้
+
+                $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $line_msg);
+            
         }
             
 

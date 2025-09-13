@@ -23,10 +23,7 @@ class ConAdminLocationRoom extends BaseController
         $data = $this->DataMain();
         $data['title']="จัดการข้อมูลห้องประชุมและสถานที่";
 
-        return view('Admin/AdminLeyout/AdminHeader',$data)
-                .view('Admin/AdminLeyout/AdminMenuLeft')
-                .view('Admin/AdminMeetingRoom/AdminMeetingRoomMain')
-                .view('Admin/AdminLeyout/AdminFooter');
+        return view('Admin/AdminMeetingRoom/AdminMeetingRoomMain', $data);
     }
 
     public function LocationRoomInsert()

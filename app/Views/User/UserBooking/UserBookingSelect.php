@@ -1,3 +1,6 @@
+<?= $this->extend('User/UserLeyout/user_layout') ?>
+<?= $this->section('content') ?>
+
 <style>
 .location-card {
     cursor: pointer;
@@ -44,75 +47,65 @@
     color: #555;
 }
 </style>
-<!-- Layout container -->
-<div class="layout-page">
-    <?php echo view('User/UserLeyout/UserNavbar'); ?>
 
-    <!-- Content wrapper -->
-    <div class="content-wrapper">
-        <!-- Content -->
-        <div class="container-xxl flex-grow-1 container-p-y demo">
-        <div class="row mb-5">
-            <?php  $TypeLocation = ['ห้อง','อาคาร','สนาม'];
-            foreach ($TypeLocation as $key => $v_TypeLocation) : ?>
-                 <h4 class="mt-3"><i class='bx bx-door-open me-2'></i>ประเภท <?=$v_TypeLocation;?></h4>
-                <hr>
-            <?php foreach ($LocationRoomAll as $key => $v_LocationRoom): 
-                if($v_LocationRoom->location_category == $v_TypeLocation):?>
-               
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card location-card h-100 <?php
-                        if ($v_LocationRoom->location_category == 'ห้อง') echo 'border-pastel-blue';
-                        else if ($v_LocationRoom->location_category == 'อาคาร') echo 'border-pastel-green';
-                        else if ($v_LocationRoom->location_category == 'สนาม') echo 'border-pastel-yellow';
-                    ?>">
-                        <img class="lazy-load card-img-top"
-                        data-src="<?=base_url('uploads/admin/LocationRoom/'.$v_LocationRoom->location_img)?>"
-                            alt="<?=$v_LocationRoom->location_name?>">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title <?php
-                                if ($v_LocationRoom->location_category == 'ห้อง') echo 'text-pastel-blue';
-                                else if ($v_LocationRoom->location_category == 'อาคาร') echo 'text-pastel-green';
-                                else if ($v_LocationRoom->location_category == 'สนาม') echo 'text-pastel-yellow';
-                            ?>"><?=$v_LocationRoom->location_name?></h5>
-                            <p class="card-text flex-grow-1">
-                                <?=$v_LocationRoom->location_detail;?>
-                            </p>
-                            <div class="d-flex justify-content-between mt-auto">
-                                <div>
-                                    <?php if(isset($_SESSION['username'])):?>
-                                    <a href="<?=base_url('Booking/Add/'.$v_LocationRoom->location_ID)?>"
-                                        class="btn btn-primary">
-                                        <i class='bx bx-calendar-plus me-1'></i>จอง
-                                    </a>
-                                    <?php else: ?>
-                                    <a href="#" data-url="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"
-                                        class="btn btn-primary CheckUserLogin">
-                                        <i class='bx bx-calendar-plus me-1'></i> จอง
-                                    </a>
-                                    <?php endif;?>
-                                </div>
+<div class="container-xxl flex-grow-1 container-p-y demo">
+<div class="row mb-5">
+    <?php  $TypeLocation = ['ห้อง','อาคาร','สนาม'];
+    foreach ($TypeLocation as $key => $v_TypeLocation) : ?>
+         <h4 class="mt-3"><i class='bx bx-door-open me-2'></i>ประเภท <?=$v_TypeLocation;?></h4>
+        <hr>
+    <?php foreach ($LocationRoomAll as $key => $v_LocationRoom): 
+        if($v_LocationRoom->location_category == $v_TypeLocation):?>
+       
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card location-card h-100 <?php
+                if ($v_LocationRoom->location_category == 'ห้อง') echo 'border-pastel-blue';
+                else if ($v_LocationRoom->location_category == 'อาคาร') echo 'border-pastel-green';
+                else if ($v_LocationRoom->location_category == 'สนาม') echo 'border-pastel-yellow';
+            ?>">
+                <img class="lazy-load card-img-top"
+                data-src="<?=base_url('uploads/admin/LocationRoom/'.$v_LocationRoom->location_img)?>"
+                    alt="<?=$v_LocationRoom->location_name?>">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title <?php
+                        if ($v_LocationRoom->location_category == 'ห้อง') echo 'text-pastel-blue';
+                        else if ($v_LocationRoom->location_category == 'อาคาร') echo 'text-pastel-green';
+                        else if ($v_LocationRoom->location_category == 'สนาม') echo 'text-pastel-yellow';
+                    ?>"><?=$v_LocationRoom->location_name?></h5>
+                    <p class="card-text flex-grow-1">
+                        <?=$v_LocationRoom->location_detail;?>
+                    </p>
+                    <div class="d-flex justify-content-between mt-auto">
+                        <div>
+                            <?php if(isset($_SESSION['username'])):?>
+                            <a href="<?=base_url('Booking/Add/'.$v_LocationRoom->location_ID)?>"
+                                class="btn btn-primary">
+                                <i class='bx bx-calendar-plus me-1'></i>จอง
+                            </a>
+                            <?php else: ?>
+                            <a href="#" data-url="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"
+                                class="btn btn-primary CheckUserLogin">
+                                <i class='bx bx-calendar-plus me-1'></i> จอง
+                            </a>
+                            <?php endif;?>
+                        </div>
 
-                                <div>
-                                    <a href="<?=base_url('Booking/View/'.$v_LocationRoom->location_ID)?>"
-                                        class="btn btn-outline-secondary">
-                                        ดูการจอง
-                                    </a>
-                                </div>
-                            </div>
+                        <div>
+                            <a href="<?=base_url('Booking/View/'.$v_LocationRoom->location_ID)?>"
+                                class="btn btn-outline-secondary">
+                                ดูการจอง
+                            </a>
                         </div>
                     </div>
                 </div>
-           
-                <?php endif; ?>
-            <?php endforeach; ?>
-            <?php endforeach; ?>
             </div>
         </div>
+   
+        <?php endif; ?>
+    <?php endforeach; ?>
+    <?php endforeach; ?>
     </div>
-    <!-- Content wrapper -->
 </div>
-<!-- / Layout page -->
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel"
@@ -234,3 +227,5 @@
         </div>
     </div>
 </div>
+
+<?= $this->endSection() ?>

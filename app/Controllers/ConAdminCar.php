@@ -36,10 +36,7 @@ class ConAdminCar extends BaseController
 
        // echo '<pre>';print_r($v[0]->name_th);exit();
 
-        return view('Admin/AdminLeyout/AdminHeader',$data)
-                .view('Admin/AdminLeyout/AdminMenuLeft')
-                .view('Admin/AdminCar/AdminCarMain')
-                .view('Admin/AdminLeyout/AdminFooter');
+        return view('Admin/AdminCar/AdminCarMain', $data);
     }
 
     public function CarInsert()
@@ -146,10 +143,7 @@ class ConAdminCar extends BaseController
 
         //echo '<pre>';print_r($CheckDriver); exit();
 
-        return view('Admin/AdminLeyout/AdminHeader',$data)
-                .view('Admin/AdminLeyout/AdminMenuLeft')
-                .view('Admin/AdminCar/AdminCarDriver')
-                .view('Admin/AdminLeyout/AdminFooter');
+        return view('Admin/AdminCar/AdminCarDriver', $data);
 
     }
 

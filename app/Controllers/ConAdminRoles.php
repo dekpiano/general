@@ -40,10 +40,7 @@ class ConAdminRoles extends BaseController
 
         //echo '<pre>'; print_r($data['Manager']); exit();
 
-        return view('Admin/AdminLeyout/AdminHeader',$data)
-                .view('Admin/AdminLeyout/AdminMenuLeft')
-                .view('Admin/AdminRoles/AdminRolesMain')
-                .view('Admin/AdminLeyout/AdminFooter');
+        return view('Admin/AdminRoles/AdminRolesMain', $data);
     }
 
     public function RloesSettingManager() {      

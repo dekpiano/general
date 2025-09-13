@@ -39,10 +39,7 @@ class ConUserRepair extends BaseController
        
        
 
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserRepair/UserRepairMain')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserRepair/UserRepairMain', $data);
     }
 
     public function RepairAdd()
@@ -66,10 +63,7 @@ class ConUserRepair extends BaseController
        //echo '<pre>'; print_r($data['Datethai']); exit();
 
 
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserRepair/UserRepairAdd')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserRepair/UserRepairAdd', $data);
     } 
 
 
@@ -300,10 +294,7 @@ class ConUserRepair extends BaseController
 
         //echo "<pre>"; print_r($data['Order']); exit();
         
-        return view('User/UserLeyout/UserHeader',$data)
-        .view('User/UserLeyout/UserMenuLeft')
-        .view('User/UserRepair/UserRepairView')
-        .view('User/UserLeyout/UserFooter');
+        return view('User/UserRepair/UserRepairView', $data);
 
     }
 
@@ -444,10 +435,7 @@ class ConUserRepair extends BaseController
         $data['UrlMenuSub'] = 'RepairStatistics';
         $data['Datethai'] = new Datethai();
 
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserRepair/UserRepairStatistics')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserRepair/UserRepairStatistics', $data);
     }
 
     public function RepairStatisticsCaselist(){

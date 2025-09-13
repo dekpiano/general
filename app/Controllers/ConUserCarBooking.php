@@ -45,10 +45,7 @@ class ConUserCarBooking extends BaseController
         $data['NumRowsWaitApprove'] = $DBCarReservation->where('car_reserv_status !=','อนุมัติ')->get()->getNumRows();
         $data['NumRowsApprove'] = $DBCarReservation->where('car_reserv_status','อนุมัติ')->get()->getNumRows();
 
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserCarBooking/UserCarBookingMain')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserCarBooking/UserCarBookingMain', $data);
     }
 
     private function sendLineMessage($userId, $messageText)
@@ -92,10 +89,7 @@ class ConUserCarBooking extends BaseController
         $builder = $database->table('tb_school_car');
         $data['CheckCar'] = $builder->get()->getResult();
          //echo "<pre>";print_r($data['CheckCar']); exit();
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserCarBooking/UserCarBookingCheck')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserCarBooking/UserCarBookingCheck', $data);
     }
 
     public function CarBookingDataTableView(){
@@ -188,10 +182,7 @@ class ConUserCarBooking extends BaseController
         }
         
         
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserCarBooking/UserCarBookingAdd')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserCarBooking/UserCarBookingAdd', $data);
     }
 
     public function CarBookingInsert(){
@@ -421,10 +412,7 @@ class ConUserCarBooking extends BaseController
       
         //echo '<pre>';print_r($data['CarBooking']); exit();
         
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserCarBooking/UserCarBookingView')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserCarBooking/UserCarBookingView', $data);
     }
 
     public function CarBookingApproveAdmin(){
@@ -690,10 +678,7 @@ class ConUserCarBooking extends BaseController
       
        //echo '<pre>';print_r($data['CarDriver']); exit();
         
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserCarBooking/UserCarBookingViewAdmin')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserCarBooking/UserCarBookingViewAdmin', $data);
     }
 
     public function CarBookingViewApproveExecutive(){
@@ -714,10 +699,7 @@ class ConUserCarBooking extends BaseController
       
        // echo '<pre>';print_r($data['CarBooking']); exit();
         
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserCarBooking/UserCarBookingViewExecutive')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserCarBooking/UserCarBookingViewExecutive', $data);
     }
 
   

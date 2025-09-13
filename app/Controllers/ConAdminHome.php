@@ -33,10 +33,7 @@ class ConAdminHome extends BaseController
 
         $builder = $database->table('tb_car_driver');
         $data['DriverAll'] = $builder->countAll();
-        return view('Admin/AdminLeyout/AdminHeader',$data)
-                .view('Admin/AdminLeyout/AdminMenuLeft')
-                .view('Admin/AdminHome/AdminPageHome')
-                .view('Admin/AdminLeyout/AdminFooter');
+        return view('Admin/AdminHome/AdminPageHome', $data);
     }
 
     public function User()
