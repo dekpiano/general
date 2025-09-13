@@ -198,8 +198,9 @@ $(document).ready(function() {
                 let html = '';
                 if (Array.isArray(images) && images.length > 0) {
                     images.forEach(function(image) {
-                        let imageUrl = `http://${sftp_partweb}${sftp_partfullweb}${row.food_date}/${image}`;
-                        html += `<img src="${imageUrl}" alt="Food Image" width="100" class="me-2 mb-2 img-thumbnail">`;
+                        let originalUrl = `http://${sftp_partweb}${sftp_partfullweb}${row.food_date}/${image}`;
+                        let proxyUrl = `<?= base_url('image_proxy.php') ?>?url=${encodeURIComponent(originalUrl)}`;
+                        html += `<img src="${proxyUrl}" alt="Food Image" width="100" class="me-2 mb-2 img-thumbnail">`;
                     });
                 }
                 return html;
