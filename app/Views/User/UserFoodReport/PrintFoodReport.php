@@ -120,9 +120,12 @@
                 ?>
                     <h5>รูปภาพประกอบ</h5>
                     <div class="image-gallery">
-                        <?php foreach($images as $image): ?>
-                            <a href="<?= "http://". env("sftp.partweb"). env("sftp.partfullweb").esc(date('Y-m-d', strtotime($food_report['food_date'])))."/". esc($image) ?>" target="_blank">
-                                <img src="<?= "http://". env("sftp.partweb"). env("sftp.partfullweb").esc(date('Y-m-d', strtotime($food_report['food_date'])))."/". esc($image) ?>" alt="Food Image" class="img-thumbnail">
+                        <?php foreach($images as $image): 
+                            $imageUrl = "http://". env("sftp.partweb"). env("sftp.partfullweb"). date('Y-m-d', strtotime($food_report['food_date'])) . "/" . $image;
+                            $proxiedUrl = base_url('image_proxy.php?url=' . urlencode($imageUrl));
+                        ?>
+                            <a href="<?= esc($imageUrl, 'attr') ?>" target="_blank">
+                                <img src="<?= esc($proxiedUrl, 'attr') ?>" alt="Food Image" class="img-thumbnail">
                             </a>
                         <?php endforeach; ?>
                     </div>

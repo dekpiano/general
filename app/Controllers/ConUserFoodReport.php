@@ -61,8 +61,8 @@ class ConUserFoodReport extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'SFTP login failed.']);
             }
 
-            // Create a new directory based on the current date
-            $date_folder = date('Y-m-d');
+            // Create a new directory based on the food date from the form
+            $date_folder = date('Y-m-d', strtotime($food_date));
             $remote_dir = $base_remote_dir . '/' . $date_folder;
 
             // Check if the directory exists, and create it if it doesn't
@@ -116,9 +116,57 @@ class ConUserFoodReport extends BaseController
 
     public function foodReportDelete()
     {
-        $fr_id = $this->request->getVar('fr_id');
-        $this->FoodReportModel->foodReportDelete($fr_id);
-        return $this->response->setJSON(['success' => 'ลบข้อมูลสำเร็จ']);
+        $id = $this->request->getVar('id');
+        if (!$id) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่ได้ระบุ ID ของรายงาน']);
+        }
+
+        $report = $this->FoodReportModel->find($id);
+        if (!$report) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบรายงานที่ต้องการลบ']);
+        }
+
+        // Attempt to delete images from SFTP server, but don't stop if it fails.
+        try {
+            $images = json_decode($report['food_images'], true);
+            if (is_array($images) && !empty($images)) {
+                $sftp_host = getenv('sftp.host');
+                $sftp_port = getenv('sftp.port');
+                $sftp_user = getenv('sftp.user');
+                $sftp_pass = getenv('sftp.pass');
+                $base_remote_dir = getenv('sftp.remoteDir');
+
+                $sftp = new SFTP($sftp_host, $sftp_port);
+                if ($sftp->login($sftp_user, $sftp_pass)) {
+                    $foodDate = date('Y-m-d', strtotime($report['food_date']));
+                    $remote_dir = $base_remote_dir . '/' . $foodDate;
+
+                    foreach ($images as $image) {
+                        $filePath = $remote_dir . '/' . $image;
+                        if ($sftp->file_exists($filePath)) {
+                            $sftp->delete($filePath);
+                        }
+                    }
+
+                    // Attempt to remove the date directory if it's empty
+                    if ($sftp->is_dir($remote_dir) && count($sftp->nlist($remote_dir)) <= 2) { // nlist includes . and ..
+                        $sftp->rmdir($remote_dir);
+                    }
+                } else {
+                    log_message('error', 'SFTP login failed when trying to delete images for food_id: ' . $id);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Catch any other exceptions from SFTP operations and log them.
+            log_message('error', 'Exception during SFTP image deletion for food_id: ' . $id . ' - ' . $e->getMessage());
+        }
+
+        // Always proceed to delete from the database.
+        if ($this->FoodReportModel->delete($id)) {
+            return $this->response->setJSON(['status' => 'success', 'message' => 'ลบรายงานสำเร็จ']);
+        } else {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่สามารถลบข้อมูลออกจากฐานข้อมูลได้']);
+        }
     }
 
     public function print($food_id = null)

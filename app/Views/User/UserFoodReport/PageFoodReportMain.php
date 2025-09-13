@@ -2,10 +2,11 @@
 <?= $this->extend('User/UserLeyout/user_layout') ?>
 <?= $this->section('content') ?>
 
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 <div class="container-xxl flex-grow-1 container-p-y">
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">เมนู /</span> รายงานอาหาร</h4>
 
-    <div class="card">
+    <div class="card p-3">
         <div class="card-header">
             <?php if ($isLoggedIn): ?>
             <div class="dt-action-buttons text-end pt-3 pt-md-0">
@@ -18,7 +19,7 @@
             <?php endif; ?>
         </div>
         <div class="card-datatable table-responsive">
-            <table class="table datatables-basic" id="food-reports-table">
+            <table class="table datatables-basic nowrap" style="width:100%" id="food-reports-table">
                 <thead>
                     <tr>
                         <th>วันที่</th>
@@ -83,9 +84,32 @@
 </div>
 <?php endif; ?>
 
+<!-- Image Viewer Modal -->
+<div class="modal fade" id="imageViewerModal" tabindex="-1" aria-labelledby="imageViewerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageViewerModalLabel">รูปภาพประกอบ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="image-gallery-in-modal" class="d-flex flex-wrap gap-3 justify-content-center">
+          <!-- Images will be loaded here dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 <?php if ($isLoggedIn): ?>
 <script>
 // This is the script for the "Add Report" modal form
@@ -137,8 +161,22 @@ document.getElementById('addReportForm').addEventListener('submit', function(eve
     event.preventDefault(); // Prevent default form submission
 
     const form = event.target;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonHtml = submitButton.innerHTML;
+
+    // Disable button and show loader
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังบันทึก...';
+
     const formData = new FormData(form);
-    const url = form.action; // Get the form action URL
+    const url = form.action;
+
+    console.log('Submitting to URL:', url); // Check the URL value
+
+    const restoreButton = () => {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonHtml;
+    };
 
     fetch(url, {
         method: 'POST',
@@ -146,19 +184,34 @@ document.getElementById('addReportForm').addEventListener('submit', function(eve
     })
     .then(response => response.json())
     .then(data => {
+        restoreButton(); // Restore button on success/error
         if (data.status === 'success') {
-            alert('บันทึกข้อมูลสำเร็จ!');
-            const addReportModalInstance = bootstrap.Modal.getInstance(document.getElementById('addReportModal'));
-            addReportModalInstance.hide();
-            // Reload DataTable instead of the whole page
-            $('#food-reports-table').DataTable().ajax.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสำเร็จ!',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                const addReportModalInstance = bootstrap.Modal.getInstance(document.getElementById('addReportModal'));
+                addReportModalInstance.hide();
+                $('#food-reports-table').DataTable().ajax.reload();
+            });
         } else {
-            alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + data.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + data.message
+            });
         }
     })
     .catch(error => {
+        restoreButton(); // Restore button on failure
         console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + error.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด!',
+            text: 'เกิดข้อผิดพลาดในการส่งข้อมูล: ' + error.message
+        });
     });
 });
 </script>
@@ -191,19 +244,19 @@ $(document).ready(function() {
                 try {
                     images = (data && typeof data === 'string') ? JSON.parse(data) : [];
                 } catch (e) {
-                    console.error('Error parsing food_images JSON:', e, 'Raw data:', data);
                     images = [];
                 }
-                
-                let html = '';
+
                 if (Array.isArray(images) && images.length > 0) {
-                    images.forEach(function(image) {
-                        let originalUrl = `http://${sftp_partweb}${sftp_partfullweb}${row.food_date}/${image}`;
-                        let proxyUrl = `<?= base_url('image_proxy.php') ?>?url=${encodeURIComponent(originalUrl)}`;
-                        html += `<img src="${proxyUrl}" alt="Food Image" width="100" class="me-2 mb-2 img-thumbnail">`;
-                    });
+                    return `<button type="button" class="btn btn-sm btn-outline-primary view-images-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#imageViewerModal"
+                                    data-images='${data}'
+                                    data-food-date="${row.food_date}">
+                                <i class="bx bx-images me-1"></i> ดูรูปภาพ (${images.length})
+                            </button>`;
                 }
-                return html;
+                return 'ไม่มีรูปภาพ';
             },
             "orderable": false,
             "searchable": false
@@ -226,7 +279,7 @@ $(document).ready(function() {
                                 <a href="javascript:;" class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></a>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a href="javascript:;" class="dropdown-item"><i class="bx bx-edit-alt me-1"></i> แก้ไข</a>
-                                    <a href="javascript:;" class="dropdown-item text-danger"><i class="bx bx-trash me-1"></i> ลบ</a>
+                                    <a href="javascript:;" class="dropdown-item text-danger delete-btn" data-id="${data}"><i class="bx bx-trash me-1"></i> ลบ</a>
                                 </div>
                             </div>`;
             },
@@ -235,10 +288,15 @@ $(document).ready(function() {
     }
 
     $('#food-reports-table').DataTable({
+        "responsive": true,
         "ajax": {
             "url": "<?= base_url('FoodReport/getFoodReportsJson') ?>",
             "error": function (xhr, error, thrown) {
-                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลตาราง โปรดลองอีกครั้ง');
+                Swal.fire(
+                    'เกิดข้อผิดพลาด!',
+                    'เกิดข้อผิดพลาดในการโหลดข้อมูลตาราง โปรดลองอีกครั้ง',
+                    'error'
+                );
                 console.error('DataTables AJAX error:', error, thrown);
             }
         },
@@ -248,6 +306,107 @@ $(document).ready(function() {
             "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Thai.json"
         }
     });
+
+    // Handle delete button click
+    $('#food-reports-table tbody').on('click', '.delete-btn', function() {
+        const foodId = $(this).data('id');
+        Swal.fire({
+            title: 'ยืนยันการลบ',
+            text: "คุณแน่ใจหรือไม่ว่าต้องการลบรายงานนี้? การกระทำนี้ไม่สามารถย้อนกลับได้",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'กำลังลบข้อมูล...',
+                    text: 'กรุณารอสักครู่',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                $.ajax({
+                    url: `<?= base_url('FoodReport/delete') ?>`,
+                    type: 'POST',
+                    data: { id: foodId },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire(
+                                'ลบสำเร็จ!',
+                                'รายงานของคุณถูกลบเรียบร้อยแล้ว',
+                                'success'
+                            ).then(() => {
+                                $('#food-reports-table').DataTable().ajax.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'เกิดข้อผิดพลาด!',
+                                'เกิดข้อผิดพลาดในการลบ: ' + response.message,
+                                'error'
+                            );
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire(
+                            'เกิดข้อผิดพลาด!',
+                            'ไม่สามารถสื่อสารกับเซิร์ฟเวอร์ได้',
+                            'error'
+                        );
+                        console.error('AJAX Error:', status, error);
+                    }
+                });
+            }
+        });
+    });
+
+    // Handle image viewer modal
+    const imageViewerModal = document.getElementById('imageViewerModal');
+    if (imageViewerModal) {
+        imageViewerModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget; // Button that triggered the modal
+            const imagesJson = button.getAttribute('data-images');
+            const foodDate = button.getAttribute('data-food-date');
+            const gallery = document.getElementById('image-gallery-in-modal');
+            gallery.innerHTML = ''; // Clear previous images
+
+            let images;
+            try {
+                images = JSON.parse(imagesJson);
+            } catch (e) {
+                console.error('Error parsing images JSON for modal:', e);
+                images = [];
+            }
+
+            if (Array.isArray(images) && images.length > 0) {
+                images.forEach(function(image) {
+                    let originalUrl = `http://${sftp_partweb}${sftp_partfullweb}${foodDate}/${image}`;
+                    let proxyUrl = `<?= base_url('image_proxy.php') ?>?url=${encodeURIComponent(originalUrl)}`;
+
+                    const link = document.createElement('a');
+                    link.href = originalUrl;
+                    link.target = '_blank';
+
+                    const img = document.createElement('img');
+                    img.src = proxyUrl;
+                    img.alt = 'Food Image';
+                    img.className = 'img-fluid img-thumbnail';
+                    img.style.maxWidth = '200px';
+                    img.style.maxHeight = '200px';
+                    img.style.cursor = 'pointer';
+
+                    link.appendChild(img);
+                    gallery.appendChild(link);
+                });
+            } else {
+                gallery.innerHTML = '<p>ไม่พบรูปภาพ</p>';
+            }
+        });
+    }
 });
 </script>
 <?= $this->endSection() ?>
