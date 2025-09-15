@@ -138,7 +138,7 @@ class ConUserFoodReport extends BaseController
                 if ($upload_server_delete_url) {
                     $client = \Config\Services::curlrequest();
                     $foodDate = date('Y-m-d', strtotime($report['food_date']));
-                    $path = 'food_reports/' . $foodDate;
+                    $path = 'general/FoodReport/' . $foodDate;
 
                     $response = $client->request('POST', $upload_server_delete_url, [
                         'json' => [
