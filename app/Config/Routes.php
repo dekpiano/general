@@ -132,6 +132,8 @@ $routes->post('FoodReport/insert', 'ConUserFoodReport::foodReportInsert');
 $routes->post('FoodReport/update', 'ConUserFoodReport::foodReportUpdate');
 $routes->post('FoodReport/delete', 'ConUserFoodReport::foodReportDelete');
 
+$routes->get('check-vendor', 'ConUserFoodReport::checkVendor');
+
 $routes->post('Webhook', 'Webhook::index');
 /*
  * --------------------------------------------------------------------

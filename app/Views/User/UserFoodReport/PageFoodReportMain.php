@@ -197,6 +197,7 @@ document.getElementById('addReportForm').addEventListener('submit', function(eve
                 $('#food-reports-table').DataTable().ajax.reload();
             });
         } else {
+            console.error('Server error:', data); // Log the full error data
             Swal.fire({
                 icon: 'error',
                 title: 'เกิดข้อผิดพลาด!',
@@ -384,7 +385,7 @@ $(document).ready(function() {
 
             if (Array.isArray(images) && images.length > 0) {
                 images.forEach(function(image) {
-                    let originalUrl = `http://${sftp_partweb}${sftp_partfullweb}${foodDate}/${image}`;
+                    let originalUrl = `<?=env('upload.server.baseurl')?>${foodDate}/${image}`;
                     let proxyUrl = `<?= base_url('image_proxy.php') ?>?url=${encodeURIComponent(originalUrl)}`;
 
                     const link = document.createElement('a');

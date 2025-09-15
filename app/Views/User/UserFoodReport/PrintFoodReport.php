@@ -121,7 +121,7 @@
                     <h5>รูปภาพประกอบ</h5>
                     <div class="image-gallery">
                         <?php foreach($images as $image): 
-                            $imageUrl = "http://". env("sftp.partweb"). env("sftp.partfullweb"). date('Y-m-d', strtotime($food_report['food_date'])) . "/" . $image;
+                            $imageUrl = env("upload.server.baseurl") . date('Y-m-d', strtotime($food_report['food_date'])) . "/" . $image;
                             $proxiedUrl = base_url('image_proxy.php?url=' . urlencode($imageUrl));
                         ?>
                             <a href="<?= esc($imageUrl, 'attr') ?>" target="_blank">

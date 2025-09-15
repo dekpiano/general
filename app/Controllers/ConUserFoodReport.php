@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Models\AdminModels;
 use App\Models\FoodReportModel;
-use phpseclib3\Net\SFTP;
 
 class ConUserFoodReport extends BaseController
 {
@@ -30,21 +29,16 @@ class ConUserFoodReport extends BaseController
         
         $data['title'] = 'รายงานอาหาร';
         $data['description'] = 'รายงานอาหารมื้ออาหาร';
-        // Pass sftp paths to the view for use in JS
-        $data['sftp_partweb'] = env('sftp.partweb');
-        $data['sftp_partfullweb'] = env('sftp.partfullweb');
         
         echo view('User/UserFoodReport/PageFoodReportMain', $data);
     }
 
     public function foodReportInsert()
     {
-        // SFTP Configuration
-        $sftp_host = getenv('sftp.host');
-        $sftp_port = getenv('sftp.port');
-        $sftp_user = getenv('sftp.user');
-        $sftp_pass = getenv('sftp.pass');
-        $base_remote_dir = getenv('sftp.remoteDir');
+        $upload_server_url = getenv('upload.server.url');
+        if (!$upload_server_url) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Upload server URL is not configured.']);
+        }
 
         $food_date = $this->request->getVar('food_date');
         $food_meal = $this->request->getVar('food_meal');
@@ -54,34 +48,45 @@ class ConUserFoodReport extends BaseController
         $files = $this->request->getFiles();
 
         if ($files && isset($files['food_images'])) {
-            // Connect to SFTP server once before the loop
-            $sftp = new SFTP($sftp_host, $sftp_port);
-            if (!$sftp->login($sftp_user, $sftp_pass)) {
-                // Handle login failure
-                return $this->response->setJSON(['status' => 'error', 'message' => 'SFTP login failed.']);
-            }
-
-            // Create a new directory based on the food date from the form
+            $client = \Config\Services::curlrequest();
             $date_folder = date('Y-m-d', strtotime($food_date));
-            $remote_dir = $base_remote_dir . '/' . $date_folder;
-
-            // Check if the directory exists, and create it if it doesn't
-            if (!$sftp->is_dir($remote_dir)) {
-                if (!$sftp->mkdir($remote_dir, -1, true)) { // true for recursive creation
-                     return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to create remote directory.']);
-                }
-            }
 
             foreach ($files['food_images'] as $img) {
                 if ($img->isValid() && !$img->hasMoved()) {
-                    $newName = $img->getRandomName();
                     $local_temp_path = $img->getTempName();
+                    $mimeType = $img->getMimeType();
+                    $originalName = $img->getName();
 
-                    // Upload to the date-specific directory on the SFTP server from temp file
-                    $sftp->put($remote_dir . '/' . $newName, $local_temp_path, SFTP::SOURCE_LOCAL_FILE);
-                    
-                    $image_names[] = $newName;
+                    try {
+                        $response = $client->request('POST', $upload_server_url, [
+                            'multipart' => [
+                                'file' => new \CURLFile($local_temp_path, $mimeType, $originalName),
+                                'path' => 'general/FoodReport/' . $date_folder,
+                            ]
+                        ]);
+
+                        if ($response->getStatusCode() === 200) {
+                            $body = json_decode($response->getBody());
+                            if ($body && isset($body->status) && $body->status === 'success' && isset($body->filename)) {
+                                $image_names[] = $body->filename;
+                            } else {
+                                log_message('error', 'File upload to remote server failed: ' . $response->getBody());
+                                return $this->response->setJSON(['status' => 'error', 'message' => 'File upload to remote server failed', 'details' => $response->getBody()]);
+                            }
+                        } else {
+                             log_message('error', 'File upload to remote server failed with status code: ' . $response->getStatusCode());
+                             log_message('error', 'Remote server response: ' . $response->getBody());
+                             return $this->response->setJSON(['status' => 'error', 'message' => 'Remote server error', 'details' => $response->getBody()]);
+                        }
+                    } catch (\Exception $e) {
+                        log_message('error', 'Exception during file upload: ' . $e->getMessage());
+                        return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+                    }
                 }
+            }
+
+            if (count($files['food_images']) > 0 && empty($image_names)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to upload any images. Please check logs.']);
             }
         }
 
@@ -126,39 +131,31 @@ class ConUserFoodReport extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบรายงานที่ต้องการลบ']);
         }
 
-        // Attempt to delete images from SFTP server, but don't stop if it fails.
         try {
             $images = json_decode($report['food_images'], true);
             if (is_array($images) && !empty($images)) {
-                $sftp_host = getenv('sftp.host');
-                $sftp_port = getenv('sftp.port');
-                $sftp_user = getenv('sftp.user');
-                $sftp_pass = getenv('sftp.pass');
-                $base_remote_dir = getenv('sftp.remoteDir');
-
-                $sftp = new SFTP($sftp_host, $sftp_port);
-                if ($sftp->login($sftp_user, $sftp_pass)) {
+                $upload_server_delete_url = getenv('upload.server.delete.url');
+                if ($upload_server_delete_url) {
+                    $client = \Config\Services::curlrequest();
                     $foodDate = date('Y-m-d', strtotime($report['food_date']));
-                    $remote_dir = $base_remote_dir . '/' . $foodDate;
+                    $path = 'food_reports/' . $foodDate;
 
-                    foreach ($images as $image) {
-                        $filePath = $remote_dir . '/' . $image;
-                        if ($sftp->file_exists($filePath)) {
-                            $sftp->delete($filePath);
-                        }
-                    }
+                    $response = $client->request('POST', $upload_server_delete_url, [
+                        'json' => [
+                            'files' => $images,
+                            'path' => $path
+                        ]
+                    ]);
 
-                    // Attempt to remove the date directory if it's empty
-                    if ($sftp->is_dir($remote_dir) && count($sftp->nlist($remote_dir)) <= 2) { // nlist includes . and ..
-                        $sftp->rmdir($remote_dir);
+                    if ($response->getStatusCode() !== 200) {
+                        log_message('error', 'Failed to delete images from remote server for food_id: ' . $id . '. Status: ' . $response->getStatusCode() . ' Body: ' . $response->getBody());
                     }
                 } else {
-                    log_message('error', 'SFTP login failed when trying to delete images for food_id: ' . $id);
+                    log_message('error', 'upload.server.delete.url is not configured. Cannot delete images for food_id: ' . $id);
                 }
             }
         } catch (\Throwable $e) {
-            // Catch any other exceptions from SFTP operations and log them.
-            log_message('error', 'Exception during SFTP image deletion for food_id: ' . $id . ' - ' . $e->getMessage());
+            log_message('error', 'Exception during remote image deletion for food_id: ' . $id . ' - ' . $e->getMessage());
         }
 
         // Always proceed to delete from the database.
@@ -195,5 +192,39 @@ class ConUserFoodReport extends BaseController
     {
         $reports = $this->FoodReportModel->orderBy('created_at', 'DESC')->findAll();
         return $this->response->setJSON(['data' => $reports]);
+    }
+
+    public function checkVendor()
+    {
+        echo "<h1>Vendor/Autoloader Check</h1>";
+        echo "<pre>";
+
+        echo "PHP Version: " . phpversion() . "\n\n";
+
+        $open_basedir = ini_get('open_basedir');
+        echo "open_basedir setting: " . ($open_basedir ?: 'Not Set') . "\n\n";
+
+        $autoloaderPath = APPPATH . '../vendor/autoload.php';
+        echo "Checking for autoloader at: " . realpath($autoloaderPath) . "\n";
+        echo "is_readable(autoloader)? " . (is_readable($autoloaderPath) ? 'Yes' : 'No') . "\n\n";
+
+        if (is_readable($autoloaderPath)) {
+            echo "Requiring autoloader...\n";
+            require_once $autoloaderPath;
+            echo "Autoloader included successfully.\n\n";
+
+            $className = 'phpseclib3\\Net\\SFTP';
+            echo "Checking for class: " . $className . "\n";
+            echo "class_exists()? " . (class_exists($className) ? 'Yes' : 'No') . "\n\n";
+
+            if (!class_exists($className)) {
+                echo "Class does not exist. Let's check the specific file...\n";
+                $sftpClassPath = APPPATH . '../vendor/phpseclib/phpseclib/src/Net/SFTP.php';
+                echo "Checking for SFTP class file at: " . realpath($sftpClassPath) . "\n";
+                echo "is_readable(SFTP class file)? " . (is_readable($sftpClassPath) ? 'Yes' : 'No') . "\n";
+            }
+        }
+
+        echo "</pre>";
     }
 }

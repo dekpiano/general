@@ -1,0 +1,44 @@
+INFO - 2025-09-15 09:03:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 09:03:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 09:03:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 09:03:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 09:03:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 09:03:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 09:04:24 --> Exception during remote image deletion for food_id: 11 - 22 : The requested URL returned error: 404
+ERROR - 2025-09-15 09:04:27 --> Exception during remote image deletion for food_id: 9 - 22 : The requested URL returned error: 404
+ERROR - 2025-09-15 09:04:32 --> Exception during remote image deletion for food_id: 10 - 22 : The requested URL returned error: 404
+ERROR - 2025-09-15 09:05:01 --> Exception during file upload: 22 : The requested URL returned error: 404
+INFO - 2025-09-15 09:11:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 09:12:01 --> Exception during file upload: 22 : The requested URL returned error: 404
+INFO - 2025-09-15 09:13:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 09:13:42 --> Exception during file upload: 22 : The requested URL returned error: 500
+INFO - 2025-09-15 16:25:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 16:25:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 16:25:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 16:25:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 16:25:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 16:25:55 --> Exception during file upload: 22 : The requested URL returned error: 500
+INFO - 2025-09-15 16:32:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 16:32:43 --> Exception during file upload: 22 : The requested URL returned error: 500
+INFO - 2025-09-15 16:36:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 16:36:46 --> Exception during file upload: 22 : The requested URL returned error: 500
+ERROR - 2025-09-15 16:37:56 --> Exception during file upload: 22 : The requested URL returned error: 500
+INFO - 2025-09-15 16:38:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 16:38:50 --> Exception during file upload: 22 : The requested URL returned error: 500
+INFO - 2025-09-15 16:41:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 16:42:04 --> Exception during file upload: 22 : The requested URL returned error: 500
+INFO - 2025-09-15 16:42:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 16:42:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 16:48:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 16:48:45 --> Exception during file upload: 22 : The requested URL returned error: 500
+INFO - 2025-09-15 16:53:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-09-15 16:53:47 --> Exception during file upload: 22 : The requested URL returned error: 500
+INFO - 2025-09-15 17:02:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 17:05:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 17:06:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 17:06:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 17:08:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 17:09:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 17:11:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 17:11:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-09-15 17:12:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
