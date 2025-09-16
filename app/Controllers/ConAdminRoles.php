@@ -127,6 +127,40 @@ class ConAdminRoles extends BaseController
 
         return $this->response->setJSON($response);
     }
+     public function AddDepartment()
+    {
+        if ($this->request->getMethod() === 'post') {
+            $departmentName = $this->request->getPost('department_name');
+
+            if (empty($departmentName)) {
+                return $this->response->setJSON(['success' => false, 'msg' => 'กรุณากรอกชื่องาน']);
+            }
+
+            $database = \Config\Database::connect();
+            $builder = $database->table('tb_admin_rloes');
+
+            // Check if a role with this department name already exists
+            $existing = $builder->where('admin_rloes_nanetype', $departmentName)->get()->getRow();
+            if ($existing) {
+                return $this->response->setJSON(['success' => false, 'msg' => 'มีงานชื่อนี้อยู่ในระบบแล้ว']);
+            }
+
+            // Create a placeholder role for the new department.
+            $data = [
+                'admin_rloes_userid'   => '',
+                'admin_rloes_nanetype' => $departmentName,
+                'admin_rloes_level'    => '1/หัวหน้างาน',
+                'admin_rloes_status'   => 'AdminGeneral'
+            ];
+
+            if ($builder->insert($data)) {
+                return $this->response->setJSON(['success' => true, 'msg' => 'เพิ่มงานใหม่สำเร็จ']);
+            } else {
+                return $this->response->setJSON(['success' => false, 'msg' => 'ไม่สามารถบันทึกข้อมูลลงฐานข้อมูลได้']);
+            }
+        }
+        return redirect()->back();
+    }
  
 
 }
