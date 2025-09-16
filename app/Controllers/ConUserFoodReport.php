@@ -97,6 +97,7 @@ class ConUserFoodReport extends BaseController
             'food_meal' => $food_meal,
             'food_menu' => $food_menu,
             'food_images' => $food_images_json,
+            'food_admin' => session()->get('id'), // Add the logged-in user's ID
         ];
 
         if ($this->FoodReportModel->foodReportInsert($data)) {
@@ -108,15 +109,130 @@ class ConUserFoodReport extends BaseController
 
     public function foodReportUpdate()
     {
-        $fr_id = $this->request->getVar('fr_id');
-        $data = [
-            'fr_name' => $this->request->getVar('fr_name'),
-            'fr_price' => $this->request->getVar('fr_price'),
-            'fr_quantity' => $this->request->getVar('fr_quantity'),
-            'fr_details' => $this->request->getVar('fr_details'),
+        $food_id = $this->request->getVar('food_id');
+        if (!$food_id) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบ ID รายงานที่ต้องการแก้ไข']);
+        }
+
+        // Authorization check: Ensure the logged-in user owns this report
+        $report = $this->FoodReportModel->find($food_id);
+        if (!$report || $report['food_admin'] != session()->get('id')) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์แก้ไขรายงานนี้']);
+        }
+
+        $food_date = $this->request->getVar('food_date');
+        $food_meal = $this->request->getVar('food_meal');
+        $food_menu = $this->request->getVar('food_menu');
+
+        $data_to_update = [
+            'food_date' => $food_date,
+            'food_meal' => $food_meal,
+            'food_menu' => $food_menu,
+            'food_admin' => session()->get('id'), // Update with current user's ID
         ];
-        $this->FoodReportModel->foodReportUpdate($fr_id, $data);
-        return $this->response->setJSON(['success' => 'แก้ไขข้อมูลสำเร็จ']);
+
+        $image_names = [];
+        $files = $this->request->getFiles();
+        $has_new_files_to_upload = false;
+
+        // Check if there are actual new files selected by the user
+        if (isset($files['food_images']) && is_array($files['food_images'])) {
+            foreach ($files['food_images'] as $img) {
+                if ($img->isValid() && $img->getError() !== UPLOAD_ERR_NO_FILE) {
+                    $has_new_files_to_upload = true;
+                    break;
+                }
+            }
+        }
+
+        // Fetch existing report to get old images
+        $existingReport = $this->FoodReportModel->find($food_id);
+        $old_images = json_decode($existingReport['food_images'] ?? '[]', true);
+
+        if ($has_new_files_to_upload) {
+            $upload_server_url = getenv('upload.server.url');
+            if (!$upload_server_url) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Upload server URL is not configured.']);
+            }
+
+            $client = \Config\Services::curlrequest();
+            $date_folder = date('Y-m-d', strtotime($food_date));
+
+            foreach ($files['food_images'] as $img) {
+                if ($img->isValid() && !$img->hasMoved()) {
+                    $local_temp_path = $img->getTempName();
+                    $mimeType = $img->getMimeType();
+                    $originalName = $img->getName();
+
+                    try {
+                        $response = $client->request('POST', $upload_server_url, [
+                            'multipart' => [
+                                'file' => new \CURLFile($local_temp_path, $mimeType, $originalName),
+                                'path' => 'general/FoodReport/' . $date_folder,
+                            ]
+                        ]);
+
+                        if ($response->getStatusCode() === 200) {
+                            $body = json_decode($response->getBody());
+                            if ($body && isset($body->status) && $body->status === 'success' && isset($body->filename)) {
+                                $image_names[] = $body->filename;
+                            } else {
+                                log_message('error', 'File upload to remote server failed: ' . $response->getBody());
+                                return $this->response->setJSON(['status' => 'error', 'message' => 'File upload to remote server failed', 'details' => $response->getBody()]);
+                            }
+                        } else {
+                             log_message('error', 'File upload to remote server failed with status code: ' . $response->getStatusCode());
+                             log_message('error', 'Remote server response: ' . $response->getBody());
+                             return $this->response->setJSON(['status' => 'error', 'message' => 'Remote server error', 'details' => $response->getBody()]);
+                        }
+                    } catch (\Exception $e) {
+                        log_message('error', 'Exception during file upload: ' . $e->getMessage());
+                        return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+                    }
+                }
+            }
+
+            // If new files were intended to be uploaded but none succeeded
+            if (count($files['food_images']) > 0 && empty($image_names)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to upload any new images. Please check logs.']);
+            }
+
+            // Delete old images from remote server if new ones are uploaded
+            if (!empty($old_images)) {
+                $upload_server_delete_url = getenv('upload.server.delete.url');
+                if ($upload_server_delete_url) {
+                    $client = \Config\Services::curlrequest();
+                    $old_date_folder = date('Y-m-d', strtotime($existingReport['food_date']));
+                    $path = 'general/FoodReport/' . $old_date_folder;
+
+                    try {
+                        $response = $client->request('POST', $upload_server_delete_url, [
+                            'json' => [
+                                'files' => $old_images,
+                                'path' => $path
+                            ]
+                        ]);
+                        if ($response->getStatusCode() !== 200) {
+                            log_message('error', 'Failed to delete old images from remote server for food_id: ' . $food_id . '. Status: ' . $response->getStatusCode() . ' Body: ' . $response->getBody());
+                        }
+                    } catch (\Throwable $e) {
+                        log_message('error', 'Exception during remote old image deletion for food_id: ' . $food_id . ' - ' . $e->getMessage());
+                    }
+                } else {
+                    log_message('error', 'upload.server.delete.url is not configured. Cannot delete old images for food_id: ' . $food_id);
+                }
+            }
+            $data_to_update['food_images'] = json_encode($image_names); // Set to new images
+        } else {
+            // No new files uploaded, retain existing images
+            $data_to_update['food_images'] = json_encode($old_images);
+        }
+
+        if ($this->FoodReportModel->update($food_id, $data_to_update)) {
+            return $this->response->setJSON(['status' => 'success', 'message' => 'แก้ไขข้อมูลสำเร็จ']);
+        } else {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล']);
+        }
     }
 
     public function foodReportDelete()
@@ -129,6 +245,11 @@ class ConUserFoodReport extends BaseController
         $report = $this->FoodReportModel->find($id);
         if (!$report) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบรายงานที่ต้องการลบ']);
+        }
+
+        // Authorization check: Ensure the logged-in user owns this report
+        if ($report['food_admin'] != session()->get('id')) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์ลบรายงานนี้']);
         }
 
         try {
@@ -190,8 +311,23 @@ class ConUserFoodReport extends BaseController
 
     public function getFoodReportsJson()
     {
-        $reports = $this->FoodReportModel->orderBy('created_at', 'DESC')->findAll();
+        $reports = $this->FoodReportModel->getFoodReportsWithRecorderDetails(); // Call the new method
         return $this->response->setJSON(['data' => $reports]);
+    }
+
+    public function getReportById($food_id = null)
+    {
+        if (!$food_id) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบ ID รายงาน']);
+        }
+
+        $report = $this->FoodReportModel->find($food_id);
+
+        if ($report) {
+            return $this->response->setJSON(['status' => 'success', 'report' => $report]);
+        } else {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบรายงานที่ระบุ']);
+        }
     }
 
     public function checkVendor()

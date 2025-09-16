@@ -135,13 +135,13 @@
             <div class="signatures">
                 <div class="signature-box">
                     <div class="signature-line"></div>
-                    <p>(.................................................)</p>
-                    <p>
-                        <strong>ผู้ส่งงาน/ผู้บันทึก:</strong><br>
-                        <?php
+                    <p><?php
                             $creator_name = trim(($food_report['pers_prefix'] ?? '') . ($food_report['pers_firstname'] ?? '') . ' ' . ($food_report['pers_lastname'] ?? ''));
                             echo esc($creator_name) ?: 'N/A';
-                        ?>
+                        ?></p>
+                    <p>
+                        <strong>ผู้ส่งงาน/ผู้บันทึก:</strong><br>
+                        
                     </p>
                 </div>
                 <div class="signature-box">
