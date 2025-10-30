@@ -53,7 +53,7 @@
 
     <div class="row justify-content-center g-4">
         <!-- จองสถานที่ -->
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
             <a href="<?=base_url('Booking');?>" class="text-decoration-none">
                 <div class="card card-hover rounded-4 shadow-sm p-4 h-100 text-center">
                     <img src="https://cdn-icons-png.flaticon.com/128/1908/1908239.png"
@@ -65,7 +65,7 @@
             </a>
         </div>
         <!-- จองรถ -->
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
             <a href="<?=base_url('CarBooking');?>" class="text-decoration-none">
                 <div class="card card-hover rounded-4 shadow-sm p-4 h-100 text-center">
                     <img src="https://cdn-icons-png.flaticon.com/128/11649/11649708.png"
@@ -77,7 +77,7 @@
             </a>
         </div>
         <!-- แจ้งซ่อมออนไลน์ -->
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
             <a href="<?=base_url('Repair');?>" class="text-decoration-none">
                 <div class="card card-hover rounded-4 shadow-sm p-4 h-100 text-center">
                     <img src="https://cdn-icons-png.flaticon.com/128/10203/10203414.png"
@@ -85,6 +85,18 @@
                     <h5 class="mb-2 fw-bold text-primary">แจ้งซ่อมออนไลน์</h5>
                     <div class="text-secondary mb-3">แจ้งปัญหาอุปกรณ์, ระบบต่าง ๆ</div>
                     <button class="btn btn-primary w-75 mx-auto text-white">เข้าสู่ระบบ</button>
+                </div>
+            </a>
+        </div>
+        <!-- รายการอาหาร -->
+        <div class="col-12 col-md-3">
+            <a href="<?=base_url('FoodReport');?>" class="text-decoration-none">
+                <div class="card card-hover rounded-4 shadow-sm p-4 h-100 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/128/3595/3595458.png"
+                        class="icon-hero align-self-center" alt="รายการอาหาร">
+                    <h5 class="mb-2 fw-bold text-primary">รายการอาหาร</h5>
+                    <div class="text-secondary mb-3">ดูและบันทึกรายงานอาหารประจำวัน</div>
+                    <button class="btn btn-primary w-75 mx-auto">เข้าสู่ระบบ</button>
                 </div>
             </a>
         </div>
