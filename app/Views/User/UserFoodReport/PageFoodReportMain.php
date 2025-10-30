@@ -399,7 +399,7 @@ $(document).ready(function() {
             "render": function(data, type, row) {
                 // This check assumes that the JSON response for each row contains a `user_id` field,
                 // which holds the ID of the user who created the report.
-                if (isLoggedIn && loggedInUserId && row.user_id && row.user_id == loggedInUserId) {
+                if (row.food_admin == loggedInUserId) {
                     // If the user is the owner, show edit and delete buttons
                     return `<div class="d-inline-flex gap-2">
                                 <a href="javascript:;" class="btn btn-sm btn-icon item-edit" title="แก้ไข" data-bs-toggle="modal" data-bs-target="#addReportModal" data-id="${data}"><i class="bx bx-edit-alt"></i></a>

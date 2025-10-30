@@ -63,26 +63,62 @@
             margin: 2rem;
         }
         .image-gallery {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
         }
         .img-thumbnail {
-            max-width: 150px;
-            max-height: 150px;
+            max-width: 100%;
+            max-height: 250px;
         }
         @media print {
             @page {
-                size: A4 portrait;
-                margin: 10px;
+                size: A4; /* A4 is portrait by default */
+                margin: 15mm; /* Standard margin */
             }
             body {
                 background-color: #fff;
+                font-size: 10pt; /* Smaller font for print */
             }
             .receipt-container {
                 margin: 0;
+                padding: 0;
                 border: none;
                 box-shadow: none;
+                width: 100%;
+            }
+            .receipt-header {
+                margin-bottom: 0.5rem;
+                padding-bottom: 0.5rem;
+            }
+            .receipt-header h2 {
+                font-size: 16pt;
+            }
+            .receipt-details, .report-body, .signatures {
+                margin-bottom: 0.5rem;
+            }
+            .receipt-details .row {
+                margin-bottom: 0.2rem;
+            }
+            .report-body h5 {
+                font-size: 11pt;
+                margin-top: 0.8rem;
+                margin-bottom: 0.4rem;
+            }
+            .image-gallery {
+                gap: 0.5rem;
+            }
+            .img-thumbnail {
+                width: 100%;
+                aspect-ratio: 1 / 1; /* Create a square box */
+                object-fit: cover; /* Scale and crop image to fill the box */
+            }
+            .signatures {
+                margin-top: 1.5rem;
+                page-break-inside: avoid; /* Try to keep signatures together */
+            }
+            .signature-line {
+                margin-top: 1.5rem;
             }
             .no-print {
                 display: none;
