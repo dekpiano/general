@@ -50,7 +50,7 @@
                     <tr>
                     <tr>
                         <th>สถานะ</th>
-                        <th>เลขที่จองรถ</th>
+                        <th>เลขที่จองยานพาหนะ</th>
                         <th>รูปรถ</th>
                         <th>ทะเบียน</th>
                         <th>คนขับรถ</th>
@@ -94,7 +94,7 @@
                 </div>
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" id="BtnNoAppoveCarBooking" class="btn btn-danger">ไม่อนุมัติ</button>
-                    <button type="submit" class="btn btn-primary">อนุมัติการจองรถ</button>
+                    <button type="submit" class="btn btn-primary">อนุมัติการจองยานพาหนะ</button>
                 </div>
             </form>
         </div>

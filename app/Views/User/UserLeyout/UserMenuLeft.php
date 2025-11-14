@@ -42,7 +42,7 @@
                 <li class="menu-item <?php echo $UrlMenuMain == "CarBooking"?"active":""?>">
                     <a href="<?=base_url('CarBooking');?>" class="menu-link">
                     <i class='menu-icon tf-icons bx bxs-car'></i>
-                        <div data-i18n="Analytics">จองรถ</div>
+                        <div data-i18n="Analytics">จองยานพาหนะ</div>
                     </a>
                 </li>
                 <li class="menu-header small text-uppercase">

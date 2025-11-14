@@ -29,6 +29,10 @@ $routes->setAutoRoute(false);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'ConUserHome::index');
+$routes->get('manual/booking', 'ConUserManual::bookingSystemManual');
+$routes->get('manual/car-booking', 'ConUserManual::carBookingSystemManual');
+$routes->get('manual/repair', 'ConUserManual::repairSystemManual');
+
 //User งานจองห้อง
 $routes->get('Booking', 'ConUserBooking::BookingMain');
 $routes->get('Booking/Select', 'ConUserBooking::BookingSelect');
@@ -56,7 +60,7 @@ $routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Show/(:any)
 
 $routes->match(['get', 'post'],'Booking/DB/BookingChart', 'ConUserBooking::BookingChart');
 
-//User งานจองรถ
+//User งานจองยานพาหนะ
 $routes->get('CarBooking', 'ConUserCarBooking::CarBookingMain');
 $routes->get('CarBooking/View', 'ConUserCarBooking::CarBookingView');
 $routes->get('CarBooking/CheckCar', 'ConUserCarBooking::CarBookingCheckCar');
@@ -114,7 +118,7 @@ $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Insert', 'ConAdmin
 $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Update/DataGeneral', 'ConAdminWorkPerson::PersonneUpdateDataGeneral');
 $routes->match(['get', 'post'],'Admin/WorkPerson/Personnel/DB/Update/Img', 'ConAdminWorkPerson::PersonnelUpdateImg');
 
-//Admin งานจองรถ
+//Admin งานจองยานพาหนะ
 $routes->get('Admin/Car/CarMain', 'ConAdminCar::CarMain');
 $routes->get('Admin/Car/CarDriver', 'ConAdminCar::CarDriver');
 $routes->match(['get', 'post'],'Admin/Car/ShowData', 'ConAdminCar::CarShowData');

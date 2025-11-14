@@ -47,7 +47,7 @@
                                         name="car_reserv_order" placeholder="เลือกวันที่จอง"
                                         value="<?=$car_reserv_order;?>" aria-describedby="floatingInputHelp"
                                         required readonly>
-                                    <label for="floatingInput">เลขที่จองรถ</label>
+                                    <label for="floatingInput">เลขที่จองยานพาหนะ</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -71,12 +71,12 @@
                             <input type="text" class="form-control" id="" required name=""
                                 placeholder="ใส่ชื่อผู้จอง" aria-describedby="floatingInputHelp"
                                 value="<?=$_SESSION['username']?>" readonly>
-                            <label for="floatingInput">ชื่อผู้จองรถ</label>
+                            <label for="floatingInput">ชื่อผู้จองยานพาหนะ</label>
                         </div>
                         <?php else: ?>
                         <div class="form-floating mb-3">
                             <select class="form-select" id="car_reserv_memberID" name="car_reserv_memberID" required>
-                                <option value="0">-- กรุณาเลือกผู้จองรถ --</option>
+                                <option value="0">-- กรุณาเลือกผู้จองยานพาหนะ --</option>
                                 <?php foreach($SelPres as $r_SelPres):?>
                                 <option value="<?=$r_SelPres->pers_id?>"><?=$r_SelPres->pers_prefix.$r_SelPres->pers_firstname.' '.$r_SelPres->pers_lastname?></option>
                                 <?php endforeach;?>

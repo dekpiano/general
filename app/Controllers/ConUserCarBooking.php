@@ -31,8 +31,8 @@ class ConUserCarBooking extends BaseController
     {
         $session = session();
         $data = $this->DataMain();
-        $data['title']="ระบบจองรถ";
-        $data['description']="ระบบสำหรับจองรถภายในโรงเรียน";
+        $data['title']="ระบบจองยานพาหนะ";
+        $data['description']="ระบบสำหรับจองยานพาหนะภายในโรงเรียน";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingMain';
 
@@ -392,8 +392,8 @@ class ConUserCarBooking extends BaseController
 
         $session = session();
         $data = $this->DataMain();
-        $data['title']="ตารางการจองรถ";
-        $data['description']="ดูตารางการจองรถ";
+        $data['title']="ตารางการจองยานพาหนะ";
+        $data['description']="ดูตารางการจองยานพาหนะ";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingView';     
         $data['Datethai'] = new Datethai();   
@@ -652,8 +652,8 @@ class ConUserCarBooking extends BaseController
             header("Location:".base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])); exit();
         } 
         $data = $this->DataMain();
-        $data['title']="ดูข้อมูลจองรถ (Admin)";
-        $data['description']="ดูข้อมูลจองรถ (Admin)";
+        $data['title']="ดูข้อมูลจองยานพาหนะ (Admin)";
+        $data['description']="ดูข้อมูลจองยานพาหนะ (Admin)";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingView';     
         $data['Datethai'] = new Datethai();   

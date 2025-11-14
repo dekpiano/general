@@ -194,7 +194,7 @@ $(document).on('submit', '#FormAppoveCarReservation', function(e) {
             if (data > 0) {
                 Swal.fire({
                     title: 'แจ้งเตือน?',
-                    text: "อนุมัติการจองรถสำเร็จ!",
+                    text: "อนุมัติการจองยานพาหนะสำเร็จ!",
                     icon: 'success',
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'ตกลง!'
@@ -232,7 +232,7 @@ $(document).on('click', '#BtnNoAppoveCarBooking', function(e) {
             if (data > 0) {
                 Swal.fire({
                     title: 'แจ้งเตือน?',
-                    text: "ไม่อนุมัติการจองรถสำเร็จ!",
+                    text: "ไม่อนุมัติการจองยานพาหนะสำเร็จ!",
                     icon: 'success',
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'ตกลง!'

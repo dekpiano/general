@@ -24,7 +24,7 @@
                             </div>
                             <div>
                                 <h1 class="ms-1 mb-0  text-white"><?=$CountCarAll;?></h1>
-                                <p class="mb-1 h3 text-white">จองรถ</p>
+                                <p class="mb-1 h3 text-white">จองยานพาหนะ</p>
                             </div>
                         </div>
 
@@ -44,7 +44,7 @@
                             </div>
                             <div>
                                 <h1 class="ms-1 mb-0  text-white"><?=$CountCarReservationAll;?></h1>
-                                <p class="mb-1 h5 text-white">สถานะจองรถ</p>
+                                <p class="mb-1 h5 text-white">สถานะจองยานพาหนะ</p>
                             </div>
                         </div>
 

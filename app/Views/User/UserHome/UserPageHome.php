@@ -64,13 +64,13 @@
                 </div>
             </a>
         </div>
-        <!-- จองรถ -->
+        <!-- จองยานพาหนะ -->
         <div class="col-12 col-md-3">
             <a href="<?=base_url('CarBooking');?>" class="text-decoration-none">
                 <div class="card card-hover rounded-4 shadow-sm p-4 h-100 text-center">
                     <img src="https://cdn-icons-png.flaticon.com/128/11649/11649708.png"
-                        class="icon-hero align-self-center" alt="จองรถ">
-                    <h5 class="mb-2 fw-bold text-primary">จองรถ</h5>
+                        class="icon-hero align-self-center" alt="จองยานพาหนะ">
+                    <h5 class="mb-2 fw-bold text-primary">จองยานพาหนะ</h5>
                     <div class="text-secondary mb-3">รถยนต์, รถตู้, รถรับส่ง, ฯลฯ</div>
                     <button class="btn btn-primary w-75 mx-auto">เข้าสู่ระบบ</button>
                 </div>

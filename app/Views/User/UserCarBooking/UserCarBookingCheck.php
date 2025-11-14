@@ -33,16 +33,16 @@
                             <div class="text-center">
                                 <?php if(isset($_SESSION['username'])): ?>
                                 <a href="<?=base_url('CarBooking/Add/'.$v_CheckCar->car_ID)?>"
-                                    class="btn btn-primary">จองรถ</a>
+                                    class="btn btn-primary">จองยานพาหนะ</a>
                                 <?php else: ?>
                                 <a href="#"
-                                    class="btn btn-primary" onClick="CheckLogin()" ;>จองรถ</a>
+                                    class="btn btn-primary" onClick="CheckLogin()" ;>จองยานพาหนะ</a>
 
                                 <script>
                                 function CheckLogin() {
                                     Swal.fire({
                                         title: "แจ้งเตือน?",
-                                        text: "คุณจะจองรถ ต้อง Login เข้าสู่ระบบก่อน!",
+                                        text: "คุณจะจองยานพาหนะ ต้อง Login เข้าสู่ระบบก่อน!",
                                         icon: "warning",
                                         showCancelButton: true,
                                         confirmButtonColor: "#3085d6",

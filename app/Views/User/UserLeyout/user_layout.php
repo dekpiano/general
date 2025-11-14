@@ -104,7 +104,7 @@
                     <li class="menu-item <?php echo $UrlMenuMain == "CarBooking"?"active":""?>">
                         <a href="<?=base_url('CarBooking');?>" class="menu-link">
                         <i class='menu-icon tf-icons bx bxs-car'></i>
-                            <div data-i18n="Analytics">จองรถ</div>
+                            <div data-i18n="Analytics">จองยานพาหนะ</div>
                         </a>
                     </li>
                     <li class="menu-header small text-uppercase">
@@ -123,6 +123,27 @@
                         <a href="<?=base_url('FoodReport');?>" class="menu-link">
                         <i class='menu-icon tf-icons bx bxs-coffee'></i>
                             <div data-i18n="Analytics">รายงานอาหาร</div>
+                        </a>
+                    </li>
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">คู่มือการใช้งาน</span>
+                    </li>
+                    <li class="menu-item <?php echo $UrlMenuMain == "ManualBooking"?"active":""?>">
+                        <a href="<?=base_url('manual/booking');?>" class="menu-link">
+                        <i class='menu-icon tf-icons bx bxs-book-content'></i>
+                            <div data-i18n="Analytics">คู่มือจองสถานที่</div>
+                        </a>
+                    </li>
+                    <li class="menu-item <?php echo $UrlMenuMain == "ManualCarBooking"?"active":""?>">
+                        <a href="<?=base_url('manual/car-booking');?>" class="menu-link">
+                        <i class='menu-icon tf-icons bx bxs-car-garage'></i>
+                            <div data-i18n="Analytics">คู่มือจองยานพาหนะ</div>
+                        </a>
+                    </li>
+                    <li class="menu-item <?php echo $UrlMenuMain == "ManualRepair"?"active":""?>">
+                        <a href="<?=base_url('manual/repair');?>" class="menu-link">
+                        <i class='menu-icon tf-icons bx bxs-report'></i>
+                            <div data-i18n="Analytics">คู่มือแจ้งซ่อม</div>
                         </a>
                     </li>
                 </ul>
