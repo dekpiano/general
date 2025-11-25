@@ -89,8 +89,8 @@
                             <div data-i18n="Analytics">หน้าแรก</div>
                         </a>
                     </li>
-                    <li class="menu-header small text-uppercase">
-                        <span class="menu-header-text">งานอาคารสถานที่</span>
+                     <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">ระบบ...</span>
                     </li>
                     <li class="menu-item <?php echo $UrlMenuMain == "Booking"?"active":""?>">
                         <a href="<?=base_url('Booking');?>" class="menu-link">
@@ -98,17 +98,11 @@
                             <div data-i18n="Analytics">จองห้อง / สถานที่</div>
                         </a>
                     </li>
-                    <li class="menu-header small text-uppercase">
-                        <span class="menu-header-text">งานยานพาหนะ</span>
-                    </li>
                     <li class="menu-item <?php echo $UrlMenuMain == "CarBooking"?"active":""?>">
                         <a href="<?=base_url('CarBooking');?>" class="menu-link">
                         <i class='menu-icon tf-icons bx bxs-car'></i>
                             <div data-i18n="Analytics">จองยานพาหนะ</div>
                         </a>
-                    </li>
-                    <li class="menu-header small text-uppercase">
-                        <span class="menu-header-text">งานโสตทัศนูปกรณ์</span>
                     </li>
                     <li class="menu-item <?php echo $UrlMenuMain == "Repair"?"active":""?>">
                         <a href="<?=base_url('Repair');?>" class="menu-link">
@@ -116,13 +110,23 @@
                             <div data-i18n="Analytics">แจ้งซ่อมออนไลน์</div>
                         </a>
                     </li>
-                    <li class="menu-header small text-uppercase">
-                        <span class="menu-header-text">งานโภชนาการ</span>
-                    </li>
                     <li class="menu-item <?php echo $UrlMenuMain == "FoodReport"?"active":""?>">
                         <a href="<?=base_url('FoodReport');?>" class="menu-link">
                         <i class='menu-icon tf-icons bx bxs-coffee'></i>
                             <div data-i18n="Analytics">รายงานอาหาร</div>
+                        </a>
+                    </li>
+                     <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">โหลดเอกสาร</span>
+                    </li>
+                    <li class="menu-item <?php echo $UrlMenuMain == "FoodReport"?"active":""?>">
+                        <a href="https://documentcenter.skj.ac.th/category/dictation-general" class="menu-link">
+                        <i class='menu-icon tf-icons bx bx-receipt'></i> คำสั่ง
+                        </a>
+                    </li>
+                    <li class="menu-item <?php echo $UrlMenuMain == "FoodReport"?"active":""?>">
+                        <a href="https://documentcenter.skj.ac.th/category/form-general" class="menu-link">
+                        <i class='menu-icon tf-icons bx bx-file-blank'></i> แบบฟอร์ม
                         </a>
                     </li>
                     <li class="menu-header small text-uppercase">
