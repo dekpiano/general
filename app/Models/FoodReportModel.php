@@ -37,6 +37,7 @@ class FoodReportModel extends Model
     {
         return $this->select('tb_food_reports.*, CONCAT(p.pers_prefix,p.pers_firstname, " ", p.pers_lastname) as recorder_full_name')
                     ->join('skjacth_personnel.tb_personnel as p', 'p.pers_id = tb_food_reports.food_admin', 'left')
+                    ->orderBy('tb_food_reports.food_date', 'DESC')
                     ->orderBy('tb_food_reports.created_at', 'DESC')
                     ->findAll();
     }

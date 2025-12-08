@@ -130,19 +130,37 @@
     <div class="receipt-container">
         <?php if (!empty($food_report)):
             ?>
-            <div class="receipt-header">
-                <h2>บันทึกรายงานอาหาร</h2>
-                <p class="text-muted">โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</p>
+            <div class="receipt-header d-flex align-items-center justify-content-center border-bottom pb-4 mb-4">
+                <div class="text-center">
+                    <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="School Logo" width="80" class="mb-3">
+                    <h2 class="fw-bold mb-1">บันทึกรายงานอาหาร</h2>
+                    <p class="text-muted mb-0">โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</p>
+                </div>
             </div>
 
-            <div class="receipt-details">
-                <div class="row">
-                    <div class="col"><strong>เลขที่เอกสาร:</strong> FOOD-<?= esc(str_pad($food_report['food_id'], 5, '0', STR_PAD_LEFT)) ?></div>
-                    <div class="col text-end"><strong>วันที่บันทึก:</strong> <?= esc(date('d/m/Y H:i', strtotime($food_report['created_at']))) ?></div>
-                </div>
-                 <div class="row">
-                    <div class="col"><strong>วันที่ทานอาหาร:</strong> <?= esc(date('d/m/Y', strtotime($food_report['food_date']))) ?></div>
-                    <div class="col text-end"><strong>มื้ออาหาร:</strong> <?= esc($food_report['food_meal']) ?></div>
+            <div class="receipt-details mb-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <span class="fw-bold text-muted d-block small">เลขที่เอกสาร</span>
+                                <span class="fs-5">FOOD-<?= esc(str_pad($food_report['food_id'], 5, '0', STR_PAD_LEFT)) ?></span>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <span class="fw-bold text-muted d-block small">วันที่บันทึก</span>
+                                <span><?= esc(date('d/m/Y H:i', strtotime($food_report['created_at']))) ?> น.</span>
+                            </div>
+                            <div class="col-12"><hr class="my-2 border-secondary-subtle"></div>
+                            <div class="col-md-6">
+                                <span class="fw-bold text-muted d-block small">วันที่ตรวจสอบ</span>
+                                <span class="fs-5 text-primary fw-bold"><?= esc(date('d/m/Y', strtotime($food_report['food_date']))) ?></span>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <span class="fw-bold text-muted d-block small">มื้ออาหาร</span>
+                                <span class="badge bg-primary fs-6"><?= esc($food_report['food_meal']) ?></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

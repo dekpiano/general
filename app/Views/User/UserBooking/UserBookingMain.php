@@ -139,7 +139,7 @@
                 <!-- Manual -->
                 <div class="col-12">
                     <a target="_blank" 
-                       href="https://www.canva.com/design/DAF1VkidVas/KTSxUIGCXwAmE8OLcTfXyg/view" 
+                       href="<?=base_url('manual/booking') ?>" 
                        class="text-decoration-none">
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body p-3">
