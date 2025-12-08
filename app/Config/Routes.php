@@ -35,7 +35,7 @@ $routes->get('manual/repair', 'ConUserManual::repairSystemManual');
 
 //User งานจองห้อง
 $routes->get('Booking', 'ConUserBooking::BookingMain');
-$routes->get('Booking/Select', 'ConUserBooking::BookingSelect');
+
 $routes->get('Booking/Add/(:any)', 'ConUserBooking::BookingAdd/$1');
 $routes->get('Booking/View/(:any)', 'ConUserBooking::BookingView/$1');
 $routes->get('Booking/Edit/(:any)', 'ConUserBooking::BookingEdit/$1');
@@ -46,7 +46,7 @@ $routes->match(['get', 'post'],'Booking/DB/Insert', 'ConUserBooking::BookingInse
 $routes->match(['get', 'post'],'Booking/DB/Update', 'ConUserBooking::BookingUpdate');
 $routes->match(['get', 'post'],'Booking/DB/Cancel', 'ConUserBooking::BookingCancel');
 $routes->match(['get', 'post'],'Booking/DB/ShowTimeBooking', 'ConUserBooking::ShowTimeBooking');
-$routes->match(['get', 'post'],'Booking/DB/CheckDateBooking', 'ConUserBooking::CheckDateBooking');
+$routes->match(['get', 'post'],'Booking/CheckDateBooking', 'ConUserBooking::CheckDateBooking');
 $routes->match(['get', 'post'],'Booking/DB/CheckTimeBooking', 'ConUserBooking::CheckTimeBooking');
 $routes->match(['get', 'post'],'User/Dictation/ShowData', 'ConUserWorkSaraban::DictationShowData');
 $routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Admin', 'ConUserBooking::BookingDataTableApproveAdmin');
@@ -59,12 +59,15 @@ $routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Save', 'Con
 $routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Show/(:any)', 'ConUserBooking::BookingSignatureExecutiveShow/$1');
 
 $routes->match(['get', 'post'],'Booking/DB/BookingChart', 'ConUserBooking::BookingChart');
+$routes->get('Booking/getBookingCalendarJson', 'ConUserBooking::getBookingCalendarJson');
 
 //User งานจองยานพาหนะ
 $routes->get('CarBooking', 'ConUserCarBooking::CarBookingMain');
 $routes->get('CarBooking/View', 'ConUserCarBooking::CarBookingView');
 $routes->get('CarBooking/CheckCar', 'ConUserCarBooking::CarBookingCheckCar');
 $routes->get('CarBooking/Add/(:any)', 'ConUserCarBooking::CarBookingAdd/$1');
+$routes->get('CarBooking/Edit/(:any)', 'ConUserCarBooking::CarBookingEdit/$1');
+$routes->post('CarBooking/Update', 'ConUserCarBooking::CarBookingUpdate');
 $routes->match(['get', 'post'],'Booking/DB/ShowTimeCarBooking', 'ConUserCarBooking::ShowTimeCarBooking');
 $routes->match(['get', 'post'],'CarBooking/DB/DataTable/View', 'ConUserCarBooking::CarBookingDataTableView');
 $routes->match(['get', 'post'],'Booking/DB/CheckDateCarBooking', 'ConUserCarBooking::CheckDateCarBooking');

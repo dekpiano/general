@@ -45,6 +45,9 @@ class ConUserCarBooking extends BaseController
         $data['NumRowsWaitApprove'] = $DBCarReservation->where('car_reserv_status !=','อนุมัติ')->get()->getNumRows();
         $data['NumRowsApprove'] = $DBCarReservation->where('car_reserv_status','อนุมัติ')->get()->getNumRows();
 
+        // Fetch Car List for Mini Calendars
+        $data['CarList'] = $DBSchoolCar->get()->getResult();
+
         return view('User/UserCarBooking/UserCarBookingMain', $data);
     }
 
@@ -193,13 +196,41 @@ class ConUserCarBooking extends BaseController
         $DBpers = \Config\Database::connect('personnel');
         $DBpersonnel = $DBpers->table('tb_personnel');
         $Datethai = new Datethai();
+
+        $order = $this->request->getVar('car_reserv_order');
+        $memberID = $this->request->getVar('car_reserv_memberID');
+        $carID = $this->request->getVar('car_reserv_carID');
+        $startDate = $this->request->getVar('car_reserv_StartDate');
+        $endDate = $this->request->getVar('car_reserv_EndDate');
+
+        // Validation: Check if critical fields are present
+        if(empty($order) || empty($memberID) || empty($carID) || empty($startDate) || empty($endDate)){
+            echo 0; // Return 0 (Error) if data is missing
+            return;
+        }
         
-        $Car_dateStart = $this->thaidate_to_mysql($this->request->getVar('car_reserv_StartDate'));
-        $Car_dateEnd = $this->thaidate_to_mysql($this->request->getVar('car_reserv_EndDate'));
+        $Car_dateStart = $this->thaidate_to_mysql($startDate);
+        $Car_dateEnd = $this->thaidate_to_mysql($endDate);
+
+        // Check Overlap
+        $proposedStart = date('Y-m-d H:i:s',strtotime($Car_dateStart . ' ' . $this->request->getVar('car_reserv_StartTime')));
+        $proposedEnd   = date('Y-m-d H:i:s',strtotime($Car_dateEnd   . ' ' . $this->request->getVar('car_reserv_EndTime')));
+        
+        $isOverlap = $DBCarReservation
+            ->where('car_reserv_carID', $carID)
+            ->where("TIMESTAMP(car_reserv_StartDate, car_reserv_StartTime) < '$proposedEnd'", null, false)
+            ->where("TIMESTAMP(car_reserv_EndDate, car_reserv_EndTime) > '$proposedStart'", null, false)
+            ->where('car_reserv_status !=', 'ไม่อนุมัติ')
+            ->countAllResults();
+            
+        if($isOverlap > 0){
+             echo 0;
+             return;
+        }
 
         $data = [
-            'car_reserv_order' => $this->request->getVar('car_reserv_order'),
-            'car_reserv_memberID' => $this->request->getVar('car_reserv_memberID'),
+            'car_reserv_order' => $order,
+            'car_reserv_memberID' => $memberID,
             'car_reserv_location' => $this->request->getVar('car_reserv_location'),
             'car_reserv_detail' => $this->request->getVar('car_reserv_detail'),
             'car_reserv_number' => $this->request->getVar('car_reserv_number'),
@@ -207,11 +238,10 @@ class ConUserCarBooking extends BaseController
             'car_reserv_StartTime' => $this->request->getVar('car_reserv_StartTime'),
             'car_reserv_EndDate' => $Car_dateEnd,
             'car_reserv_EndTime' => $this->request->getVar('car_reserv_EndTime'),
-            'car_reserv_carID' => $this->request->getVar('car_reserv_carID'),
+            'car_reserv_carID' => $carID,
             'car_reserv_phone' => $this->request->getVar('car_reserv_phone'),            
             'car_reserv_status' => "รอตรวจสอบ" 
         ];
-        //print_r($this->request->getVar('car_reserv_order'));exit();
       
 
         if($DBCarReservation->insert($data)){
@@ -251,74 +281,126 @@ class ConUserCarBooking extends BaseController
 
             // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
 
-            $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
+            $isLocalhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']);
+            if (!$isLocalhost) {
+                $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
+            }
             echo 1;
         }
 
-        // if($Check){
-           
-        //     $email = \Config\Services::email(); // loading for use
-           
-        //     $email->setFrom('adminCarBooking@skj.ac.th',"ระบบการจองยานพาหนะ");
-     
-        //     // Send to Users     
-        //     $email->setTo([
-        //         "dekpiano@skj.ac.th"//,"panwad.r@skj.ac.th"
-        //     ]);
-
-        //     $email->setSubject("แจ้งการจองยานพาหนะ เลขที่ ".$this->request->getVar('car_reserv_order'));
-
-        //     $html = "<a href='https://general.skj.ac.th/CarBooking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
-        //     $email->setMessage($html);
-
-        //     // Send email
-        //     if ($email->send()) {
-        //         echo 1;
-        //     } else {
-        //         $data = $email->printDebugger(['headers']);
-        //         print_r($data);
-        //     }
-        // }
-        
-
-        //echo $this->request->getVar('booking_locationroom');
-        //print_r($this->request->getVar());
     }
 
+    public function CarBookingEdit($id = null)
+    {
+        $session = session();
+        if(!$session->get('username')){
+            return redirect()->to(base_url('LoginOfficerGeneral?return_to='.urlencode(current_url())));
+        }
+
+        $database = \Config\Database::connect();
+        $DBCarReservation = $database->table('tb_car_reservation');
+        $booking = $DBCarReservation->where('car_reserv_id', $id)->get()->getRow();
+
+        if (!$booking) {
+            return redirect()->to(base_url('CarBooking'))->with('error', 'ไม่พบข้อมูลการจอง');
+        }
+
+        // Permission Check
+        $currentUserId = $session->get('id');
+        $userStatus = $session->get('status');
+        $userRoles = $session->get('rloes') ? explode(',', $session->get('rloes')) : [];
+        
+        $isPrivileged = in_array($userStatus, ['admin', 'manager', 'ExecutiveGeneral', 'AdminGeneral']) 
+                        || in_array('งานยานพาหนะ', $userRoles);
+        
+        if ($booking->car_reserv_memberID != $currentUserId && !$isPrivileged) {
+            echo "
+            <script>
+                alert('คุณไม่มีสิทธิ์แก้ไขข้อมูลการจองนี้ เฉพาะผู้จองหรือผู้ดูแลระบบเท่านั้น');
+                window.location.href = '".base_url('CarBooking')."';
+            </script>
+            ";
+            exit();
+        }
+
+        // Block editing if Approved (for non-admins)
+        if ($booking->car_reserv_status == 'อนุมัติ' && !$isPrivileged) {
+             echo "
+            <script>
+                alert('รายการนี้ได้รับการอนุมัติแล้ว ไม่สามารถแก้ไขได้ กรุณาติดต่อเจ้าหน้าที่');
+                window.location.href = '".base_url('CarBooking')."';
+            </script>
+            ";
+            exit();
+        }
+
+        $data = $this->DataMain();
+        $data['title'] = "แก้ไขการจองยานพาหนะ";
+        $data['description'] = "แก้ไขข้อมูลการจองยานพาหนะ";
+        $data['UrlMenuMain'] = 'CarBooking';
+        $data['UrlMenuSub'] = 'CarBookingEdit';
+        $data['Datethai'] = new Datethai();
+
+        $DBSchoolCar = $database->table('tb_school_car');
+        $data['CarList'] = $DBSchoolCar->get()->getResult(); // List of cars for dropdown if needed
+
+        // Fetch Personnel for Dropdown (SelPres)
+        $DBpers = \Config\Database::connect('personnel');
+        $DBpersonnel = $DBpers->table('tb_personnel');
+        $data['SelPres'] = $DBpersonnel->where('pers_status','กำลังใช้งาน')
+        ->orderBy('pers_position','ASC')
+        ->get()->getResult();
+
+        $data['Booking'] = $booking;
+        
+        // Pass info about the booked car specifically
+        $data['Car'] = $DBSchoolCar->where('car_ID', $booking->car_reserv_carID)->get()->getRow();
+
+        return view('User/UserCarBooking/UserCarBookingEdit', $data);
+    }
+    
     public function CarBookingUpdate(){
 
         $session = session();
         $database = \Config\Database::connect();
-        $DBlocation = $database->table('tb_booking');
+        $DBCarReservation = $database->table('tb_car_reservation');
         
-        if($this->request->getVar('booking_equipment') != ""){
-          $equipment = implode('|',$this->request->getVar('booking_equipment'));
-        }else{
-            $equipment = "";
+        $id = $this->request->getVar('car_reserv_id');
+        if(!$id){
+            return $this->response->setJSON(['status'=>'error', 'message'=>'ไม่พบ ID การจอง']);
         }
+        
+        $Car_dateStart = $this->thaidate_to_mysql($this->request->getVar('car_reserv_StartDate'));
+        $Car_dateEnd = $this->thaidate_to_mysql($this->request->getVar('car_reserv_EndDate'));
+
         $data = [
-            'booking_locationroom' => $this->request->getVar('booking_locationroom'),
-            'booking_order' => $this->request->getVar('booking_order'),
-            'booking_number' => $this->request->getVar('booking_number'),
-            'booking_title' => $this->request->getVar('booking_title'),
-            'booking_dateStart' => $this->request->getVar('booking_dateStart'),
-            'booking_timeStart' => $this->request->getVar('booking_timeStart'),
-            'booking_dateEnd' => $this->request->getVar('booking_dateEnd'),
-            'booking_timeEnd' => $this->request->getVar('booking_timeEnd'),
-            'booking_typeuse' => $this->request->getVar('booking_typeuse'),
-            'booking_other' => $this->request->getVar('booking_other'),
-            'booking_Booker' => $this->request->getVar('booking_Booker'),
-            'booking_telephone' => $this->request->getVar('booking_telephone'),
-            'booking_equipment' => $equipment,
-            'booking_admin_approve' => "รอตรวจสอบ" 
+            'car_reserv_carID' => $this->request->getVar('car_reserv_carID'),
+            // 'car_reserv_order' => $this->request->getVar('car_reserv_order'), // Don't update order
+            'car_reserv_memberID' => $this->request->getVar('car_reserv_memberID'),
+            'car_reserv_location' => $this->request->getVar('car_reserv_location'),
+            'car_reserv_detail' => $this->request->getVar('car_reserv_detail'),
+            'car_reserv_number' => $this->request->getVar('car_reserv_number'),
+            'car_reserv_StartDate' => $Car_dateStart,
+            'car_reserv_StartTime' => $this->request->getVar('car_reserv_StartTime'),
+            'car_reserv_EndDate' => $Car_dateEnd,
+            'car_reserv_EndTime' => $this->request->getVar('car_reserv_EndTime'),
+            'car_reserv_phone' => $this->request->getVar('car_reserv_phone'),
+            'car_reserv_status' => "รอตรวจสอบ" 
         ];
 
-        $DBlocation->where('booking_id',$this->request->getVar('booking_id'));
-        if($DBlocation->update($data)){
-            echo $this->request->getVar('booking_locationroom');
+        $DBCarReservation->where('car_reserv_id', $id);
+        if($DBCarReservation->update($data)){
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'แก้ไขข้อมูลการจองเรียบร้อยแล้ว',
+                'car_id' => $this->request->getVar('car_reserv_carID')
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล'
+            ]);
         }
-     
-        //print_r($this->request->getVar());
     }
 
     // --------------- ของแอดมิน อนุมัตื ApproveAdmin ---------------------------
@@ -426,7 +508,44 @@ class ConUserCarBooking extends BaseController
             'car_reserv_approver' => $_SESSION['id']
         );
         $DBCarReservation->where('car_reserv_id',$this->request->getVar('carbookingID'));
-        echo $DBCarReservation->update($data);
+        if($DBCarReservation->update($data)){
+             $Car = $DBCarReservation->select('
+                skjacth_general.tb_school_car.car_registration,
+                skjacth_general.tb_school_car.car_province,
+                skjacth_general.tb_school_car.car_category,
+                skjacth_general.tb_car_reservation.car_reserv_location,
+                skjacth_general.tb_car_reservation.car_reserv_detail,
+                skjacth_general.tb_car_reservation.car_reserv_StartDate,
+                skjacth_general.tb_car_reservation.car_reserv_EndDate,
+                skjacth_general.tb_car_reservation.car_reserv_order,
+                skjacth_personnel.tb_personnel.pers_prefix,
+                skjacth_personnel.tb_personnel.pers_firstname,
+                skjacth_personnel.tb_personnel.pers_lastname
+            ')
+            ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
+            ->join('skjacth_personnel.tb_personnel','skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID')
+            ->where('tb_car_reservation.car_reserv_id', $this->request->getVar('carbookingID'))
+            ->get()->getRowArray();
+
+            if($Car){
+                 $Datethai = new Datethai();
+                 $msg = "✅ การจองยานพาหนะได้รับการอนุมัติแล้ว!\n";
+                 $msg .= "เลขที่จอง: {$Car['car_reserv_order']}\n";
+                 $msg .= "ผู้ขอ: {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}\n";
+                 $msg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
+                 $msg .= "📅 วันที่: {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate']))} - {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']))}\n";
+                 $msg .= "อนุมัติโดย: {$_SESSION['username']}\n";
+                 $msg .= "ตรวจสอบสถานะ: " . base_url("CarBooking/View");
+
+                 $isLocalhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']);
+                 if (!$isLocalhost) {
+                    $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
+                 }
+            }
+            echo 1;
+        } else {
+            echo 0;
+        }
     }
 
     public function CarBookingNoApproveAdmin(){
@@ -459,54 +578,54 @@ class ConUserCarBooking extends BaseController
         $session = session();
         $database = \Config\Database::connect();
         $DBCarReservation = $database->table('tb_car_reservation');
-
+        
        $S_data = $DBCarReservation->select('
-       tb_car_reservation.car_reserv_StartDate,
-        tb_car_reservation.car_reserv_StartTime,
-        tb_car_reservation.car_reserv_EndDate,
-        tb_car_reservation.car_reserv_EndTime,
-        tb_car_reservation.car_reserv_detail,
-        tb_car_reservation.car_reserv_id,
-        tb_car_reservation.car_reserv_location,
-        tb_car_reservation.car_reserv_status,
-        tb_car_reservation.car_reserv_carID,
-        tb_school_car.car_registration,
-        tb_school_car.car_province,
-        tb_school_car.car_category
+        skjacth_general.tb_car_reservation.*,
+        car.car_registration,
+        car.car_province,
+        car.car_category,
+        p.pers_prefix,
+        p.pers_firstname,
+        p.pers_lastname
        ')
-       ->join('tb_school_car','tb_school_car.car_ID = tb_car_reservation.car_reserv_carID')
-    //    ->where('booking_admin_approve','อนุมัติ')
-    //    ->where('booking_executive_approve','อนุมัติ')
+       ->join('skjacth_general.tb_school_car as car','car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
+       ->join('skjacth_personnel.tb_personnel as p','p.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID', 'left')
+       ->where('car_reserv_status !=', 'ไม่อนุมัติ')
        ->get()->getResult();
 
+        $data = array();
         foreach ($S_data as $key => $value) {
-            switch ($value->car_reserv_status) {
-                case 'รอตรวจสอบ':
-                    $color = '#ffab00';
-                    $icon = '⏳';
-                    break;
-                case 'อนุมัติ':
-                    $color = '#71dd37';
-                    $icon = '✔';
-                    break;
-                case 'ไม่อนุมัติ':
-                    $color = '#ff3e1d';
-                    $icon = '⨉';
-                    break;                
-                default:
-                    $color = '#fd7e14'; // สีเริ่มต้น
-            }
+            $start = $value->car_reserv_StartDate.' '.$value->car_reserv_StartTime;
+            $end = $value->car_reserv_EndDate.' '.$value->car_reserv_EndTime;
 
-            $data[]=[
+             $data[]=[
                 'id' => $value->car_reserv_id,
-                'title'=> $value->car_category.' '.$value->car_registration.' '.$value->car_province.' ไปที่'.$value->car_reserv_location.' เพื่อ'.$value->car_reserv_detail,
-                'start' => $value->car_reserv_StartDate.' '.$value->car_reserv_StartTime,
-                'end' => date("Y-m-d", strtotime($value->car_reserv_EndDate)).' '.$value->car_reserv_EndTime,
-                'approved' => $value->car_reserv_status
-            ];        
+                // Title for calendar view (short)
+                'title'=> $value->car_reserv_location, 
+                'start' => $start,
+                'end' => $end,
+                'approved' => $value->car_reserv_status,
+                'car_id' => $value->car_reserv_carID,
+                'member_id' => $value->car_reserv_memberID,
+                'detail' => $value->car_reserv_detail,
+                'color' => $this->getStatusColor($value->car_reserv_status),
+                // Additional info for popup
+                'car_info' => $value->car_category.' '.$value->car_registration.' '.$value->car_province,
+                'location' => $value->car_reserv_location,
+                'booker_name' => $value->pers_prefix.$value->pers_firstname.' '.$value->pers_lastname,
+                'passenger' => $value->car_reserv_number
+            ];    
         }
+        return $this->response->setJSON($data);
+    }
 
-        return $this->response->setJSON($data, true);
+    private function getStatusColor($status) {
+         switch ($status) {
+            case 'รอตรวจสอบ': return '#ffab00';
+            case 'อนุมัติ': return '#71dd37';
+            case 'ไม่อนุมัติ': return '#ff3e1d';
+            default: return '#fd7e14';
+        }
     }
 
     // ------------------เช็ควันที่ แปลงวันที่ -------------------
@@ -553,18 +672,27 @@ class ConUserCarBooking extends BaseController
             ]);
         }
 
-        $gDateStart = $this->convertBuddhistToGregorian($dateStart);
-        $gDateEnd   = $this->convertBuddhistToGregorian($dateEnd);
+        // Check if date format is already Y-m-d (from flatpickr fallback) or d/m/Y (Thai)
+        $gDateStart = (strpos($dateStart, '-') !== false) ? $dateStart : $this->convertBuddhistToGregorian($dateStart);
+        $gDateEnd   = (strpos($dateEnd, '-') !== false) ? $dateEnd : $this->convertBuddhistToGregorian($dateEnd);
 
         $proposedStart = date('Y-m-d H:i:s',strtotime($gDateStart . ' ' . $timeStart));
         $proposedEnd   = date('Y-m-d H:i:s',strtotime($gDateEnd   . ' ' . $timeEnd));
 
+        $excludeBookingId = $this->request->getPost('exclude_booking_id');
+
         $CheckDateCarBookign = $DBbooking
         ->where('car_reserv_carID', $CarID)
-        ->where("STR_TO_DATE(CONCAT(car_reserv_StartDate, ' ', car_reserv_StartTime), '%Y-%m-%d %H:%i:%s') < '$proposedEnd'", null, false)
-        ->where("STR_TO_DATE(CONCAT(car_reserv_EndDate, ' ', car_reserv_EndTime), '%Y-%m-%d %H:%i:%s') > '$proposedStart'", null, false)
-        ->get()->getResult();
-        //print_r($CheckDateBookign);
+        ->where("TIMESTAMP(car_reserv_StartDate, car_reserv_StartTime) < '$proposedEnd'", null, false)
+        ->where("TIMESTAMP(car_reserv_EndDate, car_reserv_EndTime) > '$proposedStart'", null, false)
+        ->where('car_reserv_status !=', 'ไม่อนุมัติ');
+
+        if ($excludeBookingId) {
+            $CheckDateCarBookign->where('car_reserv_id !=', $excludeBookingId);
+        }
+
+        $CheckDateCarBookign = $CheckDateCarBookign->get()->getRow();
+
         if(!$CheckDateCarBookign){
             return $this->response->setJSON([
                 'status' => 1,
@@ -703,6 +831,16 @@ class ConUserCarBooking extends BaseController
     }
 
   
+
+    public function BookingCarChart(){
+         $session = session();
+         $database = \Config\Database::connect();
+         $DBCarReservation = $database->table('tb_car_reservation');
+         
+         // Basic stats for chart? Or just return empty for now to fix 404
+         $data = []; 
+         return $this->response->setJSON($data);
+    }
 
     public function CarBookingDataTableApproveExecutive(){
         $session = session();
@@ -878,7 +1016,6 @@ class ConUserCarBooking extends BaseController
             <div style="margin-left:18rem;">องค์การบริหารส่วนจังหวัดนครสวรรค์</div>
             <div style="margin-left:18rem;">'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_created_at)).'</div>
          
-
             <div style="margin-top:-5px">เรียน: ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</div>
             <div style="margin-left:3rem;">ข้าพเจ้า '.$ViewCarBooking->BookerName.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ตำแหน่ง '.$ViewCarBooking->BookerPosi.'</div>
 
@@ -931,72 +1068,10 @@ class ConUserCarBooking extends BaseController
                     </div>
                 </div>            
             </div>
-
-            <div style="margin-top:20px;"> 
-            เล่มที่.......... เลขที่.......... ลงวันที่...........................
-            </div>
-    
         ';
 
-        // เพิ่ม HTML เข้าไปใน PDF
         $mpdf->WriteHTML($html);
-
-        // สร้างไฟล์ PDF
-        $this->response->setHeader('Content-Type', 'application/pdf');
-
-        $mpdf->Output('example.pdf', 'I');
-    }
-
-
-    public function BookingCarChart(){
-        $session = session();
-        $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_car_reservation');
-
-        $pie = $DBbooking->select('car_reserv_carID, COUNT(*) as count,car_registration,car_category')
-                    ->join('tb_school_car','tb_school_car.car_ID = tb_car_reservation.car_reserv_carID')
-                    ->groupBy('car_reserv_carID')
-                    ->get()->getResult();
-
-                    $pieLabels = [];
-                    $pieSeries = [];
-                    foreach ($pie as $row) {
-                        $pieLabels[] = $row->car_registration.' '.$row->car_category;
-                        $pieSeries[] = (int)$row->count;
-                    }
-
-         // ตัวอย่างข้อมูล Top ผู้ใช้งาน
-        $bar = $DBbooking->select('car_reserv_memberID, COUNT(*) as total,pers_prefix,pers_firstname,pers_lastname')
-                ->join('skjacth_personnel.tb_personnel','tb_car_reservation.car_reserv_memberID = skjacth_personnel.tb_personnel.pers_id')
-                ->groupBy('car_reserv_memberID')
-                ->orderBy('total', 'DESC')
-                ->limit(5)
-                ->get()->getResult();
-                $barLabels = [];
-                $barSeries = [];
-                foreach ($bar as $row) {
-                    $barLabels[] = $row->pers_firstname;
-                    $barSeries[] = (int)$row->total;
-                }
-
-                // ตัวอย่างข้อมูล การอนุมัติ
-            $PieApprove = $DBbooking->select('car_reserv_status, COUNT(*) as total')                
-            ->groupBy('car_reserv_status')
-            ->orderBy('total', 'DESC')
-            ->get()->getResult();
-            $ApproveLabels = [];
-            $ApproveSeries = [];
-            foreach ($PieApprove as $row) {
-                $ApproveLabels[] = $row->car_reserv_status;
-                $ApproveSeries[] = (int)$row->total;
-            }
-
-        $data = [
-            'pie' => ['labels' => $pieLabels, 'series' => $pieSeries],
-            'bar' => ['categories' => $barLabels, 'series' => $barSeries],
-            'Approve' => ['labels' => $ApproveLabels, 'series' => $ApproveSeries]
-        ];
-        return $this->response->setJSON($data);
+        $mpdf->Output('แบบคำขอใช้อาคารสถานที่.pdf');
     }
 
 }

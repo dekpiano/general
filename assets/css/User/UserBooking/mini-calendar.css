@@ -1,0 +1,142 @@
+.mini-calendar {
+    min-height: auto;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.calendar-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.calendar-header-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.calendar-header-cell {
+    padding: 5px 2px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.75rem;
+    color: #555;
+}
+
+.calendar-body-rows {
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.calendar-row:last-child {
+    border-bottom: none;
+}
+
+.calendar-cell {
+    min-height: 35px;
+    padding: 2px;
+    border-right: 1px solid #f0f0f0;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-cell:last-child {
+    border-right: none;
+}
+
+.calendar-cell:hover {
+    background-color: #f0f4ff;
+}
+
+.calendar-cell.empty {
+    background-color: #fafafa;
+    cursor: default;
+}
+
+.day-number {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #333;
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+.events-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    justify-content: flex-end;
+}
+
+.calendar-cell.status-approved {
+    background-color: #71dd37;
+    color: white;
+}
+
+.calendar-cell.status-approved .day-number {
+    color: white;
+}
+
+.calendar-cell.status-pending {
+    background-color: #ffab00;
+    color: white;
+}
+
+.calendar-cell.status-pending .day-number {
+    color: white;
+}
+
+.calendar-cell.status-rejected {
+    background-color: #ff3e1d;
+    color: white;
+}
+
+.calendar-cell.status-rejected .day-number {
+    color: white;
+}
+
+.calendar-cell.status-approved:hover {
+    background-color: #5ec52a;
+}
+
+.calendar-cell.status-pending:hover {
+    background-color: #e69a00;
+}
+
+.calendar-cell.status-rejected:hover {
+    background-color: #e6381a;
+}
+
+.mini-calendar-header {
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-cell {
+        min-height: 45px;
+    }
+    .day-number {
+        font-size: 0.75rem;
+    }
+    .event-dot {
+        width: 6px;
+        height: 6px;
+    }
+}

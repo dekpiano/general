@@ -1,4 +1,4 @@
-<?= $this->extend('User/UserLeyout/user_layout') ?>
+<?= $this->extend('User/UserLayout/user_layout') ?>
 <?= $this->section('content') ?>
 
 <style>

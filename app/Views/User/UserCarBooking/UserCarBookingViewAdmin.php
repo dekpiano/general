@@ -1,9 +1,9 @@
-<?= $this->extend('User/UserLeyout/user_layout') ?>
+<?= $this->extend('User/UserLayout/user_layout') ?>
 <?= $this->section('content') ?>
 
 <div class="container-xxl flex-grow-1 container-p-y demo">
     <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a
-                href="<?=base_url('CarBooking/CheckCar')?>">เลือกรถ</a> / ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</span>
+                href="<?=base_url('CarBooking/Main')?>">หน้าหลักจองยานพาหนะ</a> / ข้อมูลการจองทั้งหมด (สำหรับผู้ดูแลระบบ)</span>
 
     </h4>
 

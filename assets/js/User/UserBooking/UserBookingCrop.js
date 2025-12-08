@@ -3,7 +3,12 @@ let croppieInstance;
 let croppedImageBase64 = null;
 let bsModal = null;
 
-bsModal = new bootstrap.Modal($('#imageModal')[0]);
+document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById('imageModal');
+    if (modalEl) {
+        bsModal = new bootstrap.Modal(modalEl);
+    }
+});
 
 $('#imageInput').on('change', function (e) {
   const file = e.target.files[0];

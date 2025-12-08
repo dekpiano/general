@@ -42,10 +42,7 @@ class ConAdminHome extends BaseController
         $data = $this->DataMain();
         $data['title']="หน้าแรก";
 
-        return view('User/UserLeyout/UserHeader',$data)
-                .view('User/UserLeyout/UserMenuLeft')
-                .view('User/UserHome/UserPageHome')
-                .view('User/UserLeyout/UserFooter');
+        return view('User/UserHome/UserPageHome', $data);
     }    
 
 }

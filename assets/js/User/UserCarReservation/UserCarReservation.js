@@ -343,67 +343,69 @@ function formatThaiDate(date) {
 
 var calendarEl = document.getElementById('calendar');
 
-var calendar = new FullCalendar.Calendar(calendarEl, {
-    headerToolbar: {
-        left: 'prevYear,prev,next,nextYear today',
-        center: 'title',
-        right: 'dayGridMonth,dayGridWeek,dayGridDay'
-    },
-    navLinks: true, // can click day/week names to navigate views
-    editable: false,
-    locale: 'th',
-    eventSources: [{
-        events: function(fetchInfo, successCallback, failureCallback) {
-            jQuery.ajax({
-                url: "Booking/DB/ShowTimeCarBooking",
-                type: "POST",
-                success: function(res) {
-                    var events = [];
-                    res.forEach(evt => {
-                        if(evt.approved == "รอตรวจสอบ"){
-                            var Color = '#ffab00';
-                        }else if(evt.approved == "อนุมัติ"){
-                            var Color = '#71dd37';
-                        }else{
-                            var Color = '#ff3e1d';  
-                        }
-                        events.push({
-                            id: evt.id,
-                            title: evt.title,
-                            start: evt.start,
-                            end: evt.end,
-                            backgroundColor: Color,
-                            CarAppend: evt.approved,
-                        });
-                    });
-                    successCallback(events);
-                },
-            });
+if (calendarEl) {
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        headerToolbar: {
+            left: 'prevYear,prev,next,nextYear today',
+            center: 'title',
+            right: 'dayGridMonth,dayGridWeek,dayGridDay'
         },
-        eventColor: '#378006',
-
-
-    }, ],
-    initialView: 'dayGridMonth',
-    eventClick: function(info) {
-        // alert("วันที่: " + info.event.start.toLocaleDateString() + "\n"+
-        //         "เวลา: " + info.event.title + "\n");
-
-                if (info.event.extendedProps.CarAppend == "อนุมัติ") {
-                    var Icon = "success";
-                } else if (info.event.extendedProps.CarAppend == "รอตรวจสอบ") {
-                    var Icon = "warning";
-                } else if (info.event.extendedProps.CarAppend == "ไม่อนุมัติ") {
-                    var Icon = "error";
-                }
-                Swal.fire({
-                    title: `สถานะ : ${info.event.extendedProps.CarAppend}`,
-                    html: `<b>วันที่ใช้บริการ</b> : ${formatThaiDate(info.event.start)} <br>
-                           <b>โดยใช้ :</b> ${info.event.title || "ไม่มีรายละเอียด"}<br>
-                           `,
-                    icon: Icon
+        navLinks: true, // can click day/week names to navigate views
+        editable: false,
+        locale: 'th',
+        eventSources: [{
+            events: function(fetchInfo, successCallback, failureCallback) {
+                jQuery.ajax({
+                    url: "Booking/DB/ShowTimeCarBooking",
+                    type: "POST",
+                    success: function(res) {
+                        var events = [];
+                        res.forEach(evt => {
+                            if(evt.approved == "รอตรวจสอบ"){
+                                var Color = '#ffab00';
+                            }else if(evt.approved == "อนุมัติ"){
+                                var Color = '#71dd37';
+                            }else{
+                                var Color = '#ff3e1d';  
+                            }
+                            events.push({
+                                id: evt.id,
+                                title: evt.title,
+                                start: evt.start,
+                                end: evt.end,
+                                backgroundColor: Color,
+                                CarAppend: evt.approved,
+                            });
+                        });
+                        successCallback(events);
+                    },
                 });
-    }
-});
-calendar.render();
+            },
+            eventColor: '#378006',
+
+
+        }, ],
+        initialView: 'dayGridMonth',
+        eventClick: function(info) {
+            // alert("วันที่: " + info.event.start.toLocaleDateString() + "\n"+
+            //         "เวลา: " + info.event.title + "\n");
+
+                    if (info.event.extendedProps.CarAppend == "อนุมัติ") {
+                        var Icon = "success";
+                    } else if (info.event.extendedProps.CarAppend == "รอตรวจสอบ") {
+                        var Icon = "warning";
+                    } else if (info.event.extendedProps.CarAppend == "ไม่อนุมัติ") {
+                        var Icon = "error";
+                    }
+                    Swal.fire({
+                        title: `สถานะ : ${info.event.extendedProps.CarAppend}`,
+                        html: `<b>วันที่ใช้บริการ</b> : ${formatThaiDate(info.event.start)} <br>
+                               <b>โดยใช้ :</b> ${info.event.title || "ไม่มีรายละเอียด"}<br>
+                               `,
+                        icon: Icon
+                    });
+        }
+    });
+    calendar.render();
+}
 

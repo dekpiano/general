@@ -1,134 +1,197 @@
-<?= $this->extend('User/UserLeyout/user_layout') ?>
+<?= $this->extend('User/UserLayout/user_layout') ?>
 <?= $this->section('content') ?>
 
-<style>
-.cards:hover {
+<div class="container-xxl flex-grow-1 container-p-y">
 
-    box-shadow: 5px 6px 6px 2px #e9ecef;
-    transform: scale(1.1);
-}
-</style>
-
-<div class="container-xxl flex-grow-1 container-p-y demo">
+    <!-- Alert Message -->
+    <div class="alert alert-primary alert-dismissible" role="alert">
+        <h5 class="alert-heading mb-1"><i class='bx bx-info-circle me-2'></i>คำแนะนำการจอง</h5>
+        <span>ท่านสามารถเลือกยานพาหนะที่ต้องการ และคลิกที่วันที่ว่างในปฏิทินด้านล่างเพื่อทำการจองได้เลยครับ</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
     <div class="row">
-        <div class="col-sm-6 col-lg-3 mb-4">
-            <a href="<?=base_url('CarBooking/CheckCar')?>">
-                <div class="card cards h-100 bg-primary text-white">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between pb-1">
-                            <div class="avatar me-2" style="width: 4.375rem;height: 4.375rem;">
-                                <span class="avatar-initial rounded bg-label-info">
-                                    <i class='bx bxs-car bx-lg'></i>
-                                </span>
-                            </div>
-                            <div>
-                                <h1 class="ms-1 mb-0  text-white"><?=$CountCarAll;?></h1>
-                                <p class="mb-1 h3 text-white">จองยานพาหนะ</p>
+        <!-- Left Column: Cars -->
+        <div class="col-md-9">
+            <?php if(isset($CarList) && !empty($CarList)): ?>
+                <div class="row g-4 mb-4">
+                    <?php foreach($CarList as $car): ?>
+                        <div class="col-md-6 col-xl-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <img src="<?= base_url('uploads/admin/Car/'.$car->car_img) ?>" 
+                                     class="card-img-top" 
+                                     alt="<?= $car->car_category ?>" 
+                                     style="height: 200px; object-fit: cover;"
+                                     onerror="this.src='<?= base_url('assets/img/elements/1.jpg') ?>'">
+                                
+                                <div class="card-body p-3">
+                                    <div class="text-center mb-3">
+                                        <h5 class="card-title mb-1 text-primary fw-bold">
+                                            <i class='bx bxs-car-garage me-1'></i> <?= $car->car_registration ?> <?= $car->car_province ?>
+                                        </h5>
+                                        <p class="text-muted small mb-0"><?= $car->car_category ?></p>
+                                    </div>
+                                    
+                                    <hr class="my-3">
+
+                                    <!-- Month/Year Selector -->
+                                    <div class="row g-2 mb-3 mini-calendar-header justify-content-center">
+                                        <div class="col-7">
+                                            <select class="form-select form-select-sm month-selector shadow-none border-1" data-location-id="<?= $car->car_ID ?>">
+                                                <option value="1">มกราคม</option>
+                                                <option value="2">กุมภาพันธ์</option>
+                                                <option value="3">มีนาคม</option>
+                                                <option value="4">เมษายน</option>
+                                                <option value="5">พฤษภาคม</option>
+                                                <option value="6">มิถุนายน</option>
+                                                <option value="7">กรกฎาคม</option>
+                                                <option value="8">สิงหาคม</option>
+                                                <option value="9">กันยายน</option>
+                                                <option value="10">ตุลาคม</option>
+                                                <option value="11">พฤศจิกายน</option>
+                                                <option value="12">ธันวาคม</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-5">
+                                            <select class="form-select form-select-sm year-selector shadow-none border-1" data-location-id="<?= $car->car_ID ?>">
+                                                <?php 
+                                                $currentYear = date('Y');
+                                                for($y = $currentYear - 1; $y <= $currentYear + 2; $y++): 
+                                                ?>
+                                                    <option value="<?= $y ?>" <?= $y == $currentYear ? 'selected' : '' ?>><?= $y + 543 ?></option>
+                                                <?php endfor; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mini Calendar Container -->
+                                    <div id="miniCalendar_<?= $car->car_ID ?>" class="mini-calendar rounded p-2 bg-light bg-opacity-50"></div>
+                                </div>
                             </div>
                         </div>
-
-                    </div>
+                    <?php endforeach; ?>
                 </div>
-            </a>
-        </div>
-        <div class="col-sm-6 col-lg-3 mb-4">
-            <a href="<?=base_url('CarBooking/View')?>">
-                <div class="card cards h-100 bg-warning text-white">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between pb-1">
-                            <div class="avatar me-2" style="width: 4.375rem;height: 4.375rem;">
-                                <span class="avatar-initial rounded bg-label-warning">
-                                <i class='bx bx-list-ul bx-lg'></i>
-                                </span>
-                            </div>
-                            <div>
-                                <h1 class="ms-1 mb-0  text-white"><?=$CountCarReservationAll;?></h1>
-                                <p class="mb-1 h5 text-white">สถานะจองยานพาหนะ</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </a>
+            <?php endif; ?>
         </div>
 
-        <div class="col-sm-6 col-lg-3 mb-4">
-            <a target="_blank"
-                href="https://www.canva.com/design/DAGotnnu12w/mkKLBaHyz0OPtCi64k9lNA/view?utm_content=DAGotnnu12w&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hb833e4e0bb">
-                <div class="h-100 cards border border-success rounded d-flex">
-                    <div class="card-body align-self-center">
-                        <div class="d-flex align-items-center mb-2 pb-1">
-                            <div class="avatar me-2">
-                                <span class="avatar-initial rounded  bg-label-warning">
-                                    <i class='bx bx-book-bookmark'></i>
-                                </span>
-                            </div>
-                            <h4 class="ms-1 mb-0 ">คู่มือการใช้งาน</h4>
-                        </div>
-
-                    </div>
-                </div>
-            </a>
-        </div>
-
-
-        <?php if(isset($_SESSION['username']) && in_array("งานยานพาหนะ", explode(',',@$_SESSION['rloes']))  || @$_SESSION['status'] =="ExecutiveGeneral"):?>
-        <div class="col-sm-6 col-lg-3 mb-4 <?=isset($_SESSION['username']) ?"":"offset-md-3" ?>">
-            <?php if(@$_SESSION['status'] =="AdminGeneral"):?>
-            <a href="<?=base_url('CarBooking/Approve/Admin')?>">
-                <?php elseif(@$_SESSION['status'] =="ExecutiveGeneral"): ?>
-                <a href="<?=base_url('Booking/Approve/Executive')?>">
-                    <?php endif;?>
-                    <div class="card h-100 bg-info text-white">
-                        <div class="card-body ">
-                            <div class="d-flex align-items-center mb-2 pb-1">
-                                <div class="avatar me-2">
-                                    <span class="avatar-initial rounded bg-label-info"><i
-                                            class="bx bx-time-five"></i></span>
+        <!-- Right Column: Quick Actions -->
+        <div class="col-md-3">
+            <div class="row g-3 sticky-top" style="top: 20px; z-index: 1;">
+                <!-- Book Car -->
+                <div class="col-12">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded bg-label-primary">
+                                        <i class="bx bxs-car bx-sm"></i>
+                                    </span>
                                 </div>
                                 <div>
-                                    <h6 class="ms-1 mb-0 text-white">ยอดจองทั้งหมด <?=$CountCarReservationAll;?> รายการ
-                                    </h6>
-                                    <h4 class="ms-1 mb-0 text-white">รออนุมัติ <?=$NumRowsWaitApprove;?> รายการ
-                                    </h4>
+                                    <small class="text-muted d-block mb-1">ยานพาหนะ</small>
+                                    <h5 class="mb-0 text-nowrap"><?= $CountCarAll ?> <small class="text-muted fw-normal">คัน</small></h5>
                                 </div>
-
                             </div>
-                            <p class="mb-1 h5 text-white">อนุมัติแล้ว <?=$NumRowsApprove;?> รายการ</p>
                         </div>
                     </div>
-                </a>
-        </div>
-        <?php endif; ?>
-    </div>
-    <style>
-    .fc-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        /* ให้ขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ */
-        justify-content: center;
-        /* จัดให้อยู่ตรงกลาง */
-        gap: 5px;
-        /* เพิ่มระยะห่างระหว่างปุ่ม */
-    }
+                </div>
+                
+                <!-- View Bookings -->
+                <div class="col-12">
+                    <a href="<?=base_url('CarBooking/View')?>" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar flex-shrink-0 me-3">
+                                        <span class="avatar-initial rounded bg-label-warning">
+                                            <i class="bx bx-list-ul bx-sm"></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block mb-1">รายการจอง</small>
+                                        <h5 class="mb-0 text-dark text-nowrap"><?= $CountCarReservationAll ?> <small class="text-muted fw-normal">รายการ</small></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
 
-    .fc-button {
-        padding: 5px 10px;
-        font-size: 14px;
-    }
-    </style>
-    <div class="card">
-        <div class="card-body">
-            <p><span class="badge bg-warning">⏳ รอตรวจสอบ</span>
-            <span class="badge bg-success">✔ อนุมัติ</span>
-            <span class="badge bg-danger">⨉ ไม่อนุมัติ</span>                    
-            </p>
-            <div id='calendar'></div>
+                <!-- Manual -->
+                <div class="col-12">
+                    <a target="_blank" 
+                       href="https://www.canva.com/design/DAGotnnu12w/mkKLBaHyz0OPtCi64k9lNA/view" 
+                       class="text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar flex-shrink-0 me-3">
+                                        <span class="avatar-initial rounded bg-label-success">
+                                            <i class="bx bx-book-reader bx-sm"></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-dark">คู่มือใช้งาน</h6>
+                                        <small class="text-muted">คลิกเพื่อดู</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Admin Panel -->
+                <?php if(isset($_SESSION['username']) && (in_array("งานยานพาหนะ", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral" || @$_SESSION['status'] =="AdminGeneral")):?>
+                <div class="col-12">
+                    <?php if(@$_SESSION['status'] =="AdminGeneral" || in_array("งานยานพาหนะ", explode(',',@$_SESSION['rloes']))):?>
+                    <a href="<?=base_url('CarBooking/Approve/Admin')?>" class="text-decoration-none">
+                    <?php elseif(@$_SESSION['status'] =="ExecutiveGeneral"): ?>
+                    <a href="<?=base_url('Booking/Approve/Executive')?>" class="text-decoration-none">
+                    <?php endif;?>
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="avatar flex-shrink-0 me-3">
+                                        <span class="avatar-initial rounded bg-label-info">
+                                            <i class="bx bx-user-check bx-sm"></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-dark">สำหรับเจ้าหน้าที่</h6>
+                                        <small class="badge bg-label-info rounded-pill">Admin</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center ps-1">
+                                    <small class="text-muted">รออนุมัติ</small>
+                                    <span class="badge bg-warning badge-center rounded-circle w-px-20 h-px-20 d-flex align-items-center justify-content-center" style="font-size: 0.7rem;"><?=$NumRowsWaitApprove?></span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1 ps-1">
+                                    <small class="text-muted">อนุมัติแล้ว</small>
+                                    <span class="badge bg-success badge-center rounded-circle w-px-20 h-px-20 d-flex align-items-center justify-content-center" style="font-size: 0.7rem;"><?=$NumRowsApprove?></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-
 
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('customCSS') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/User/UserBooking/mini-calendar.css') ?>">
+<?= $this->endSection() ?>
+
+<?= $this->section('customScripts') ?>
+<script>
+    <?php $session = session(); ?>
+    var CURRENT_USER_ID = '<?= $session->get('id') ?? '' ?>';
+    var IS_ADMIN = <?= ($session->get('status') == "AdminGeneral") || (in_array("งานยานพาหนะ", explode(',', $session->get('rloes') ?? ''))) ? 'true' : 'false' ?>;
+    console.log(IS_ADMIN);
+</script>
+<script src="<?= base_url('assets/js/User/UserCarBooking/UserCarBookingMiniCalendar.js?v=' . time()) ?>"></script>
 <?= $this->endSection() ?>

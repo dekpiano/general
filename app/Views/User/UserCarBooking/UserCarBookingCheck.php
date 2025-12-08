@@ -1,74 +1,69 @@
-<?= $this->extend('User/UserLeyout/user_layout') ?>
+<?= $this->extend('User/UserLayout/user_layout') ?>
 <?= $this->section('content') ?>
 
-<style>
-.cards:hover {
-
-    box-shadow: 5px 6px 6px 2px #e9ecef;
-    transform: scale(1.1);
-}
-</style>
-
-<div class="container-xxl flex-grow-1 container-p-y demo">
-
-<h4 class="py-3 mb-4"><span class="text-muted fw-light">
-            <a href="<?=base_url('CarBooking');?>">หน้าแรก</a>
-            /</span> เลือกยานพาหนะ</h4>
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Breadcrumb -->
+    <h4 class="py-3 mb-4">
+        <span class="text-muted fw-light">
+            <a href="<?=base_url('CarBooking')?>">หน้าแรก</a> /
+        </span>
+        เลือกยานพาหนะ
     </h4>
-    <div class=" mt-3">
-        <div class="">
-            <div class="row">
-                <?php foreach ($CheckCar as $key => $v_CheckCar) : ?>
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100">
-                        <img class="card-img-top" src="<?=base_url('uploads/admin/Car/'.$v_CheckCar->car_img)?>"
-                            alt="Card image cap">
-                        <div class="card-body d-flex justify-content-between">
-                            <div>
-                                <h5 class="card-title"><?=$v_CheckCar->car_category?></h5>
-                                <p class="card-text">
-                                    <?=$v_CheckCar->car_registration?> <?=$v_CheckCar->car_province?>
-                                </p>
-                            </div>
-                            <div class="text-center">
-                                <?php if(isset($_SESSION['username'])): ?>
-                                <a href="<?=base_url('CarBooking/Add/'.$v_CheckCar->car_ID)?>"
-                                    class="btn btn-primary">จองยานพาหนะ</a>
-                                <?php else: ?>
-                                <a href="#"
-                                    class="btn btn-primary" onClick="CheckLogin()" ;>จองยานพาหนะ</a>
 
-                                <script>
-                                function CheckLogin() {
-                                    Swal.fire({
-                                        title: "แจ้งเตือน?",
-                                        text: "คุณจะจองยานพาหนะ ต้อง Login เข้าสู่ระบบก่อน!",
-                                        icon: "warning",
-                                        showCancelButton: true,
-                                        confirmButtonColor: "#3085d6",
-                                        cancelButtonColor: "#d33",
-                                        confirmButtonText: "ใช่ ฉันต้องการเข้าสู่ระบบ!"
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                           window.location.href = " <?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>";
-                                        }
-                                    });
-                                }
-                                </script>
-
-                                <?php endif; ?>
-
-                            </div>
-
-                        </div>
-                    </div>
+    <!-- Cars Grid -->
+    <div class="row g-4">
+        <?php foreach ($CheckCar as $v_CheckCar) : ?>
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="card h-100">
+                <img class="card-img-top" 
+                     src="<?=base_url('uploads/admin/Car/'.$v_CheckCar->car_img)?>"
+                     alt="<?=$v_CheckCar->car_category?>"
+                     style="height: 180px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title"><?=$v_CheckCar->car_category?></h5>
+                    <p class="card-text">
+                        <i class='bx bx-id-card me-1'></i>
+                        <?=$v_CheckCar->car_registration?> <?=$v_CheckCar->car_province?>
+                    </p>
                 </div>
-                <?php endforeach; ?>
+                <div class="card-footer pt-0 border-0 bg-transparent">
+                    <?php if(isset($_SESSION['username'])): ?>
+                    <a href="<?=base_url('CarBooking/Add/'.$v_CheckCar->car_ID)?>" class="btn btn-primary w-100">
+                        <i class='bx bx-calendar-plus me-1'></i>จองยานพาหนะ
+                    </a>
+                    <?php else: ?>
+                    <button type="button" class="btn btn-primary w-100 CheckUserLogin"
+                            data-url="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>">
+                        <i class='bx bx-calendar-plus me-1'></i>จองยานพาหนะ
+                    </button>
+                    <?php endif; ?>
+                </div>
             </div>
-
         </div>
+        <?php endforeach; ?>
     </div>
-
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.CheckUserLogin').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'กรุณาเข้าสู่ระบบ',
+                text: 'คุณต้องเข้าสู่ระบบก่อนจองยานพาหนะ',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'เข้าสู่ระบบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = this.dataset.url;
+                }
+            });
+        });
+    });
+});
+</script>
 
 <?= $this->endSection() ?>

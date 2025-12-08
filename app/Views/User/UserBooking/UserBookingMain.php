@@ -1,148 +1,209 @@
-<?= $this->extend('User/UserLeyout/user_layout') ?>
+<?= $this->extend('User/UserLayout/user_layout') ?>
 <?= $this->section('content') ?>
 
-<style>
-.booking-card {
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    border-radius: 10px;
-    color: white; /* Default text color for gradients */
-}
+<div class="container-xxl flex-grow-1 container-p-y">
 
-.booking-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.booking-card .card-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-.booking-card i {
-    font-size: 3.5rem; /* Larger icon size */
-    margin-bottom: 1rem;
-    color: white; /* Icons should also be white for contrast */
-}
-
-.booking-card .card-title,
-.booking-card .card-text {
-    color: white; /* Ensure text is white */
-}
-
-/* Gradient Colors */
-.gradient-blue {
-    background: linear-gradient(45deg, #4CAF50, #8BC34A); /* Greenish */
-}
-
-.gradient-orange {
-    background: linear-gradient(45deg, #FF9800, #FFC107); /* Orangish */
-}
-
-.gradient-purple {
-    background: linear-gradient(45deg, #9C27B0, #E040FB); /* Purplish */
-}
-
-.gradient-red {
-    background: linear-gradient(45deg, #F44336, #FF5722); /* Reddish */
-}
-
-/* Adjust text color for manual card if needed */
-.manual-card .card-title,
-.manual-card .card-text {
-    color: #333; /* Darker text for non-gradient card */
-}
-</style>
-
-<div class="container-xxl flex-grow-1 container-p-y demo">
+    <!-- Alert Message -->
+    <div class="alert alert-primary alert-dismissible" role="alert">
+        <h5 class="alert-heading mb-1"><i class='bx bx-info-circle me-2'></i>คำแนะนำการจอง</h5>
+        <span>ท่านสามารถเลือกห้องที่ต้องการ และคลิกที่วันที่ว่างในปฏิทินด้านล่างเพื่อทำการจองได้เลยครับ</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
     <div class="row">
-        <div class="col-sm-6 col-lg-3 mb-4">
-            <a href="<?=base_url('Booking/Select')?>" class="text-decoration-none">
-                <div class="card booking-card gradient-blue h-100 text-center">
-                    <div class="card-body">
-                        <i class='bx bx-add-to-queue'></i>
-                        <h5 class="card-title mb-0"><?=$CountLocationRoomAll;?></h5>
-                        <p class="card-text">จองห้องประชุม / สถานที่</p>
+        <!-- Left Column: Location Rooms -->
+        <div class="col-md-9">
+            <?php 
+            $categories = [];
+            if(isset($LocationList) && !empty($LocationList)) {
+                foreach($LocationList as $location) {
+                    $cat = $location->location_category ?: 'อื่นๆ'; // Default category if empty
+                    if(!isset($categories[$cat])) {
+                        $categories[$cat] = [];
+                    }
+                    $categories[$cat][] = $location;
+                }
+            }
+            ?>
+
+            <?php foreach($categories as $categoryName => $locations): ?>
+                <div class="divider text-start mt-4">
+                    <div class="divider-text fs-4 fw-bold text-primary">
+                        <i class='bx bx-category-alt me-2'></i><?= $categoryName ?>
                     </div>
                 </div>
-            </a>
-        </div>
-        <div class="col-sm-6 col-lg-3 mb-4">
-            <a href="<?=base_url('Booking/View/All')?>" class="text-decoration-none">
-                <div class="card booking-card gradient-orange h-100 text-center">
-                    <div class="card-body">
-                        <i class="bx bx-time-five"></i>
-                        <h5 class="card-title mb-0"><?=$CountbookingAll;?> รายการ</h5>
-                        <p class="card-text">สถานะจองห้องประชุม / สถานที่</p>
-                    </div>
-                </div>
-            </a>
-        </div>
+                
+                <div class="row g-4 mb-4">
+                    <?php foreach($locations as $location): ?>
+                        <div class="col-md-6 col-xl-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <img src="<?= base_url('uploads/admin/LocationRoom/'.$location->location_img) ?>" 
+                                     class="card-img-top" 
+                                     alt="<?= $location->location_name ?>" 
+                                     style="height: 160px; object-fit: cover;"
+                                     onerror="this.src='<?= base_url('assets/img/elements/1.jpg') ?>'">
+                                
+                                <div class="card-body p-3">
+                                    <div class="text-center mb-3">
+                                        <h5 class="card-title mb-1 text-primary fw-bold">
+                                            <i class='bx bx-building me-1'></i> <?= $location->location_name ?>
+                                        </h5>
+                                    </div>
 
+                                    <hr class="my-3">
 
-        <div class="col-sm-6 col-lg-3 mb-4">
-            <a target="_blank" href="https://www.canva.com/design/DAF1VkidVas/KTSxUIGCXwAmE8OLcTfXyg/view?utm_content=DAF1VkidVas&utm_campaign=designshare&utm_medium=link&utm_source=editor" class="text-decoration-none">
-                <div class="card booking-card manual-card h-100 text-center">
-                    <div class="card-body">
-                        <i class='bx bx-book-bookmark text-success'></i>
-                        <h5 class="card-title mb-0">คู่มือการใช้งาน</h5>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-
-        <?php if(isset($_SESSION['username']) && in_array("งานอาคารสถานที่", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral"):?>
-        <div class="col-sm-6 col-lg-3 mb-4 <?=isset($_SESSION['username']) ?"":"offset-md-3" ?>">
-            <?php if(@$_SESSION['status'] =="AdminGeneral"):?>
-            <a href="<?=base_url('Booking/Approve/Admin')?>" class="text-decoration-none">
-                <?php elseif(@$_SESSION['status'] =="ExecutiveGeneral"): ?>
-                <a href="<?=base_url('Booking/Approve/Admin')?>" class="text-decoration-none">
-                    <?php endif;?>
-                    <div class="card gradient-purple h-100 text-center text-white">
-                        <div class="card-body">
-                            สำหรับเจ้าหน้าที่
-                            <p class="card-text mb-0"><i class='bx bx-list-ul me-2'></i>ยอดจองทั้งหมด <?=$CountbookingAll;?> รายการ</p>
-                            <p class="card-text"><i class='bx bx-hourglass me-2'></i>รออนุมัติ <?=$NumRowsWaitApprove;?> รายการ</p>
-                            <p class="card-text"><i class='bx bx-check-circle me-2'></i>อนุมัติแล้ว <?=$NumRowsApprove;?> รายการ</p>
+                                    <!-- Month/Year Selector -->
+                                    <div class="row g-2 mb-3 mini-calendar-header justify-content-center">
+                                        <div class="col-7">
+                                            <select class="form-select form-select-sm month-selector shadow-none border-1" data-location-id="<?= $location->location_ID ?>">
+                                                <option value="1">มกราคม</option>
+                                                <option value="2">กุมภาพันธ์</option>
+                                                <option value="3">มีนาคม</option>
+                                                <option value="4">เมษายน</option>
+                                                <option value="5">พฤษภาคม</option>
+                                                <option value="6">มิถุนายน</option>
+                                                <option value="7">กรกฎาคม</option>
+                                                <option value="8">สิงหาคม</option>
+                                                <option value="9">กันยายน</option>
+                                                <option value="10">ตุลาคม</option>
+                                                <option value="11">พฤศจิกายน</option>
+                                                <option value="12">ธันวาคม</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-5">
+                                            <select class="form-select form-select-sm year-selector shadow-none border-1" data-location-id="<?= $location->location_ID ?>">
+                                                <?php 
+                                                $currentYear = date('Y');
+                                                for($y = $currentYear - 1; $y <= $currentYear + 2; $y++): 
+                                                ?>
+                                                    <option value="<?= $y ?>" <?= $y == $currentYear ? 'selected' : '' ?>><?= $y + 543 ?></option>
+                                                <?php endfor; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!-- Mini Calendar Container -->
+                                    <div id="miniCalendar_<?= $location->location_ID ?>" class="mini-calendar rounded p-2 bg-light bg-opacity-50"></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
         </div>
-        <?php endif; ?>
-    </div>
-    <style>
-    .fc-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        /* ให้ขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ */
-        justify-content: center;
-        /* จัดให้อยู่ตรงกลาง */
-        gap: 5px;
-        /* เพิ่มระยะห่างระหว่างปุ่ม */
-    }
 
-    .fc-button {
-        padding: 5px 10px;
-        font-size: 14px;
-    }
-    </style>
-    <div class="card">
-        <div class="card-body">
-            <p><span class="badge bg-warning"><i class='bx bx-hourglass me-1'></i>รอตรวจสอบ</span>
-            <span class="badge bg-success"><i class='bx bx-check-circle me-1'></i>อนุมัติ</span>
-            <span class="badge bg-danger"><i class='bx bx-x-circle me-1'></i>ไม่อนุมัติ</span>                    
-            </p>
-            <div id='CalendarBooking'></div>
+        <!-- Right Column: Quick Actions -->
+        <div class="col-md-3">
+            <div class="row g-3 sticky-top" style="top: 20px; z-index: 1;">
+                <!-- Book Room -->
+                <div class="col-12">
+                    <a href="#CalendarBooking" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar flex-shrink-0 me-3">
+                                        <span class="avatar-initial rounded bg-label-primary">
+                                            <i class='bx bx-building-house bx-sm'></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block mb-1">จองห้อง/สถานที่</small>
+                                        <h5 class="mb-0 text-nowrap"><?= $CountLocationRoomAll ?> <small class="text-muted fw-normal">แห่ง</small></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- View Bookings -->
+                <div class="col-12">
+                    <a href="<?=base_url('Booking/View/All')?>" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar flex-shrink-0 me-3">
+                                        <span class="avatar-initial rounded bg-label-warning">
+                                            <i class='bx bx-list-check bx-sm'></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block mb-1">รายการจอง</small>
+                                        <h5 class="mb-0 text-dark text-nowrap"><?= $CountbookingAll ?> <small class="text-muted fw-normal">รายการ</small></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Manual -->
+                <div class="col-12">
+                    <a target="_blank" 
+                       href="https://www.canva.com/design/DAF1VkidVas/KTSxUIGCXwAmE8OLcTfXyg/view" 
+                       class="text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar flex-shrink-0 me-3">
+                                        <span class="avatar-initial rounded bg-label-success">
+                                            <i class='bx bx-book-reader bx-sm'></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-dark">คู่มือใช้งาน</h6>
+                                        <small class="text-muted">คลิกเพื่อดู</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Admin Panel -->
+                <?php if(isset($_SESSION['username']) && in_array("งานอาคารสถานที่", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral"):?>
+                <div class="col-12">
+                    <a href="<?=base_url('Booking/Approve/Admin')?>" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="avatar flex-shrink-0 me-3">
+                                        <span class="avatar-initial rounded bg-label-info">
+                                            <i class='bx bx-user-check bx-sm'></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-dark">สำหรับเจ้าหน้าที่</h6>
+                                        <small class="badge bg-label-info rounded-pill">Admin</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center ps-1">
+                                    <small class="text-muted">รออนุมัติ</small>
+                                    <span class="badge bg-warning badge-center rounded-circle w-px-20 h-px-20 d-flex align-items-center justify-content-center" style="font-size: 0.7rem;"><?=$NumRowsWaitApprove?></span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1 ps-1">
+                                    <small class="text-muted">อนุมัติแล้ว</small>
+                                    <span class="badge bg-success badge-center rounded-circle w-px-20 h-px-20 d-flex align-items-center justify-content-center" style="font-size: 0.7rem;"><?=$NumRowsApprove?></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-
 
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('customCSS') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/User/UserBooking/mini-calendar.css') ?>">
+<?= $this->endSection() ?>
+
+<?= $this->section('customScripts') ?>
+<script>
+    const CURRENT_USER_ID = '<?= $_SESSION['id'] ?? '' ?>';
+</script>
+<script src="<?= base_url('assets/js/User/UserBooking/UserBookingMiniCalendar.js') ?>"></script>
 <?= $this->endSection() ?>

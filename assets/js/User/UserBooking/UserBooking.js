@@ -316,21 +316,27 @@ $(document).on('click', '#BtnCancelBooking', function () {
 $('#BtnSubBooking').prop('disabled', true);
 $(document).on('change', '#booking_dateStart, #booking_timeStart, #booking_dateEnd, #booking_timeEnd', function () {
 
-    $.post('../../Booking/DB/CheckDateBooking', {
+    let requestData = {
         booking_locationroom: $('#booking_locationroom').val(),
         booking_dateStart: $('#booking_dateStart').val(),
         booking_timeStart: $('#booking_timeStart').val(),
         booking_dateEnd: $('#booking_dateEnd').val(),
         booking_timeEnd: $('#booking_timeEnd').val()
-    }, function (data) {
+    };
+
+    // Add booking_id if it exists (for edit mode)
+    if ($('#booking_id').length) {
+        requestData.exclude_booking_id = $('#booking_id').val();
+    }
+
+    $.post(BASE_URL + 'Booking/CheckDateBooking', requestData, function (data) {
        // console.log(data);
         $('#AlertMessage').html(data.message);
         $('#AlertMessage').removeClass().addClass(data.class);
-        if (data.status == 0) {
-            $('#BtnSubBooking').prop('disabled', true);
-            //$('#booking_timeStart').val('');
-        } else {
+        if (data.status == 1) {
             $('#BtnSubBooking').prop('disabled', false);
+        } else {
+            $('#BtnSubBooking').prop('disabled', true);
         }
 
     });

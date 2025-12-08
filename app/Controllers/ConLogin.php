@@ -106,10 +106,7 @@ class ConLogin extends BaseController
         
             }
         
-        return view('User/UserLeyout/UserHeader',$data)
-        .view('User/UserLeyout/UserMenuLeft')
-        .view('Login/LoginGoogle')
-        .view('User/UserLeyout/UserFooter');
+        return view('Login/LoginGoogle', $data);
           
     }
 
