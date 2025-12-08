@@ -60,7 +60,11 @@ class ConUserRepair extends BaseController
        $data['Posi'] = $Skj->get()->getResult();
        
        $data['Datethai'] = new Datethai();
-       //echo '<pre>'; print_r($data['Datethai']); exit();
+
+       // Math Captcha Generation
+       $data['num1'] = rand(1, 9);
+       $data['num2'] = rand(1, 9);
+       session()->set('captcha_answer', $data['num1'] + $data['num2']);
 
 
         return view('User/UserRepair/UserRepairAdd', $data);
@@ -118,23 +122,19 @@ class ConUserRepair extends BaseController
         $Datethai = new Datethai();
         
 
-        $hCaptchaSecretKey = 'ES_47c9a8452c844bf6b5bf834237aacb8d'; // Replace with your secret key
-        $hCaptchaResponse = $_POST['h-captcha-response'];
-        if (!$hCaptchaResponse) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'message' => 'ไม่ได้รับค่า Captcha'
-            ]);
-        }
-        $response = file_get_contents("https://hcaptcha.com/siteverify?secret=$hCaptchaSecretKey&response=$hCaptchaResponse");
-        $responseData = json_decode($response);
+        // Math Captcha Verification
+        $captchaInput = $this->request->getPost('captcha_input');
+        $captchaSession = session()->get('captcha_answer');
 
-        if (!$responseData->success) {
+        if (empty($captchaInput) || $captchaInput != $captchaSession) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'Captcha ไม่ผ่าน'
+                'message' => 'ผลลัพธ์การบวกเลขไม่ถูกต้อง กรุณาลองใหม่ (' . $captchaInput . ' vs ' . $captchaSession . ')'
             ]);
         }
+        
+        // Clear captcha session after use (optional, but good for security)
+        // session()->remove('captcha_answer');
        
       
 
@@ -180,55 +180,67 @@ class ConUserRepair extends BaseController
                 ->orderBy('repair_order',"DESC")
                 ->limit(1)
                 ->get()->getRow();
+
+                // ดึงข้อมูลผู้แจ้งเพื่อใช้ใน Email/Line
+                $Requester = $TBPres->select('pers_prefix,pers_firstname,pers_lastname')
+                    ->where('pers_id', $this->request->getVar('repair_userID'))
+                    ->get()->getRow();
+                $RequesterName = $Requester ? $Requester->pers_prefix.$Requester->pers_firstname.' '.$Requester->pers_lastname : 'ไม่ระบุ';
                 
                 // 2. สร้างข้อความ
                 $msg = "🛠️ มีงานแจ้งซ่อมมาใหม่\n";
                 $msg .= "📌 ประเภท: {$this->request->getVar('repair_caselist')}\n";
                 $msg .= "📍 สถานที่: {$this->request->getVar('repair_building')} ชั้น {$this->request->getVar('repair_class')} ห้อง {$this->request->getVar('repair_room')}\n";
                 $msg .= "📝 รายละเอียด: {$this->request->getVar('repair_detail')}\n";
+                $msg .= "👤 ผู้แจ้ง: {$RequesterName}\n";
                 $msg .= "📅 วันที่แจ้ง: {$Datethai->thai_date_fullmonth(strtotime(date('Y-m-d H:i:s')))}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Repair/View/".$Repair->repair_order);
 
-                // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
-                $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
-                echo 1;
-               // print_r($Teach);exit();
-            //    if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
-            //     $MailAdmin = ['surawut.c@skj.ac.th','dekpiano@skj.ac.th','trin.p@skj.ac.th'];
-            //    }else{
-            //     $MailAdmin = 'dekpiano@skj.ac.th'; 
-            //    }
-                
-            //     $email = \Config\Services::email();
-            //     $email->setFrom('adminRepair@skj.ac.th', 'จากระบบแจ้งซ่อมออนไลน์');
-            //     $email->setTo($MailAdmin);
-            //     $email->setSubject('แจ้งซ่อมจาก '.$Teach[0]->pers_prefix.$Teach[0]->pers_firstname.' '.$Teach[0]->pers_lastname);
+                // ตรวจสอบว่าเป็น Localhost หรือไม่
+                $isLocalhost = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false);
 
-            //     // กำหนดข้อความในรูปแบบ HTML
-            //     $htmlMessage = '<h4>ระบบแจ้งซ่อม รายละเอียด</h4>';
-            //     $htmlMessage .= '<p>ใบแจ้งซ่อม : '.$OrderNumber.'</p>';
-            //     $htmlMessage .= '<p>วันที่แจ้งซ่อม : '.$DateTimeToday.'</p>';
-            //     $htmlMessage .= '<p>เบอร์โทรติดต่อ : '.$this->request->getVar('repair_phone').'</p>';
-            //     $htmlMessage .= '<p>รายการแจ้งซ่อม : '.$this->request->getVar('repair_caselist').'</p>';
-            //     $htmlMessage .= '<p>รายละเอียด : '.$this->request->getVar('repair_detail').' อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
-            //     $htmlMessage .= 'ดูทั้งหมด <a href="'.base_url('Repair/View/'.$OrderNumber).'">'.base_url('Repair/View/'.$OrderNumber).'</a>';
+                if (!$isLocalhost) {
+                    // 3. ส่งข้อความ Line (ใช้ userId หรือ groupId ของช่าง)
+                    $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
 
-            //     // กำหนดข้อความในรูปแบบ HTML ใน setMessage()
-            //     $email->setMessage($htmlMessage);
+                    // 4. ส่ง Email
+                    if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
+                        $MailAdmin = ['surawut.c@skj.ac.th','dekpiano@skj.ac.th','trin.p@skj.ac.th'];
+                    }else{
+                        $MailAdmin = 'dekpiano@skj.ac.th'; 
+                    }
+                    
+                    $email = \Config\Services::email();
+                    $email->setFrom('adminRepair@skj.ac.th', 'จากระบบแจ้งซ่อมออนไลน์');
+                    $email->setTo($MailAdmin);
+                    $email->setSubject('แจ้งซ่อมจาก '.$RequesterName);
 
-            //     // กำหนด mailType ให้เป็น 'html'
-            //     $email->setMailType('html');
+                    // กำหนดข้อความในรูปแบบ HTML
+                    $htmlMessage = '<h4>ระบบแจ้งซ่อม รายละเอียด</h4>';
+                    $htmlMessage .= '<p>ใบแจ้งซ่อม : '.$OrderNumber.'</p>';
+                    $htmlMessage .= '<p>วันที่แจ้งซ่อม : '.$DateTimeToday.'</p>';
+                    $htmlMessage .= '<p>ผู้แจ้งซ่อม : '.$RequesterName.'</p>';
+                    $htmlMessage .= '<p>เบอร์โทรติดต่อ : '.$this->request->getVar('repair_phone').'</p>';
+                    $htmlMessage .= '<p>รายการแจ้งซ่อม : '.$this->request->getVar('repair_caselist').'</p>';
+                    $htmlMessage .= '<p>รายละเอียด : '.$this->request->getVar('repair_detail').' อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
+                    $htmlMessage .= 'ดูทั้งหมด <a href="'.base_url('Repair/View/'.$OrderNumber).'">'.base_url('Repair/View/'.$OrderNumber).'</a>';
 
-            //     if ($email->send()) {
-            //         echo 1;
-            //     } else {
-            //         // $data = $email->printDebugger(['headers']);
-            //         // print_r($data);
-            //         echo "ErrorSendEmail";
-            //     }
+                    $email->setMessage($htmlMessage);
+                    $email->setMailType('html');
+
+                    $email->send();
+                }
+
+                return $this->response->setJSON([
+                    'status' => 'success', 
+                    'message' => 'บันทึกข้อมูลสำเร็จ'
+                ]);
                 
             }else{
-                echo "ErrorInsert";
+                return $this->response->setJSON([
+                    'status' => 'error', 
+                    'message' => 'ไม่สามารถบันทึกข้อมูลลงฐานข้อมูลได้'
+                ]);
             }
        
     }
@@ -361,7 +373,55 @@ class ConUserRepair extends BaseController
             ];
         }
             $TBrepair->where('repair_order', $this->request->getPost('repair_order'));
-       echo $TBrepair->update($data);
+        if ($TBrepair->update($data)) {
+             // ตรวจสอบและส่ง Email แจ้งเตือนผู้แจ้งเมื่อดำเนินการเสร็จสิ้น
+             if ($this->request->getPost('repair_status') == 'ดำเนินการเรียบร้อย') {
+                 $isLocalhost = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false);
+                 
+                 if (!$isLocalhost) {
+                    $DBpers = \Config\Database::connect('personnel');
+                    $TBpers = $DBpers->table('tb_personnel');
+ 
+                    // ดึงข้อมูลผู้แจ้งซ่อม
+                    $RepairInfo = $TBrepair->select('repair_userID, repair_order, repair_caselist, repair_detail, repair_building, repair_class, repair_room')
+                        ->where('repair_order', $this->request->getPost('repair_order'))
+                        ->get()->getRow();
+ 
+                    if ($RepairInfo) {
+                        $Requester = $TBpers->select('pers_username, pers_prefix, pers_firstname, pers_lastname')
+                            ->where('pers_id', $RepairInfo->repair_userID)
+                            ->get()->getRow();
+ 
+                        if ($Requester && !empty($Requester->pers_username)) {
+                             $RequesterName = $Requester->pers_prefix . $Requester->pers_firstname . ' ' . $Requester->pers_lastname;
+                             $email = \Config\Services::email();
+                             $email->setFrom('adminRepair@skj.ac.th', 'ระบบแจ้งซ่อมออนไลน์ (สวนกุหลาบวิทยาลัย จิรประวัติ)');
+                             $email->setTo($Requester->pers_username);
+                             $email->setSubject('แจ้งผลการดำเนินการซ่อม: ' . $RepairInfo->repair_caselist);
+ 
+                             $htmlMessage = '<h4>เรียน ' . $RequesterName . '</h4>';
+                             $htmlMessage .= '<p>รายการแจ้งซ่อมของท่านได้รับการ <strong>ดำเนินการเรียบร้อยแล้ว</strong></p>';
+                             $htmlMessage .= '<hr>';
+                             $htmlMessage .= '<p><strong>เลขที่ใบแจ้งซ่อม:</strong> ' . $RepairInfo->repair_order . '</p>';
+                             $htmlMessage .= '<p><strong>รายการ:</strong> ' . $RepairInfo->repair_caselist . '</p>';
+                             $htmlMessage .= '<p><strong>รายละเอียด:</strong> ' . $RepairInfo->repair_detail . '</p>';
+                             $htmlMessage .= '<p><strong>สถานที่:</strong> ' . $RepairInfo->repair_building . ' ชั้น ' . $RepairInfo->repair_class . ' ห้อง ' . $RepairInfo->repair_room . '</p>';
+                             $htmlMessage .= '<p><strong>สาเหตุ/วิธีแก้ไข:</strong> ' . $this->request->getPost('repair_cause') . '</p>';
+                             $htmlMessage .= '<p><strong>วันที่ดำเนินการ:</strong> ' . $this->request->getPost('repair_datework') . '</p>';
+                             $htmlMessage .= '<hr>';
+                             $htmlMessage .= '<p>ท่านสามารถตรวจสอบรายละเอียดเพิ่มเติมได้ที่: <a href="' . base_url('Repair/View/' . $RepairInfo->repair_order) . '">คลิกที่นี่</a></p>';
+ 
+                             $email->setMessage($htmlMessage);
+                             $email->setMailType('html');
+                             $email->send();
+                        }
+                    }
+                 }
+             }
+             echo 1;
+        } else {
+             echo 0;
+        }
 
     }
 

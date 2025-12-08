@@ -5,7 +5,7 @@
                     <span class="app-brand-logo demo">
                         <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="40">
                     </span>
-                    <span class="app-brand-text demo menu-text fw-bolder ms-2">สกจ.บริหารทั่วไป</span>
+                    <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1.2rem; text-transform: uppercase;">สกจ.บริหารทั่วไป</span>
                 </a>
 
                 <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">

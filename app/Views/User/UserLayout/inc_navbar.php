@@ -10,7 +10,7 @@
         <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
             <!-- Title -->
             <div class="navbar-nav align-items-center">
-                <span class="fw-semibold d-none d-sm-inline-block"><?=$title;?></span>
+                <span class="fw-semibold text-truncate" style="max-width: 220px;"><?=$title;?></span>
             </div>
             <!-- /Title -->
 

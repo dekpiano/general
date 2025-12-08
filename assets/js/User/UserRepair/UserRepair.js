@@ -1,3 +1,32 @@
+$(document).ready(function() {
+    // Initialize Select2 ONLY for the specific form, preserving DataTables default selects
+    $('#FormAddRepair .form-select').select2({
+        theme: "bootstrap-5",
+        width: '100%',
+        dropdownParent: $(document.body) 
+    });
+
+    // Handle Floating Label for Select2 (Scoped to FormAddRepair)
+    $('#FormAddRepair .form-select').on('select2:open', function (e) {
+        $(this).closest('.form-floating-custom').addClass('is-focused');
+    }).on('select2:close', function (e) {
+        $(this).closest('.form-floating-custom').removeClass('is-focused');
+    }).on('change', function (e) {
+        if($(this).val()) {
+            $(this).closest('.form-floating-custom').addClass('is-filled');
+        } else {
+            $(this).closest('.form-floating-custom').removeClass('is-filled');
+        }
+    });
+
+    // Initial check for pre-filled values
+    $('#FormAddRepair .form-select').each(function() {
+        if($(this).val()) {
+            $(this).closest('.form-floating-custom').addClass('is-filled');
+        }
+    });
+});
+
 function toThaiDateString(date) {
     let monthNames = [
         "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
@@ -228,9 +257,10 @@ document.addEventListener('submit', async function(e) {
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const token = document.querySelector('textarea[name="h-captcha-response"]')?.value;
-                if (!token) {
-                    Swal.fire('แจ้งเตือน!', 'กรุณายืนยันว่าไม่ใช่บอท (Captcha)', 'warning');
+                // Math Challenge Validation
+                const captchaInput = document.getElementById('captcha_input');
+                if (!captchaInput || !captchaInput.value.trim()) {
+                    Swal.fire('แจ้งเตือน!', 'กรุณากรอกผลลัพธ์ตัวเลข (Captcha)', 'warning');
                     return;
                 }
 
@@ -240,7 +270,7 @@ document.addEventListener('submit', async function(e) {
                 }
 
                 const dataURL = signaturePad.toDataURL('image/svg+xml');
-                formData.append('h-captcha-response', token);
+                // formData handles captcha_input automatically since it's in the form
                 formData.append('Signature', dataURL);
 
                 const btn = document.getElementById('BtnSubRepair');
@@ -253,12 +283,18 @@ document.addEventListener('submit', async function(e) {
                         body: formData
                     });
 
-                    const data = await res.text();
+                    let responseData;
+                    try {
+                        responseData = await res.json();
+                    } catch (e) {
+                        console.error("Invalid JSON response:", await res.text());
+                        throw new Error("Invalid server response");
+                    }
 
-                    if (data) {
-                        Swal.fire({
-                            title: 'แจ้งเตือน?',
-                            text: "บันทึกแจ้งซ่อมสำเร็จ!",
+                    if (responseData.status === 'success') {
+                         Swal.fire({
+                            title: 'สำเร็จ!',
+                            text: responseData.message || "บันทึกแจ้งซ่อมสำเร็จ!",
                             icon: 'success',
                             confirmButtonColor: '#3085d6',
                             confirmButtonText: 'ตกลง!'
@@ -267,12 +303,16 @@ document.addEventListener('submit', async function(e) {
                                 window.location.href = "../Repair";
                             }
                         });
-                    } else if (data == "ErrorSendEmail") {
-                        Swal.fire('แจ้งเตือน!', 'ส่ง Email ผิดพลาด!', 'error');
-                    } else if (data == "ErrorhCaptcha") {
-                        Swal.fire('แจ้งเตือน!', 'ยืนยันความเป็นมนุษย์ด้วย!', 'warning');
+                    } else if (responseData.status === 'error') {
+                        if (responseData.message === 'Incorrect Captcha') {
+                             Swal.fire('แจ้งเตือน!', 'คำนวณตัวเลขผิด กรุณาคำนวณใหม่', 'warning');
+                        } else {
+                             Swal.fire('แจ้งเตือน!', responseData.message || 'เกิดข้อผิดพลาดในการบันทึก', 'error');
+                        }
                     } else {
-                        console.error('🔴 ไม่รู้จักคำตอบ:', data);
+                        // Unexpected status
+                        console.error('Unknown status:', responseData);
+                        Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดไม่ทราบสาเหตุ', 'error');
                     }
 
                 } catch (err) {
@@ -296,18 +336,59 @@ $(document).on('click', '#ModalFormAdmin', function() {
     //$('#ModalShowRepair').modal('hide');
 });
 
+// Signature Pad Logic
 const canvas = document.getElementById("signature-pad");
+let signaturePad = null;
+
+function resizeCanvas() {
+    if (!canvas) return;
+    
+    // When zoomed out to less than 100%, for some very strange reason,
+    // some browsers report devicePixelRatio as less than 1
+    // and only part of the canvas is cleared then.
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+    // This part causes the canvas to be cleared
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+
+    // If signaturePad exists, we might want to clear it or it will be cleared by resize anyway
+    if (signaturePad) {
+        signaturePad.clear(); // Clean slate on resize to avoid artifacts
+    }
+}
+
+// Initialize if canvas exists
+if (canvas) {
+    // Set a default height via JS to ensure it's not too small if CSS is missing
+    canvas.style.height = "200px"; 
+
+    signaturePad = new SignaturePad(canvas, {
+        backgroundColor: 'rgb(250,250,250)',
+        penColor: 'rgb(0,0,250)'
+    });
+
+    // Resize initially
+    resizeCanvas();
+    
+    // Helper to resize when window changes
+    window.addEventListener("resize", resizeCanvas);
+    
+    // Special handling for Modal (UserRepairView.php)
+    // When the modal shows, the canvas is finally visible and has dimensions.
+    // We must resize it then.
+    $('#ModalRepairSaveAdmin').on('shown.bs.modal', function () {
+        resizeCanvas();
+    });
+}
+
 const clearBtn = document.getElementById("clear");
-
-const signaturePad = new SignaturePad(canvas, {
-    backgroundColor: 'rgb(250,250,250)',
-    penColor: 'rgb(0,0,250)'
-});
-
-// ปุ่มล้างลายเซ็น
-clearBtn.addEventListener("click", () => {
-    signaturePad.clear();
-});
+if (clearBtn && signaturePad) {
+    clearBtn.addEventListener("click", () => {
+        signaturePad.clear();
+    });
+}
 
 $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
     e.preventDefault();
