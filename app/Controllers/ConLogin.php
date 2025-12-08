@@ -92,7 +92,12 @@ class ConLogin extends BaseController
                             // if($User2['admin_rloes_status'] == "admin"){
                             //     return redirect()->to(base_url('Admin/Home'));
                             // }else{
-                                return redirect()->to("https://".$_SESSION['Return']);
+                                // Check if the protocol is already present
+                                $redirectUrl = $_SESSION['Return'];
+                                if (strpos($redirectUrl, 'http') !== 0) {
+                                    $redirectUrl = "https://" . $redirectUrl;
+                                }
+                                return redirect()->to($redirectUrl);
                             // }
                            
                         

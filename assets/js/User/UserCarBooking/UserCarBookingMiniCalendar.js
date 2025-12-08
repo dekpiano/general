@@ -155,6 +155,25 @@ class MiniCalendar {
     }
 
     onDayClick(dateStr) {
+        // Check Login first
+        if (!CURRENT_USER_ID || CURRENT_USER_ID === '') {
+             Swal.fire({
+                title: 'กรุณาเข้าสู่ระบบ',
+                text: "ท่านต้องเข้าสู่ระบบก่อนใช้งานระบบจอง",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'เข้าสู่ระบบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                     window.location.href = BASE_URL + 'LoginOfficerGeneral?return_to=' + encodeURIComponent(window.location.href);
+                }
+            });
+            return;
+        }
+
         // Find bookings for this day (Safer Date Parsing)
         const [cy, cm, cd] = dateStr.split('-').map(Number);
         const clickDate = new Date(cy, cm - 1, cd);

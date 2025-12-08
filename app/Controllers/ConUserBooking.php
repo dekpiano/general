@@ -233,8 +233,10 @@ class ConUserBooking extends BaseController
             'skjacth_personnel.tb_personnel.pers_prefix,
             skjacth_personnel.tb_personnel.pers_firstname,
             skjacth_personnel.tb_personnel.pers_lastname,
+            skjacth_personnel.tb_personnel.pers_username,
             tb_location.location_name,
             tb_booking.booking_title,
+            tb_booking.booking_order,
             tb_booking.booking_dateStart,
             tb_booking.booking_dateEnd,
             tb_booking.booking_typeuse'
@@ -267,6 +269,31 @@ class ConUserBooking extends BaseController
 
                 if (!$isLocalhost) {
                     $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
+                
+                    // Send Email to Booker
+                    $email = \Config\Services::email(); 
+                    $email->setFrom($_SESSION['email'], "ระบบจองอาคารสถานที่ SKJ");
+                    $email->setTo($Booking['pers_username']);
+                    $email->setSubject("แจ้งการขอใช้อาคารสถานที่: รอการตรวจสอบ");
+                    
+                    $html = "
+                    <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px;'>
+                        <h2 style='color: #ffab00;'>⏳ ได้รับคำขอใช้อาคารสถานที่แล้ว</h2>
+                        <p>เรียน {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}</p>
+                        <p>ระบบได้รับคำขอของท่านแล้ว อยู่ระหว่างรอการตรวจสอบจากเจ้าหน้าที่</p>
+                        <hr>
+                        <p><strong>รายละเอียด:</strong></p>
+                        <ul>
+                            <li><strong>เลขที่:</strong> {$Booking['booking_order']}</li>
+                            <li><strong>สถานที่:</strong> {$Booking['location_name']}</li>
+                            <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}</li>
+                            <li><strong>วัตถุประสงค์:</strong> {$Booking['booking_title']}</li>
+                        </ul>
+                        <p><a href='".base_url("Booking/View/All")."'>ตรวจสอบสถานะการจอง</a></p>
+                    </div>";
+                    
+                    $email->setMessage($html);
+                    $email->send();
                 
                 
                 // Send Email to Booker (if email exists in personnel table, need to join or fetch)
@@ -1001,7 +1028,55 @@ class ConUserBooking extends BaseController
             $NoApprove = ['booking_admin_approve'=>'ไม่อนุมัติ','booking_admin_reason'=>$this->request->getPost('booking_admin_reason'),'booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
         //}
 
-        echo $DBbooking->where('booking_id',$this->request->getPost('BookingID'))->update($NoApprove);
+        if($DBbooking->where('booking_id',$this->request->getPost('BookingID'))->update($NoApprove)){
+            
+            // Fetch for Email
+            $Booking = $DBbooking->select('
+                tb_booking.booking_order,
+                tb_booking.booking_title,
+                tb_booking.booking_dateStart,
+                tb_booking.booking_dateEnd,
+                skjacth_personnel.tb_personnel.pers_prefix,
+                skjacth_personnel.tb_personnel.pers_firstname,
+                skjacth_personnel.tb_personnel.pers_lastname,
+                skjacth_personnel.tb_personnel.pers_username,
+                tb_location.location_name
+             ')
+             ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
+             ->join('skjacth_personnel.tb_personnel',"tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
+             ->where('booking_id',$this->request->getPost('BookingID'))
+             ->get()->getRowArray();
+
+             $isLocalhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']);
+             if($Booking && !$isLocalhost){
+                  // Send Email
+                  $email = \Config\Services::email();
+                  $email->setFrom($_SESSION['email'], "ระบบจองอาคารสถานที่ SKJ");
+                  $email->setTo($Booking['pers_username']);
+                  $email->setSubject("ผลการขอใช้อาคารสถานที่: ไม่อนุมัติ");
+                  
+                  $html = "
+                    <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px; border-top: 5px solid #ff3e1d;'>
+                        <h2 style='color: #ff3e1d;'>❌ คำขอใช้สถานที่ของท่านไม่ผ่านการอนุมัติ</h2>
+                        <p>เรียน {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}</p>
+                        <p>รายการขอใช้อาคารสถานที่ของท่านไม่ได้รับการอนุมัติ</p>
+                         <hr>
+                        <p><strong>รายละเอียด:</strong></p>
+                        <ul>
+                            <li><strong>เลขที่:</strong> {$Booking['booking_order']}</li>
+                            <li><strong>สถานที่:</strong> {$Booking['location_name']}</li>
+                            <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}</li>
+                        </ul>
+                        <p>กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม</p>
+                    </div>";
+
+                  $email->setMessage($html);
+                  $email->send();
+             }
+             echo 1;
+        } else {
+            echo 0;
+        }
     }
 
     public function BookingRequestform($IDBooking){
