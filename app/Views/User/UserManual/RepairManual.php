@@ -119,10 +119,39 @@
                                 </div>
                             </div>
                             <div class="col-md-6 order-md-2">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bx-list-ul display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: รายการแจ้งซ่อม</p>
+                                <!-- Mockup: Repair List -->
+                                <div class="mockup-container bg-light rounded-3 p-4 border border-dashed">
+                                    <div class="card shadow-sm mx-auto" style="max-width: 350px; transform: rotate(-1deg);">
+                                        <div class="card-header bg-white border-bottom py-2 px-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="bg-secondary opacity-10 rounded-pill" style="width: 80px; height: 10px;"></div>
+                                                <div class="bg-warning rounded-circle" style="width: 20px; height: 20px;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <!-- List Item 1 -->
+                                            <div class="p-3 border-bottom d-flex align-items-center">
+                                                <div class="bg-light rounded p-2 text-center" style="width: 40px;">
+                                                    <i class="bx bx-wrench text-muted"></i>
+                                                </div>
+                                                <div class="ms-3 flex-grow-1">
+                                                    <div class="bg-secondary opacity-25 rounded-pill mb-1" style="width: 120px; height: 8px;"></div>
+                                                    <div class="bg-secondary opacity-10 rounded-pill" style="width: 80px; height: 6px;"></div>
+                                                </div>
+                                                <div class="badge bg-label-warning text-xs">รอรับงาน</div>
+                                            </div>
+                                            <!-- List Item 2 -->
+                                            <div class="p-3 d-flex align-items-center">
+                                                <div class="bg-light rounded p-2 text-center" style="width: 40px;">
+                                                    <i class="bx bx-check text-success"></i>
+                                                </div>
+                                                <div class="ms-3 flex-grow-1">
+                                                    <div class="bg-secondary opacity-25 rounded-pill mb-1" style="width: 100px; height: 8px;"></div>
+                                                    <div class="bg-secondary opacity-10 rounded-pill" style="width: 60px; height: 6px;"></div>
+                                                </div>
+                                                <div class="badge bg-label-success text-xs">เสร็จสิ้น</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -149,10 +178,32 @@
                                 </div>
                             </div>
                             <div class="col-md-6 order-md-1">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bx-edit display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: ฟอร์มแจ้งซ่อม</p>
+                                <!-- Mockup: Repair Form with Image Upload -->
+                                <div class="mockup-container bg-light rounded-3 p-4 border border-dashed">
+                                    <div class="card shadow-sm mx-auto" style="max-width: 320px; transform: rotate(1deg);">
+                                        <div class="card-body p-3">
+                                            <div class="mb-3">
+                                                <div class="border rounded p-2 bg-white">
+                                                    <div class="text-muted small" style="font-size: 8px;">สถานที่ (ห้อง/อาคาร)</div>
+                                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                                        <div class="bg-secondary opacity-10 rounded-pill" style="width: 60%; height: 8px;"></div>
+                                                        <i class="bx bx-chevron-down text-muted" style="font-size: 10px;"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="border rounded p-2 bg-white">
+                                                    <div class="text-muted small" style="font-size: 8px;">รายละเอียดปัญหา</div>
+                                                    <div class="bg-secondary opacity-10 rounded-pill mt-1 mb-1" style="width: 90%; height: 6px;"></div>
+                                                    <div class="bg-secondary opacity-10 rounded-pill" style="width: 40%; height: 6px;"></div>
+                                                </div>
+                                            </div>
+                                            <!-- Image Upload Area -->
+                                            <div class="border-2 border-dashed border-warning rounded p-3 text-center bg-warning bg-opacity-10">
+                                                <i class="bx bx-image-add text-warning fs-4 mb-1"></i>
+                                                <div class="text-warning small fw-bold" style="font-size: 9px;">คลิกเพื่ออัปโหลดรูปภาพ</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -175,10 +226,23 @@
                                 </div>
                             </div>
                             <div class="col-md-6 order-md-2">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bx-wrench display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: การอัปเดตสถานะ</p>
+                                <!-- Mockup: Status Update -->
+                                <div class="mockup-container bg-light rounded-3 p-4 border border-dashed text-center">
+                                    <div class="card shadow-sm mx-auto" style="max-width: 300px;">
+                                        <div class="card-body p-3 text-start">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="bg-warning text-white rounded p-1"><i class="bx bx-loader-circle"></i></div>
+                                                <div class="ms-2 small fw-bold">สถานะ: กำลังดำเนินการ</div>
+                                            </div>
+                                            <div class="progress mb-3" style="height: 6px;">
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 60%"></div>
+                                            </div>
+                                            <hr class="my-2 border-dashed">
+                                            <div class="d-flex mt-3 opacity-50">
+                                                <div class="bg-success text-white rounded p-1"><i class="bx bx-check"></i></div>
+                                                <div class="ms-2 small fw-bold">สถานะ: ซ่อมสำเร็จ</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

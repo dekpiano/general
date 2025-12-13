@@ -25,14 +25,20 @@ class ConAdminHome extends BaseController
         $data = $this->DataMain();
         $data['title']="หน้าแรก";
         $database = \Config\Database::connect();
-                $builder = $database->table('tb_location');
+        
+        $builder = $database->table('tb_location');
         $data['LocationRoomAll'] = $builder->countAll();
 
-                        $builder = $database->table('tb_school_car');
+        $builder = $database->table('tb_school_car');
         $data['CarAll'] = $builder->countAll();
 
         $builder = $database->table('tb_car_driver');
         $data['DriverAll'] = $builder->countAll();
+
+        // นับจำนวนรายการรออนุมัติ
+        $builder = $database->table('tb_booking');
+        $data['PendingBooking'] = $builder->where('booking_admin_approve', 'รออนุมัติ')->countAllResults();
+
         return view('Admin/AdminHome/AdminPageHome', $data);
     }
 

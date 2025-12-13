@@ -1,0 +1,279 @@
+INFO - 2025-12-13 13:23:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:23:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:24:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:24:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-12-13 13:24:34 --> mysqli_sql_exception: In aggregated query without GROUP BY, expression #1 of SELECT list contains nonaggregated column 'skjacth_general.tb_admin_rloes.admin_rloes_status'; this is incompatible with sql_mode=only_full_group_by in /var/www/html/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:295
+Stack trace:
+#0 /var/www/html/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(295): mysqli->query('SELECT `admin_r...', 0)
+#1 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `admin_r...')
+#2 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `admin_r...')
+#3 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `admin_r...', Array, false)
+#4 /var/www/html/app/Controllers/ConLogin.php(78): CodeIgniter\Database\BaseBuilder->get()
+#5 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(934): App\Controllers\ConLogin->LoginOfficerGeneral()
+#6 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConLogin))
+#7 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 /var/www/html/index.php(67): CodeIgniter\CodeIgniter->run()
+#9 {main}
+CRITICAL - 2025-12-13 13:24:34 --> In aggregated query without GROUP BY, expression #1 of SELECT list contains nonaggregated column 'skjacth_general.tb_admin_rloes.admin_rloes_status'; this is incompatible with sql_mode=only_full_group_by
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 295.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(295): mysqli->query('SELECT `admin_rloes_status`, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll
+FROM `tb_admin_rloes`
+WHERE `admin_rloes_userid` = \'pers_021\'', 0)
+ 2 SYSTEMPATH/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `admin_rloes_status`, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll
+FROM `tb_admin_rloes`
+WHERE `admin_rloes_userid` = \'pers_021\'')
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `admin_rloes_status`, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll
+FROM `tb_admin_rloes`
+WHERE `admin_rloes_userid` = \'pers_021\'')
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `admin_rloes_status`, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll
+FROM `tb_admin_rloes`
+WHERE `admin_rloes_userid` = :admin_rloes_userid:', [...], false)
+ 5 APPPATH/Controllers/ConLogin.php(78): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConLogin->LoginOfficerGeneral()
+ 7 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConLogin))
+ 8 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-12-13 13:27:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:27:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-12-13 13:27:19 --> mysqli_sql_exception: Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'skjacth_general.tb_admin_rloes.admin_rloes_status' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by in /var/www/html/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:295
+Stack trace:
+#0 /var/www/html/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(295): mysqli->query('SELECT `admin_r...', 0)
+#1 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `admin_r...')
+#2 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `admin_r...')
+#3 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `admin_r...', Array, false)
+#4 /var/www/html/app/Controllers/ConLogin.php(78): CodeIgniter\Database\BaseBuilder->get()
+#5 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(934): App\Controllers\ConLogin->LoginOfficerGeneral()
+#6 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConLogin))
+#7 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 /var/www/html/index.php(67): CodeIgniter\CodeIgniter->run()
+#9 {main}
+CRITICAL - 2025-12-13 13:27:19 --> Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'skjacth_general.tb_admin_rloes.admin_rloes_status' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 295.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(295): mysqli->query('SELECT `admin_rloes_status`, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll
+FROM `tb_admin_rloes`
+WHERE `admin_rloes_userid` = \'pers_021\'
+GROUP BY `admin_rloes_userid`', 0)
+ 2 SYSTEMPATH/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `admin_rloes_status`, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll
+FROM `tb_admin_rloes`
+WHERE `admin_rloes_userid` = \'pers_021\'
+GROUP BY `admin_rloes_userid`')
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `admin_rloes_status`, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll
+FROM `tb_admin_rloes`
+WHERE `admin_rloes_userid` = \'pers_021\'
+GROUP BY `admin_rloes_userid`')
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `admin_rloes_status`, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll
+FROM `tb_admin_rloes`
+WHERE `admin_rloes_userid` = :admin_rloes_userid:
+GROUP BY `admin_rloes_userid`', [...], false)
+ 5 APPPATH/Controllers/ConLogin.php(78): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConLogin->LoginOfficerGeneral()
+ 7 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConLogin))
+ 8 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-12-13 13:28:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:28:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:28:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:29:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:30:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:30:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:30:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:33:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:33:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:33:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-12-13 13:33:44 --> mysqli_sql_exception: Unknown column 'booking_imgWork' in 'field list' in /var/www/html/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:295
+Stack trace:
+#0 /var/www/html/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(295): mysqli->query('SELECT `booking...', 0)
+#1 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `booking...')
+#2 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `booking...')
+#3 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `booking...', Array, false)
+#4 /var/www/html/app/Controllers/ConUserBooking.php(824): CodeIgniter\Database\BaseBuilder->get()
+#5 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingDataTableApproveAdmin()
+#6 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+#7 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 /var/www/html/index.php(67): CodeIgniter\CodeIgniter->run()
+#9 {main}
+CRITICAL - 2025-12-13 13:33:44 --> Unknown column 'booking_imgWork' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 295.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(295): mysqli->query('SELECT `booking_id`, `booking_order`, `booking_telephone`, `booking_Booker`, `booking_locationroom`, `booking_title`, `booking_dateStart`, `booking_dateEnd`, `booking_timeStart`, `booking_timeEnd`, `booking_admin_approve`, `booking_admin_reason`, `booking_executive_approve`, `location_name`, `booking_imgWork`, CONCAT(p1.pers_prefix, `p1`.`pers_firstname`, " ", p1.pers_lastname) AS booker_name, CONCAT(p2.pers_prefix, `p2`.`pers_firstname`, " ", p2.pers_lastname) AS admin_name, CONCAT(p3.pers_prefix, `p3`.`pers_firstname`, " ", p3.pers_lastname) AS executive_name
+FROM `tb_booking`
+JOIN `tb_location` ON `tb_booking`.`booking_locationroom` = `tb_location`.`location_ID`
+JOIN `skjacth_personnel`.`tb_personnel` AS `p1` ON `tb_booking`.`booking_Booker` = `p1`.`pers_id`
+LEFT JOIN `skjacth_personnel`.`tb_personnel` AS `p2` ON `tb_booking`.`booking_admin_check` = `p2`.`pers_id`
+LEFT JOIN `skjacth_personnel`.`tb_personnel` AS `p3` ON `tb_booking`.`booking_executive_approve` = `p3`.`pers_id`', 0)
+ 2 SYSTEMPATH/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `booking_id`, `booking_order`, `booking_telephone`, `booking_Booker`, `booking_locationroom`, `booking_title`, `booking_dateStart`, `booking_dateEnd`, `booking_timeStart`, `booking_timeEnd`, `booking_admin_approve`, `booking_admin_reason`, `booking_executive_approve`, `location_name`, `booking_imgWork`, CONCAT(p1.pers_prefix, `p1`.`pers_firstname`, " ", p1.pers_lastname) AS booker_name, CONCAT(p2.pers_prefix, `p2`.`pers_firstname`, " ", p2.pers_lastname) AS admin_name, CONCAT(p3.pers_prefix, `p3`.`pers_firstname`, " ", p3.pers_lastname) AS executive_name
+FROM `tb_booking`
+JOIN `tb_location` ON `tb_booking`.`booking_locationroom` = `tb_location`.`location_ID`
+JOIN `skjacth_personnel`.`tb_personnel` AS `p1` ON `tb_booking`.`booking_Booker` = `p1`.`pers_id`
+LEFT JOIN `skjacth_personnel`.`tb_personnel` AS `p2` ON `tb_booking`.`booking_admin_check` = `p2`.`pers_id`
+LEFT JOIN `skjacth_personnel`.`tb_personnel` AS `p3` ON `tb_booking`.`booking_executive_approve` = `p3`.`pers_id`')
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `booking_id`, `booking_order`, `booking_telephone`, `booking_Booker`, `booking_locationroom`, `booking_title`, `booking_dateStart`, `booking_dateEnd`, `booking_timeStart`, `booking_timeEnd`, `booking_admin_approve`, `booking_admin_reason`, `booking_executive_approve`, `location_name`, `booking_imgWork`, CONCAT(p1.pers_prefix, `p1`.`pers_firstname`, " ", p1.pers_lastname) AS booker_name, CONCAT(p2.pers_prefix, `p2`.`pers_firstname`, " ", p2.pers_lastname) AS admin_name, CONCAT(p3.pers_prefix, `p3`.`pers_firstname`, " ", p3.pers_lastname) AS executive_name
+FROM `tb_booking`
+JOIN `tb_location` ON `tb_booking`.`booking_locationroom` = `tb_location`.`location_ID`
+JOIN `skjacth_personnel`.`tb_personnel` AS `p1` ON `tb_booking`.`booking_Booker` = `p1`.`pers_id`
+LEFT JOIN `skjacth_personnel`.`tb_personnel` AS `p2` ON `tb_booking`.`booking_admin_check` = `p2`.`pers_id`
+LEFT JOIN `skjacth_personnel`.`tb_personnel` AS `p3` ON `tb_booking`.`booking_executive_approve` = `p3`.`pers_id`')
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `booking_id`, `booking_order`, `booking_telephone`, `booking_Booker`, `booking_locationroom`, `booking_title`, `booking_dateStart`, `booking_dateEnd`, `booking_timeStart`, `booking_timeEnd`, `booking_admin_approve`, `booking_admin_reason`, `booking_executive_approve`, `location_name`, `booking_imgWork`, CONCAT(p1.pers_prefix, `p1`.`pers_firstname`, " ", p1.pers_lastname) AS booker_name, CONCAT(p2.pers_prefix, `p2`.`pers_firstname`, " ", p2.pers_lastname) AS admin_name, CONCAT(p3.pers_prefix, `p3`.`pers_firstname`, " ", p3.pers_lastname) AS executive_name
+FROM `tb_booking`
+JOIN `tb_location` ON `tb_booking`.`booking_locationroom` = `tb_location`.`location_ID`
+JOIN `skjacth_personnel`.`tb_personnel` AS `p1` ON `tb_booking`.`booking_Booker` = `p1`.`pers_id`
+LEFT JOIN `skjacth_personnel`.`tb_personnel` AS `p2` ON `tb_booking`.`booking_admin_check` = `p2`.`pers_id`
+LEFT JOIN `skjacth_personnel`.`tb_personnel` AS `p3` ON `tb_booking`.`booking_executive_approve` = `p3`.`pers_id`', [], false)
+ 5 APPPATH/Controllers/ConUserBooking.php(824): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConUserBooking->BookingDataTableApproveAdmin()
+ 7 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserBooking))
+ 8 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-12-13 13:33:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:34:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-12-13 13:34:15 --> file_get_contents(https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json): Failed to open stream: HTTP request failed! HTTP/1.1 404 Not Found
+
+in APPPATH/Controllers/ConAdminCar.php on line 34.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(2, 'file_get_contents(https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json): Failed to open stream: HTTP request failed! HTTP/1.1 404 Not Found
+', '/var/www/html/app/Controllers/ConAdminCar.php', 34)
+ 2 APPPATH/Controllers/ConAdminCar.php(34): file_get_contents('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json')
+ 3 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConAdminCar->CarMain()
+ 4 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConAdminCar))
+ 5 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-12-13 13:34:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:34:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:34:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-12-13 13:34:45 --> file_get_contents(https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json): Failed to open stream: HTTP request failed! HTTP/1.1 404 Not Found
+
+in APPPATH/Controllers/ConAdminCar.php on line 34.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(2, 'file_get_contents(https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json): Failed to open stream: HTTP request failed! HTTP/1.1 404 Not Found
+', '/var/www/html/app/Controllers/ConAdminCar.php', 34)
+ 2 APPPATH/Controllers/ConAdminCar.php(34): file_get_contents('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json')
+ 3 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConAdminCar->CarMain()
+ 4 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConAdminCar))
+ 5 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-12-13 13:36:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:36:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:37:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-12-13 13:37:13 --> Undefined variable $response
+in APPPATH/Controllers/ConAdminCar.php on line 110.
+ 1 APPPATH/Controllers/ConAdminCar.php(110): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $response', '/var/www/html/app/Controllers/ConAdminCar.php', 110)
+ 2 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConAdminCar->CarInsert()
+ 3 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConAdminCar))
+ 4 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-12-13 13:40:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:41:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:41:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:41:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:41:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:42:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:43:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:46:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:46:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:47:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:47:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:49:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:49:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:50:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:50:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:50:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:50:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:50:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:50:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:51:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:51:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:51:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:51:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:52:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:52:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:55:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:55:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:55:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:55:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:55:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:55:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:59:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 13:59:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:00:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:01:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-12-13 14:01:25 --> unlink(./uploads/admin/LocationRoom/1699252727_b0c776717fa5ba053163.jpeg): No such file or directory
+in APPPATH/Controllers/ConAdminLocationRoom.php on line 108.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(2, 'unlink(./uploads/admin/LocationRoom/1699252727_b0c776717fa5ba053163.jpeg): No such file or directory', '/var/www/html/app/Controllers/ConAdminLocationRoom.php', 108)
+ 2 APPPATH/Controllers/ConAdminLocationRoom.php(108): unlink('./uploads/admin/LocationRoom/1699252727_b0c776717fa5ba053163.jpeg')
+ 3 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConAdminLocationRoom->LocationRoomDelete()
+ 4 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConAdminLocationRoom))
+ 5 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-12-13 14:01:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:01:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:03:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:03:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:03:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:03:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:07:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:07:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:07:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:07:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:08:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:09:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:09:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-12-13 14:09:39 --> mysqli_sql_exception: Unknown column 'admin_rloes_level' in 'field list' in /var/www/html/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:295
+Stack trace:
+#0 /var/www/html/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(295): mysqli->query('SELECT `admin_r...', 0)
+#1 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `admin_r...')
+#2 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `admin_r...')
+#3 /var/www/html/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `admin_r...', Array, false)
+#4 /var/www/html/app/Controllers/ConAdminRoles.php(34): CodeIgniter\Database\BaseBuilder->get()
+#5 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(934): App\Controllers\ConAdminRoles->index()
+#6 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConAdminRoles))
+#7 /var/www/html/vendor/codeigniter4/framework/system/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 /var/www/html/index.php(67): CodeIgniter\CodeIgniter->run()
+#9 {main}
+CRITICAL - 2025-12-13 14:09:39 --> Unknown column 'admin_rloes_level' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 295.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(295): mysqli->query('SELECT `admin_rloes_userid`, `admin_rloes_id`, `admin_rloes_nanetype`, `admin_rloes_level`, `admin_rloes_status`
+FROM `tb_admin_rloes`
+ORDER BY `admin_rloes_level` ASC', 0)
+ 2 SYSTEMPATH/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `admin_rloes_userid`, `admin_rloes_id`, `admin_rloes_nanetype`, `admin_rloes_level`, `admin_rloes_status`
+FROM `tb_admin_rloes`
+ORDER BY `admin_rloes_level` ASC')
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `admin_rloes_userid`, `admin_rloes_id`, `admin_rloes_nanetype`, `admin_rloes_level`, `admin_rloes_status`
+FROM `tb_admin_rloes`
+ORDER BY `admin_rloes_level` ASC')
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `admin_rloes_userid`, `admin_rloes_id`, `admin_rloes_nanetype`, `admin_rloes_level`, `admin_rloes_status`
+FROM `tb_admin_rloes`
+ORDER BY `admin_rloes_level` ASC', [], false)
+ 5 APPPATH/Controllers/ConAdminRoles.php(34): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConAdminRoles->index()
+ 7 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConAdminRoles))
+ 8 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2025-12-13 14:11:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:14:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:15:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:15:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:15:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:15:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:17:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:17:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:17:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:18:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:18:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:18:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:18:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:19:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:27:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-12-13 14:27:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

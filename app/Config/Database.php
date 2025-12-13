@@ -26,9 +26,9 @@ class Database extends Config
      */
     public $default = [
         'DSN'      => '',
-        'hostname' => 'localhost',
+        'hostname' => 'db',
         'username' => 'root',
-        'password' => '',
+        'password' => 'rootpassword',
         'database' => 'skjacth_general',
         'DBDriver' => 'MySQLi',
         'DBPrefix' => '',
@@ -46,9 +46,9 @@ class Database extends Config
 
     public $personnel = [
         'DSN'      => '',
-        'hostname' => 'localhost',
+        'hostname' => 'db',
         'username' => 'root',
-        'password' => '',
+        'password' => 'rootpassword',
         'database' => 'skjacth_personnel',
         'DBDriver' => 'MySQLi',
         'DBPrefix' => '',
@@ -66,9 +66,9 @@ class Database extends Config
 
     public $skj = [
         'DSN'      => '',
-        'hostname' => 'localhost',
+        'hostname' => 'db',
         'username' => 'root',
-        'password' => '',
+        'password' => 'rootpassword',
         'database' => 'skjacth_skj',
         'DBDriver' => 'MySQLi',
         'DBPrefix' => '',

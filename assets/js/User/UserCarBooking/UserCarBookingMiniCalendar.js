@@ -155,25 +155,6 @@ class MiniCalendar {
     }
 
     onDayClick(dateStr) {
-        // Check Login first
-        if (!CURRENT_USER_ID || CURRENT_USER_ID === '') {
-             Swal.fire({
-                title: 'กรุณาเข้าสู่ระบบ',
-                text: "ท่านต้องเข้าสู่ระบบก่อนใช้งานระบบจอง",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'เข้าสู่ระบบ',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                     window.location.href = BASE_URL + 'LoginOfficerGeneral?return_to=' + encodeURIComponent(window.location.href);
-                }
-            });
-            return;
-        }
-
         // Find bookings for this day (Safer Date Parsing)
         const [cy, cm, cd] = dateStr.split('-').map(Number);
         const clickDate = new Date(cy, cm - 1, cd);
@@ -274,13 +255,39 @@ class MiniCalendar {
                 cancelButtonColor: '#8592a3'
             }).then((result) => {
                 if (result.isConfirmed) {
-                     window.location.href = `${BASE_URL}CarBooking/Add/${this.locationId}?date=${dateStr}`;
+                     // Check Login first before redirecting to Add
+                     if (!CURRENT_USER_ID || CURRENT_USER_ID === '') {
+                        this.showLoginPrompt();
+                     } else {
+                        window.location.href = `${BASE_URL}CarBooking/Add/${this.locationId}?date=${dateStr}`;
+                     }
                 }
             });
         } else {
-            // No bookings, go to booking form
-            window.location.href = `${BASE_URL}CarBooking/Add/${this.locationId}?date=${dateStr}`;
+            // No bookings, go to booking form (Check Login First)
+            if (!CURRENT_USER_ID || CURRENT_USER_ID === '') {
+                this.showLoginPrompt();
+            } else {
+                window.location.href = `${BASE_URL}CarBooking/Add/${this.locationId}?date=${dateStr}`;
+            }
         }
+    }
+
+    showLoginPrompt() {
+         Swal.fire({
+            title: 'กรุณาเข้าสู่ระบบ',
+            text: "ท่านต้องเข้าสู่ระบบก่อนใช้งานระบบจอง",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'เข้าสู่ระบบ',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                 window.location.href = BASE_URL + 'LoginOfficerGeneral?return_to=' + encodeURIComponent(window.location.href);
+            }
+        });
     }
 
     formatThaiDate(dateStr) {

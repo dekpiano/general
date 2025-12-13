@@ -84,6 +84,7 @@ class ConAdminLocationRoom extends BaseController
                "location_detail"=>$row->location_detail,
                "location_number"=>$row->location_number,
                "location_seats"=>$row->location_seats,
+               "location_category"=>$row->location_category ?? '',
                "location_img"=>$row->location_img
             );
          }

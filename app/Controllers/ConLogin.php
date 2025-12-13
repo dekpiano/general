@@ -11,8 +11,7 @@ class ConLogin extends BaseController
     private $GoogleButton = "";
     private $ReturnUrl = "";
     function __construct(){
-        $path = (dirname(dirname(dirname(dirname((dirname(__FILE__)))))));
-		require $path . '/librarie_skj/google_sheet/vendor/autoload.php';
+        require SHARED_LIB_PATH . '/google_sheet/vendor/autoload.php';
 
         $redirect_uri = base_url('LoginOfficerGeneral');
         
@@ -76,7 +75,7 @@ class ConLogin extends BaseController
                         $DBPers->where('pers_username', $data['email'])->update($UserData);
 
                             $User = $DBPers->where('pers_username', $data['email'])->get()->getRowArray();
-                            $User2 = $DBrloes->select('admin_rloes_status,GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll')->where('admin_rloes_userid', $User['pers_id'])->get()->getRowArray();
+                            $User2 = $DBrloes->select('MAX(admin_rloes_status) AS admin_rloes_status, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll')->where('admin_rloes_userid', $User['pers_id'])->groupBy('admin_rloes_userid')->get()->getRowArray();
                            //print_r($User2); exit();
                             $newdata = [
                                 'username'  => $User['pers_prefix'].$User['pers_firstname'].' '.$User['pers_lastname'],
@@ -100,9 +99,6 @@ class ConLogin extends BaseController
                                 return redirect()->to($redirectUrl);
                             // }
                            
-                        
-                        
-                        
                 }            
 
                 }else{

@@ -33,41 +33,474 @@ $orderedGroupedDepartments = [];
 foreach ($departmentOrder as $dept) {
     if (isset($groupedDepartments[$dept])) {
         $orderedGroupedDepartments[$dept] = $groupedDepartments[$dept];
-        unset($groupedDepartments[$dept]); // Remove from original to handle leftovers
+        unset($groupedDepartments[$dept]);
     }
 }
 
-// Add any remaining departments that were not in the predefined order
-// and sort them by key to ensure a consistent order
 ksort($groupedDepartments);
 foreach ($groupedDepartments as $dept => $roles) {
     $orderedGroupedDepartments[$dept] = $roles;
 }
 
+// Department Icons
+$departmentIcons = [
+    'งานอาคารสถานที่' => 'bxs-building-house',
+    'งานธุรการ' => 'bxs-briefcase',
+    'งานยานพาหนะ' => 'bxs-car',
+    'งานแจ้งซ่อม' => 'bxs-wrench',
+    'งานบุคลากร' => 'bxs-user-badge'
+];
+
+// Department Colors
+$departmentColors = [
+    'งานอาคารสถานที่' => '#696cff',
+    'งานธุรการ' => '#71dd37',
+    'งานยานพาหนะ' => '#ffab00',
+    'งานแจ้งซ่อม' => '#ff3e1d',
+    'งานบุคลากร' => '#03c3ec'
+];
 ?>
 
+<style>
+/* Page Header */
+.page-header {
+    background: linear-gradient(135deg, #8c6eff 0%, #696cff 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: 10%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+}
+
+.page-header h4 {
+    color: #fff;
+    margin: 0;
+    font-weight: 600;
+}
+
+.page-header .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0.5rem 0 0;
+}
+
+.page-header .breadcrumb-item,
+.page-header .breadcrumb-item a {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.875rem;
+}
+
+.page-header .breadcrumb-item.active {
+    color: #fff;
+}
+
+/* Stats Cards */
+.stats-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.stats-card .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Executive Card */
+.executive-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.executive-card .card-header {
+    background: linear-gradient(135deg, #8c6eff 0%, #696cff 100%);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+
+.executive-card .card-header h5 {
+    margin: 0;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Role Item */
+.role-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid #696cff;
+}
+
+.role-item:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transform: translateX(5px);
+}
+
+.role-item .role-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #8592a3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.role-item .role-label i {
+    margin-right: 0.25rem;
+}
+
+/* Department Section */
+.department-section {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.department-section:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.department-header {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.department-header .dept-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.department-header .dept-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.department-header .dept-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #566a7f;
+    margin: 0;
+}
+
+.department-header .dept-count {
+    font-size: 0.8rem;
+    color: #8592a3;
+}
+
+.department-body {
+    padding: 1.25rem 1.5rem;
+}
+
+/* Staff Card */
+.staff-card {
+    background: linear-gradient(135deg, #fafbfc 0%, #fff 100%);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #f0f2f5;
+    transition: all 0.3s ease;
+}
+
+.staff-card:hover {
+    border-color: #696cff;
+    box-shadow: 0 4px 15px rgba(105, 108, 255, 0.15);
+}
+
+.staff-card .position-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #8592a3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.staff-card .position-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.staff-card .position-badge.head { background: rgba(255, 171, 0, 0.16); color: #ffab00; }
+.staff-card .position-badge.staff { background: rgba(105, 108, 255, 0.16); color: #696cff; }
+
+/* Modal Improvements */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #8c6eff 0%, #696cff 100%);
+    color: #fff;
+    border-radius: 16px 16px 0 0;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-header .modal-title {
+    font-weight: 600;
+    color: #fff;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.form-floating-custom {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.form-floating-custom label {
+    font-weight: 500;
+    color: #566a7f;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Add Department Card */
+.add-dept-card {
+    border: 2px dashed #d9dee3;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafbfc;
+}
+
+.add-dept-card:hover {
+    border-color: #696cff;
+    background: rgba(105, 108, 255, 0.05);
+}
+
+.add-dept-card .add-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(105, 108, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.75rem;
+    color: #696cff;
+    transition: all 0.3s ease;
+}
+
+.add-dept-card:hover .add-icon {
+    background: #696cff;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* Select2 Styling */
+.select2-container--default .select2-selection--single {
+    border-radius: 8px !important;
+    border: 1px solid #d9dee3 !important;
+    height: auto !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.select2-container--default .select2-selection--single:focus {
+    border-color: #696cff !important;
+}
+
+.select2-dropdown {
+    border-radius: 8px !important;
+    border: 1px solid #d9dee3 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Loading Skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #f0f2f5 25%, #e4e7eb 50%, #f0f2f5 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 1.5rem;
+    }
+    
+    .department-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .department-header .dept-info {
+        flex-direction: column;
+    }
+}
+</style>
+
 <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="d-flex justify-content-between align-items-center py-3 mb-4">
-        <h4 class="mb-0">
-            <span class="text-muted fw-light"></span> กำหนดสิทธิ์ใช้งานในระบบบริหารทั่วไป
-        </h4>
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
-            <i class="bx bx-buildings me-sm-1"></i> เพิ่มงาน
-        </button>
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4><i class='bx bxs-shield-alt-2 me-2'></i> กำหนดสิทธิ์การใช้งานระบบ</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="<?=base_url('Admin/Home')?>">หน้าแรก</a></li>
+                        <li class="breadcrumb-item active">กำหนดสิทธิ์</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <button class="btn btn-light" type="button" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                    <i class='bx bx-buildings me-1'></i> เพิ่มงานใหม่
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Executive Section (No Add/Delete functionality) -->
-    <div class="card">
-        <div class="card-header">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
+            <div class="stats-card">
+                <div class="d-flex align-items-center">
+                    <div class="icon me-3" style="background: rgba(105, 108, 255, 0.16); color: #696cff;">
+                        <i class='bx bxs-user-badge'></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold"><?=count($Manager)?></h4>
+                        <small class="text-muted">ตำแหน่งทั้งหมด</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
+            <div class="stats-card">
+                <div class="d-flex align-items-center">
+                    <div class="icon me-3" style="background: rgba(140, 110, 255, 0.16); color: #8c6eff;">
+                        <i class='bx bxs-crown'></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold"><?=count($executiveRoles)?></h4>
+                        <small class="text-muted">ผู้บริหาร</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
+            <div class="stats-card">
+                <div class="d-flex align-items-center">
+                    <div class="icon me-3" style="background: rgba(113, 221, 55, 0.16); color: #71dd37;">
+                        <i class='bx bxs-buildings'></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold"><?=count($orderedGroupedDepartments)?></h4>
+                        <small class="text-muted">งาน/แผนก</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="stats-card">
+                <div class="d-flex align-items-center">
+                    <div class="icon me-3" style="background: rgba(3, 195, 236, 0.16); color: #03c3ec;">
+                        <i class='bx bxs-user-check'></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold"><?=count($departmentRoles)?></h4>
+                        <small class="text-muted">เจ้าหน้าที่</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Section -->
+    <div class="executive-card">
+        <div class="card-header d-flex align-items-center">
+            <i class='bx bxs-crown me-2' style="font-size: 1.5rem;"></i>
             <h5>ผู้บริหาร</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="row">
                 <?php foreach ($executiveRoles as $v_Manager) : ?>
-                    <div class="col-md-4">
-                        <label for=""><?= htmlspecialchars($v_Manager->admin_rloes_nanetype) ?></label>
-                        <div class="mt-3">
-                            <select class="select2Rloes form-select form-select-lg SettingGeneralRloes"
+                    <div class="col-md-4 mb-3">
+                        <div class="role-item">
+                            <div class="role-label">
+                                <i class='bx bxs-star'></i>
+                                <?= htmlspecialchars($v_Manager->admin_rloes_nanetype) ?>
+                            </div>
+                            <select class="select2Rloes form-select SettingGeneralRloes"
                                 rloes-id="<?=$v_Manager->admin_rloes_id;?>"
                                 rloes-level="<?=$v_Manager->admin_rloes_level;?>"
                                 Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
@@ -86,29 +519,45 @@ foreach ($groupedDepartments as $dept => $roles) {
         </div>
     </div>
 
-    <!-- Dynamic Department Sections (With Add/Delete functionality) -->
-    <?php foreach ($orderedGroupedDepartments as $department => $roles) : ?>
-    <div class="card mt-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5><?= htmlspecialchars($department) ?></h5>
-            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRoleModal" data-role-group="<?= htmlspecialchars($department) ?>">
-                <i class="bx bx-plus me-sm-1"></i> เพิ่มเจ้าหน้าที่
-            </button>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <?php foreach ($roles as $v_Manager) : ?>
-                <div class="col-md-4 mt-2">
-                    <label for=""><?php 
+    <!-- Department Sections -->
+    <div class="row">
+        <?php foreach ($orderedGroupedDepartments as $department => $roles) : 
+            $deptIcon = $departmentIcons[$department] ?? 'bxs-folder';
+            $deptColor = $departmentColors[$department] ?? '#696cff';
+        ?>
+        <div class="col-lg-6 mb-4">
+            <div class="department-section">
+                <div class="department-header">
+                    <div class="dept-info">
+                        <div class="dept-icon" style="background: <?=$deptColor?>;">
+                            <i class='bx <?=$deptIcon?>'></i>
+                        </div>
+                        <div>
+                            <h6 class="dept-title"><?= htmlspecialchars($department) ?></h6>
+                            <span class="dept-count"><?=count($roles)?> ตำแหน่ง</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addRoleModal" data-role-group="<?= htmlspecialchars($department) ?>">
+                        <i class='bx bx-plus'></i> เพิ่ม
+                    </button>
+                </div>
+                <div class="department-body">
+                    <?php foreach ($roles as $v_Manager) : 
                         $SubLevel = explode("/", $v_Manager->admin_rloes_level);
-                        echo htmlspecialchars(isset($SubLevel[1]) ? $SubLevel[1] : 'N/A'); 
-                    ?></label>
-                    <div class="mt-2">
-                        <select class="select2Rloes form-select form-select-lg SettingGeneralRloes"
+                        $isHead = ($SubLevel[0] ?? '2') === '1';
+                    ?>
+                    <div class="staff-card">
+                        <div class="position-label">
+                            <span class="position-badge <?=$isHead ? 'head' : 'staff'?>">
+                                <i class='bx <?=$isHead ? 'bxs-star' : 'bxs-user'?> me-1'></i>
+                                <?= htmlspecialchars(isset($SubLevel[1]) ? $SubLevel[1] : 'เจ้าหน้าที่') ?>
+                            </span>
+                        </div>
+                        <select class="select2Rloes form-select SettingGeneralRloes"
                             rloes-id="<?=$v_Manager->admin_rloes_id;?>"
                             rloes-level="<?=$v_Manager->admin_rloes_level;?>"
                             Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
-                            <option value="">เลือกเจ้าหน้าที่</option>
+                            <option value="">-- เลือกเจ้าหน้าที่ (ลบจากตำแหน่ง) --</option>
                             <?php foreach ($NameTeacher as $v_NameTeacher) : ?>
                             <option
                                 <?=$v_Manager->admin_rloes_userid == $v_NameTeacher->pers_id ? 'selected' : '';?>
@@ -118,56 +567,91 @@ foreach ($groupedDepartments as $dept => $roles) {
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endforeach; ?>
+        
+        <!-- Add New Department Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="add-dept-card" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                <div class="add-icon">
+                    <i class='bx bx-plus'></i>
+                </div>
+                <h6 class="mb-1">เพิ่มงานใหม่</h6>
+                <small class="text-muted">คลิกเพื่อสร้างงาน/แผนกใหม่</small>
             </div>
         </div>
     </div>
-    <?php endforeach; ?>
 
 </div>
 
 <!-- Add Department Modal -->
-<div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel" aria-hidden="true">
+<div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="addDepartmentForm">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addDepartmentModalLabel">เพิ่มงานใหม่</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">
+                        <i class='bx bx-buildings me-2'></i>เพิ่มงานใหม่
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="department_name" class="form-label">ชื่องาน</label>
-                        <input type="text" class="form-control" id="department_name" name="department_name" required>
+                    <div class="form-floating-custom">
+                        <label for="department_name"><i class='bx bx-text me-1'></i> ชื่องาน</label>
+                        <input type="text" class="form-control" id="department_name" name="department_name" placeholder="เช่น งานประชาสัมพันธ์" required>
+                    </div>
+                    
+                    <div class="alert alert-info d-flex align-items-center mt-3" role="alert">
+                        <i class='bx bx-info-circle me-2' style="font-size: 1.25rem;"></i>
+                        <div>
+                            เมื่อเพิ่มงานใหม่ ระบบจะสร้างตำแหน่ง "หัวหน้างาน" ให้อัตโนมัติ
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class='bx bx-x me-1'></i> ยกเลิก
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveDept">
+                        <span class="btn-text"><i class='bx bx-save me-1'></i> บันทึก</span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            กำลังบันทึก...
+                        </span>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-
 <!-- Add Role Modal -->
-<div class="modal fade" id="addRoleModal" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
+<div class="modal fade" id="addRoleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="addRoleForm">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addRoleModalLabel">เพิ่มเจ้าหน้าที่</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">
+                        <i class='bx bx-user-plus me-2'></i>เพิ่มเจ้าหน้าที่
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="modalRoleGroup" name="role_group">
                     
-                    <div class="mb-3">
-                        <label for="modalUserSelect" class="form-label">ผู้ใช้งาน</label>
+                    <div class="text-center mb-4">
+                        <div style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #8c6eff, #696cff); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class='bx bxs-user-plus' style="font-size: 2rem; color: #fff;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-floating-custom">
+                        <label for="modalUserSelect"><i class='bx bx-user me-1'></i> เลือกบุคลากร</label>
                         <select class="form-select" id="modalUserSelect" name="user_id" required>
-                            <option value="">เลือกผู้ใช้งาน</option>
+                            <option value="">-- เลือกบุคลากร --</option>
                             <?php foreach ($NameTeacher as $v_NameTeacher) : ?>
                                 <option value="<?=$v_NameTeacher->pers_id?>">
                                     <?=$v_NameTeacher->pers_prefix.$v_NameTeacher->pers_firstname." ".$v_NameTeacher->pers_lastname?>
@@ -175,11 +659,25 @@ foreach ($groupedDepartments as $dept => $roles) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-
+                    
+                    <div class="alert alert-warning d-flex align-items-center mt-3" role="alert">
+                        <i class='bx bx-info-circle me-2' style="font-size: 1.25rem;"></i>
+                        <div>
+                            บุคลากรที่เลือกจะถูกเพิ่มเป็น <strong>"เจ้าหน้าที่"</strong> ในงานนี้
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class='bx bx-x me-1'></i> ยกเลิก
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveRole">
+                        <span class="btn-text"><i class='bx bx-save me-1'></i> บันทึก</span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            กำลังบันทึก...
+                        </span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -188,23 +686,29 @@ foreach ($groupedDepartments as $dept => $roles) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize Select2 for the modal user selection
+    // Initialize Select2 for all selects
+    $('.select2Rloes').select2({
+        width: '100%',
+        placeholder: 'เลือกบุคลากร'
+    });
+    
     $('#modalUserSelect').select2({
         dropdownParent: $('#addRoleModal'),
         width: '100%'
     });
 
     // --- Add Department Modal Logic ---
-    const addDepartmentModal = document.getElementById('addDepartmentModal');
     const addDepartmentForm = document.getElementById('addDepartmentForm');
-
     addDepartmentForm.addEventListener('submit', function(event) {
         event.preventDefault();
-        console.log('Submitting Add Department form...');
+        
         const formData = new FormData(addDepartmentForm);
-        console.log('Department Name:', formData.get('department_name'));
-        const modalInstance = bootstrap.Modal.getInstance(addDepartmentModal);
-        modalInstance.hide();
+        const $btn = $('#btnSaveDept');
+        
+        // Show button loading
+        $btn.prop('disabled', true);
+        $btn.find('.btn-text').addClass('d-none');
+        $btn.find('.btn-loading').removeClass('d-none');
 
         fetch('<?= base_url('Admin/Rloes/AddDepartment') ?>', {
             method: 'POST',
@@ -212,17 +716,22 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json())
         .then(result => {
-            console.log('Server response for Add Department:', result);
+            // Reset button
+            $btn.prop('disabled', false);
+            $btn.find('.btn-text').removeClass('d-none');
+            $btn.find('.btn-loading').addClass('d-none');
+            
             if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('addDepartmentModal')).hide();
                 Swal.fire({
                     icon: 'success',
-                    title: 'สำเร็จ!',
-                    text: result.msg,
+                    title: result.msg,
+                    toast: true,
+                    position: 'top-end',
                     showConfirmButton: false,
-                    timer: 1500
-                }).then(() => {
-                    location.reload();
+                    timer: 2000
                 });
+                setTimeout(() => location.reload(), 1500);
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -232,19 +741,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(error => {
-            console.error('Error in Add Department fetch:', error);
+            $btn.prop('disabled', false);
+            $btn.find('.btn-text').removeClass('d-none');
+            $btn.find('.btn-loading').addClass('d-none');
+            
             Swal.fire({
                 icon: 'error',
-                title: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
+                title: 'เกิดข้อผิดพลาด',
                 text: 'กรุณาลองใหม่อีกครั้ง'
             });
         });
     });
-
-    addDepartmentModal.addEventListener('hidden.bs.modal', function (event) {
-        addDepartmentForm.reset();
-    });
-
 
     // --- Add Role Modal Logic ---
     const addRoleModal = document.getElementById('addRoleModal');
@@ -254,10 +761,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const modalTitle = addRoleModal.querySelector('.modal-title');
         const roleGroupInput = addRoleModal.querySelector('#modalRoleGroup');
         
-        modalTitle.textContent = 'เพิ่มเจ้าหน้าที่สำหรับ ' + roleGroup;
+        modalTitle.innerHTML = '<i class="bx bx-user-plus me-2"></i>เพิ่มเจ้าหน้าที่ - ' + roleGroup;
         roleGroupInput.value = roleGroup;
 
-        // Reset form and Select2
         $('#addRoleForm')[0].reset();
         $('#modalUserSelect').val(null).trigger('change');
     });
@@ -265,15 +771,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const addRoleForm = document.getElementById('addRoleForm');
     addRoleForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        console.log('Submitting Add Role form...');
+        
         const formData = new FormData(addRoleForm);
-        console.log('Role Group:', formData.get('role_group'));
-        console.log('User ID:', formData.get('user_id'));
-        // Hardcode the role_level for new staff
         formData.append('role_level', '2/เจ้าหน้าที่');
-
-        const modalInstance = bootstrap.Modal.getInstance(addRoleModal);
-        modalInstance.hide();
+        
+        const $btn = $('#btnSaveRole');
+        
+        // Show button loading
+        $btn.prop('disabled', true);
+        $btn.find('.btn-text').addClass('d-none');
+        $btn.find('.btn-loading').removeClass('d-none');
 
         fetch('<?= base_url('Admin/Rloes/AddRole') ?>', {
             method: 'POST',
@@ -281,17 +788,22 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json())
         .then(result => {
-            console.log('Server response for Add Role:', result);
+            // Reset button
+            $btn.prop('disabled', false);
+            $btn.find('.btn-text').removeClass('d-none');
+            $btn.find('.btn-loading').addClass('d-none');
+            
             if (result.success) {
+                bootstrap.Modal.getInstance(addRoleModal).hide();
                 Swal.fire({
                     icon: 'success',
-                    title: 'สำเร็จ!',
-                    text: result.msg,
+                    title: result.msg,
+                    toast: true,
+                    position: 'top-end',
                     showConfirmButton: false,
-                    timer: 1500
-                }).then(() => {
-                    location.reload();
+                    timer: 2000
                 });
+                setTimeout(() => location.reload(), 1500);
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -301,10 +813,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(error => {
-            console.error('Error in Add Role fetch:', error);
+            $btn.prop('disabled', false);
+            $btn.find('.btn-text').removeClass('d-none');
+            $btn.find('.btn-loading').addClass('d-none');
+            
             Swal.fire({
                 icon: 'error',
-                title: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
+                title: 'เกิดข้อผิดพลาด',
                 text: 'กรุณาลองใหม่อีกครั้ง'
             });
         });
@@ -324,15 +839,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (selectedValue === "") {
             e.preventDefault();
             e.stopImmediatePropagation();
-            console.log('Attempting to delete role with ID:', selectElement.attr('rloes-id'));
 
             Swal.fire({
                 title: 'ยืนยันการลบ',
-                text: "คุณต้องการนำผู้ใช้งานออกจากตำแหน่งนี้ใช่หรือไม่? การดำเนินการนี้จะลบข้อมูลตำแหน่งนี้ออกจากระบบอย่างถาวร",
+                text: "คุณต้องการนำผู้ใช้งานออกจากตำแหน่งนี้ใช่หรือไม่?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
+                confirmButtonColor: '#ff3e1d',
+                cancelButtonColor: '#8592a3',
                 confirmButtonText: 'ใช่, ลบเลย!',
                 cancelButtonText: 'ยกเลิก'
             }).then((result) => {
@@ -343,17 +857,22 @@ document.addEventListener('DOMContentLoaded', function () {
                         data: { rloes_id: selectElement.attr('rloes-id') },
                         dataType: 'json',
                         success: function(response) {
-                            console.log('Server response for Delete Role:', response);
                             if (response.success) {
-                                Swal.fire('ลบแล้ว!', response.msg, 'success');
-                                selectElement.closest('.col-md-4').fadeOut(500, function() { $(this).remove(); });
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+                                selectElement.closest('.staff-card').fadeOut(500, function() { $(this).remove(); });
                             } else {
                                 Swal.fire('เกิดข้อผิดพลาด!', response.msg, 'error');
                                 selectElement.val(previousValue).trigger('change.select2');
                             }
                         },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.error('Error in Delete Role AJAX:', textStatus, errorThrown);
+                        error: function() {
                             Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
                             selectElement.val(previousValue).trigger('change.select2');
                         }
@@ -362,7 +881,29 @@ document.addEventListener('DOMContentLoaded', function () {
                     selectElement.val(previousValue).trigger('change.select2');
                 }
             });
-        } 
+        } else {
+            // Update the role
+            $.ajax({
+                url: '<?= base_url('Admin/Rloes/RloesSettingManager') ?>',
+                type: 'POST',
+                data: {
+                    TeachID: selectedValue,
+                    RloesLevel: selectElement.attr('rloes-level'),
+                    Keytype: selectElement.attr('Key-nanetype'),
+                    RloesID: selectElement.attr('rloes-id')
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ!',
+                        timer: 1000,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                }
+            });
+        }
     });
 });
 </script>

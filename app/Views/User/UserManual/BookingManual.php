@@ -119,10 +119,26 @@
                                 </div>
                             </div>
                             <div class="col-md-6 order-md-2">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bx-building display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: หน้ารายการสถานที่</p>
+                                <!-- Mockup: Calendar/Location Card -->
+                                <div class="mockup-container bg-light rounded-3 p-4 border border-dashed text-center">
+                                    <div class="card shadow-sm mx-auto text-start" style="max-width: 300px; transform: rotate(-2deg);">
+                                        <div class="card-body p-2">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="bg-primary rounded-1" style="width: 40px; height: 40px;"></div>
+                                                <div class="ms-2">
+                                                    <div class="bg-secondary opacity-25 rounded-pill" style="width: 100px; height: 10px; margin-bottom: 4px;"></div>
+                                                    <div class="bg-secondary opacity-10 rounded-pill" style="width: 60px; height: 8px;"></div>
+                                                </div>
+                                            </div>
+                                            <!-- Mini Calendar Grid -->
+                                            <div class="row g-1 mt-3">
+                                                <?php for($i=1; $i<=12; $i++): ?>
+                                                    <div class="col-3"><div class="rounded-1 bg-secondary opacity-10" style="height: 25px;"></div></div>
+                                                <?php endfor; ?>
+                                                <div class="col-3"><div class="rounded-1 bg-success text-white text-center" style="height: 25px; font-size: 8px; line-height: 25px;">ว่าง</div></div>
+                                                <div class="col-3"><div class="rounded-1 bg-danger text-white text-center" style="height: 25px; font-size: 8px; line-height: 25px;">เต็ม</div></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -149,10 +165,31 @@
                                 </div>
                             </div>
                             <div class="col-md-6 order-md-1">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bx-edit display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: ฟอร์มการจอง</p>
+                                <!-- Mockup: Form -->
+                                <div class="mockup-container bg-light rounded-3 p-4 border border-dashed">
+                                    <div class="card shadow-sm mx-auto" style="max-width: 320px; transform: rotate(2deg);">
+                                        <div class="card-header bg-white border-bottom p-3">
+                                            <div class="bg-primary opacity-75 rounded-pill" style="width: 120px; height: 12px;"></div>
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="mb-2 border rounded p-2 bg-white">
+                                                <div class="text-muted small" style="font-size: 8px;">หัวข้อการประชุม</div>
+                                                <div class="bg-secondary opacity-10 rounded-pill mt-1" style="width: 80%; height: 8px;"></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6">
+                                                    <div class="border rounded p-2 bg-white">
+                                                        <div class="text-muted small" style="font-size: 8px;">วันที่เริ่มต้น</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="border rounded p-2 bg-white">
+                                                        <div class="text-muted small" style="font-size: 8px;">เวลา</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="bg-primary rounded-2 w-100 mt-2" style="height: 30px;"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -175,10 +212,31 @@
                                 </div>
                             </div>
                             <div class="col-md-6 order-md-2">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bxs-bell-ring display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: การแจ้งเตือน</p>
+                                <!-- Mockup: Notification -->
+                                <div class="mockup-container bg-light rounded-3 p-4 border border-dashed text-center">
+                                    <div class="card shadow-sm mx-auto border-0" style="max-width: 280px; border-radius: 20px; overflow: hidden;">
+                                        <div class="bg-dark p-2 text-white d-flex justify-content-between align-items-center" style="font-size: 10px;">
+                                            <span>9:41</span>
+                                            <i class="bx bxs-battery-full"></i>
+                                        </div>
+                                        <div class="p-3 bg-white text-start">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 30px; height: 30px;">
+                                                    <i class="bx bxl-line"></i>
+                                                </div>
+                                                <div class="ms-2">
+                                                    <div class="fw-bold small">LINE • Now</div>
+                                                    <div class="text-muted" style="font-size: 10px;">แจ้งเตือนสถานะการจอง</div>
+                                                </div>
+                                            </div>
+                                            <div class="p-2 bg-light rounded-3 border">
+                                                <div class="fw-bold text-success small mb-1">อนุมัติเรียบร้อย!</div>
+                                                <div class="text-muted" style="font-size: 11px;">
+                                                    ห้องประชุม 1 ได้รับการอนุมัติแล้ว<br>
+                                                    วันที่: 12 ม.ค. 2568
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
