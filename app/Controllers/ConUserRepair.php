@@ -36,8 +36,20 @@ class ConUserRepair extends BaseController
         $data['Datethai'] = new Datethai();
 
         $data['DictationAll'] = $builder->countAll();
-       
-       
+        
+        // Year Filter
+        $year = $this->request->getVar('year') ?? date('Y');
+        $data['selectedYear'] = $year;
+        // Generate year range (current - 2 to current + 1)
+        $currentYear = date('Y');
+        $data['years'] = range($currentYear - 2, $currentYear + 1);
+
+        $TBrepair = $database->table('tb_repair');
+        $data['TotalRepair'] = $TBrepair->where("YEAR(repair_datetime)", $year)->countAllResults();
+        $data['StatusPending'] = $TBrepair->where('repair_status', 'รอดำเนินการ')->where("YEAR(repair_datetime)", $year)->countAllResults();
+        $data['StatusProcess'] = $TBrepair->where('repair_status', 'กำลังดำเนินการ')->where("YEAR(repair_datetime)", $year)->countAllResults();
+        $data['StatusSuccess'] = $TBrepair->where('repair_status', 'เสร็จสิ้น')->where("YEAR(repair_datetime)", $year)->countAllResults();    
+        $data['StatusCancel'] = $TBrepair->where('repair_status', 'ยกเลิก')->where("YEAR(repair_datetime)", $year)->countAllResults();
 
         return view('User/UserRepair/UserRepairMain', $data);
     }
@@ -253,10 +265,14 @@ class ConUserRepair extends BaseController
         $TBPres = $DBpers->table('tb_personnel');
         $Datethai = new Datethai();
 
+       $year = $this->request->getVar('year') ?? date('Y');
+
        $S_data = $TBrepair->select('
        repair_ID,repair_order,repair_datetime,repair_userID,repair_phone,repair_caselist,repair_status,pers_prefix,pers_firstname,pers_lastname
        ')
        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
+       ->where("YEAR(repair_datetime)", $year) // Filter by year
+       ->orderBy('repair_datetime', 'DESC')
        ->get()->getResult();
 
        $data = array();
@@ -273,7 +289,8 @@ class ConUserRepair extends BaseController
         }
 
         $response = array(           
-           "aaData" => $data
+           "aaData" => $data,
+           "data" => $data
         );
         echo json_encode($response);
     }

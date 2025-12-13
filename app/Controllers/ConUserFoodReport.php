@@ -29,8 +29,36 @@ class ConUserFoodReport extends BaseController
         
         $data['title'] = 'รายงานอาหาร';
         $data['description'] = 'รายงานอาหารมื้ออาหาร';
+
+        // Year Filter
+        $year = $this->request->getVar('year') ?? date('Y');
+        $data['selectedYear'] = $year;
+        $currentYear = date('Y');
+        $data['years'] = range($currentYear - 2, $currentYear + 1);
+
+        // Add Statistics (Filtered by Year)
+        $foodReports = $this->FoodReportModel->where('YEAR(food_date)', $year)->findAll();
+        $data['TotalReports'] = count($foodReports);
+        $data['BreakfastCount'] = 0;
+        $data['LunchCount'] = 0;
+        $data['DinnerCount'] = 0;
+
+        foreach ($foodReports as $report) {
+            if ($report['food_meal'] == 'มื้อเช้า') $data['BreakfastCount']++;
+            else if ($report['food_meal'] == 'มื้อกลางวัน') $data['LunchCount']++;
+            else if ($report['food_meal'] == 'มื้อเย็น') $data['DinnerCount']++;
+        }
         
         echo view('User/UserFoodReport/PageFoodReportMain', $data);
+    }
+
+// ... 
+
+    public function getFoodReportsJson()
+    {
+        $year = $this->request->getVar('year');
+        $reports = $this->FoodReportModel->getFoodReportsWithRecorderDetails($year); 
+        return $this->response->setJSON(['data' => $reports]);
     }
 
     public function foodReportInsert()
@@ -309,11 +337,7 @@ class ConUserFoodReport extends BaseController
         return view('User/UserFoodReport/PrintFoodReport', $data);
     }
 
-    public function getFoodReportsJson()
-    {
-        $reports = $this->FoodReportModel->getFoodReportsWithRecorderDetails(); // Call the new method
-        return $this->response->setJSON(['data' => $reports]);
-    }
+
 
     public function getReportById($food_id = null)
     {
