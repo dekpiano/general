@@ -25,6 +25,8 @@ $(document).ready(function() {
             $(this).closest('.form-floating-custom').addClass('is-filled');
         }
     });
+
+    ShowDataLocationRoom(); // Initialize DataTable
 });
 
 function toThaiDateString(date) {
@@ -63,18 +65,29 @@ $(document).on('change', '#repair_caselist', function() {
 
 });
 
-ShowDataLocationRoom();
+// ShowDataLocationRoom(); // Removed immediate call
 
 function ShowDataLocationRoom() {
+    // Get year from URL parameter or default to current year/dropdown value
+    const urlParams = new URLSearchParams(window.location.search);
+    let selectedYear = urlParams.get('year');
+    if (!selectedYear) {
+         selectedYear = $('#yearFilter').val(); // Fallback to dropdown value
+    }
+
     $('#TbDataRepair').DataTable({
+        destroy: true, // Allow re-initialization
         responsive: true,
         'processing': true,
         'serverMethod': 'post',
         'ajax': {
-            'url': 'Repair/DataTable/ShowRepari'
+            'url': 'Repair/DataTable/ShowRepari',
+            'data': function(d) {
+                d.year = selectedYear; // Send year to server
+            }
         },
         order: [
-            [3, 'desc']
+            [3, 'desc'] // เรียงตามใบแจ้งซ่อม (repair_order) ล่าสุด
         ],
         'columns': [
             {
@@ -84,23 +97,27 @@ function ShowDataLocationRoom() {
                     let icon = '';
                     let className = '';
                     let extraClass = '';
-                    switch (data) {
-                        case "รอดำเนินการ":
-                            icon = 'bi-clock-history';
-                            className = 'badge bg-label-warning';
-                            break;
-                        case "กำลังดำเนินการ":
-                            icon = 'bi-gear';
-                            className = 'badge bg-label-primary';
-                            extraClass = 'loading-text';
-                            break;
-                        case "ดำเนินการเรียบร้อย":
-                            icon = 'bi-check-circle';
-                            className = 'badge bg-label-success';
-                            break;
-                        default:
-                            icon = 'bi-x-circle';
-                            className = 'badge bg-label-danger';
+                    data = data ? data.trim() : ''; // Trim whitespace
+                    data = data ? data.trim() : '';
+                    console.log("Repair Status:", data); // Debug log
+
+                    if (data === "รอดำเนินการ") {
+                        icon = 'bi-clock-history';
+                        className = 'badge bg-label-warning';
+                    } else if (data === "กำลังดำเนินการ") {
+                        icon = 'bi-gear';
+                        className = 'badge bg-label-primary';
+                        extraClass = 'loading-text';
+                    } else if (data.includes("เรียบร้อย") || data.includes("เสร็จสิ้น") || data === "อนุมัติ") { 
+                        // Match "ดำเนินการเรียบร้อย", "เสร็จสิ้น", etc.
+                        icon = 'bi-check-circle-fill';
+                        className = 'badge bg-success text-white';
+                    } else if (data.includes("ยกเลิก") || data.includes("ไม่อนุมัติ")) {
+                        icon = 'bi-x-circle';
+                        className = 'badge bg-label-danger';
+                    } else {
+                        icon = 'bi-question-circle';
+                        className = 'badge bg-label-secondary';
                     }
                     return `<span class="${className} ${extraClass}"><i class="bi ${icon} me-1"></i> ${data}</span>`;
                 }

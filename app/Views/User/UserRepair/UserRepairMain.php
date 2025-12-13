@@ -63,73 +63,72 @@
 }
 
 /* Stats Cards */
+/* Stats Cards Compact Design */
 .stats-card {
     background: #fff;
-    border-radius: 16px;
-    padding: 1.5rem;
+    border-radius: 12px; /* Slightly smaller radius */
+    padding: 1.25rem; /* Reduced padding */
     border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08); /* Softer shadow */
+    transition: all 0.2s ease;
     height: 100%;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: position;
 }
 
 .stats-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.stats-card .card-content {
+    flex-grow: 1;
 }
 
 .stats-card .icon-wrapper {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
+    width: 48px; /* Smaller icon wrapper */
+    height: 48px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
+    font-size: 1.5rem; /* Smaller icon size */
+    flex-shrink: 0;
+    margin-left: 1rem;
 }
 
 .stats-card .stats-title {
     color: #8592a3;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 0.25rem;
+    text-transform: uppercase; /* Uppercase for cleaner look */
+    letter-spacing: 0.5px;
 }
 
 .stats-card .stats-value {
     color: #566a7f;
-    font-size: 1.75rem;
+    font-size: 1.5rem; /* Adjusted font size */
     font-weight: 700;
     margin-bottom: 0;
-}
-
-.stats-card .progress-wrapper {
-    margin-top: 1rem;
-    height: 4px;
-    background: #f0f2f5;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.stats-card .progress-bar {
-    height: 100%;
-    border-radius: 2px;
+    line-height: 1.2;
 }
 
 /* Specific Card Styles */
+.stats-card.primary { border-left: 4px solid #ff3e1d; }
 .stats-card.primary .icon-wrapper { background: rgba(255, 62, 29, 0.1); color: #ff3e1d; }
-.stats-card.primary .progress-bar { background: #ff3e1d; }
 
+.stats-card.warning { border-left: 4px solid #ffab00; }
 .stats-card.warning .icon-wrapper { background: rgba(255, 171, 0, 0.1); color: #ffab00; }
-.stats-card.warning .progress-bar { background: #ffab00; }
 
+.stats-card.info { border-left: 4px solid #03c3ec; }
 .stats-card.info .icon-wrapper { background: rgba(3, 195, 236, 0.1); color: #03c3ec; }
-.stats-card.info .progress-bar { background: #03c3ec; }
 
+.stats-card.success { border-left: 4px solid #71dd37; }
 .stats-card.success .icon-wrapper { background: rgba(113, 221, 55, 0.1); color: #71dd37; }
-.stats-card.success .progress-bar { background: #71dd37; }
 
 /* Table Card */
 .table-card {
@@ -317,17 +316,12 @@ table.dataTable tbody tr:hover {
         <!-- Total Repair -->
         <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
             <div class="stats-card primary">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <div class="icon-wrapper">
-                            <i class='bx bxs-wrench'></i>
-                        </div>
-                        <h6 class="stats-title">รายการแจ้งซ่อมทั้งหมด (ปี <?=$selectedYear+543?>)</h6>
-                        <h3 class="stats-value"><?= number_format($TotalRepair ?? 0) ?></h3>
-                    </div>
+                <div class="card-content">
+                    <h6 class="stats-title">ทั้งหมด</h6>
+                    <h3 class="stats-value"><?= number_format($TotalRepair ?? 0) ?></h3>
                 </div>
-                <div class="progress-wrapper">
-                    <div class="progress-bar" style="width: 100%"></div>
+                <div class="icon-wrapper">
+                    <i class='bx bxs-wrench'></i>
                 </div>
             </div>
         </div>
@@ -335,20 +329,12 @@ table.dataTable tbody tr:hover {
         <!-- Pending -->
         <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
             <div class="stats-card warning">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <div class="icon-wrapper">
-                            <i class='bx bxs-time-five'></i>
-                        </div>
-                        <h6 class="stats-title">รอดำเนินการ</h6>
-                        <h3 class="stats-value"><?= number_format($StatusPending ?? 0) ?></h3>
-                    </div>
+                <div class="card-content">
+                    <h6 class="stats-title">รอดำเนินการ</h6>
+                    <h3 class="stats-value"><?= number_format($StatusPending ?? 0) ?></h3>
                 </div>
-                <?php 
-                    $percentPending = ($TotalRepair ?? 0) > 0 ? (($StatusPending ?? 0) / $TotalRepair) * 100 : 0;
-                ?>
-                <div class="progress-wrapper">
-                    <div class="progress-bar" style="width: <?=$percentPending?>%"></div>
+                <div class="icon-wrapper">
+                    <i class='bx bxs-time-five'></i>
                 </div>
             </div>
         </div>
@@ -356,20 +342,12 @@ table.dataTable tbody tr:hover {
         <!-- Processing -->
         <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
             <div class="stats-card info">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <div class="icon-wrapper">
-                            <i class='bx bxs-cog bxs-spin'></i>
-                        </div>
-                        <h6 class="stats-title">กำลังดำเนินการ</h6>
-                        <h3 class="stats-value"><?= number_format($StatusProcess ?? 0) ?></h3>
-                    </div>
+                <div class="card-content">
+                    <h6 class="stats-title">กำลังดำเนินการ</h6>
+                    <h3 class="stats-value"><?= number_format($StatusProcess ?? 0) ?></h3>
                 </div>
-                <?php 
-                    $percentProcess = ($TotalRepair ?? 0) > 0 ? (($StatusProcess ?? 0) / $TotalRepair) * 100 : 0;
-                ?>
-                <div class="progress-wrapper">
-                    <div class="progress-bar" style="width: <?=$percentProcess?>%"></div>
+                <div class="icon-wrapper">
+                    <i class='bx bxs-cog bxs-spin'></i>
                 </div>
             </div>
         </div>
@@ -377,20 +355,12 @@ table.dataTable tbody tr:hover {
         <!-- Success -->
         <div class="col-sm-6 col-xl-3">
             <div class="stats-card success">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <div class="icon-wrapper">
-                            <i class='bx bxs-check-circle'></i>
-                        </div>
-                        <h6 class="stats-title">เสร็จสิ้น</h6>
-                        <h3 class="stats-value"><?= number_format($StatusSuccess ?? 0) ?></h3>
-                    </div>
+                <div class="card-content">
+                    <h6 class="stats-title">เสร็จสิ้น</h6>
+                    <h3 class="stats-value"><?= number_format($StatusSuccess ?? 0) ?></h3>
                 </div>
-                <?php 
-                    $percentSuccess = ($TotalRepair ?? 0) > 0 ? (($StatusSuccess ?? 0) / $TotalRepair) * 100 : 0;
-                ?>
-                <div class="progress-wrapper">
-                    <div class="progress-bar" style="width: <?=$percentSuccess?>%"></div>
+                <div class="icon-wrapper">
+                    <i class='bx bxs-check-circle'></i>
                 </div>
             </div>
         </div>
@@ -443,29 +413,8 @@ table.dataTable tbody tr:hover {
     // ...
 
     $(document).ready(function() {
-         $('#TbDataRepair').DataTable({
-            "destroy": true,
-            "responsive": true,
-            "processing": true,
-            "ajax": "<?= base_url('Repair/DataTable/ShowRepari') ?>?year=<?= $selectedYear ?>",
-            "columns": [
-                { "data": "repair_status", "render": function(data) {
-                    let badge = 'bg-label-secondary';
-                    if(data=='รอดำเนินการ') badge = 'bg-label-warning';
-                    else if(data=='กำลังดำเนินการ') badge = 'bg-label-info';
-                    else if(data=='เสร็จสิ้น') badge = 'bg-label-success';
-                    return `<span class="badge ${badge}">${data}</span>`;
-                }},
-                { "data": "repair_caselist" },
-                { "data": "repair_datetime" },
-                { "data": "repair_order" },
-                { "data": "UserFullname" },
-                { "data": "repair_ID", "render": function(data, type, row) {
-                    return `<a href="<?= base_url('Repair/View/') ?>${row.repair_order}" class="btn btn-sm btn-info"><i class="bx bx-file me-1"></i>รายละเอียด</a>`;
-                }}
-            ],
-            "order": [[ 2, "desc" ]] // order by datetime
-        });
+         // DataTable initialization has been moved to assets/js/User/UserRepair/UserRepair.js
+         // to avoid duplicate loading and logic conflicts.
         
         // Remove internal ViewRepair function so it falls back to user's implementation
         // window.ViewRepair = ... (Removed)

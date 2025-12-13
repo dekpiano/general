@@ -265,9 +265,8 @@ class ConUserBooking extends BaseController
 
                 // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
                 // เช็คว่าเป็น localhost หรือไม่
-                $isLocalhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']);
-
-                if (!$isLocalhost) {
+                // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
+                if (ENVIRONMENT === 'production') {
                     $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
                 
                     // Send Email to Booker
@@ -308,7 +307,7 @@ class ConUserBooking extends BaseController
                 // If we don't have the booker's email in the form, we might need to look it up.
                 // Let's use the code provided in the commented out section as a base, which sends to "dekpiano@skj.ac.th".
                 
-                if (!$isLocalhost) {
+                if (ENVIRONMENT === 'production') {
                     $email = \Config\Services::email(); 
                     $email->setFrom('admin_booking@skj.ac.th', "ระบบการจองอาคารสถานที่ SKJ");
                     
@@ -821,6 +820,7 @@ class ConUserBooking extends BaseController
         ->join('skjacth_personnel.tb_personnel AS p2', 'tb_booking.booking_admin_check = p2.pers_id', 'left')
         ->join('skjacth_personnel.tb_personnel AS p3', 'tb_booking.booking_executive_approve = p3.pers_id', 'left')
        //->where('booking_admin_approve','อนุมัติ')
+       ->orderBy('booking_id', 'DESC')
        ->get()->getResult();
        $data = array();
         foreach ($S_data as $key => $value) {
@@ -859,8 +859,9 @@ class ConUserBooking extends BaseController
 
        $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,location_name,pers_prefix,pers_firstname,pers_lastname,booking_executive_approve,booking_executive_reason')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
-       ->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id")
+       ->join('skjacth_personnel.tb_personnel','skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id')
        //->where('booking_admin_approve','อนุมัติ')
+       ->orderBy('booking_id', 'DESC')
        ->get()->getResult();
        $data = array();
         foreach ($S_data as $key => $value) {
@@ -1047,8 +1048,8 @@ class ConUserBooking extends BaseController
              ->where('booking_id',$this->request->getPost('BookingID'))
              ->get()->getRowArray();
 
-             $isLocalhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']);
-             if($Booking && !$isLocalhost){
+             // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
+             if($Booking && ENVIRONMENT === 'production'){
                   // Send Email
                   $email = \Config\Services::email();
                   $email->setFrom($_SESSION['email'], "ระบบจองอาคารสถานที่ SKJ");

@@ -48,7 +48,7 @@ class ConUserRepair extends BaseController
         $data['TotalRepair'] = $TBrepair->where("YEAR(repair_datetime)", $year)->countAllResults();
         $data['StatusPending'] = $TBrepair->where('repair_status', 'รอดำเนินการ')->where("YEAR(repair_datetime)", $year)->countAllResults();
         $data['StatusProcess'] = $TBrepair->where('repair_status', 'กำลังดำเนินการ')->where("YEAR(repair_datetime)", $year)->countAllResults();
-        $data['StatusSuccess'] = $TBrepair->where('repair_status', 'เสร็จสิ้น')->where("YEAR(repair_datetime)", $year)->countAllResults();    
+        $data['StatusSuccess'] = $TBrepair->where('repair_status', 'ดำเนินการเรียบร้อย')->where("YEAR(repair_datetime)", $year)->countAllResults();    
         $data['StatusCancel'] = $TBrepair->where('repair_status', 'ยกเลิก')->where("YEAR(repair_datetime)", $year)->countAllResults();
 
         return view('User/UserRepair/UserRepairMain', $data);
@@ -208,10 +208,8 @@ class ConUserRepair extends BaseController
                 $msg .= "📅 วันที่แจ้ง: {$Datethai->thai_date_fullmonth(strtotime(date('Y-m-d H:i:s')))}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Repair/View/".$Repair->repair_order);
 
-                // ตรวจสอบว่าเป็น Localhost หรือไม่
-                $isLocalhost = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false);
-
-                if (!$isLocalhost) {
+                // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
+                if (ENVIRONMENT === 'production') {
                     // 3. ส่งข้อความ Line (ใช้ userId หรือ groupId ของช่าง)
                     $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
 
@@ -272,7 +270,7 @@ class ConUserRepair extends BaseController
        ')
        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
        ->where("YEAR(repair_datetime)", $year) // Filter by year
-       ->orderBy('repair_datetime', 'DESC')
+       ->orderBy('repair_order', 'DESC')
        ->get()->getResult();
 
        $data = array();
@@ -393,9 +391,8 @@ class ConUserRepair extends BaseController
         if ($TBrepair->update($data)) {
              // ตรวจสอบและส่ง Email แจ้งเตือนผู้แจ้งเมื่อดำเนินการเสร็จสิ้น
              if ($this->request->getPost('repair_status') == 'ดำเนินการเรียบร้อย') {
-                 $isLocalhost = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false);
-                 
-                 if (!$isLocalhost) {
+                 // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
+                 if (ENVIRONMENT === 'production') {
                     $DBpers = \Config\Database::connect('personnel');
                     $TBpers = $DBpers->table('tb_personnel');
  

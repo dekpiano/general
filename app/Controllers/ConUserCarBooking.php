@@ -115,6 +115,7 @@ class ConUserCarBooking extends BaseController
        ')
        ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
        ->join('skjacth_personnel.tb_personnel',"skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID")
+       ->orderBy('car_reserv_id', 'DESC')
        ->get()->getResult();
        $data = array();
         foreach ($S_data as $key => $value) {
@@ -282,8 +283,8 @@ class ConUserCarBooking extends BaseController
 
             // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
 
-            $isLocalhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']);
-            if (!$isLocalhost) {
+            // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
+            if (ENVIRONMENT === 'production') {
                 $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
                 
                 // Send Email to Booker
@@ -453,7 +454,7 @@ class ConUserCarBooking extends BaseController
        ->join('skjacth_personnel.tb_personnel AS p1', 'tb_car_reservation.car_reserv_memberID = p1.pers_id')
         ->join('skjacth_personnel.tb_personnel AS p2', 'tb_car_reservation.car_reserv_driver = p2.pers_id', 'left')
         ->join('skjacth_personnel.tb_personnel AS p3', 'tb_car_reservation.car_reserv_approver = p3.pers_id', 'left')
-
+       ->orderBy('car_reserv_id', 'DESC')
        ->get()->getResult();
 
        
@@ -565,8 +566,8 @@ class ConUserCarBooking extends BaseController
                  $msg .= "อนุมัติโดย: {$_SESSION['username']}\n";
                  $msg .= "ตรวจสอบสถานะ: " . base_url("CarBooking/View");
 
-                 $isLocalhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']);
-                 if (!$isLocalhost) {
+                 // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
+                 if (ENVIRONMENT === 'production') {
                     $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
 
                     // Send Email to Booker (Approved)
@@ -632,8 +633,8 @@ class ConUserCarBooking extends BaseController
             ->where('tb_car_reservation.car_reserv_id', $this->request->getVar('carbookingID'))
             ->get()->getRowArray();
 
-             $isLocalhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']);
-             if($Car && !$isLocalhost){
+             // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
+             if($Car && ENVIRONMENT === 'production'){
                 $email = \Config\Services::email();
                 $email->setFrom($_SESSION['email'], "ระบบจองยานพาหนะ SKJ");
                 $email->setTo($Car['pers_username']);
@@ -938,9 +939,69 @@ class ConUserCarBooking extends BaseController
          $session = session();
          $database = \Config\Database::connect();
          $DBCarReservation = $database->table('tb_car_reservation');
+         $DBpers = \Config\Database::connect('personnel');
          
-         // Basic stats for chart? Or just return empty for now to fix 404
-         $data = []; 
+         // 1. Pie Chart - สัดส่วนการใช้ทรัพยากร (จำนวนการจองต่อรถแต่ละคัน)
+         $pieData = $DBCarReservation->select('
+             skjacth_general.tb_school_car.car_registration,
+             COUNT(tb_car_reservation.car_reserv_id) as count
+         ')
+         ->join('skjacth_general.tb_school_car', 'skjacth_general.tb_school_car.car_ID = tb_car_reservation.car_reserv_carID')
+         ->groupBy('tb_car_reservation.car_reserv_carID')
+         ->get()->getResult();
+         
+         $pieLabels = [];
+         $pieSeries = [];
+         foreach ($pieData as $row) {
+             $pieLabels[] = $row->car_registration;
+             $pieSeries[] = (int)$row->count;
+         }
+         
+         // 2. Bar Chart - ผู้ใช้งานสูงสุด 5 อันดับ
+         $barData = $DBCarReservation->select('
+             CONCAT(skjacth_personnel.tb_personnel.pers_prefix, skjacth_personnel.tb_personnel.pers_firstname, " ", skjacth_personnel.tb_personnel.pers_lastname) as fullname,
+             COUNT(tb_car_reservation.car_reserv_id) as count
+         ')
+         ->join('skjacth_personnel.tb_personnel', 'skjacth_personnel.tb_personnel.pers_id = tb_car_reservation.car_reserv_memberID')
+         ->groupBy('tb_car_reservation.car_reserv_memberID')
+         ->orderBy('count', 'DESC')
+         ->limit(5)
+         ->get()->getResult();
+         
+         $barCategories = [];
+         $barSeries = [];
+         foreach ($barData as $row) {
+             $barCategories[] = $row->fullname;
+             $barSeries[] = (int)$row->count;
+         }
+         
+         // 3. Donut Chart - สถานะการอนุมัติ
+         $approveData = $DBCarReservation->select('car_reserv_status, COUNT(*) as count')
+         ->groupBy('car_reserv_status')
+         ->get()->getResult();
+         
+         $approveLabels = [];
+         $approveSeries = [];
+         foreach ($approveData as $row) {
+             $approveLabels[] = $row->car_reserv_status;
+             $approveSeries[] = (int)$row->count;
+         }
+         
+         $data = [
+             'pie' => [
+                 'labels' => $pieLabels,
+                 'series' => $pieSeries
+             ],
+             'bar' => [
+                 'categories' => $barCategories,
+                 'series' => $barSeries
+             ],
+             'Approve' => [
+                 'labels' => $approveLabels,
+                 'series' => $approveSeries
+             ]
+         ];
+         
          return $this->response->setJSON($data);
     }
 
@@ -1092,8 +1153,7 @@ class ConUserCarBooking extends BaseController
         ->get()->getRow();
         //echo '<pre>';print_r($DeputyDirectorGeneral);exit();
 
-        $path = (dirname(dirname(dirname(dirname(dirname(__FILE__))))));
-		require $path . '/librarie_skj/mpdf/vendor/autoload.php';
+        require SHARED_LIB_PATH . '/mpdf/vendor/autoload.php';
         $session = session();
         $mpdf = new \Mpdf\Mpdf(
             array(
@@ -1104,7 +1164,7 @@ class ConUserCarBooking extends BaseController
             )
         );
         
-        $mpdf->SetTitle('แบบคำขอใช้อาคารสถานที่ ของ ');
+        $mpdf->SetTitle('ใบขออนุญาตใช้รถส่วนกลาง');
 
         $html = '
         <style>
@@ -1118,16 +1178,16 @@ class ConUserCarBooking extends BaseController
             <div style="margin-left:18rem;">องค์การบริหารส่วนจังหวัดนครสวรรค์</div>
             <div style="margin-left:18rem;">'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_created_at)).'</div>
          
-            <div style="margin-top:-5px">เรียน: ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</div>
-            <div style="margin-left:3rem;">ข้าพเจ้า '.$ViewCarBooking->BookerName.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ตำแหน่ง '.$ViewCarBooking->BookerPosi.'</div>
+            <div style="margin-top:10px">เรียน: ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</div>
+            <div style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ข้าพเจ้า '.$ViewCarBooking->BookerName.' &nbsp;&nbsp;&nbsp; ตำแหน่ง '.$ViewCarBooking->BookerPosi.' &nbsp;&nbsp;&nbsp;&nbsp; 
 
-            <div>ขออนุญาตใช้รถยนต์ส่วนกลางไปที่ '.$ViewCarBooking->car_reserv_location.'</div>
-            <div>เพื่อปฏิบัติงานเรื่อง  '.$ViewCarBooking->car_reserv_detail.'</div>
+            ขออนุญาตใช้รถยนต์ส่วนกลางไปที่ '.$ViewCarBooking->car_reserv_location.' เพื่อปฏิบัติงานเรื่อง  '.$ViewCarBooking->car_reserv_detail.'
+            
 
-            <div> จำนวนผู้ไปปฏิบัติงาน '.$ViewCarBooking->car_reserv_number.' คน </div>
-            <div>ออกเดินทางใน'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_StartDate)).' เวลา '.date('H:i',strtotime($ViewCarBooking->car_reserv_StartTime)).' น. ถึง'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_EndDate)).' เวลา '.date('H:i',strtotime($ViewCarBooking->car_reserv_EndTime)).' น. </div>
+            จำนวนผู้ไปปฏิบัติงาน '.$ViewCarBooking->car_reserv_number.' คน 
+            ออกเดินทางใน'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_StartDate)).' เวลา '.date('H:i',strtotime($ViewCarBooking->car_reserv_StartTime)).' น. ถึง'.$Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_EndDate)).' เวลา '.date('H:i',strtotime($ViewCarBooking->car_reserv_EndTime)).' น. </div>
           
-            <div style="margin-left:18rem;margin-top:10px;">
+            <div style="margin-left:18rem;margin-top:30px;">
                 <div style="text-align:center;">
                     <div>(ลงชื่อ) ............................................ ผู้ขออนุญาต</div>
                     <div style="margin-left:0px;">('.$ViewCarBooking->BookerName.')</div>
@@ -1138,7 +1198,7 @@ class ConUserCarBooking extends BaseController
             <div style="position: absolute;">
                 <div style="text-align:left;">
                     <div style="text-align:center;">(ลงชื่อ) ............................................ หัวหน้าฝ่ายบริหารทั่วไป</div>
-                    <div style="margin-left:28px;">('.$ExecutiveGeneral->ExecutiveName.')</div>
+                    <div style="margin-left:40px;">('.$ExecutiveGeneral->ExecutiveName.')</div>
                     <div style="margin-left:40px;">ตำแหน่ง '.$ExecutiveGeneral->posi_name.' '.$ExecutiveGeneral->pers_academic.'</div>
                 </div>            
             </div>
@@ -1173,7 +1233,9 @@ class ConUserCarBooking extends BaseController
         ';
 
         $mpdf->WriteHTML($html);
-        $mpdf->Output('แบบคำขอใช้อาคารสถานที่.pdf');
+        // สร้างไฟล์ PDF
+        $this->response->setHeader('Content-Type', 'application/pdf');
+        $mpdf->Output('ใบขออนุญาตใช้รถส่วนกลาง.pdf', 'I');
     }
 
 }
