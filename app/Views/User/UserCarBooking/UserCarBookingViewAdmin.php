@@ -1,329 +1,438 @@
 <?= $this->extend('User/UserLayout/user_layout') ?>
+
 <?= $this->section('content') ?>
 
 <style>
-/* Page Header */
-.page-header {
-    background: linear-gradient(135deg, #ffab00 0%, #ff8f00 100%);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    color: white;
-}
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #2af598 0%, #009efd 100%);
+        --warning-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        --danger-gradient: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.2);
+    }
 
-.page-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 200px;
-    height: 200px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-}
+    /* Modern Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+    }
 
-.page-header h4 {
-    color: #fff;
-    margin: 0;
-    font-weight: 600;
-}
+    /* Page Header Upgraded */
+    .page-header-premium {
+        background: var(--primary-gradient);
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
 
-.page-header .breadcrumb {
-    background: transparent;
-    padding: 0;
-    margin: 0.5rem 0 0;
-}
+    .page-header-premium::after {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        z-index: 1;
+    }
 
-.page-header .breadcrumb-item,
-.page-header .breadcrumb-item a {
-    color: rgba(255,255,255,0.85);
-    font-size: 0.875rem;
-    text-decoration: none;
-}
+    .page-header-premium::before {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        left: -50px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        z-index: 1;
+    }
 
-.page-header .breadcrumb-item.active {
-    color: #fff;
-}
+    .header-content {
+        position: relative;
+        z-index: 2;
+    }
 
-.page-header .breadcrumb-item + .breadcrumb-item::before {
-    color: rgba(255,255,255,0.5);
-}
+    .header-icon {
+        width: 64px;
+        height: 64px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
 
-/* Cards */
-.card-premium {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-    height: 100%;
-    background: #fff;
-}
+    /* Quick Action Cards */
+    .stat-card {
+        border: none;
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: white;
+        overflow: hidden;
+        position: relative;
+    }
 
-.card-premium:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
+    .stat-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
 
-.card-premium .card-header {
-    background: transparent;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    padding: 1.25rem 1.5rem;
-    font-weight: 600;
-    color: #566a7f;
-}
+    .stat-card .card-body {
+        padding: 1.5rem;
+        z-index: 2;
+        position: relative;
+    }
 
-.card-premium .card-body {
-    padding: 1.5rem;
-}
+    .stat-icon-bg {
+        position: absolute;
+        bottom: -15px;
+        right: -15px;
+        font-size: 5rem;
+        opacity: 0.1;
+        transform: rotate(-15deg);
+        z-index: 1;
+    }
 
-.chart-box {
-    min-height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    /* Table Redesign: Compact & Clear */
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
 
-/* Table */
-.table-card {
-    border-radius: 16px;
-    overflow: hidden;
-    border: none;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
+    .custom-table {
+        border-collapse: separate;
+        border-spacing: 0 0;
+        width: 100% !important;
+    }
 
-.table-responsive {
-    padding: 1rem;
-}
+    .custom-table thead th {
+        background: #f8faff;
+        border-bottom: 2px solid #eef2f7;
+        color: #495057;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.75rem;
+        padding: 0.8rem 0.75rem;
+        vertical-align: middle;
+    }
 
-table.dataTable thead th {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #ebeef0;
-    color: #566a7f;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-}
+    .custom-table tbody tr {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f4f9;
+        background: white;
+    }
 
-table.dataTable tbody td {
-    vertical-align: middle;
-    color: #697a8d;
-    font-size: 0.95rem;
-}
+    .custom-table tbody td {
+        padding: 0.6rem 0.75rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f4f9;
+        color: #566a7f;
+        font-size: 0.85rem;
+    }
 
-/* Modal */
-.modal-content {
-    border-radius: 16px;
-    border: none;
-    overflow: hidden;
-}
+    .custom-table tbody tr:last-child td:first-child { border-radius: 0 0 0 12px; }
+    .custom-table tbody tr:last-child td:last-child { border-radius: 0 0 12px 0; }
 
-.modal-header {
-    background: linear-gradient(135deg, #ffab00 0%, #ff8f00 100%);
-    color: white;
-    padding: 1.5rem;
-}
+    /* Badges & Indicators */
+    .status-pill {
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
 
-.modal-header .modal-title {
-    font-weight: 600;
-    color: white;
-}
+    .status-pill.pending { background: #fff4e5; color: #ff9800; }
+    .status-pill.approved { background: #e8fadf; color: #71dd37; }
+    .status-pill.rejected { background: #ffe5e5; color: #ff3e1d; }
 
-.modal-header .btn-close {
-    filter: brightness(0) invert(1);
-}
+    /* Modal Styling */
+    .modal-lux {
+        border-radius: 24px;
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
 
-.form-floating-custom {
-    position: relative;
-    margin-bottom: 1rem;
-}
+    .modal-lux .modal-header {
+        border-bottom: none;
+        padding: 2rem 2rem 1rem;
+    }
 
-.form-floating-custom .form-select {
-    border-radius: 10px;
-    height: 3.5rem;
-    padding-top: 1.625rem;
-    padding-bottom: 0.625rem;
-}
+    .modal-lux .modal-body {
+        padding: 1rem 2rem 2rem;
+    }
 
-.form-floating-custom label {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    padding: 1rem 0.75rem;
-    pointer-events: none;
-    transform-origin: 0 0;
-    transition: opacity .1s ease-in-out,transform .1s ease-in-out;
-    opacity: .65;
-    transform: scale(.85) translateY(-.5rem) translateX(.15rem);
-}
+    .modal-lux .modal-footer {
+        border-top: none;
+        padding: 1rem 2rem 2rem;
+    }
+
+    .glass-input {
+        background: #f8f9fa;
+        border: 2px solid transparent;
+        border-radius: 14px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+    }
+
+    .glass-input:focus {
+        background: white;
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .btn-approve { background: #e8fadf; color: #71dd37; }
+    .btn-approve:hover { background: #71dd37; color: white; }
+
+    .btn-reject { background: #ffe5e5; color: #ff3e1d; }
+    .btn-reject:hover { background: #ff3e1d; color: white; }
+
+    .btn-view { background: #e7e7ff; color: #696cff; }
+    .btn-view:hover { background: #696cff; color: white; }
+
+    .btn-print { background: #d7f5fc; color: #03c3ec; }
+    .btn-print:hover { background: #03c3ec; color: white; }
+
+    /* Chart Styles */
+    .chart-container-premium {
+        position: relative;
+        overflow: hidden;
+    }
 </style>
 
 <div class="container-xxl flex-grow-1 container-p-y">
     
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h4><i class='bx bxs-file-find me-2'></i> อนุมัติการจองยานพาหนะ</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="<?=base_url('CarBooking')?>">หน้าหลักจองยานพาหนะ</a></li>
-                        <li class="breadcrumb-item active">สำหรับผู้ดูแลระบบ</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <span class="badge bg-white/20 text-white p-2">
-                    <i class='bx bx-calendar-check me-1'></i> <?= date('d/m/Y') ?>
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Section -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card card-premium">
-                <div class="card-header d-flex align-items-center">
-                    <i class='bx bx-pie-chart-alt-2 me-2 text-warning font-24'></i>
-                    <span>สัดส่วนการใช้ทรัพยากร</span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <div id="pie-chart" class="w-100"></div>
+    <!-- Header -->
+    <div class="page-header-premium mb-5">
+        <div class="header-content">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="header-icon">
+                        <i class='bx bxs-car-garage'></i>
                     </div>
+                    <h2 class="fw-bold mb-2">จัดการการจองยานพาหนะ</h2>
+                    <p class="mb-0 opacity-75">ตรวจสอบ และอนุมัติรายการขอใช้รถยนต์ส่วนกลางของบุคลากร</p>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card card-premium">
-                <div class="card-header d-flex align-items-center">
-                    <i class='bx bx-bar-chart-alt-2 me-2 text-primary font-24'></i>
-                    <span>ผู้ใช้งานสูงสุด 5 อันดับ</span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <div id="bar-chart" class="w-100"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card card-premium">
-                <div class="card-header d-flex align-items-center">
-                    <i class='bx bx-doughnut-chart me-2 text-success font-24'></i>
-                    <span>สถานะการอนุมัติ</span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <div id="chart-Approve" class="w-100"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Table Section -->
-    <div class="card table-card">
-        <div class="card-header bg-white border-bottom py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 text-primary fw-bold"><i class='bx bx-list-ul me-2'></i> รายการจองทั้งหมด</h5>
-                <div class="card-actions">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
-                        <i class='bx bx-refresh me-1'></i> รีโหลด
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <button class="btn btn-white btn-lg rounded-pill shadow-sm px-4" onclick="location.reload()">
+                        <i class='bx bx-refresh me-2'></i> รีโหลดข้อมูล
                     </button>
+                    <div class="mt-3">
+                        <span class="badge bg-white/20 p-2 px-3 rounded-pill">
+                            <i class='bx bx-calendar me-1'></i> <?= date('d M Y') ?>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Stats Summary Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card stat-card border-start border-warning border-5">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1 text-uppercase tracking-wider">สัดส่วนการใช้รถ</h6>
+                            <h3 class="fw-bold mb-0">ทรัพยากร</h3>
+                        </div>
+                        <div class="avatar bg-label-warning p-2 rounded-3">
+                            <i class='bx bx-pie-chart-alt-2 fs-3'></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 chart-container-premium">
+                        <div id="pie-chart" style="min-height: 250px;"></div>
+                    </div>
+                    <i class='bx bx-car stat-icon-bg'></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card border-start border-primary border-5">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1 text-uppercase tracking-wider">ผู้ใช้งานสูงสุด 5 อันดับ</h6>
+                            <h3 class="fw-bold mb-0">ผู้นิยมใช้</h3>
+                        </div>
+                        <div class="avatar bg-label-primary p-2 rounded-3">
+                            <i class='bx bx-bar-chart-alt-2 fs-3'></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 chart-container-premium">
+                        <div id="bar-chart" style="min-height: 250px;"></div>
+                    </div>
+                    <i class='bx bx-user-voice stat-icon-bg'></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card border-start border-success border-5">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1 text-uppercase tracking-wider">สถานะการตรวจสอบ</h6>
+                            <h3 class="fw-bold mb-0">การอนุมัติ</h3>
+                        </div>
+                        <div class="avatar bg-label-success p-2 rounded-3">
+                            <i class='bx bx-check-double fs-3'></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 chart-container-premium">
+                        <div id="chart-Approve" style="min-height: 250px;"></div>
+                    </div>
+                    <i class='bx bx-task stat-icon-bg'></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main List Table -->
+    <div class="table-container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 px-2">
+            <div>
+                <h4 class="fw-bold mb-1"><i class='bx bx-list-check me-2 text-primary'></i>รายการรอการตรวจสอบ</h4>
+                <p class="text-muted small mb-0">ข้อมูลการจองทั้งหมดที่เกิดขึ้นในระบบ</p>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="input-group input-group-merge" style="width: 250px;">
+                    <span class="input-group-text"><i class="bx bx-search"></i></span>
+                    <input type="text" class="form-control" id="tableSearch" placeholder="ค้นหาการจอง...">
+                </div>
+            </div>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-hover w-100" id="TBShowDataCarBookingAdmin">
+            <table class="table custom-table w-100" id="TBShowDataCarBookingAdmin">
                 <thead>
                     <tr>
-                        <th width="5%">สถานะ</th>
-                        <th width="10%">เลขที่จอง</th>
-                        <th width="60%">รายละเอียดการจอง</th>
-                        <th width="25%">จัดการ</th>
+                        <th>สถานะ</th>
+                        <th>เลขที่/ผู้จอง</th>
+                        <th>จุดหมาย/รายละเอียด</th>
+                        <th>ยานพาหนะ</th>
+                        <th class="text-end">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data loaded via Ajax -->
+                    <!-- DataTable content -->
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal: Approve / Select Driver -->
 <div class="modal fade" id="ModalApproveAdmin" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content modal-lux">
             <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class='bx bx-check-shield me-2'></i> อนุมัติและเลือกคนขับรถ
-                </h5>
+                <div>
+                    <h4 class="modal-title fw-bold mb-1">อนุมัติการใช้รถ</h4>
+                    <p class="text-muted small mb-0">กรุณาระบุพนักงานขับรถเพื่อลงนามปฏิบัติหน้าที่</p>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="FormAppoveCarReservation" class="needs-validation" novalidate>
-                <div class="modal-body p-4">
-                    <div class="text-center mb-4">
-                        <div class="avatar avatar-xl bg-label-warning rounded-circle mx-auto mb-2" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
-                            <i class='bx bxs-user-badge text-warning'></i>
+                <div class="modal-body">
+                    <input type="hidden" name="carbookingID" id="carbookingID">
+                    
+                    <div class="mb-4 text-center">
+                        <div class="avatar avatar-xl bg-label-info rounded-circle mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class='bx bx-id-card fs-1'></i>
                         </div>
-                        <h5 class="mb-1">มอบหมายงานขับรถ</h5>
-                        <p class="text-muted">กรุณาเลือกพนักงานขับรถสำหรับรายการนี้</p>
+                        <h5 class="fw-bold">มอบหมายพนักงานขับรถ</h5>
                     </div>
 
-                    <input type="hidden" value="" name="carbookingID" id="carbookingID">
-                    
-                    <div class="form-floating form-floating-custom">
-                        <select name="Driver" id="Driver" class="form-select" required>
-                            <option value="">เลือกพนักงานขับรถ...</option>
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold mb-2">พนักงานขับรถที่ว่างงาน</label>
+                        <select name="Driver" id="Driver" class="form-select glass-input shadow-none" required>
+                            <option value="">-- เลือกพนักงานขับรถ --</option>
                             <?php foreach ($CarDriver as $key => $v_CarDriver):?>
                             <option value="<?=$v_CarDriver->pers_id?>">
                                 <?=$v_CarDriver->pers_prefix.$v_CarDriver->pers_firstname.' '.$v_CarDriver->pers_lastname;?>
                             </option>
                             <?php endforeach; ?>
                         </select>
-                        <label for="Driver">พนักงานขับรถ</label>
-                        <div class="invalid-feedback">
-                            กรุณาเลือกพนักงานขับรถ
-                        </div>
+                        <div class="invalid-feedback">กรุณาเลือกผู้อันมัติ</div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light px-4 py-3">
-                    <div class="d-flex w-100 justify-content-between gap-2">
-                        <button type="button" id="BtnNoAppoveCarBooking" class="btn btn-danger px-4">
-                            <i class='bx bx-x-circle me-1'></i> ไม่อนุมัติ
-                        </button>
-                        <button type="submit" class="btn btn-success px-4">
-                            <i class='bx bx-check-circle me-1'></i> อนุมัติการจอง
-                        </button>
-                    </div>
+                <div class="modal-footer d-flex gap-2">
+                    <button type="button" id="BtnNoAppoveCarBooking" class="btn btn-outline-danger btn-lg rounded-pill flex-fill">
+                        <i class='bx bx-x-circle me-1'></i> ไม่อนุมัติ
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill flex-fill shadow-primary">
+                        <i class='bx bx-check-circle me-1'></i> ยอมรับการจอง
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- View Detail Modal -->
+<!-- Modal: View Detailed Information -->
 <div class="modal fade" id="ViewDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title text-white">
-                    <i class='bx bx-detail me-2'></i> รายละเอียดการจอง
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content modal-lux">
+            <div class="modal-header border-bottom pb-3">
+                <div class="d-flex align-items-center">
+                    <div class="avatar bg-label-primary p-2 rounded-3 me-3">
+                        <i class='bx bx-info-square fs-3'></i>
+                    </div>
+                    <div>
+                        <h4 class="modal-title fw-bold mb-1">รายละเอียดใบงานการจอง</h4>
+                        <p class="text-muted small mb-0" id="detailModalSubtitle">ตรวจสอบข้อมูลผู้จองและยานพาหนะ</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-4 text-break lh-lg">
-                <!-- Content will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            <div class="modal-body px-4 py-4">
+                <!-- Content injected via JS -->
+                 <div id="detailContentLoader" class="text-center py-5 d-none">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">กำลังโหลดข้อมูล...</p>
+                 </div>
+                 <div id="detailContentBody"></div>
             </div>
         </div>
     </div>

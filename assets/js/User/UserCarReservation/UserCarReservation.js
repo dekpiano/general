@@ -84,140 +84,157 @@ $("#TBShowDataCarBookingAdmin").DataTable({
   ajax: {
     url: "../../CarBooking/DB/DataTable/Approve/Admin",
   },
-
+  dom: '<"top"rt><"bottom"ip><"clear">', // Custom layout for search integration
   order: [[1, "desc"]],
-    columns: [
-        {
-          data: "car_reserv_status",
-          render: function (data, type, row) {
-            if (data == "รอตรวจสอบ") {
-              return '<span class="badge bg-warning">' + data + "</span>";
-            } else if (data == "ไม่อนุมัติ") {
-              return '<span class="badge bg-danger">' + data + "</span>";
-            } else {
-              return '<span class="badge bg-success">' + data + "</span>";
-            }
-          },
-        },
-        { data: "car_reserv_order" },
-        { 
-            data: null, // Combined column
-            render: function(data, type, row) {
-                // Construct Modal Content
-                let carImgStr = '<img class="img-fluid rounded mb-3" style="max-width:100%; height:auto;" src="../../uploads/admin/Car/'+(row.car_img || '')+'">';
-                let driverStr = (row.car_reserv_driver == '') ? '<span class="badge bg-warning">รอเลือกคนขับรถ</span>' : row.car_reserv_driver;
-                let carInfoStr = row.car_category + '<br>' + row.car_registration + ' ' + row.car_province;
-                let detailText = row.car_reserv_detail ? row.car_reserv_detail : '-';
-                
-                let statusBadge = '';
-                if(row.car_reserv_status == 'รอตรวจสอบ'){
-                    statusBadge = '<span class="badge bg-warning">รอตรวจสอบ</span>';
-                } else if(row.car_reserv_status == 'อนุมัติ'){
-                    statusBadge = '<span class="badge bg-success">อนุมัติ</span>';
-                } else {
-                    statusBadge = '<span class="badge bg-danger">ไม่อนุมัติ</span>';
-                }
-                
-                let printBtnDisabled = row.car_reserv_status != "อนุมัติ" ? "disabled" : "";
-                
-                let modalContent = `
-                    <div class="row">
-                        <div class="col-md-5 text-center">
-                            ${carImgStr}
-                            <div class="bg-light p-2 rounded mt-2">
-                                <small class="text-muted d-block">รถที่จอง</small>
-                                <span class="fw-bold text-primary">${carInfoStr}</span>
-                            </div>
-                        </div>
-                        <div class="col-md-7">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between align-items-start border-0 px-0 pb-1">
-                                    <span class="text-muted"><i class='bx bx-hash me-2'></i>เลขที่จอง:</span>
-                                    <span class="fw-bold text-primary">${row.car_reserv_order}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start border-0 px-0 pb-1">
-                                    <span class="text-muted"><i class='bx bx-info-circle me-2'></i>สถานะ:</span>
-                                    ${statusBadge}
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start border-0 px-0 pb-1">
-                                    <span class="text-muted"><i class='bx bxs-user-voice me-2'></i>ผู้จอง:</span>
-                                    <span class="fw-medium">${row.Member}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start border-0 px-0 pb-1">
-                                    <span class="text-muted"><i class='bx bx-calendar-event me-2'></i>วันที่:</span>
-                                    <span class="fw-medium">${row.Date}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start border-0 px-0 pb-1">
-                                    <span class="text-muted"><i class='bx bx-map me-2'></i>สถานที่ไป:</span>
-                                    <span class="fw-medium text-end w-50">${row.car_reserv_location}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start border-0 px-0 pb-1">
-                                    <span class="text-muted"><i class='bx bx-id-card me-2'></i>คนขับรถ:</span>
-                                    <span>${driverStr}</span>
-                                </li>
-                                <hr class="my-2">
-                                <li class="list-group-item border-0 px-0 pt-0">
-                                    <span class="text-muted d-block mb-1"><i class='bx bx-notepad me-2'></i>รายละเอียด/หัวเรื่อง:</span>
-                                    <p class="mb-0 bg-lighter p-2 rounded text-secondary" style="background-color: #f8f9fa;">${detailText}</p>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between gap-2">
-                        <button type="button" class="btn btn-danger btn-modal-reject flex-fill" data-id="${row.car_reserv_id}">
-                            <i class="bx bx-x-circle me-1"></i> ไม่อนุมัติ
-                        </button>
-                        <button type="button" class="btn btn-success btn-modal-approve flex-fill" data-id="${row.car_reserv_id}">
-                            <i class="bx bx-check-circle me-1"></i> อนุมัติ
-                        </button>
-                        <a href="Admin/Print/${row.car_reserv_id}" target="_blank" class="btn btn-info flex-fill ${printBtnDisabled}">
-                            <i class="bx bxs-printer me-1"></i> พิมพ์
-                        </a>
-                    </div>
-                `;
-                
-                // Escape simple quotes for data attribute
-                const safeData = modalContent.replace(/"/g, '&quot;');
-                
-                return `
-                    <div class="d-flex flex-column gap-1">
-                        <span class="fw-medium"><i class='bx bxs-user me-1 text-muted'></i>${row.Member}</span>
-                        <small class="text-muted text-truncate" style="max-width: 250px;"><i class='bx bx-map-pin me-1'></i>${row.car_reserv_location}</small>
-                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill btn-view-detail mt-1 w-100" data-detail="${safeData}" data-booking-id="${row.car_reserv_id}">
-                            <i class='bx bx-search-alt me-1'></i> ดูรายละเอียด
-                        </button>
-                    </div>
-                `;
-            }
-        },
-        {
-          data: "car_reserv_status",
-          render: function (data, type, row) {
-            if (row.car_reserv_status != "อนุมัติ") {
-              var disab = "disabled";
-            }
-            return (
-              '<div class="d-flex flex-column gap-2"> <button type="button" data-bs-toggle="modal" data-bs-target="#ModalApproveAdmin" class="btn btn-sm btn-primary w-100" id="BtnApproveCarBooking" carbooking-id="' +
-              row.car_reserv_id +
-              '"><i class="bx bx-check-shield me-1"></i> อนุมัติ </button> <div class="d-flex gap-1"> <button type="button" id="BtnClaseBooking" class="btn btn-sm btn-outline-danger flex-fill" booking-id="' +
-              row.car_reserv_id +
-              '"><i class="bx bx-x"></i></button> <a href="Admin/Print/' +
-              row.car_reserv_id +
-              '" target="_blank"  id="BtnClaseBooking" class="btn btn-sm btn-outline-info flex-fill ' +
-              disab +
-              '"><i class="bx bxs-printer" ></i></a> </div> </div>'
-            );
-          },
-        },
-      ],
+  columns: [
+    {
+      data: "car_reserv_status",
+      className: "align-middle",
+      render: function (data, type, row) {
+        if (data == "รอตรวจสอบ") {
+          return `<span class="status-pill pending"><i class='bx bx-time-five'></i> ${data}</span>`;
+        } else if (data == "ไม่อนุมัติ") {
+          return `<span class="status-pill rejected"><i class='bx bx-x-circle'></i> ${data}</span>`;
+        } else {
+          return `<span class="status-pill approved"><i class='bx bx-check-circle'></i> ${data}</span>`;
+        }
+      },
+    },
+    {
+      data: null,
+      className: "align-middle text-nowrap",
+      render: function (data, type, row) {
+        return `
+          <div class="d-flex flex-column gap-0">
+            <div class="d-flex align-items-center mb-1">
+                <div class="bg-label-secondary p-1 rounded-circle me-1" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;">
+                    <i class='bx bx-hash' style="font-size: 0.75rem;"></i>
+                </div>
+                <span class="fw-bold text-dark" style="font-size: 0.85rem;">${row.car_reserv_order}</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="bg-label-primary p-1 rounded-circle me-1" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;">
+                    <i class='bx bx-user' style="font-size: 0.75rem;"></i>
+                </div>
+                <span class="text-body fw-medium small">${row.Member}</span>
+            </div>
+          </div>
+        `;
+      }
+    },
+    {
+      data: null,
+      className: "align-middle",
+      render: function (data, type, row) {
+        let locationIcon = `<i class='bx bxs-map-pin text-danger me-1 flex-shrink-0' style="font-size: 1rem;"></i>`;
+        let timeIcon = `<i class='bx bx-time text-primary me-1 flex-shrink-0' style="font-size: 0.85rem;"></i>`;
+        
+        return `
+          <div class="d-flex flex-column gap-1 py-1">
+            <div class="d-flex align-items-center text-nowrap">
+                ${locationIcon}
+                <span class="text-dark fw-bold" style="font-size: 0.95rem; letter-spacing: -0.2px;">${row.car_reserv_location}</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <div class="d-flex align-items-center px-1 text-nowrap">
+                    ${timeIcon}
+                    <span class="small text-muted fw-medium" style="font-size: 0.75rem;">${row.Date}</span>
+                </div>
+                ${row.car_reserv_detail ? `
+                <div class="d-flex align-items-center px-1 text-nowrap">
+                    <i class='bx bx-note text-warning me-1 flex-shrink-0' style="font-size: 0.85rem;"></i>
+                    <span class="small text-muted text-truncate" style="max-width: 180px; font-size: 0.75rem;">${row.car_reserv_detail}</span>
+                </div>` : ''}
+            </div>
+          </div>
+        `;
+      }
+    },
+    {
+      data: null,
+      className: "align-middle",
+      render: function (data, type, row) {
+        let driverInfo = (row.car_reserv_status == "อนุมัติ" && row.car_reserv_driver) 
+          ? `<div class="mt-1 d-flex align-items-center text-primary" style="font-size: 0.75rem;">
+               <i class='bx bx-steering-wheel me-1'></i>
+               <span class="fw-medium">${row.car_reserv_driver}</span>
+             </div>` 
+          : '';
+          
+        return `
+          <div class="d-flex flex-column align-items-start">
+            <div class="car-info-badge p-1 px-2 rounded bg-label-info border border-info border-opacity-10 d-inline-block">
+                <div class="d-flex align-items-center gap-1">
+                <i class='bx bxs-car-garage fs-6'></i>
+                <span class="fw-bold text-dark small">${row.car_registration}</span>
+                <span class="small opacity-75" style="font-size: 0.7rem;">(${row.car_category})</span>
+                </div>
+            </div>
+            ${driverInfo}
+          </div>
+        `;
+      }
+    },
+    {
+      data: null,
+      className: "text-end align-middle",
+      render: function (data, type, row) {
+        let isApproved = row.car_reserv_status == "อนุมัติ";
+        let isRejected = row.car_reserv_status == "ไม่อนุมัติ";
+        let printUrl = BASE_URL + "/CarBooking/Approve/Admin/Print/" + row.car_reserv_id;
+        
+        if (isApproved) {
+            return `
+                <div class="d-flex align-items-center justify-content-end gap-1 text-nowrap">
+                    <span class="badge bg-success shadow-none rounded-pill px-2 py-1 small" style="font-size: 0.75rem;"><i class="bx bx-check-circle"></i></span>
+                    <a href="${printUrl}" target="_blank" class="btn btn-sm btn-info rounded-pill px-2 py-1 shadow-none" title="พิมพ์ใบงาน">
+                        <i class="bx bxs-printer"></i> พิมพ์
+                    </a>
+                    <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-2 py-1 btn-cancel-approve" 
+                            carbooking-id="${row.car_reserv_id}" title="ยกเลิกอนุมัติ">
+                        <i class="bx bx-undo"></i> ย้อน
+                    </button>
+                </div>`;
+        } else if (isRejected) {
+            return `
+                <div class="d-flex align-items-center justify-content-end gap-1 text-nowrap">
+                    <button type="button" class="btn btn-warning btn-sm rounded-pill px-2 py-1 btn-cancel-reject shadow-none" 
+                            carbooking-id="${row.car_reserv_id}">
+                        <i class="bx bx-undo"></i> คืนสถานะ
+                    </button>
+                </div>`;
+        }
+        
+        return `
+          <div class="d-flex align-items-center justify-content-end gap-1 text-nowrap">
+             <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 py-1 btn-approve-row shadow-none" 
+                    carbooking-id="${row.car_reserv_id}" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#ModalApproveAdmin">
+                <i class="bx bx-check-shield"></i> อนุมัติ
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1 btn-reject-row" 
+                    carbooking-id="${row.car_reserv_id}">
+                <i class="bx bx-x"></i> ไม่รับ
+            </button>
+          </div>
+        `;
+      },
+    },
+  ],
 });
 
-// Event listener for View Detail button
-$(document).on("click", ".btn-view-detail", function () {
-  const detail = $(this).data("detail");
-  $("#ViewDetailModal .modal-body").html(detail);
-  $("#ViewDetailModal").modal("show");
+// Sync custom search with DataTable
+$(document).on("keyup", "#tableSearch", function() {
+    $("#TBShowDataCarBookingAdmin").DataTable().search($(this).val()).draw();
+});
+
+// Simplified View Detail Listener
+$(document).on("click", ".btn-view-detail", function() {
+    const b64 = $(this).data("html");
+    const html = decodeURIComponent(escape(atob(b64)));
+    $("#ViewDetailModal #detailContentBody").html(html);
+    $("#ViewDetailModal").modal("show");
 });
 
 // Event listener for Approve button inside ViewDetailModal
@@ -229,8 +246,11 @@ $(document).on("click", ".btn-modal-approve", function () {
 });
 
 // Event listener for Reject button inside ViewDetailModal
-$(document).on("click", ".btn-modal-reject", function () {
-  const bookingId = $(this).data("id");
+$(document).on("click", ".btn-modal-reject, .btn-reject-row", function () {
+  const $btn = $(this);
+  const originalHtml = $btn.html();
+  const bookingId = $btn.attr("carbooking-id") || $btn.data("id");
+  
   Swal.fire({
     title: 'ยืนยันไม่อนุมัติ?',
     text: "ต้องการไม่อนุมัติการจองนี้หรือไม่?",
@@ -246,18 +266,82 @@ $(document).on("click", ".btn-modal-reject", function () {
         url: "../../CarBooking/DB/NoAppoveCarReservationAdmin",
         method: "POST",
         data: { carbookingID: bookingId },
+        beforeSend: function() {
+            $btn.html('<div class="spinner-border spinner-border-sm text-white me-1" role="status"></div> บันทึก...').addClass("disabled");
+        },
         success: function(data) {
           if (data > 0) {
-            $("#ViewDetailModal").modal("hide");
             Swal.fire({
               title: 'สำเร็จ!',
               text: 'ไม่อนุมัติการจองยานพาหนะเรียบร้อย',
               icon: 'success',
               confirmButtonText: 'ตกลง'
             }).then(() => {
-              location.reload();
+              $("#ViewDetailModal").modal("hide");
+              $("#TBShowDataCarBookingAdmin").DataTable().ajax.reload(null, false);
             });
           }
+        },
+        complete: function() {
+            $btn.html(originalHtml).removeClass("disabled");
+        }
+      });
+    }
+  });
+});
+
+$(document).on("click", ".btn-approve-row", function () {
+  $("#carbookingID").val($(this).attr("carbooking-id"));
+});
+
+$(document).on("click", ".btn-cancel-reject, .btn-cancel-approve", function () {
+  const $btn = $(this);
+  const originalHtml = $btn.html();
+  const bookingId = $btn.attr("carbooking-id");
+  const isCancelApprove = $btn.hasClass("btn-cancel-approve");
+  
+  const title = isCancelApprove ? 'ต้องการยกเลิกการอนุมัติ?' : 'ยกเลิกสถานะไม่อนุมัติ?';
+  const text = isCancelApprove ? "คุณต้องการยกเลิกการอนุมัติและเปลี่ยนสถานะกลับเป็น 'รอตรวจสอบ' ใช่หรือไม่?" : "คุณต้องการเปลี่ยนสถานะกลับเป็น 'รอตรวจสอบ' เพื่อให้สามารถอนุมัติได้อีกครั้งใช่หรือไม่?";
+
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#ffab00',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'ใช่, เปลี่ยนสถานะ',
+    cancelButtonText: 'ยกเลิก'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: BASE_URL + "/CarBooking/DB/ResetAppoveCarReservationAdmin",
+        method: "POST",
+        data: { carbookingID: bookingId },
+        beforeSend: function() {
+            $btn.html('<div class="spinner-border spinner-border-sm text-white me-1" role="status"></div>').addClass("disabled");
+        },
+        success: function(data) {
+          if (parseInt(data) > 0) {
+            Swal.fire({
+              title: 'สำเร็จ!',
+              text: 'คืนสถานะเรียบร้อยแล้ว ท่านสามารถจัดการรายการนี้ได้ใหม่',
+              icon: 'success',
+              confirmButtonText: 'ตกลง'
+            }).then(() => {
+              $("#ViewDetailModal").modal("hide");
+              $("#TBShowDataCarBookingAdmin").DataTable().ajax.reload(null, false);
+            });
+          } else {
+             Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+          }
+        },
+        error: function(xhr) {
+            console.error(xhr.responseText);
+            Swal.fire('เกิดข้อผิดพลาด', 'กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ', 'error');
+        },
+        complete: function() {
+            $btn.html(originalHtml).removeClass("disabled");
         }
       });
     }
@@ -307,78 +391,80 @@ $(document).on("click", "#BtnApproveCarBooking", function () {
 
 $(document).on("submit", "#FormAppoveCarReservation", function (e) {
   e.preventDefault();
+  const $form = $(this);
+  const $btn = $form.find('button[type="submit"]');
+  const originalHtml = $btn.html();
+
   $.ajax({
     url: "../../CarBooking/DB/AppoveCarReservationAdmin",
     method: "POST",
     data: $(this).serialize(),
     beforeSend: function () {
-      $("#BtnSubBooking").html(
-        '<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span class="">กำลังบันทึก...</span>'
-      );
-      $("#BtnSubBooking").addClass("disabled");
+      $btn.html('<div class="spinner-border spinner-border-sm text-white me-1" role="status"></div> บันทึกการอนุมัติ...').addClass("disabled");
     },
     success: function (data) {
-      console.log(data);
       if (data > 0) {
+        $("#ModalApproveAdmin").modal("hide");
+        $(".modal-backdrop").remove();
+        $("body").removeClass("modal-open").css("overflow", "");
+
         Swal.fire({
-          title: "แจ้งเตือน?",
+          title: "แจ้งเตือน",
           text: "อนุมัติการจองยานพาหนะสำเร็จ!",
           icon: "success",
           confirmButtonColor: "#3085d6",
           confirmButtonText: "ตกลง!",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = "../../CarBooking/Approve/Admin";
-          }
+        }).then(() => {
+          $("#TBShowDataCarBookingAdmin").DataTable().ajax.reload(null, false);
         });
+      } else {
+        Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
       }
-      //$('.modal-backdrop').removeClass
-      $("#ModalApproveAdmin").modal("hide");
-      $("#BtnSubBooking").removeClass("disabled");
-      $("#spinner").remove();
     },
+    complete: function() {
+      $btn.html(originalHtml).removeClass("disabled");
+    }
   });
 });
 
 $(document).on("click", "#BtnNoAppoveCarBooking", function (e) {
   e.preventDefault();
-  //console.log($('#carbookingID').val());
+  const $btn = $(this);
+  const originalHtml = $btn.html();
 
   $.ajax({
     url: "../../CarBooking/DB/NoAppoveCarReservationAdmin",
     method: "POST",
     data: { carbookingID: $("#carbookingID").val() },
     beforeSend: function () {
-      $("#BtnNoAppoveCarBooking").html(
-        '<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span class="">กำลังบันทึก...</span>'
-      );
-      $("#BtnNoAppoveCarBooking").addClass("disabled");
+      $btn.html('<div class="spinner-border spinner-border-sm text-white me-1" role="status"></div> กำลังบันทึก...').addClass("disabled");
     },
     success: function (data) {
-      console.log(data);
       if (data > 0) {
+        $("#ModalApproveAdmin").modal("hide");
+        $(".modal-backdrop").remove();
+        $("body").removeClass("modal-open").css("overflow", "");
+
         Swal.fire({
-          title: "แจ้งเตือน?",
+          title: "แจ้งเตือน",
           text: "ไม่อนุมัติการจองยานพาหนะสำเร็จ!",
           icon: "success",
           confirmButtonColor: "#3085d6",
           confirmButtonText: "ตกลง!",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = "../../CarBooking/Approve/Admin";
-          }
+        }).then(() => {
+          $("#TBShowDataCarBookingAdmin").DataTable().ajax.reload(null, false);
         });
       }
-      $("#ModalApproveAdmin").modal("hide");
-      $("#BtnNoAppoveCarBooking").removeClass("disabled");
-      $("#spinner").remove();
-      $("#BtnNoAppoveCarBooking").html("ไม่อนุมัติ");
     },
+    complete: function() {
+      $btn.html(originalHtml).removeClass("disabled");
+    }
   });
 });
 
 $(document).on("click", "#BtnCancelBooking", function () {
-  //alert($(this).attr('key-id'));
+  const $btn = $(this);
+  const originalHtml = $btn.html();
   Swal.fire({
     title: "ต้องการยกเลิกการจองหรือไม่?",
     icon: "warning",
@@ -388,15 +474,26 @@ $(document).on("click", "#BtnCancelBooking", function () {
     confirmButtonText: "ตกลง",
   }).then((result) => {
     if (result.isConfirmed) {
-      $.post(
-        "../../Booking/DB/Cancel",
-        { KeyID: $(this).attr("key-id") },
-        function (data) {
-          console.log(data);
-          // $('#TBShowDataBooking').DataTable().ajax.reload();
-          location.reload(true);
+      $.ajax({
+        url: "../../Booking/DB/Cancel",
+        method: "POST",
+        data: { KeyID: $btn.attr("key-id") },
+        beforeSend: function() {
+            $btn.html('<div class="spinner-border spinner-border-sm text-white" role="status"></div>').addClass("disabled");
+        },
+        success: function(data) {
+           Swal.fire('สำเร็จ', 'ยกเลิกการจองเรียบร้อย', 'success').then(() => {
+              if ($("#TBShowDataCarBookingAdmin").length) {
+                $("#TBShowDataCarBookingAdmin").DataTable().ajax.reload(null, false);
+              } else {
+                location.reload();
+              }
+           });
+        },
+        complete: function() {
+            $btn.html(originalHtml).removeClass("disabled");
         }
-      );
+      });
     }
   });
 });

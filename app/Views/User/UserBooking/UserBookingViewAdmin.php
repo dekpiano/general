@@ -1,112 +1,275 @@
 <?= $this->extend('User/UserLayout/user_layout') ?>
+
 <?= $this->section('content') ?>
 
 <style>
-/* คอลัมน์ที่ 2 ให้ขึ้นบรรทัดใหม่ */
-table.dataTable td:nth-child(2),
-table.dataTable th:nth-child(2) {
-    white-space: normal !important;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
+    /* Premium CSS Variables */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #696cff 0%, #3f42ef 100%);
+        --success-gradient: linear-gradient(135deg, #71dd37 0%, #56b328 100%);
+        --warning-gradient: linear-gradient(135deg, #ffab00 0%, #e09600 100%);
+        --danger-gradient: linear-gradient(135deg, #ff3e1d 0%, #e6381a 100%);
+        --info-gradient: linear-gradient(135deg, #03c3ec 0%, #0299ba 100%);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    .admin-view-content-lux {
+        background-color: #f8faff;
+        min-height: 100vh;
+    }
+
+    /* Modern Banner Styling */
+    .admin-banner {
+        background: var(--primary-gradient);
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(105, 108, 255, 0.15);
+    }
+
+    .admin-banner::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+    /* Compact Stats Cards */
+    .stat-card-lux {
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        background: white;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card-lux .chart-box {
+        padding: 0.5rem;
+    }
+
+    .stat-card-lux h6 {
+        font-weight: 700;
+        color: #566a7f;
+        margin-bottom: 1rem;
+        padding: 1rem 1rem 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .stat-card-lux h6 i { color: #696cff; margin-right: 8px; }
+
+    /* Table Redesign: Compact & Clear */
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+
+    .custom-table {
+        border-collapse: separate;
+        border-spacing: 0 0;
+        width: 100% !important;
+    }
+
+    .custom-table thead th {
+        background: #f8faff;
+        border-bottom: 2px solid #eef2f7;
+        color: #495057;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.75rem;
+        padding: 0.8rem 0.75rem;
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f4f9;
+        background: white;
+    }
+
+    .custom-table tbody td {
+        padding: 0.6rem 0.75rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f4f9;
+        color: #566a7f;
+        font-size: 0.85rem;
+    }
+
+    /* Status Pills */
+    .status-pill {
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .status-pill.pending { background: #fff2e0; color: #ffab00; border: 1px solid #ffe5d0; }
+    .status-pill.approved { background: #e8fadf; color: #71dd37; border: 1px solid #d4f4cd; }
+    .status-pill.rejected { background: #ffeae7; color: #ff3e1d; border: 1px solid #ffdcd6; }
+
+    /* Custom Scrollbar for Table */
+    .table-responsive::-webkit-scrollbar { height: 6px; }
+    .table-responsive::-webkit-scrollbar-thumb { background: #eef2f7; border-radius: 10px; }
+
+    /* Premium Modals */
+    .modal-lux {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-lux .modal-header {
+        background: #f8faff;
+        border-bottom: 1px solid #eef2f7;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-lux .modal-footer {
+        background: #f8faff;
+        border-top: 1px solid #eef2f7;
+        padding: 1rem 1.5rem;
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .table-container { animation: fadeInUp 0.6s ease-out; }
 </style>
 
-<div class="container-xxl flex-grow-1 container-p-y demo">
-    <h4 class="py-3 mb-4"><span class="text-muted fw-light"><a
-                href="<?=base_url('Booking/Select')?>">สถานที่</a> / ข้อมูลการจองทั้งหมด</span>
+<div class="container-xxl flex-grow-1 container-p-y admin-view-content-lux">
+    <!-- Banner Header -->
+    <div class="admin-banner d-flex align-items-center justify-content-between">
+        <div class="z-px-2">
+            <h3 class="fw-bold text-white mb-1"><i class='bx bxs-buildings me-2'></i>จัดการอนุมัติห้องประชุมและสถานที่</h3>
+            <p class="mb-0 text-white opacity-75">ตรวจสอบ ติดตาม และอนุมัติรายการขอใช้สถานที่ทั้งหมดของโรงเรียน</p>
+        </div>
+        <div class="d-none d-md-block z-px-2">
+            <img src="<?=base_url('assets/img/illustrations/man-with-laptop-light.png')?>" height="100" alt="Admin Illustration">
+        </div>
+    </div>
 
-    </h4>
-
-    <div class="row">
+    <!-- Quick Stats Row -->
+    <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                <h6>สัดส่วนการใช้ทรัพยากร</h6>
-                    <div class="chart-box">
-                        <div id="pie-chart"></div>
-                    </div>
+            <div class="stat-card-lux card shadow-none h-100">
+                <h6><i class='bx bx-pie-chart-alt'></i>สัดส่วนการใช้สถานที่</h6>
+                <div class="chart-box">
+                    <div id="pie-chart"></div>
                 </div>
             </div>
         </div>
-
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                <h6>ผู้ใช้งานระบบจองมากที่สุด 5 อันดับแรก</h6>
-                    <div class="chart-box">
+            <div class="stat-card-lux card shadow-none h-100">
+                <h6><i class='bx bx-trending-up'></i>ผู้จองสูงสุด 5 อันดับแรก</h6>
+                <div class="chart-box">
                     <div id="bar-chart"></div>
-                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                <h6>การอนุมัติ</h6>
-                    <div class="chart-box">
+            <div class="stat-card-lux card shadow-none h-100">
+                <h6><i class='bx bx-check-shield'></i>สรุปการดำเนินการ</h6>
+                <div class="chart-box">
                     <div id="chart-Approve"></div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card mt-3">
-        <h5 class="card-header">ข้อมูลการจองทั้งหมด</h5>
-        <div class="table-responsive text-nowrap p-3">
-            <table class="table table-hover display nowrap" id="TBShowDataBookingAdmin" style="width:100%">
+    <!-- Main Data Table Container -->
+    <div class="table-container">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+            <div>
+                <h5 class="fw-bold mb-1">รายการจองทั้งหมด</h5>
+                <p class="text-muted small mb-0">แสดงข้อมูลล่าสุดเรียงตามลำดับเวลา</p>
+            </div>
+            <div class="search-box">
+                <div class="input-group input-group-merge shadow-none">
+                    <span class="input-group-text bg-light border-0"><i class="bx bx-search"></i></span>
+                    <input type="text" id="tableSearch" class="form-control bg-light border-0 px-2" placeholder="ค้นหา รหัส, ชื่อผู้จอง, สถานที่..." style="width: 250px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table custom-table w-100" id="TBShowDataBookingAdmin">
                 <thead>
                     <tr>
-                        <th>เลขที่จอง </th>
-                        <th>หัวข้อ</th>
-                        <th>ชื่อห้อง</th>
-                        <th>ชื่อผู้จอง</th>
+                        <th>เลขที่/ผู้จอง</th>
+                        <th>รายละเอียด/หัวข้อ</th>
+                        <th>สถานที่</th>
                         <th>สถานะ</th>
                         <th>เหตุผล</th>
-                        <th>อนุมัติ</th>
-                        <th>ลายเซ็น</th>
-                        <th>เอกสาร</th>
+                        <th class="text-end">จัดการ</th>
                     </tr>
                 </thead>
-                <tbody class="table-border-bottom-0">
-
+                <tbody>
+                    <!-- DataTable content injected via JS -->
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="ModalSignatureAdmin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+<!-- Modal: Signature -->
+<div class="modal fade" id="ModalSignatureAdmin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-lux">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">ลายเซ็น</h5>
+                <div>
+                    <h5 class="modal-title fw-bold mb-1">ลงนามอนุมัติ (E-Signature)</h5>
+                    <p class="text-muted small mb-0">กรุณาลงลายเซ็นเพื่อยืนยันการอนุมัติใบงาน</p>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center">
-                <canvas id="SignatureAdmin" width="400" height="200" style="border: 1px solid #000;"></canvas><br>
-                <button id="clear">ล้างลายเซ็น</button>
-                <hr>
+            <div class="modal-body text-center py-4">
+                <div class="signature-wrapper mb-3" style="background: #fdfdfd; border-radius: 8px;">
+                    <canvas id="SignatureAdmin" width="400" height="200" style="border: 2px dashed #dce1e6; border-radius: 8px; max-width: 100%;"></canvas>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="clear">
+                    <i class='bx bx-eraser me-1'></i> ล้างลายเซ็น
+                </button>
             </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-primary" id="SaveSignatureAdmin">บันทึกลายเซ็น</button>
+            <div class="modal-footer d-flex gap-2">
+                <button type="button" class="btn btn-label-secondary btn-lg rounded-pill flex-fill" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-primary btn-lg rounded-pill flex-fill shadow-primary" id="SaveSignatureAdmin">
+                    <i class='bx bx-save me-1'></i> บันทึกลายเซ็น
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+<!-- Modal: Generic Detail / Image -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content modal-lux">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalLabel">รายละเอียด</h5>
+        <h5 class="modal-title fw-bold">รายละเอียดแนบ</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" id="modalBody">
-        <!-- เนื้อหาจะถูกโหลดมาตรงนี้ -->
+      <div class="modal-body p-0" id="modalBody">
+        <!-- Image content -->
       </div>
     </div>
   </div>

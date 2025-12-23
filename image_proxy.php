@@ -33,6 +33,13 @@
 
     // ตรวจสอบว่าดึงข้อมูลสำเร็จหรือไม่
     if ($httpCode == 200 && $imageData) {
+        // ตั้งค่า Cache ให้ Browser จำรูปภาพไว้ (เช่น 7 วัน)
+        $seconds_to_cache = 3600 * 24 * 7;
+        $ts = gmdate("D, d M Y H:i:s", time() + $seconds_to_cache) . " GMT";
+        header("Expires: $ts");
+        header("Pragma: cache");
+        header("Cache-Control: max-age=$seconds_to_cache");
+
         // ส่ง header Content-Type ที่ถูกต้องของรูปภาพ
         header('Content-Type: ' . $contentType);
         // แสดงผลข้อมูลรูปภาพ

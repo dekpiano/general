@@ -53,6 +53,9 @@ class ConUserCarBooking extends BaseController
 
     private function sendLineMessage($userId, $messageText)
     {
+        if (ENVIRONMENT !== 'production') {
+            return null;
+        }
         $accessToken = 'sNlR5f0V6R5ymIr7KPd5Xp8orbv7moKfar4WUYQF2uOwLvIVJrl0QYkd6vdNArphKzH9Uu0kIeOyjIXOjYkAnXcLmdCR0zJeAOakv8LrwTjlqXi9i0nJrYe/9aBFQsSuvybozfMDE6Ao/C1kmaqDgAdB04t89/1O/w1cDnyilFU=';
 
         $data = [
@@ -310,7 +313,9 @@ class ConUserCarBooking extends BaseController
                 </div>";
                 
                 $email->setMessage($html);
-                $email->send();
+                if (ENVIRONMENT === 'production') {
+                    $email->send();
+                }
             }
             echo 1;
         }
@@ -590,8 +595,10 @@ class ConUserCarBooking extends BaseController
                         </ul>
                     </div>";
                     
-                    $email->setMessage($html);
-                    $email->send();
+                    if (ENVIRONMENT === 'production') {
+                        $email->setMessage($html);
+                        $email->send();
+                    }
                  }
             }
             echo 1;
@@ -656,9 +663,34 @@ class ConUserCarBooking extends BaseController
                 </div>";
                 
                 $email->setMessage($html);
-                $email->send();
+                if (ENVIRONMENT === 'production') {
+                    $email->send();
+                }
             }
 
+            echo 1;
+        } else {
+            echo 0;
+        }
+    }
+
+    public function CarBookingResetStatus(){
+        $session = session();
+        if(!$session->get('username')){
+            echo 0; return;
+        }
+
+        $database = \Config\Database::connect();
+        $DBCarReservation = $database->table('tb_car_reservation');
+        
+        $data = array(
+            'car_reserv_driver' => "",
+            'car_reserv_status' => 'รอตรวจสอบ',
+            'car_reserv_approver' => ""
+        );
+        
+        $DBCarReservation->where('car_reserv_id', $this->request->getVar('carbookingID'));
+        if($DBCarReservation->update($data)){
             echo 1;
         } else {
             echo 0;
@@ -1072,12 +1104,15 @@ class ConUserCarBooking extends BaseController
             $html = "<a href='https://general.skj.ac.th/CarBooking/Approve/Admin' traget='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
             $email->setMessage($html);
 
-            // Send email
-            if ($email->send()) {
-                echo $this->request->getVar('booking_locationroom');
+            if (ENVIRONMENT === 'production') {
+                if ($email->send()) {
+                    echo $this->request->getVar('booking_locationroom');
+                } else {
+                    $data = $email->printDebugger(['headers']);
+                    print_r($data);
+                }
             } else {
-                $data = $email->printDebugger(['headers']);
-                print_r($data);
+                echo $this->request->getVar('booking_locationroom');
             }
         }
             

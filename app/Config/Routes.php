@@ -53,6 +53,7 @@ $routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Admin', 'ConUserBoo
 $routes->match(['get', 'post'],'Booking/DB/DataTable/Approve/Executive', 'ConUserBooking::BookingDataTableApproveExecutive');
 $routes->match(['get', 'post'],'Booking/DB/BookingApproveAdmin', 'ConUserBooking::BookingCheckApproveAdmin');
 $routes->match(['get', 'post'],'Booking/DB/BookingNoApproveAdmin', 'ConUserBooking::BookingNoApproveAdmin');
+$routes->match(['get', 'post'],'Booking/DB/ResetAppoveBookingAdmin', 'ConUserBooking::BookingResetStatus');
 $routes->match(['get', 'post'],'Booking/DB/BookingSignatureAdmin/Save', 'ConUserBooking::BookingSignatureAdminSave');
 $routes->match(['get', 'post'],'Booking/DB/BookingSignatureAdmin/Show/(:any)', 'ConUserBooking::BookingSignatureAdminShow/$1');
 $routes->match(['get', 'post'],'Booking/DB/BookingSignatureExecutive/Save', 'ConUserBooking::BookingSignatureExecutiveSave');
@@ -76,6 +77,7 @@ $routes->get('CarBooking/Approve/Admin', 'ConUserCarBooking::CarBookingViewAppro
 $routes->match(['get', 'post'],'CarBooking/DB/DataTable/Approve/Admin', 'ConUserCarBooking::CarBookingDataTableApproveAdmin');
 $routes->match(['get', 'post'],'CarBooking/DB/AppoveCarReservationAdmin', 'ConUserCarBooking::CarBookingApproveAdmin');
 $routes->match(['get', 'post'],'CarBooking/DB/NoAppoveCarReservationAdmin', 'ConUserCarBooking::CarBookingNoApproveAdmin');
+$routes->match(['get', 'post'],'CarBooking/DB/ResetAppoveCarReservationAdmin', 'ConUserCarBooking::CarBookingResetStatus');
 
 $routes->get('CarBooking/Approve/Admin/Print/(:any)', 'ConUserCarBooking::PrintApproveCarBooking/$1');
 $routes->match(['get', 'post'],'Booking/DB/BookingCarChart', 'ConUserCarBooking::BookingCarChart');

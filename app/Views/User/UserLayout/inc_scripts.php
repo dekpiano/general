@@ -25,7 +25,7 @@
 
     <!-- Page-specific scripts -->
     <?php if($uri->getSegment(1) == 'Booking') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=26"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=29"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
     <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingCrop.js?v=3"></script>
     

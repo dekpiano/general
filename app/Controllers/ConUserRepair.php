@@ -98,6 +98,9 @@ class ConUserRepair extends BaseController
 
     private function sendLineMessage($userId, $messageText)
     {
+        if (ENVIRONMENT !== 'production') {
+            return null;
+        }
         $accessToken = '7gfC9gYjR4S/xRSGeqlOuXo9ZVR5TSvyAUSdgDRMDn4los6yawPmupV+iq47du3cwHjMYzG9SeWz97kGTGsNm+tVww6pHgHQNk7xA3HNHUatjywK/0Pfq98hW5EmM0Xg9PpGHcRZ3zpnQ7evs8yYWwdB04t89/1O/w1cDnyilFU=';
 
         $data = [
@@ -449,8 +452,7 @@ class ConUserRepair extends BaseController
 
     
     public function PrintOrder($RepairId){
-        $path = (dirname(dirname(dirname(dirname(dirname(__FILE__))))));
-		require $path . '/librarie_skj/mpdf/vendor/autoload.php';
+        require SHARED_LIB_PATH . '/mpdf/vendor/autoload.php';
 
         $DBrepair = \Config\Database::connect();
         $TBrepair = $DBrepair->table('tb_repair');

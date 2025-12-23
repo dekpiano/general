@@ -21,6 +21,9 @@ class ConUserBooking extends BaseController
 
     private function sendLineMessage($userId, $messageText)
     {
+        if (ENVIRONMENT !== 'production') {
+            return null;
+        }
         $accessToken = '6uPLX8E6wzICMzMr16kab9Qrf1gorrrbHBJHJ4rK7HFCsP/258uqhgqbf8i9VoopJX4o/4T9Go4gfKzQmxQryJG+LvnYfD3tHtrKXJ24SfsFEKXcW6xFBepKWOGRsoito2pr5neKVHNmSfjfDdwNowdB04t89/1O/w1cDnyilFU=';
 
         $data = [
@@ -291,8 +294,10 @@ class ConUserBooking extends BaseController
                         <p><a href='".base_url("Booking/View/All")."'>ตรวจสอบสถานะการจอง</a></p>
                     </div>";
                     
-                    $email->setMessage($html);
-                    $email->send();
+                    if (ENVIRONMENT === 'production') {
+                        $email->setMessage($html);
+                        $email->send();
+                    }
                 
                 
                 // Send Email to Booker (if email exists in personnel table, need to join or fetch)
@@ -811,14 +816,14 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('booking_id,booking_order,booking_telephone,booking_Booker,booking_locationroom,booking_title,booking_dateStart,booking_dateEnd,booking_timeStart,booking_timeEnd,booking_admin_approve,booking_admin_reason,booking_executive_approve,location_name,booking_imgWork,
+       $S_data = $DBbooking->select('tb_booking.booking_id, tb_booking.booking_order, tb_booking.booking_telephone, tb_booking.booking_Booker, tb_booking.booking_locationroom, tb_booking.booking_title, tb_booking.booking_dateStart, tb_booking.booking_dateEnd, tb_booking.booking_timeStart, tb_booking.booking_timeEnd, tb_booking.booking_admin_approve, tb_booking.booking_admin_reason, tb_booking.booking_executive_approve, tb_location.location_name,
         CONCAT(p1.pers_prefix, p1.pers_firstname, " ", p1.pers_lastname) AS booker_name,
         CONCAT(p2.pers_prefix, p2.pers_firstname, " ", p2.pers_lastname) AS admin_name,
         CONCAT(p3.pers_prefix, p3.pers_firstname, " ", p3.pers_lastname) AS executive_name')
        ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
        ->join('skjacth_personnel.tb_personnel AS p1', 'tb_booking.booking_Booker = p1.pers_id')
-        ->join('skjacth_personnel.tb_personnel AS p2', 'tb_booking.booking_admin_check = p2.pers_id', 'left')
-        ->join('skjacth_personnel.tb_personnel AS p3', 'tb_booking.booking_executive_approve = p3.pers_id', 'left')
+       ->join('skjacth_personnel.tb_personnel AS p2', 'tb_booking.booking_admin_check = p2.pers_id', 'left')
+       ->join('skjacth_personnel.tb_personnel AS p3', 'tb_booking.booking_executive_check = p3.pers_id', 'left')
        //->where('booking_admin_approve','อนุมัติ')
        ->orderBy('booking_id', 'DESC')
        ->get()->getResult();
@@ -841,7 +846,7 @@ class ConUserBooking extends BaseController
                 'booker' => $value->booker_name,
                 'admin_name' => $value->admin_name,
                 'executive_name' => $value->executive_name,
-                'booking_imgWork' => $value->booking_imgWork,
+                'booking_imgWork' => isset($value->booking_imgWork) ? $value->booking_imgWork : null,
             ];        
         }
 
@@ -989,14 +994,9 @@ class ConUserBooking extends BaseController
                 </body>
                 </html>';
 
-            $email->setMessage($html);
-
-            // Send email
-            if ($email->send()) {
-                echo $this->request->getVar('booking_locationroom');
-            } else {
-                $data = $email->printDebugger(['headers']);
-                print_r($data);
+            if (ENVIRONMENT === 'production') {
+                $email->setMessage($html);
+                $email->send();
             }
 
             // ส่ง LINE แจ้งเตือน
@@ -1080,9 +1080,36 @@ class ConUserBooking extends BaseController
         }
     }
 
+    public function BookingResetStatus(){
+        $session = session();
+        if(!$session->get('username')){
+            echo 0; return;
+        }
+
+        $database = \Config\Database::connect();
+        $DBbooking = $database->table('tb_booking');
+        
+        $data = array(
+            'booking_admin_approve' => 'รอตรวจสอบ',
+            'booking_admin_reason' => "",
+            'booking_admin_signature' => "",
+            'booking_admin_check' => NULL,
+            'booking_admin_datecheck' => NULL
+        );
+        
+        // ถ้าเป็นผู้บริหาร ก็รีเซ็ตของรองด้วย (ถ้ามี logic แยก)
+        // แต่ในตาราง tb_booking ดูเหมือนจะมีฟิลด์แยกกัน
+        
+        $DBbooking->where('booking_id', $this->request->getVar('BookingID'));
+        if($DBbooking->update($data)){
+            echo 1;
+        } else {
+            echo 0;
+        }
+    }
+
     public function BookingRequestform($IDBooking){
-        $path = (dirname(dirname(dirname(dirname(dirname(__FILE__))))));
-		require $path . '/librarie_skj/mpdf/vendor/autoload.php';
+        require SHARED_LIB_PATH . '/mpdf/vendor/autoload.php';
         $session = session();
         $Datethai = new Datethai();  
         $database = \Config\Database::connect();
