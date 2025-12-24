@@ -283,6 +283,7 @@ $(document).on("click", ".btn-cancel-reject-room, .btn-cancel-approve-room", fun
 
 
 
+/* 
 $(document).on('submit', '#FormAddBooking', function (e) {
     e.preventDefault();
     $.ajax({
@@ -348,6 +349,7 @@ $(document).on('submit', '#FormEditBooking', function (e) {
         }
     });
 });
+*/
 
 $(document).on('click', '#BtnCancelBooking', function () {
     //alert($(this).attr('key-id'));

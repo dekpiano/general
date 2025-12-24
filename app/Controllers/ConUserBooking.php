@@ -250,31 +250,20 @@ class ConUserBooking extends BaseController
             ->get()->getRowArray();
             
             if ($Booking) {
+                // 1. Line Message
                 $msg = "📣 แจ้งเตือนการขอใช้อาคารสถานที่ SKJ\n";
                 $msg .= "👤 ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}\n";
-                $msg .= "📅 วันที่ขอ: ".
-                    
-                        $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))
-                    
-                     ." - ".
-                    
-                        $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))
-                    
-                    ."
-";
+                $msg .= "📅 วันที่ขอ: " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart'])) . " - " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd'])) . "\n";
                 $msg .= "⛪ สถานที่: {$Booking['location_name']}\n";
                 $msg .= "🎯 วัตถุประสงค์: {$Booking['booking_title']}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Booking/Approve/Admin");
 
-                // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
-                // เช็คว่าเป็น localhost หรือไม่
-                // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
                 if (ENVIRONMENT === 'production') {
                     $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
                 
-                    // Send Email to Booker
+                    // 2. Email to Booker
                     $email = \Config\Services::email(); 
-                    $email->setFrom($_SESSION['email'], "ระบบจองอาคารสถานที่ SKJ");
+                    $email->setFrom('admin_booking@skj.ac.th', "ระบบจองอาคารสถานที่ SKJ");
                     $email->setTo($Booking['pers_username']);
                     $email->setSubject("แจ้งการขอใช้อาคารสถานที่: รอการตรวจสอบ");
                     
@@ -293,42 +282,28 @@ class ConUserBooking extends BaseController
                         </ul>
                         <p><a href='".base_url("Booking/View/All")."'>ตรวจสอบสถานะการจอง</a></p>
                     </div>";
-                    
-                    if (ENVIRONMENT === 'production') {
-                        $email->setMessage($html);
-                        $email->send();
-                    }
-                
-                
-                // Send Email to Booker (if email exists in personnel table, need to join or fetch)
-                // Assuming we want to notify admin or specific user as requested "แจ้งเตือน เข้าอีเมลคนจอง"
-                // We need the booker's email. Let's assume it's in tb_personnel (though not selected above).
-                // Let's fetch the booker's email.
-                
-                $BookerEmail = $DBbooking->select('skjacth_personnel.tb_personnel.pers_username'); // Assuming username is email or there is an email column. Based on memory, there is no explicit email column, maybe username is email? Or need to check schema. 
-                // Memory says: pers_username, pers_facebook, etc. No explicit 'email'. 
-                // Let's assume for now we send to a fixed admin email or if the user provided one.
-                // The user said "แจ้งเตือน เข้าอีเมลคนจอง".
-                // If we don't have the booker's email in the form, we might need to look it up.
-                // Let's use the code provided in the commented out section as a base, which sends to "dekpiano@skj.ac.th".
-                
-                if (ENVIRONMENT === 'production') {
-                    $email = \Config\Services::email(); 
-                    $email->setFrom('admin_booking@skj.ac.th', "ระบบการจองอาคารสถานที่ SKJ");
-                    
-                    // Send to Admin/Staff (Fixed email from previous code)
-                    $email->setTo("dekpiano@skj.ac.th"); 
-                    
-                    $email->setSubject("แจ้งการจองใหม่: " . $Booking['booking_title']);
-                    $html = "มีการจองใหม่เข้ามา:<br>";
-                    $html .= "ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}<br>";
-                    $html .= "สถานที่: {$Booking['location_name']}<br>";
-                    $html .= "วันที่: " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart'])) . " - " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd'])) . "<br>";
-                    $html .= "<a href='" . base_url('Booking/Approve/Admin') . "' target='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
-                    
                     $email->setMessage($html);
                     $email->send();
+
+                    // 3. Email to Admin
+                    $adminEmail = \Config\Services::email(); 
+                    $adminEmail->setFrom('admin_booking@skj.ac.th', "ระบบการจองอาคารสถานที่ SKJ");
+                    $adminEmail->setTo("dekpiano@skj.ac.th"); 
+                    $adminEmail->setSubject("แจ้งการจองใหม่: " . $Booking['booking_title']);
+                    $adminHtml = "มีการจองใหม่เข้ามา:<br>";
+                    $adminHtml .= "ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}<br>";
+                    $adminHtml .= "สถานที่: {$Booking['location_name']}<br>";
+                    $adminHtml .= "วันที่: " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart'])) . " - " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd'])) . "<br>";
+                    $adminHtml .= "<a href='" . base_url('Booking/Approve/Admin') . "' target='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+                    $adminEmail->setMessage($adminHtml);
+                    $adminEmail->send();
                 }
+
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'message' => 'บันทึกข้อมูลการจองเรียบร้อยแล้ว',
+                    'location_id' => $this->request->getVar('booking_locationroom')
+                ]);
 
             } else {
                 return $this->response->setJSON([
@@ -343,7 +318,6 @@ class ConUserBooking extends BaseController
             ]);
         }
     }
-}
 
     public function BookingUpdate(){
 
