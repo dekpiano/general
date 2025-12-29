@@ -4,8 +4,8 @@ namespace App\Controllers;
 use App\Libraries\Datethai;
 use CodeIgniter\Files\File;
 
-error_reporting(-1);
-ini_set('display_errors', 1);
+// error_reporting(-1);
+// ini_set('display_errors', 1);
 
 class ConUserRepair extends BaseController
 {  
@@ -88,7 +88,7 @@ class ConUserRepair extends BaseController
         $TBPres = $DBpers->table('tb_personnel');
 
         $this->request->getVar('repair_posi');
-        $data = $TBPres->select('pers_id,pers_prefix,pers_firstname,pers_lastname')
+        $data = $TBPres->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_phone')
         ->where('pers_position',$this->request->getVar('repair_posi'))
         ->where('pers_status','กำลังใช้งาน')
         ->get()->getResult();
@@ -98,7 +98,8 @@ class ConUserRepair extends BaseController
 
     private function sendLineMessage($userId, $messageText)
     {
-        if (ENVIRONMENT !== 'production') {
+        // ไม่ส่งถ้าไม่ใช่ production หรือเป็น localhost
+        if (ENVIRONMENT !== 'production' || in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
             return null;
         }
         $accessToken = '7gfC9gYjR4S/xRSGeqlOuXo9ZVR5TSvyAUSdgDRMDn4los6yawPmupV+iq47du3cwHjMYzG9SeWz97kGTGsNm+tVww6pHgHQNk7xA3HNHUatjywK/0Pfq98hW5EmM0Xg9PpGHcRZ3zpnQ7evs8yYWwdB04t89/1O/w1cDnyilFU=';
@@ -211,8 +212,8 @@ class ConUserRepair extends BaseController
                 $msg .= "📅 วันที่แจ้ง: {$Datethai->thai_date_fullmonth(strtotime(date('Y-m-d H:i:s')))}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Repair/View/".$Repair->repair_order);
 
-                // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
-                if (ENVIRONMENT === 'production') {
+                // ไม่ส่งแจ้งเตือนถ้าเป็น development environment หรือเป็น localhost
+                if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
                     // 3. ส่งข้อความ Line (ใช้ userId หรือ groupId ของช่าง)
                     $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
 
@@ -355,99 +356,178 @@ class ConUserRepair extends BaseController
     }
   
     public function RepairUpdateWork(){
-        $DBrepair = \Config\Database::connect();
-        $TBrepair = $DBrepair->table('tb_repair');       
-        $image = $this->request->getFile('repair_imgwork');
-       
-        $filePath = FCPATH .'uploads/admin/Repair/'.$this->request->getVar('imgwork');
-        // print_r($filePath); exit();
-        @unlink($filePath);
-        
+        try {
+            $DBrepair = \Config\Database::connect();
+            $TBrepair = $DBrepair->table('tb_repair');
+            $Datethai = new Datethai();       
+            $image = $this->request->getFile('repair_imgwork');
+            
+            $imgWorkPost = $this->request->getVar('imgwork');
+            if (!empty($imgWorkPost)) {
+                $filePath = ROOTPATH .'uploads/admin/Repair/'.$imgWorkPost;
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
 
-        if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
-           
-            $newName = $image->getRandomName();
-            $image->move(ROOTPATH . 'uploads/admin/Repair/', $newName);
-    
-            $this->resizeImage('uploads/admin/Repair/' . $newName, 2048, 1024);
-    
-            $data = [
-                'repair_status' => $this->request->getPost('repair_status'),
-                'repair_datework' => $this->request->getPost('repair_datework'),
-                'repair_Repairman' => $this->request->getPost('repair_Repairman'),
-                'repair_cause' => $this->request->getPost('repair_cause'),
-                'repair_imgwork'  => $newName,
-                'repair_adminsignature' => $this->request->getPost('Signature')
-            ];
+            if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
+                $newName = $image->getRandomName();
+                $image->move(ROOTPATH . 'uploads/admin/Repair/', $newName);
+                $this->resizeImage('uploads/admin/Repair/' . $newName, 2048, 1024);
+                $data = [
+                    'repair_status' => $this->request->getPost('repair_status'),
+                    'repair_datework' => $this->request->getPost('repair_datework'),
+                    'repair_Repairman' => $this->request->getPost('repair_Repairman'),
+                    'repair_cause' => $this->request->getPost('repair_cause'),
+                    'repair_imgwork'  => $newName,
+                    'repair_adminsignature' => $this->request->getPost('Signature')
+                ];
+            } else {
+                $data = [
+                    'repair_status' => $this->request->getPost('repair_status'),
+                    'repair_datework' => $this->request->getPost('repair_datework'),
+                    'repair_Repairman' => $this->request->getPost('repair_Repairman'),
+                    'repair_cause' => $this->request->getPost('repair_cause'),
+                    'repair_adminsignature' => $this->request->getPost('Signature')
+                ];
+            }
 
-           
-        } else {
-            $data = [
-                'repair_status' => $this->request->getPost('repair_status'),
-                'repair_datework' => $this->request->getPost('repair_datework'),
-                'repair_Repairman' => $this->request->getPost('repair_Repairman'),
-                'repair_cause' => $this->request->getPost('repair_cause'),
-                'repair_adminsignature' => $this->request->getPost('Signature')
-            ];
-        }
-            $TBrepair->where('repair_order', $this->request->getPost('repair_order'));
-        if ($TBrepair->update($data)) {
-             // ตรวจสอบและส่ง Email แจ้งเตือนผู้แจ้งเมื่อดำเนินการเสร็จสิ้น
-             if ($this->request->getPost('repair_status') == 'ดำเนินการเรียบร้อย') {
-                 // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
-                 if (ENVIRONMENT === 'production') {
+            if ($TBrepair->where('repair_order', $this->request->getPost('repair_order'))->update($data)) {
+                 // ไม่ส่งแจ้งเตือนถ้าไม่ใช่ production หรือเป็น localhost
+                 $host = explode(':', $_SERVER['HTTP_HOST'])[0];
+                 if (ENVIRONMENT === 'production' && !in_array($host, ['localhost', '127.0.0.1'])) {
                     $DBpers = \Config\Database::connect('personnel');
                     $TBpers = $DBpers->table('tb_personnel');
- 
-                    // ดึงข้อมูลผู้แจ้งซ่อม
-                    $RepairInfo = $TBrepair->select('repair_userID, repair_order, repair_caselist, repair_detail, repair_building, repair_class, repair_room')
+                    
+                    $RepairInfo = $DBrepair->table('tb_repair')
+                        ->select('repair_userID, repair_order, repair_caselist, repair_detail, repair_building, repair_class, repair_room')
                         ->where('repair_order', $this->request->getPost('repair_order'))
                         ->get()->getRow();
- 
+
                     if ($RepairInfo) {
                         $Requester = $TBpers->select('pers_username, pers_prefix, pers_firstname, pers_lastname')
                             ->where('pers_id', $RepairInfo->repair_userID)
                             ->get()->getRow();
- 
+
                         if ($Requester && !empty($Requester->pers_username)) {
                              $RequesterName = $Requester->pers_prefix . $Requester->pers_firstname . ' ' . $Requester->pers_lastname;
-                             $email = \Config\Services::email();
-                             $email->setFrom('adminRepair@skj.ac.th', 'ระบบแจ้งซ่อมออนไลน์ (สวนกุหลาบวิทยาลัย จิรประวัติ)');
-                             $email->setTo($Requester->pers_username);
-                             $email->setSubject('แจ้งผลการดำเนินการซ่อม: ' . $RepairInfo->repair_caselist);
- 
-                             $htmlMessage = '<h4>เรียน ' . $RequesterName . '</h4>';
-                             $htmlMessage .= '<p>รายการแจ้งซ่อมของท่านได้รับการ <strong>ดำเนินการเรียบร้อยแล้ว</strong></p>';
-                             $htmlMessage .= '<hr>';
-                             $htmlMessage .= '<p><strong>เลขที่ใบแจ้งซ่อม:</strong> ' . $RepairInfo->repair_order . '</p>';
-                             $htmlMessage .= '<p><strong>รายการ:</strong> ' . $RepairInfo->repair_caselist . '</p>';
-                             $htmlMessage .= '<p><strong>รายละเอียด:</strong> ' . $RepairInfo->repair_detail . '</p>';
-                             $htmlMessage .= '<p><strong>สถานที่:</strong> ' . $RepairInfo->repair_building . ' ชั้น ' . $RepairInfo->repair_class . ' ห้อง ' . $RepairInfo->repair_room . '</p>';
-                             $htmlMessage .= '<p><strong>สาเหตุ/วิธีแก้ไข:</strong> ' . $this->request->getPost('repair_cause') . '</p>';
-                             $htmlMessage .= '<p><strong>วันที่ดำเนินการ:</strong> ' . $this->request->getPost('repair_datework') . '</p>';
-                             $htmlMessage .= '<hr>';
-                             $htmlMessage .= '<p>ท่านสามารถตรวจสอบรายละเอียดเพิ่มเติมได้ที่: <a href="' . base_url('Repair/View/' . $RepairInfo->repair_order) . '">คลิกที่นี่</a></p>';
- 
-                             $email->setMessage($htmlMessage);
-                             $email->setMailType('html');
-                             $email->send();
+                             $currentStatus = $this->request->getPost('repair_status');
+                             
+                             try {
+                                 $email = \Config\Services::email();
+                                 $email->setFrom('adminRepair@skj.ac.th', 'ระบบแจ้งซ่อมออนไลน์ (สวนกุหลาบวิทยาลัย จิรประวัติ)');
+                                 $email->setTo($Requester->pers_username);
+                                 $email->setSubject('อัปเดตสถานะแจ้งซ่อม: ' . $RepairInfo->repair_caselist . ' [' . $currentStatus . ']');
+
+                                 $htmlMessage = '<h4>เรียน ' . $RequesterName . '</h4>';
+                                 $htmlMessage .= '<p>รายการแจ้งซ่อมของท่านมีการอัปเดตสถานะเป็น: <strong style="color: #696cff;">' . $currentStatus . '</strong></p>';
+                                 $htmlMessage .= '<hr>';
+                                 $htmlMessage .= '<p><strong>เลขที่ใบแจ้งซ่อม:</strong> ' . $RepairInfo->repair_order . '</p>';
+                                 $htmlMessage .= '<p><strong>รายการ:</strong> ' . $RepairInfo->repair_caselist . '</p>';
+                                 $htmlMessage .= '<p><strong>รายละเอียดปัญหา:</strong> ' . $RepairInfo->repair_detail . '</p>';
+                                 $htmlMessage .= '<p><strong>สถานที่:</strong> ' . $RepairInfo->repair_building . ' ชั้น ' . $RepairInfo->repair_class . ' ห้อง ' . $RepairInfo->repair_room . '</p>';
+                                 
+                                 if(!empty($this->request->getPost('repair_cause'))) {
+                                    $htmlMessage .= '<p><strong>บันทึกจากเจ้าหน้าที่:</strong> ' . $this->request->getPost('repair_cause') . '</p>';
+                                 }
+                                 
+                                 $htmlMessage .= '<p><strong>วันที่อัปเดต:</strong> ' . $Datethai->thai_date_and_time(strtotime(date('Y-m-d H:i:s'))) . '</p>';
+                                 $htmlMessage .= '<hr>';
+                                 $htmlMessage .= '<p>ท่านสามารถตรวจสอบความคืบหน้าได้ที่: <a href="' . base_url('Repair/View/' . $RepairInfo->repair_order) . '">คลิกที่นี่เพื่อดูรายละเอียด</a></p>';
+
+                                 $email->setMessage($htmlMessage);
+                                 $email->setMailType('html');
+                                 $email->send();
+                             } catch (\Exception $e) {
+                                 log_message('error', 'Repair Email Error: ' . $e->getMessage());
+                             }
                         }
                     }
                  }
-             }
-             echo 1;
-        } else {
-             echo 0;
+                 return $this->response->setJSON([
+                     'status' => 'success',
+                     'message' => 'บันทึกข้อมูลการซ่อมและส่งการแจ้งเตือนเรียบร้อยแล้ว'
+                 ]);
+            } else {
+                 return $this->response->setJSON([
+                     'status' => 'error',
+                     'message' => 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง'
+                 ]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'RepairUpdateWork Error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'เกิดข้อผิดพลาดภายในระบบ: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function CleanupImages()
+    {
+        // Check permissions (Admin only)
+        $session = session();
+        $checkRloes = explode(",", @$_SESSION['rloes']);
+        if (empty($_SESSION['username']) || (!in_array("งานแจ้งซ่อม", $checkRloes) && !in_array("งานอาคารสถานที่", $checkRloes))) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้']);
         }
 
+        $db = \Config\Database::connect();
+        $tbrepair = $db->table('tb_repair');
+        
+        $repairData = $tbrepair->select('repair_imguser, repair_imgwork')->get()->getResult();
+        
+        $usedImages = [];
+        foreach ($repairData as $row) {
+            if (!empty($row->repair_imguser)) $usedImages[] = $row->repair_imguser;
+            if (!empty($row->repair_imgwork)) $usedImages[] = $row->repair_imgwork;
+        }
+        
+        $paths = [
+            'uploads/admin/Repair/' => 'repair_imgwork',
+            'uploads/admin/Repair/User/' => 'repair_imguser'
+        ];
+        
+        $deletedCount = 0;
+        $deletedFiles = [];
+
+        foreach ($paths as $relPath => $type) {
+            $absPath = ROOTPATH . $relPath;
+            if (is_dir($absPath)) {
+                $files = array_diff(scandir($absPath), array('.', '..', 'index.html', '.htaccess'));
+                foreach ($files as $file) {
+                    if (is_file($absPath . $file) && !in_array($file, $usedImages)) {
+                        // Check if it's an image
+                        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) {
+                            if (@unlink($absPath . $file)) {
+                                $deletedCount++;
+                                $deletedFiles[] = $relPath . $file;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => "ล้างไฟล์ขยะเรียบร้อยแล้ว จำนวน {$deletedCount} ไฟล์",
+            'deletedCount' => $deletedCount
+        ]);
     }
 
     private function resizeImage($path, $width, $height)
     {
-        $image = \Config\Services::image()
-            ->withFile(ROOTPATH . $path)
-            ->resize($width, $height, true) // ให้สมส่วน
-            ->save(ROOTPATH . $path);
+        try {
+            $image = \Config\Services::image()
+                ->withFile(ROOTPATH . $path)
+                ->resize($width, $height, true)
+                ->save(ROOTPATH . $path);
+        } catch (\Exception $e) {
+            // หากไม่มี GD หรือประมวลผลรูปไม่ได้ ให้ข้ามการ Resize ไปเพื่อให้ระบบยังทำงานต่อได้
+            log_message('error', 'Image Resizing Error: ' . $e->getMessage());
+        }
     }
 
     

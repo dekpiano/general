@@ -1,6 +1,6 @@
 <?= $this->include('User/UserLayout/inc_header') ?>
 
-<body style="font-family:'Sarabun'">
+<body style="font-family:'Prompt', sans-serif">
     <div id="page-loader"><div class="spinner"></div></div>
     <script>const BASE_URL = '<?= base_url() ?>';</script>
     <!-- Layout wrapper -->

@@ -26,6 +26,9 @@
                             <button type="button" class="btn btn-warning shadow-sm fw-bold" id="ModalFormAdmin">
                                 <i class="bx bx-wrench me-1"></i> สำหรับผู้ซ่อม
                             </button>
+                            <button type="button" class="btn btn-outline-danger shadow-sm fw-bold" id="BtnCleanupImages">
+                                <i class="bx bx-trash me-1"></i> ล้างไฟล์ขยะ
+                            </button>
                             <?php endif; ?>
                             <a href="<?=base_url('Repair/PrintOrder/').$Order[0]->repair_order?>" target="_blank"
                                 class="btn btn-primary shadow-sm fw-bold PrintOrder">
@@ -153,12 +156,17 @@
                         <?php endif; ?>
                     </div>
 
-                    <h6 class="mb-2 fw-bold text-dark">ผู้รับเรื่อง (Admin)</h6>
+                    <h6 class="mb-2 fw-bold text-dark text-center">ช่างผู้ดำเนินการ / ผู้รับเรื่อง</h6>
                     <div id="show_repair_adminsignature" class="text-center">
                         <?php if(!empty($Order[0]->repair_adminsignature)) : ?>
-                        <img src="<?=$Order[0]->repair_adminsignature?>" class="img-fluid rounded bg-light border" style="max-height: 100px;" alt="ลายมือชื่อ">
+                        <div class="mb-2">
+                            <img src="<?=$Order[0]->repair_adminsignature?>" class="img-fluid rounded bg-light border p-1" style="max-height: 100px;" alt="ลายมือชื่อ">
+                        </div>
+                        <div class="fw-bold text-dark">
+                            ( <?=$Order[1]->Repairman ?? '..................................................'?> )
+                        </div>
                         <?php else: ?>
-                        <span class="text-muted">-</span>
+                        <span class="text-muted">- ยังไม่มีการลงเครื่องหมายรับเรื่อง -</span>
                         <?php endif; ?>
                     </div>
                 </div>

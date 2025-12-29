@@ -27,6 +27,27 @@ $(document).ready(function() {
     });
 
     ShowDataLocationRoom(); // Initialize DataTable
+
+    // REAL-TIME CAPTCHA VALIDATION
+    $(document).on('input', '#captcha_input', function() {
+        const userAnswer = parseInt($(this).val());
+        const correctAnswer = parseInt($('.captcha-badge').data('answer'));
+        const btnSubmit = $('#BtnSubRepair');
+
+        if (userAnswer === correctAnswer) {
+            btnSubmit.removeClass('disabled').prop('disabled', false);
+            $(this).removeClass('is-invalid').addClass('is-valid');
+        } else {
+            btnSubmit.addClass('disabled').prop('disabled', true);
+            $(this).removeClass('is-valid');
+            if ($(this).val() !== "") {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        }
+    });
+
 });
 
 function toThaiDateString(date) {
@@ -202,20 +223,53 @@ $(document).on('click', '#BtnRepairFullDetail1', function() {
 
 });
 
+// Disable userID initially
+$('#repair_userID').prop('disabled', true);
+
 $(document).on('change', '#repair_posi', function() {
+    const posiId = $(this).val();
+    if (!posiId) return;
+
+    // Reset and Disable while loading
+    $('#repair_userID').prop('disabled', true).html('<option value="" selected disabled>กำลังโหลด...</option>').trigger('change');
+    $('#repair_phone').val('');
+
     $.post('../Repair/DB/CheckPosiUser', {
-        repair_posi: $('#repair_posi').val()
+        repair_posi: posiId
     }, function(data) {
-        $('#repair_userID > option').remove();
+        $('#repair_userID').prop('disabled', false).empty().append('<option value="" selected disabled></option>').trigger('change');
+        
         $.each(data, function(key, val) {
-            //console.log(val.pers_firstname);
-            var optionElement = $('<option>').attr('value', val.pers_id).text(val.pers_prefix + val.pers_firstname + ' ' + val.pers_lastname);
-            // Append the option element to the select element
-            //console.log(optionElement);
+            var optionElement = $('<option>')
+                .attr('value', val.pers_id)
+                .attr('data-phone', val.pers_phone || '')
+                .text(val.pers_prefix + val.pers_firstname + ' ' + val.pers_lastname);
             $('#repair_userID').append(optionElement);
         });
+        
+        // Refresh select2 if initialized
+        if ($('#repair_userID').hasClass('select2-hidden-accessible')) {
+            $('#repair_userID').select2({
+                theme: "bootstrap-5",
+                width: '100%',
+                dropdownParent: $(document.body) 
+            });
+        }
 
     }, 'json');
+});
+
+// Auto-populate phone number when requester is selected
+$(document).on('change', '#repair_userID', function() {
+    const selectedOption = $(this).find('option:selected');
+    const phone = selectedOption.data('phone');
+    if (phone) {
+        $('#repair_phone').val(phone).trigger('change');
+        // Manually trigger filled state for floating label if needed
+        $('#repair_phone').closest('.form-floating').addClass('is-filled');
+    } else {
+        $('#repair_phone').val('');
+    }
 });
 
 document.addEventListener('submit', async function(e) {
@@ -431,18 +485,20 @@ $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
         processData: false,
         contentType: false,
         cache: false,
-        success: function(res) {
+        dataType: "json", // ให้ jQuery แปรงเป็น JSON ให้อัตโนมัติ
+        success: function(response) {
 
             $('#btnSaveRepair').prop('disabled', false);
             $('#btnSaveText').text('บันทึกข้อมูล');
             $('#btnSpinner').hide();
 
-            $('#ModalRepairSaveAdmin').hide();
-            $('.modal-backdrop').hide();
-            if (res == 1) {
+            $('#ModalRepairSaveAdmin').modal('hide');
+            $('.modal-backdrop').remove();
+
+            if (response.status === 'success') {
                 Swal.fire({
-                    title: 'แจ้งเตือน?',
-                    text: "บันทึกซ่อมสำเร็จ!",
+                    title: 'สำเร็จ!',
+                    text: response.message,
                     icon: 'success',
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'ตกลง!'
@@ -454,17 +510,72 @@ $(document).on('submit', '#FormSaveRepairAdmin', function(e) {
 
             } else {
                 Swal.fire(
-                    'แจ้งเตือน!', 'บันทึกขั้อมูลช่างซ่อมไม่สำเร็จ!',
+                    'แจ้งเตือน!', 
+                    response.message || 'บันทึกข้อมูลไม่สำเร็จ!',
                     'error'
                 )
             }
            
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response Text:', xhr.responseText);
+            
             $('#btnSaveRepair').prop('disabled', false);
             $('#btnSaveText').text('บันทึกข้อมูล');
             $('#btnSpinner').hide();
-            Swal.fire('แจ้งเตือน!', 'เกิดข้อผิดพลาดระหว่างบันทึก!', 'error');
+            
+            var errorMsg = 'เกิดข้อผิดพลาดระหว่างบันทึก!';
+            if (xhr.status === 404) errorMsg = 'ไม่พบ Path สำหรับบันทึกข้อมูล (404)';
+            else if (xhr.status === 500) errorMsg = 'Server ทำงานผิดพลาด (500)';
+            
+            Swal.fire('แจ้งเตือน!', errorMsg + '\nกรุณาตรวจสอบ Console (F12)', 'error');
+        }
+    });
+});
+
+$(document).on('click', '#BtnCleanupImages', function() {
+    Swal.fire({
+        title: 'ยืนยันการล้างไฟล์ขยะ?',
+        text: "ระบบจะลบรูปภาพที่ไม่ได้อ้างอิงถึงในฐานข้อมูลออกอย่างถาวร!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'ใช่, ฉันต้องการลบ!',
+        cancelButtonText: 'ยกเลิก'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'กำลังล้างไฟล์ขยะ...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: "../../Repair/DB/CleanupImages",
+                method: "POST",
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            title: 'สำเร็จ!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง'
+                        });
+                    } else {
+                        Swal.fire('แจ้งเตือน!', response.message, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Cleanup Error:', xhr.responseText);
+                    Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดระหว่างลบไฟล์ขยะ', 'error');
+                }
+            });
         }
     });
 });

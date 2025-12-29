@@ -1,434 +1,340 @@
 <?= $this->extend('User/UserLayout/user_layout') ?>
-<?= $this->section('content') ?>
-
+<?= $this->section('customCSS') ?>
 <style>
-/* Page Header */
-.page-header {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    color: #fff;
-}
+    :root {
+        --repair-primary: #696cff;
+        --repair-secondary: #8592a3;
+        --repair-success: #71dd37;
+        --repair-info: #03c3ec;
+        --repair-warning: #ffab00;
+        --repair-danger: #ff3e1d;
+        --glass-bg: rgba(255, 255, 255, 0.8);
+        --glass-border: rgba(255, 255, 255, 0.5);
+    }
 
-.page-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 200px;
-    height: 200px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 50%;
-    filter: blur(20px);
-}
+    .repair-container {
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
+    }
 
-.page-header::after {
-    content: '';
-    position: absolute;
-    bottom: -20%;
-    left: 5%;
-    width: 150px;
-    height: 150px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-    filter: blur(15px);
-}
+    /* Premium Header */
+    .glass-header {
+        background: linear-gradient(135deg, rgba(105, 108, 255, 0.9) 0%, rgba(63, 65, 145, 0.9) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 2rem;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(105, 108, 255, 0.2);
+    }
 
-.page-header h4 {
-    color: #fff;
-    margin: 0;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+    .glass-header::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
 
-.page-header .breadcrumb {
-    background: transparent;
-    padding: 0;
-    margin: 0.5rem 0 0;
-}
+    .glass-header h2 {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
 
-.page-header .breadcrumb-item,
-.page-header .breadcrumb-item a {
-    color: rgba(255,255,255,0.9);
-    font-size: 0.875rem;
-    text-decoration: none;
-}
-
-.page-header .breadcrumb-item.active {
-    color: #fff;
-    font-weight: 500;
-}
-
-/* Stats Cards */
-/* Stats Cards Compact Design */
-.stats-card {
-    background: #fff;
-    border-radius: 12px; /* Slightly smaller radius */
-    padding: 1.25rem; /* Reduced padding */
-    border: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08); /* Softer shadow */
-    transition: all 0.2s ease;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: position;
-}
-
-.stats-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.stats-card .card-content {
-    flex-grow: 1;
-}
-
-.stats-card .icon-wrapper {
-    width: 48px; /* Smaller icon wrapper */
-    height: 48px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem; /* Smaller icon size */
-    flex-shrink: 0;
-    margin-left: 1rem;
-}
-
-.stats-card .stats-title {
-    color: #8592a3;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    text-transform: uppercase; /* Uppercase for cleaner look */
-    letter-spacing: 0.5px;
-}
-
-.stats-card .stats-value {
-    color: #566a7f;
-    font-size: 1.5rem; /* Adjusted font size */
-    font-weight: 700;
-    margin-bottom: 0;
-    line-height: 1.2;
-}
-
-/* Specific Card Styles */
-.stats-card.primary { border-left: 4px solid #ff3e1d; }
-.stats-card.primary .icon-wrapper { background: rgba(255, 62, 29, 0.1); color: #ff3e1d; }
-
-.stats-card.warning { border-left: 4px solid #ffab00; }
-.stats-card.warning .icon-wrapper { background: rgba(255, 171, 0, 0.1); color: #ffab00; }
-
-.stats-card.info { border-left: 4px solid #03c3ec; }
-.stats-card.info .icon-wrapper { background: rgba(3, 195, 236, 0.1); color: #03c3ec; }
-
-.stats-card.success { border-left: 4px solid #71dd37; }
-.stats-card.success .icon-wrapper { background: rgba(113, 221, 55, 0.1); color: #71dd37; }
-
-/* Table Card */
-.table-card {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border: none;
-    overflow: hidden;
-}
-
-.table-card .card-header {
-    background: #fff;
-    padding: 1.5rem;
-    border-bottom: 1px solid #f0f2f5;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.table-card .card-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #566a7f;
-    margin: 0;
-    display: flex;
-    align-items: center;
-}
-
-/* Action Buttons */
-.btn-new-repair {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
-    border: none;
-    color: #fff;
-    padding: 0.6rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
-    transition: all 0.3s ease;
-}
-
-.btn-new-repair:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(255, 107, 107, 0.5);
-    color: #fff;
-}
-
-.btn-stats {
-    background: #fff;
-    color: #ff3e1d;
-    border: 1px solid #ff3e1d;
-    padding: 0.6rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-stats:hover {
-    background: rgba(255, 62, 29, 0.05);
-    color: #ff3e1d;
-}
-
-/* Data Table Styling */
-table.dataTable thead th {
-    background: #fafbfc;
-    border-bottom: 2px solid #f0f2f5 !important;
-    color: #566a7f;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    padding: 1rem 0.75rem;
-}
-
-table.dataTable tbody td {
-    padding: 1rem 0.75rem;
-    border-bottom: 1px solid #f9fafb;
-    vertical-align: middle;
-    color: #697a8d;
-    font-size: 0.9rem;
-}
-
-table.dataTable tbody tr:hover {
-    background-color: rgba(67, 89, 113, 0.02) !important;
-}
-
-/* Badge Styling */
-.badge-custom {
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .page-header {
+    /* Glass Stats Cards */
+    .glass-stat-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: 1.5rem;
         padding: 1.5rem;
-        text-align: center;
-    }
-    .page-header .row {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    .page-header .col-md-7, 
-    .page-header .col-md-5 {
-        text-align: center !important;
-        justify-content: center !important;
-    }
-    .stats-card {
-        margin-bottom: 1rem;
-    }
-    .table-card .card-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-    .table-card .card-actions {
-        width: 100%;
+        height: 100%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
-        justify-content: flex-end;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
-}
 
-/* Modal Improvements */
-.modal-content {
-    border-radius: 16px;
-    border: none;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-}
+    .glass-stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        background: white;
+    }
 
-.modal-header {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
-    color: #fff;
-    padding: 1.5rem;
-    border-radius: 16px 16px 0 0;
-}
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-right: 1.25rem;
+        flex-shrink: 0;
+    }
 
-.modal-title {
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-}
+    .stat-info h6 {
+        font-size: 0.85rem;
+        color: var(--repair-secondary);
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-.btn-close-white {
-    filter: brightness(0) invert(1);
-}
+    .stat-info h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #566a7f;
+    }
 
+    /* Table Glass Card */
+    .table-glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+    }
+
+    .card-header-premium {
+        padding: 1.75rem 2rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Premium Buttons */
+    .btn-glass-primary {
+        background: white;
+        color: var(--repair-primary);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass-primary:hover {
+        background: #f8f9ff;
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        color: var(--repair-primary);
+    }
+
+    .btn-add-repair {
+        background: linear-gradient(135deg, #696cff 0%, #4345bb 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.75rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        box-shadow: 0 8px 20px rgba(105, 108, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-add-repair:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 25px rgba(105, 108, 255, 0.4);
+        color: white;
+    }
+
+    /* Status Badges Premium */
+    .badge-premium {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    /* Filter Styling */
+    .year-select {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        color: var(--repair-primary);
+        cursor: pointer;
+        outline: none;
+    }
+
+    /* Table Styling */
+    #TbDataRepair thead th {
+        background: rgba(105, 108, 255, 0.03);
+        color: var(--repair-primary);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        padding: 1.25rem 1rem;
+        border-bottom: 2px solid rgba(105, 108, 255, 0.1);
+    }
+
+    #TbDataRepair tbody td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    #TbDataRepair tbody tr:hover {
+        background-color: rgba(105, 108, 255, 0.02) !important;
+    }
+
+    @media (max-width: 768px) {
+        .glass-header {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .header-actions {
+            margin-top: 1rem;
+            justify-content: center !important;
+        }
+    }
 </style>
+<?= $this->endSection() ?>
 
-<div class="container-xxl flex-grow-1 container-p-y">
+<?= $this->section('content') ?>
+<div class="container-xxl flex-grow-1 repair-container">
     
-    <!-- Page Header -->
-    <div class="page-header">
+    <!-- Premium Header -->
+    <div class="glass-header">
         <div class="row align-items-center">
             <div class="col-md-7">
-                <h4><i class='bx bxs-wrench me-2'></i>ระบบงานแจ้งซ่อมออนไลน์</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="<?=base_url('Repair')?>">หน้าหลัก</a></li>
-                        <li class="breadcrumb-item active">รายการแจ้งซ่อม</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex justify-content-md-end gap-2 align-items-center">
-                <div class="d-inline-block">
-                    <select class="form-select border-0 shadow-sm text-primary fw-bold" id="yearFilter" onchange="window.location.href='<?=base_url('Repair')?>?year='+this.value" style="width: auto; cursor: pointer; position: relative; z-index: 1005;">
-                        <?php foreach($years as $y): ?>
-                        <option value="<?=$y?>" <?=$y == $selectedYear ? 'selected' : ''?>>ปี <?=$y+543?></option>
-                        <?php endforeach; ?>
-                    </select>
+                <h2 class="display-6"><i class='bx bxs-wrench me-3'></i>ระบบแจ้งซ่อมออนไลน์</h2>
+                <div class="d-flex align-items-center mt-2">
+                    <span class="badge bg-white text-primary rounded-pill px-3 me-2">Repair Management</span>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="<?=base_url('Repair')?>" class="text-white-50">หน้าแรก</a></li>
+                            <li class="breadcrumb-item active text-white" aria-current="page">รายการแจ้งซ่อม</li>
+                        </ol>
+                    </nav>
                 </div>
-                <!-- <a href="<?=base_url('Repair/RepairStatistics')?>" class="btn btn-stats">
-                    <i class="bx bx-bar-chart-alt-2 me-1"></i> สถิติ
-                </a> -->
-                <a href="<?=base_url('Repair/Add')?>" class="btn btn-new-repair">
-                    <i class="bx bx-plus me-1"></i> แจ้งซ่อมใหม่
+            </div>
+            <div class="col-md-5 d-flex justify-content-md-end gap-3 header-actions align-items-center">
+                <select class="year-select shadow-sm" id="yearFilter" onchange="window.location.href='<?=base_url('Repair')?>?year='+this.value">
+                    <?php foreach($years as $y): ?>
+                    <option value="<?=$y?>" <?=$y == $selectedYear ? 'selected' : ''?>>ปีงบประมาณ <?=$y+543?></option>
+                    <?php endforeach; ?>
+                </select>
+                <a href="<?=base_url('Repair/Add')?>" class="btn btn-add-repair">
+                    <i class="bx bx-plus-circle me-1"></i> แจ้งซ่อมใหม่
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="row mb-4">
-        <!-- Total Repair -->
-        <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
-            <div class="stats-card primary">
-                <div class="card-content">
-                    <h6 class="stats-title">ทั้งหมด</h6>
-                    <h3 class="stats-value"><?= number_format($TotalRepair ?? 0) ?></h3>
+    <!-- Stats Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-sm-6 col-xl-3">
+            <div class="glass-stat-card">
+                <div class="stat-icon bg-label-primary">
+                    <i class='bx bxs-briefcase-alt-2'></i>
                 </div>
-                <div class="icon-wrapper">
-                    <i class='bx bxs-wrench'></i>
+                <div class="stat-info">
+                    <h6>งานทั้งหมด</h6>
+                    <h3><?= number_format($TotalRepair ?? 0) ?></h3>
                 </div>
             </div>
         </div>
-
-        <!-- Pending -->
-        <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
-            <div class="stats-card warning">
-                <div class="card-content">
-                    <h6 class="stats-title">รอดำเนินการ</h6>
-                    <h3 class="stats-value"><?= number_format($StatusPending ?? 0) ?></h3>
-                </div>
-                <div class="icon-wrapper">
+        <div class="col-sm-6 col-xl-3">
+            <div class="glass-stat-card">
+                <div class="stat-icon bg-label-warning">
                     <i class='bx bxs-time-five'></i>
                 </div>
+                <div class="stat-info">
+                    <h6>รอดำเนินการ</h6>
+                    <h3><?= number_format($StatusPending ?? 0) ?></h3>
+                </div>
             </div>
         </div>
-
-        <!-- Processing -->
-        <div class="col-sm-6 col-xl-3 mb-3 mb-xl-0">
-            <div class="stats-card info">
-                <div class="card-content">
-                    <h6 class="stats-title">กำลังดำเนินการ</h6>
-                    <h3 class="stats-value"><?= number_format($StatusProcess ?? 0) ?></h3>
-                </div>
-                <div class="icon-wrapper">
+        <div class="col-sm-6 col-xl-3">
+            <div class="glass-stat-card">
+                <div class="stat-icon bg-label-info">
                     <i class='bx bxs-cog bxs-spin'></i>
                 </div>
+                <div class="stat-info">
+                    <h6>กำลังดำเนินการ</h6>
+                    <h3><?= number_format($StatusProcess ?? 0) ?></h3>
+                </div>
             </div>
         </div>
-
-        <!-- Success -->
         <div class="col-sm-6 col-xl-3">
-            <div class="stats-card success">
-                <div class="card-content">
-                    <h6 class="stats-title">เสร็จสิ้น</h6>
-                    <h3 class="stats-value"><?= number_format($StatusSuccess ?? 0) ?></h3>
-                </div>
-                <div class="icon-wrapper">
+            <div class="glass-stat-card">
+                <div class="stat-icon bg-label-success">
                     <i class='bx bxs-check-circle'></i>
+                </div>
+                <div class="stat-info">
+                    <h6>เสร็จสิ้นแล้ว</h6>
+                    <h3><?= number_format($StatusSuccess ?? 0) ?></h3>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Data Table -->
-    <div class="table-card">
-        <div class="card-header">
-            <h5 class="card-title">
-                <i class="bx bx-list-ul me-2 text-primary"></i> รายการแจ้งซ่อมล่าสุด
+    <!-- Table Section -->
+    <div class="table-glass-card">
+        <div class="card-header-premium">
+            <h5 class="mb-0 fw-bold">
+                <i class="bx bx-list-check me-2 text-primary"></i> 
+                ข้อมูลการแจ้งซ่อมประจำปี <?= $selectedYear + 543 ?>
             </h5>
-            <div class="card-actions">
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="reloadTable()">
-                    <i class='bx bx-refresh me-1'></i> รีโหลด
-                </button>
-            </div>
+            <button type="button" class="btn btn-link text-secondary p-0" onclick="reloadTable()">
+                <i class='bx bx-refresh fs-4'></i>
+            </button>
         </div>
         <div class="card-datatable table-responsive">
-            <table class="table table-hover border-top" id="TbDataRepair" style="width:100%">
+            <table class="table table-hover" id="TbDataRepair">
                 <thead>
                     <tr>
-                        <th width="10%">สถานะ</th>
-                        <th width="20%">รายการแจ้งซ่อม</th>
+                        <th width="12%">สถานะ</th>
+                        <th width="25%">รายการ/สเตตัส</th>
                         <th width="15%">วันที่แจ้ง</th>
                         <th width="15%">ใบแจ้งซ่อม</th>
-                        <th width="20%">ผู้แจ้ง</th>
-                        <th width="10%">จัดการ</th>
+                        <th width="20%">ผู้แจ้ง / เบอร์โทร</th>
+                        <th width="13%">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data will be loaded via AJAX -->
+                    <!-- Loaded via AJAX -->
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-
-
-
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
     function reloadTable() {
         if ($.fn.DataTable.isDataTable('#TbDataRepair')) {
-            $('#TbDataRepair').DataTable().ajax.url("<?= base_url('Repair/DataTable/ShowRepari') ?>?year=<?= $selectedYear ?>").load(null, false);
+            const table = $('#TbDataRepair').DataTable();
+            table.ajax.url("<?= base_url('Repair/DataTable/ShowRepari') ?>?year=<?= $selectedYear ?>").load(null, false);
         }
     }
-    
-    // ...
 
     $(document).ready(function() {
-         // DataTable initialization has been moved to assets/js/User/UserRepair/UserRepair.js
-         // to avoid duplicate loading and logic conflicts.
-        
-        // Remove internal ViewRepair function so it falls back to user's implementation
-        // window.ViewRepair = ... (Removed)
-
-        $('.btn-new-repair').on('click', function(e) {
-            // e.preventDefault(); // Uncomment if you want to handle navigation manually
-            const $btn = $(this);
-            $btn.html('<span class="spinner-border spinner-border-sm me-1"></span> กำลังไป...');
-            $btn.addClass('disabled');
+        $('.btn-add-repair').on('click', function() {
+            $(this).html('<span class="spinner-border spinner-border-sm me-2"></span> กำลังไป...');
+            $(this).addClass('disabled');
         });
     });
 </script>
-<!-- Assuming UserRepairMain.js is loaded elsewhere or automagically -->
 <?php if(file_exists(FCPATH . 'assets/js/User/UserRepair/UserRepairMain.js')): ?>
 <script src="<?=base_url('assets/js/User/UserRepair/UserRepairMain.js?v='.time())?>"></script>
 <?php endif; ?>
 <?= $this->endSection() ?>
+
