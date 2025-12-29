@@ -122,7 +122,7 @@ class ConUserBooking extends BaseController
            $data['BookLatest'] = $sub[0]."_".(((int)$sub[1])+1);
         }
         
-        $data['ListUser'] = $DBpers->select('pers_id,pers_prefix,pers_firstname,pers_lastname')
+        $data['ListUser'] = $DBpers->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_phone')
         ->where('pers_status','กำลังใช้งาน')
         ->orderBy('pers_position','ASC')
         ->orderBy('pers_learning','ASC')
@@ -258,45 +258,46 @@ class ConUserBooking extends BaseController
                 $msg .= "🎯 วัตถุประสงค์: {$Booking['booking_title']}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Booking/Approve/Admin");
 
-                if (ENVIRONMENT === 'production') {
-                    $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
+                // 1. Line Message
+                if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+                $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
                 
-                    // 2. Email to Booker
-                    $email = \Config\Services::email(); 
-                    $email->setFrom('admin_booking@skj.ac.th', "ระบบจองอาคารสถานที่ SKJ");
-                    $email->setTo($Booking['pers_username']);
-                    $email->setSubject("แจ้งการขอใช้อาคารสถานที่: รอการตรวจสอบ");
-                    
-                    $html = "
-                    <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px;'>
-                        <h2 style='color: #ffab00;'>⏳ ได้รับคำขอใช้อาคารสถานที่แล้ว</h2>
-                        <p>เรียน {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}</p>
-                        <p>ระบบได้รับคำขอของท่านแล้ว อยู่ระหว่างรอการตรวจสอบจากเจ้าหน้าที่</p>
-                        <hr>
-                        <p><strong>รายละเอียด:</strong></p>
-                        <ul>
-                            <li><strong>เลขที่:</strong> {$Booking['booking_order']}</li>
-                            <li><strong>สถานที่:</strong> {$Booking['location_name']}</li>
-                            <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}</li>
-                            <li><strong>วัตถุประสงค์:</strong> {$Booking['booking_title']}</li>
-                        </ul>
-                        <p><a href='".base_url("Booking/View/All")."'>ตรวจสอบสถานะการจอง</a></p>
-                    </div>";
-                    $email->setMessage($html);
-                    $email->send();
+                // 2. Email to Booker
+                $email = \Config\Services::email(); 
+                $email->setFrom('admin_booking@skj.ac.th', "ระบบจองอาคารสถานที่ SKJ");
+                $email->setTo($Booking['pers_username']);
+                $email->setSubject("แจ้งการขอใช้อาคารสถานที่: รอการตรวจสอบ");
+                
+                $html = "
+                <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px;'>
+                    <h2 style='color: #ffab00;'>⏳ ได้รับคำขอใช้อาคารสถานที่แล้ว</h2>
+                    <p>เรียน {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}</p>
+                    <p>ระบบได้รับคำขอของท่านแล้ว อยู่ระหว่างรอการตรวจสอบจากเจ้าหน้าที่</p>
+                    <hr>
+                    <p><strong>รายละเอียด:</strong></p>
+                    <ul>
+                        <li><strong>เลขที่:</strong> {$Booking['booking_order']}</li>
+                        <li><strong>สถานที่:</strong> {$Booking['location_name']}</li>
+                        <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}</li>
+                        <li><strong>วัตถุประสงค์:</strong> {$Booking['booking_title']}</li>
+                    </ul>
+                    <p><a href='".base_url("Booking/View/All")."'>ตรวจสอบสถานะการจอง</a></p>
+                </div>";
+                $email->setMessage($html);
+                $email->send();
 
-                    // 3. Email to Admin
-                    $adminEmail = \Config\Services::email(); 
-                    $adminEmail->setFrom('admin_booking@skj.ac.th', "ระบบการจองอาคารสถานที่ SKJ");
-                    $adminEmail->setTo("dekpiano@skj.ac.th"); 
-                    $adminEmail->setSubject("แจ้งการจองใหม่: " . $Booking['booking_title']);
-                    $adminHtml = "มีการจองใหม่เข้ามา:<br>";
-                    $adminHtml .= "ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}<br>";
-                    $adminHtml .= "สถานที่: {$Booking['location_name']}<br>";
-                    $adminHtml .= "วันที่: " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart'])) . " - " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd'])) . "<br>";
-                    $adminHtml .= "<a href='" . base_url('Booking/Approve/Admin') . "' target='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
-                    $adminEmail->setMessage($adminHtml);
-                    $adminEmail->send();
+                // 3. Email to Admin
+                $adminEmail = \Config\Services::email(); 
+                $adminEmail->setFrom('admin_booking@skj.ac.th', "ระบบการจองอาคารสถานที่ SKJ");
+                $adminEmail->setTo("dekpiano@skj.ac.th"); 
+                $adminEmail->setSubject("แจ้งการจองใหม่: " . $Booking['booking_title']);
+                $adminHtml = "มีการจองใหม่เข้ามา:<br>";
+                $adminHtml .= "ผู้ขอ: {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}<br>";
+                $adminHtml .= "สถานที่: {$Booking['location_name']}<br>";
+                $adminHtml .= "วันที่: " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart'])) . " - " . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd'])) . "<br>";
+                $adminHtml .= "<a href='" . base_url('Booking/Approve/Admin') . "' target='_blank'>ตรวจสอบข้อมูลที่นี่</a>";
+                $adminEmail->setMessage($adminHtml);
+                $adminEmail->send();
                 }
 
                 return $this->response->setJSON([
@@ -486,6 +487,12 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $builder = $database->table('tb_location');
         $data['LocationList'] = $builder->select('location_ID,location_name')->get()->getResult();
+
+        $data['ListUser'] = $DBpers->table('tb_personnel')->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_phone')
+        ->where('pers_status','กำลังใช้งาน')
+        ->orderBy('pers_position','ASC')
+        ->orderBy('pers_learning','ASC')
+        ->get()->getResult();
       
        $DBbooking
         ->select('tb_booking.*,location_ID,location_name,location_img,location_detail,pers_prefix,pers_firstname,pers_lastname');
@@ -968,22 +975,20 @@ class ConUserBooking extends BaseController
                 </body>
                 </html>';
 
-            if (ENVIRONMENT === 'production') {
+            if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
                 $email->setMessage($html);
                 $email->send();
-            }
 
-            // ส่ง LINE แจ้งเตือน
-          
                 $line_msg = "✅ การจองได้รับการอนุมัติแล้ว!\n";
                 $line_msg .= "เลขที่จอง: {$CheckUserForEmail->booking_order}\n";
                 $line_msg .= "หัวข้อ: {$CheckUserForEmail->booking_title}\n";
                 $line_msg .= "สถานที่: {$CheckUserForEmail->location_name}\n";
                 $line_msg .= "วันที่: {$Datethai->thai_date_and_time_short(strtotime($CheckUserForEmail->booking_dateStart))} - {$Datethai->thai_date_and_time_short(strtotime($CheckUserForEmail->booking_dateEnd))}\n";
                 $line_msg .= "อนุมัติโดย: {$_SESSION['username']}\n";
-                $line_msg .= "ตรวจสอบสถานะ: " . base_url("Booking/View/All"); // หรือลิงก์เฉพาะการจองนี้
+                $line_msg .= "ตรวจสอบสถานะ: " . base_url("Booking/View/All");
 
                 $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $line_msg);
+            }
             
         }
             
@@ -1022,28 +1027,65 @@ class ConUserBooking extends BaseController
              ->where('booking_id',$this->request->getPost('BookingID'))
              ->get()->getRowArray();
 
-             // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
-             if($Booking && ENVIRONMENT === 'production'){
+             // ไม่ส่งแจ้งเตือนถ้าเป็น development environment หรือ localhost
+             if($Booking && ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])){
                   // Send Email
                   $email = \Config\Services::email();
                   $email->setFrom($_SESSION['email'], "ระบบจองอาคารสถานที่ SKJ");
                   $email->setTo($Booking['pers_username']);
-                  $email->setSubject("ผลการขอใช้อาคารสถานที่: ไม่อนุมัติ");
+                  $email->setSubject("ผลการขอใช้อาคารสถานที่: ไม่อนุมัติ (เลขที่ {$Booking['booking_order']})");
                   
-                  $html = "
-                    <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px; border-top: 5px solid #ff3e1d;'>
-                        <h2 style='color: #ff3e1d;'>❌ คำขอใช้สถานที่ของท่านไม่ผ่านการอนุมัติ</h2>
-                        <p>เรียน {$Booking['pers_prefix']}{$Booking['pers_firstname']} {$Booking['pers_lastname']}</p>
-                        <p>รายการขอใช้อาคารสถานที่ของท่านไม่ได้รับการอนุมัติ</p>
-                         <hr>
-                        <p><strong>รายละเอียด:</strong></p>
-                        <ul>
-                            <li><strong>เลขที่:</strong> {$Booking['booking_order']}</li>
-                            <li><strong>สถานที่:</strong> {$Booking['location_name']}</li>
-                            <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart']))} - {$Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']))}</li>
-                        </ul>
-                        <p>กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม</p>
-                    </div>";
+                  $html = '
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>แจ้งเตือนผลการขอใช้อาคารสถานที่ SKJ</title>
+                    </head>
+                    <body style="font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0;">
+                        <div class="email-container" style="max-width: 600px; margin: 30px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); overflow: hidden; border: 1px solid #e0e0e0;">
+                            <div class="header" style="background-color: #ff3e1d; color: #ffffff; padding: 25px 30px; text-align: center; font-size: 24px; font-weight: bold;">
+                                <span class="icon" style="font-size: 30px; margin-right: 10px; vertical-align: middle;">❌</span> ไม่ผ่านการอนุมัติ
+                            </div>
+                            <div class="content" style="padding: 30px; color: #333333; line-height: 1.6;">
+                                <p style="margin-bottom: 15px; font-size: 16px;">เรียน '.$Booking['pers_prefix'].$Booking['pers_firstname'].' '.$Booking['pers_lastname'].',</p>
+                                <p style="margin-bottom: 15px; font-size: 16px;">ขอแจ้งให้ทราบว่าการขอใช้อาคารสถานที่ของท่าน <strong>ไม่ผ่านการอนุมัติ</strong></p>
+
+                                <div style="background-color: #fff5f5; border-left: 4px solid #ff3e1d; padding: 15px; margin: 20px 0;">
+                                    <p style="margin: 0; color: #851d1d; font-weight: bold;">เหตุผลที่ไม่นุมัติ:</p>
+                                    <p style="margin: 5px 0 0;">'.($this->request->getPost('booking_admin_reason') ?: 'ไม่ได้ระบุเหตุผล').'</p>
+                                </div>
+
+                                <table class="info-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                                    <tr>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #eeeeee; font-weight: bold; color: #555555; width: 120px;">📄 เลขที่จอง:</td>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #eeeeee;">'.$Booking['booking_order'].'</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #eeeeee; font-weight: bold; color: #555555;">📅 วันที่ขอ:</td>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #eeeeee;">'.$Datethai->thai_date_fullmonth(strtotime($Booking['booking_dateStart'])).' - '.$Datethai->thai_date_fullmonth(strtotime($Booking['booking_dateEnd'])).'</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #eeeeee; font-weight: bold; color: #555555;">⛪ สถานที่:</td>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #eeeeee;">'.$Booking['location_name'].'</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 12px 0; border-bottom: none; font-weight: bold; color: #555555;">🎯 วัตถุประสงค์:</td>
+                                        <td style="padding: 12px 0; border-bottom: none;">'.$Booking['booking_title'].'</td>
+                                    </tr>
+                                </table>
+
+                                <p style="margin-top: 30px; margin-bottom: 15px; font-size: 16px;">หากมีข้อสงสัยประการใด กรุณาติดต่อเจ้าหน้าที่งานอาคารสถานที่</p>
+                                <p style="margin-bottom: 15px; font-size: 16px;">ขอแสดงความนับถือ</p>
+                                <p style="margin-bottom: 0; font-size: 16px;">โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</p>
+                            </div>
+                            <div class="footer" style="text-align: center; padding: 20px; font-size: 13px; color: #999999; border-top: 1px solid #eeeeee; background-color: #fafafa;">
+                                <p style="margin: 0;">อีเมลนี้คือการแจ้งเตือนอัตโนมัติ กรุณาอย่าตอบกลับ</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>';
 
                   $email->setMessage($html);
                   $email->send();

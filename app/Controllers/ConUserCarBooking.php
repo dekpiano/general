@@ -40,10 +40,10 @@ class ConUserCarBooking extends BaseController
         $DBSchoolCar = $database->table('tb_school_car');
         $DBCarReservation = $database->table('tb_car_reservation');
         $data['CountCarAll'] = $DBSchoolCar->countAll();
-        $data['CountCarReservationAll'] = $DBCarReservation->countAll();
+        $data['CountCarReservationAll'] = $DBCarReservation->where('car_reserv_memberID', $session->get('id'))->countAllResults();
 
-        $data['NumRowsWaitApprove'] = $DBCarReservation->where('car_reserv_status !=','อนุมัติ')->get()->getNumRows();
-        $data['NumRowsApprove'] = $DBCarReservation->where('car_reserv_status','อนุมัติ')->get()->getNumRows();
+        $data['NumRowsWaitApprove'] = $DBCarReservation->where('car_reserv_status','รอตรวจสอบ')->countAllResults();
+        $data['NumRowsApprove'] = $DBCarReservation->where('car_reserv_status','อนุมัติ')->countAllResults();
 
         // Fetch Car List for Mini Calendars
         $data['CarList'] = $DBSchoolCar->get()->getResult();
@@ -284,10 +284,8 @@ class ConUserCarBooking extends BaseController
             $msg .= "🎯 วัตถุประสงค์: {$Car['car_reserv_detail']}\n";
             $msg .= "👉 รับงาน: " . base_url("/CarBooking/Approve/Admin");
 
-            // 3. ส่งข้อความ (ใช้ userId หรือ groupId ของช่าง)
-
-            // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
-            if (ENVIRONMENT === 'production') {
+            // 3. ส่งข้อความ
+            if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
                 $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
                 
                 // Send Email to Booker
@@ -313,9 +311,7 @@ class ConUserCarBooking extends BaseController
                 </div>";
                 
                 $email->setMessage($html);
-                if (ENVIRONMENT === 'production') {
-                    $email->send();
-                }
+                $email->send();
             }
             echo 1;
         }
@@ -571,8 +567,7 @@ class ConUserCarBooking extends BaseController
                  $msg .= "อนุมัติโดย: {$_SESSION['username']}\n";
                  $msg .= "ตรวจสอบสถานะ: " . base_url("CarBooking/View");
 
-                 // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
-                 if (ENVIRONMENT === 'production') {
+                if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
                     $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
 
                     // Send Email to Booker (Approved)
@@ -595,11 +590,9 @@ class ConUserCarBooking extends BaseController
                         </ul>
                     </div>";
                     
-                    if (ENVIRONMENT === 'production') {
-                        $email->setMessage($html);
-                        $email->send();
-                    }
-                 }
+                    $email->setMessage($html);
+                    $email->send();
+                }
             }
             echo 1;
         } else {
@@ -640,30 +633,29 @@ class ConUserCarBooking extends BaseController
             ->where('tb_car_reservation.car_reserv_id', $this->request->getVar('carbookingID'))
             ->get()->getRowArray();
 
-             // ไม่ส่งแจ้งเตือนถ้าเป็น development environment
-             if($Car && ENVIRONMENT === 'production'){
-                $email = \Config\Services::email();
-                $email->setFrom($_SESSION['email'], "ระบบจองยานพาหนะ SKJ");
-                $email->setTo($Car['pers_username']);
-                $email->setSubject("ผลการจองยานพาหนะ: ไม่อนุมัติ");
-                
-                $html = "
-                <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px; border-top: 5px solid #ff3e1d;'>
-                    <h2 style='color: #ff3e1d;'>❌ การจองของคุณไม่ผ่านการอนุมัติ</h2>
-                    <p>เรียน {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}</p>
-                    <p>รายการจองยานพาหนะของท่านไม่ได้รับการอนุมัติ</p>
-                     <hr>
-                    <p><strong>รายละเอียด:</strong></p>
-                    <ul>
-                        <li><strong>เลขที่:</strong> {$Car['car_reserv_order']}</li>
-                        <li><strong>รถ:</strong> {$Car['car_category']} {$Car['car_registration']}</li>
-                        <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate']))} - {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']))}</li>
-                    </ul>
-                    <p>กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม</p>
-                </div>";
-                
-                $email->setMessage($html);
-                if (ENVIRONMENT === 'production') {
+             if($Car){
+                if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+                    $email = \Config\Services::email();
+                    $email->setFrom($_SESSION['email'], "ระบบจองยานพาหนะ SKJ");
+                    $email->setTo($Car['pers_username']);
+                    $email->setSubject("ผลการจองยานพาหนะ: ไม่อนุมัติ");
+                    
+                    $html = "
+                    <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px; border-top: 5px solid #ff3e1d;'>
+                        <h2 style='color: #ff3e1d;'>❌ การจองของคุณไม่ผ่านการอนุมัติ</h2>
+                        <p>เรียน {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}</p>
+                        <p>รายการจองยานพาหนะของท่านไม่ได้รับการอนุมัติ</p>
+                        <hr>
+                        <p><strong>รายละเอียด:</strong></p>
+                        <ul>
+                            <li><strong>เลขที่:</strong> {$Car['car_reserv_order']}</li>
+                            <li><strong>รถ:</strong> {$Car['car_category']} {$Car['car_registration']}</li>
+                            <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate']))} - {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']))}</li>
+                        </ul>
+                        <p>กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม</p>
+                    </div>";
+                    
+                    $email->setMessage($html);
                     $email->send();
                 }
             }

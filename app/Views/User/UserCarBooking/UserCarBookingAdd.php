@@ -1,132 +1,254 @@
 <?= $this->extend('User/UserLayout/user_layout') ?>
-<?= $this->section('content') ?>
 
+<?= $this->section('customCSS') ?>
+<style>
+    /* --- Premium Variables --- */
+    :root {
+        --booking-primary: #696cff;
+        --booking-gradient: linear-gradient(135deg, #696cff 0%, #3f4191 100%);
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.5);
+    }
+
+    /* --- Animations --- */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .premium-animate {
+        animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* --- Page Header --- */
+    .page-header {
+        background: var(--booking-gradient);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        color: #fff;
+        box-shadow: 0 15px 40px -10px rgba(105, 108, 255, 0.3);
+    }
+    .header-content { position: relative; z-index: 2; }
+    .page-header::before {
+        content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    /* --- Layout Elements --- */
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px -5px rgba(105, 108, 255, 0.1);
+        overflow: hidden;
+    }
+
+    .car-preview-img {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px -10px rgba(0,0,0,0.2);
+    }
+
+    .section-title {
+        font-weight: 700;
+        color: #32475c;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title i { color: var(--booking-primary); }
+
+    /* --- Form Styling --- */
+    .form-floating > .form-control:focus, 
+    .form-floating > .form-select:focus {
+        border-color: var(--booking-primary);
+        box-shadow: 0 0 0 0.25rem rgba(105, 108, 255, 0.1);
+    }
+
+    .btn-submit-booking {
+        background: var(--booking-gradient);
+        border: none;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit-booking:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px -5px rgba(105, 108, 255, 0.4);
+        opacity: 0.9;
+    }
+    
+    .alert-premium { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+    /* Note: Select2 styling is handled by global user-repair.css to match Room Booking form */
+</style>
+<?= $this->endSection() ?>
+
+<?= $this->section('content') ?>
 <div class="container-xxl flex-grow-1 container-p-y">
-    <!-- Breadcrumb -->
-    <h4 class="py-3 mb-4">
-        <span class="text-muted fw-light">
-            <a href="<?=base_url('CarBooking')?>">หน้าหลักจองยานพาหนะ</a> /
-        </span>
-        จองยานพาหนะ
-    </h4>
+    
+    <!-- Premium Header -->
+    <div class="page-header premium-animate">
+        <div class="header-content d-flex justify-content-between align-items-center">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item"><a href="<?=base_url('CarBooking');?>" class="text-white-50">ยานพาหนะ</a></li>
+                        <li class="breadcrumb-item active text-white">แบบฟอร์มการจอง</li>
+                    </ol>
+                </nav>
+                <h3 class="mb-0 fw-bold text-white">จองยานพาหนะ: <?=$Car->car_registration?></h3>
+            </div>
+            <i class='bx bxs-car fs-1 text-white-50'></i>
+        </div>
+    </div>
 
     <?php  
     $Type = explode(',', $_SESSION['rloes']);
-    $CheckWho = in_array('งานยานพาหนะ', $Type) ? 1 : 0;
+    $CheckWho = (in_array('งานยานพาหนะ', $Type) || $_SESSION['status'] == "AdminGeneral") ? 1 : 0;
     ?>
 
-    <div class="row">
-        <!-- Left: Car Info -->
+    <div class="row g-4">
+        <!-- Info Column -->
         <div class="col-lg-4 mb-4">
-            <div class="card">
-                <img class="card-img-top" 
-                     src="<?=base_url('uploads/admin/Car/'.$Car->car_img)?>"
-                     alt="<?=$Car->car_category?>"
-                     style="height: 200px; object-fit: cover;">
-                <div class="card-body">
-                    <h5 class="card-title"><?=$Car->car_category?></h5>
-                    <p class="card-text">
-                        <i class='bx bx-id-card me-1'></i>
-                        <?=$Car->car_registration?> <?=$Car->car_province?>
-                    </p>
+            <div class="glass-card p-3 premium-animate" style="animation-delay: 0.1s">
+                <img src="<?=base_url('uploads/admin/Car/'.$Car->car_img)?>" 
+                     class="car-preview-img mb-3" alt="<?=$Car->car_category?>"
+                     onerror="this.src='<?= base_url('assets/img/elements/1.jpg') ?>'">
+                
+                <h5 class="fw-bold mb-2"><?=$Car->car_registration?></h5>
+                <p class="text-muted small mb-0"><?=$Car->car_province?> - <?=$Car->car_category?></p>
+
+                <hr class="my-3 opacity-50">
+
+                <div class="info-section">
+                    <h6 class="fw-bold mb-3 d-flex align-items-center text-primary">
+                        <i class='bx bx-info-circle me-2'></i>
+                        คำแนะนำการจอง
+                    </h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-2"><i class='bx bx-check-circle me-1 text-success'></i> กรุณาจองล่วงหน้าอย่างน้อย 3 วัน</li>
+                        <li class="mb-2"><i class='bx bx-check-circle me-1 text-success'></i> ตรวจสอบวันและเวลาให้ถูกต้อง</li>
+                        <li class="mb-2"><i class='bx bx-check-circle me-1 text-success'></i> ข้อมูลการจองต้องผ่านการอนุมัติ</li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Right: Booking Form -->
-        <div class="col-lg-8 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class='bx bx-edit me-2'></i>แบบฟอร์มจองยานพาหนะ</h5>
-                </div>
-                <div class="card-body">
+        <!-- Form Column -->
+        <div class="col-lg-8">
+            <div class="glass-card premium-animate" style="animation-delay: 0.2s">
+                <div class="card-body p-lg-4 p-3">
                     <form id="FormAddCarReservation" class="needs-validation" novalidate>
                         <input type="hidden" name="car_reserv_carID" value="<?=$uri->getSegment(3)?>">
 
-                        <!-- Basic Info -->
+                        <h5 class="section-title"><i class='bx bx-detail'></i> ข้อมูลการจอง</h5>
                         <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control bg-light" value="<?=$car_reserv_order?>" readonly disabled>
+                                    <label>เลขที่การจอง</label>
+                                </div>
+                                <input type="hidden" name="car_reserv_order" value="<?=$car_reserv_order?>">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="car_reserv_location" name="car_reserv_location" placeholder="สถานที่" required>
+                                    <label for="car_reserv_location">สถานที่ที่จะเดินทางไป (ปลายทางการเดินทาง)</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea class="form-control h-px-100" id="car_reserv_detail" name="car_reserv_detail" placeholder="ภารกิจ" required></textarea>
+                                    <label for="car_reserv_detail">วัตถุประสงค์ในการเดินทาง / ภารกิจ</label>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" name="car_reserv_order" value="<?=$car_reserv_order?>" readonly>
-                                    <label>เลขที่จอง</label>
+                                    <input type="number" id="car_reserv_number" name="car_reserv_number" class="form-control" placeholder="จำนวนคน" required min="1">
+                                    <label for="car_reserv_number">จำนวนผู้ร่วมเดินทาง (คน)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="section-title"><i class='bx bx-calendar'></i> วันและเวลา</h5>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-3 bg-light bg-opacity-25">
+                                    <label class="form-label text-primary fw-bold small">เริ่มเดินทาง (ขาไป)</label>
+                                    <div class="row g-2">
+                                        <div class="col-7">
+                                            <input class="form-control check-time" type="text" id="car_reserv_StartDate" name="car_reserv_StartDate" placeholder="วันที่" required>
+                                        </div>
+                                        <div class="col-5">
+                                            <input class="form-control check-time selectorTime" type="text" id="car_reserv_StartTime" name="car_reserv_StartTime" placeholder="เวลา" required>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input type="number" id="car_reserv_number" name="car_reserv_number" class="form-control" placeholder="จำนวนคน" required>
-                                    <label for="car_reserv_number">จำนวนผู้ไปปฏิบัติงาน (คน)</label>
+                                <div class="p-3 border rounded-3 bg-light bg-opacity-25">
+                                    <label class="form-label text-danger fw-bold small">สิ้นสุดเดินทาง (ขากลับ)</label>
+                                    <div class="row g-2">
+                                        <div class="col-7">
+                                            <input class="form-control check-time" type="text" id="car_reserv_EndDate" name="car_reserv_EndDate" placeholder="วันที่" required>
+                                        </div>
+                                        <div class="col-5">
+                                            <input class="form-control check-time selectorTime" type="text" id="car_reserv_EndTime" name="car_reserv_EndTime" placeholder="เวลา" required>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <?php if(!$CheckWho) : ?>
-                            <div class="form-floating mb-4">
-                                <input type="text" class="form-control" value="<?=$_SESSION['username']?>" readonly disabled>
-                                <label>ผู้จอง</label>
-                            </div>
-                            <input type="hidden" name="car_reserv_memberID" value="<?=$_SESSION['id']?>">
-                        <?php else: ?>
-                            <div class="form-floating mb-4">
-                                <select class="form-select select2Teach" id="car_reserv_memberID" name="car_reserv_memberID" required>
-                                    <option value="">-- เลือกผู้จอง --</option>
-                                    <?php foreach($SelPres as $r_SelPres):?>
-                                    <option value="<?=$r_SelPres->pers_id?>">
-                                        <?=$r_SelPres->pers_prefix.$r_SelPres->pers_firstname.' '.$r_SelPres->pers_lastname?>
-                                    </option>
-                                    <?php endforeach;?>
-                                </select>
-                                <label>ผู้จอง (เจ้าหน้าที่แทน)</label>
-                            </div>
-                        <?php endif; ?>
+                        <!-- Availability Display -->
+                        <div id="AlertMessage" class="alert-premium d-none mb-4 p-3 animate__animated animate__fadeIn"></div>
 
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="car_reserv_location" name="car_reserv_location" placeholder="สถานที่" required>
-                            <label for="car_reserv_location">ขออนุญาตใช้รถไปที่</label>
-                        </div>
-
-                        <div class="form-floating mb-4">
-                            <input type="text" class="form-control" id="car_reserv_detail" name="car_reserv_detail" placeholder="ภารกิจ" required>
-                            <label for="car_reserv_detail">เพื่อปฏิบัติงานเรื่อง</label>
-                        </div>
-
-                        <!-- Date & Time -->
-                        <h6 class="text-muted mb-3"><i class='bx bx-time me-1'></i> วัน-เวลา เดินทาง</h6>
-                        <div class="row g-3 mb-4">
-                            <div class="col-6 col-md-3">
-                                <div class="form-floating">
-                                    <input class="form-control selector" type="text" id="car_reserv_StartDate" name="car_reserv_StartDate" placeholder="เริ่ม" required>
-                                    <label>ออกเดินทางวันที่</label>
-                                </div>
+                        <h5 class="section-title"><i class='bx bx-phone'></i> ข้อมูลการติดต่อ</h5>
+                        <div class="row g-3 mb-5">
+                            <div class="col-md-6">
+                                <?php if(!$CheckWho) : ?>
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control bg-light" value="<?=$_SESSION['username']?>" readonly disabled>
+                                        <label>ชื่อผู้จอง</label>
+                                    </div>
+                                    <input type="hidden" name="car_reserv_memberID" value="<?=$session->get('id')?>">
+                                <?php else: ?>
+                                    <div class="form-floating">
+                                        <select class="form-select select2Teach" id="car_reserv_memberID" name="car_reserv_memberID" required>
+                                            <option value="">-- เลือกผู้ปฏิบัติหน้าที่ --</option>
+                                            <?php foreach($SelPres as $r_SelPres):?>
+                                            <option value="<?=$r_SelPres->pers_id?>" data-phone="<?=$r_SelPres->pers_phone?>">
+                                                <?=$r_SelPres->pers_prefix.$r_SelPres->pers_firstname.' '.$r_SelPres->pers_lastname?>
+                                            </option>
+                                            <?php endforeach;?>
+                                        </select>
+                                        <label>บันทึกในนามเจ้าหน้าที่</label>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                            <div class="col-6 col-md-3">
+                            <div class="col-md-6">
                                 <div class="form-floating">
-                                    <input class="form-control selectorTime" type="text" id="car_reserv_StartTime" name="car_reserv_StartTime" placeholder="เวลา" required>
-                                    <label>เวลา</label>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="form-floating">
-                                    <input class="form-control selector" type="text" id="car_reserv_EndDate" name="car_reserv_EndDate" placeholder="สิ้นสุด" required>
-                                    <label>เดินทางกลับวันที่</label>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="form-floating">
-                                    <input class="form-control selectorTime" type="text" id="car_reserv_EndTime" name="car_reserv_EndTime" placeholder="เวลา" required>
-                                    <label>เวลา</label>
+                                    <input type="tel" id="car_reserv_phone" name="car_reserv_phone" class="form-control" placeholder="เบอร์โทร" required>
+                                    <label>เบอร์โทรศัพท์สำหรับติดต่อกลับ</label>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="AlertMessage" class="alert alert-warning d-none mb-3"></div>
-
-                        <div class="form-floating mb-4">
-                            <input type="tel" class="form-control" id="car_reserv_phone" name="car_reserv_phone" placeholder="เบอร์โทร" required>
-                            <label for="car_reserv_phone">เบอร์โทรศัพท์</label>
-                        </div>
-
-                        <button type="submit" id="BtnSubBooking" class="btn btn-primary btn-lg w-100">
-                            <i class='bx bx-check-circle me-1'></i>ยืนยันการจองยานพาหนะ
+                        <button type="submit" id="BtnSubBooking" class="btn btn-primary btn-submit-booking w-100 text-white disabled">
+                            <i class='bx bx-check-double me-2'></i>ส่งคำขอการจองยานพาหนะ
                         </button>
                     </form>
                 </div>
@@ -140,26 +262,49 @@
 <?= $this->section('customScripts') ?>
 <script>
     $(document).ready(function() {
-        // Initialize Plugins
-        $('.select2Teach').select2();
-        $('#car_reserv_phone').inputmask('99-9999-9999');
+        // --- Plugins Initialization ---
+        $('.select2Teach').select2(); // Match Room Booking style (simple initialization)
 
+        $('#car_reserv_phone').inputmask('99-9999-9999');
         flatpickr.localize(flatpickr.l10ns.th);
-        
-        const checkTime = () => {
-             const formData = new FormData($('#FormAddCarReservation')[0]);
-             $.ajax({
+
+        // --- Auto-fill Phone Number for Admin ---
+        $('#car_reserv_memberID').on('change', function() {
+            const phone = $(this).find(':selected').data('phone');
+            if (phone) {
+                $('#car_reserv_phone').val(phone).trigger('input');
+            } else {
+                $('#car_reserv_phone').val('');
+            }
+        });
+
+        // --- Availability Check ---
+        const checkAvailability = () => {
+            const formData = {
+                car_reserv_carID: $('input[name="car_reserv_carID"]').val(),
+                car_reserv_StartDate: $('#car_reserv_StartDate').val(),
+                car_reserv_StartTime: $('#car_reserv_StartTime').val(),
+                car_reserv_EndDate: $('#car_reserv_EndDate').val(),
+                car_reserv_EndTime: $('#car_reserv_EndTime').val()
+            };
+
+            if (!formData.car_reserv_StartDate || !formData.car_reserv_StartTime || 
+                !formData.car_reserv_EndDate || !formData.car_reserv_EndTime) {
+                $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning').addClass('alert-warning d-block').html('🕐 กรุณาเลือกวันและเวลาให้ครบถ้วนเพื่อตรวจสอบความว่าง');
+                $('#BtnSubBooking').addClass('disabled');
+                return;
+            }
+
+            $.ajax({
                 url: '<?= base_url('Booking/DB/CheckDateCarBooking') ?>',
                 type: 'POST',
                 data: formData,
-                processData: false,
-                contentType: false,
                 success: function(res) {
-                    $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning').addClass(res.class).html(res.message);
+                    $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning').addClass('d-block ' + res.class).html(res.message);
                     if (res.status == 1) {
-                         $('#BtnSubBooking').prop('disabled', false);
+                         $('#BtnSubBooking').removeClass('disabled');
                     } else {
-                         $('#BtnSubBooking').prop('disabled', true);
+                         $('#BtnSubBooking').addClass('disabled');
                     }
                 }
             });
@@ -174,7 +319,7 @@
                 let year = date.getFullYear() + 543;
                 return `${day}/${month}/${year}`;
             },
-            onChange: checkTime
+            onChange: checkAvailability
         };
 
         const fpStartDate = $("#car_reserv_StartDate").flatpickr(datePickerConfig);
@@ -185,86 +330,71 @@
             noCalendar: true,
             dateFormat: "H:i",
             time_24hr: true,
-            onClose: checkTime
+            onClose: checkAvailability
         });
-        
-        // Bind generic change event for robust checking mechanism
-        $('#car_reserv_StartDate, #car_reserv_EndDate, #car_reserv_StartTime, #car_reserv_EndTime').on('input change', checkTime);
 
-        // Handle URL Date Param
+        // Handle URL Parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const dateParam = urlParams.get('date');
-        if (dateParam) {
-            // Fix: Parse YYYY-MM-DD manually to Date Object to avoid Format mismatches
-            const [y, m, d] = dateParam.split('-').map(Number);
+        if (urlParams.get('date')) {
+            const [y, m, d] = urlParams.get('date').split('-').map(Number);
             const dObj = new Date(y, m - 1, d);
-            
-            fpStartDate.setDate(dObj, true); // true = trigger change
-            fpEndDate.setDate(dObj, true);
+            fpStartDate.setDate(dObj);
+            fpEndDate.setDate(dObj);
+            checkAvailability();
         }
 
-        // Submit Handler via Click
-        $('#BtnSubBooking').click(function(e) {
+        // --- Form Submission ---
+        $('#FormAddCarReservation').on('submit', function(e) {
             e.preventDefault();
-            
-            // Check if alert message indicates error (Secondary check besides disabled button)
-            if ($('#AlertMessage').hasClass('alert-danger')) {
-                 Swal.fire({
-                    icon: 'warning',
-                    title: 'ไม่สามารถจองได้',
-                    text: 'วัน-เวลาที่เลือกมีการจองแล้ว กรุณาเลือกใหม่'
-                });
+            if ($('#BtnSubBooking').hasClass('disabled')) return;
+
+            const form = this;
+            if (!form.checkValidity()) {
+                $(form).addClass('was-validated');
                 return;
             }
 
-            const form = $('#FormAddCarReservation')[0];
-             if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อมูลไม่ครบ',
-                    text: 'กรุณากรอกข้อมูลให้ครบถ้วน'
-                });
-                return;
-            }
+            Swal.fire({
+                title: 'ยืนยันการจอง?',
+                text: "ท่านต้องการบันทึกข้อมูลการจองยานพาหนะใช่หรือไม่",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#696cff',
+                cancelButtonColor: '#8592a3',
+                confirmButtonText: 'ยืนยันบันทึก',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const formData = new FormData(form);
+                    $('#BtnSubBooking').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> กำลังบันทึก...');
 
-            const formData = new FormData(form);
-
-            $('#BtnSubBooking').prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> กำลังบันทึก...');
-
-            $.ajax({
-                url: '<?= base_url('CarBooking/DB/Insert') ?>',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                   if(response == 1 || response.status === 'success'){
-                       Swal.fire({
-                           icon: 'success',
-                           title: 'สำเร็จ',
-                           text: 'จองยานพาหนะเรียบร้อยแล้ว',
-                           showConfirmButton: false,
-                           timer: 1500
-                       }).then(() => {
-                           window.location.href = '<?=base_url('CarBooking')?>';
-                       });
-                   } else {
-                       Swal.fire({
-                           icon: 'error',
-                           title: 'ผิดพลาด',
-                           text: 'เกิดข้อผิดพลาดในการบันทึก (ข้อมูลไม่ครบหรือซ้ำ)'
-                       });
-                       $('#BtnSubBooking').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>ยืนยันการจองยานพาหนะ');
-                   }
-                },
-                error: function() {
-                     Swal.fire({
-                           icon: 'error',
-                           title: 'ผิดพลาด',
-                           text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ'
-                       });
-                     $('#BtnSubBooking').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>ยืนยันการจองยานพาหนะ');
+                    $.ajax({
+                        url: '<?= base_url('CarBooking/DB/Insert') ?>',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            if (response == 1 || response.status === 'success') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'สำเร็จ!',
+                                    text: 'บันทึกข้อมูลการจองเรียบร้อยแล้ว',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.href = '<?= base_url('CarBooking') ?>';
+                                });
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'พบข้อผิดพลาด', text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาตรวจสอบอีกครั้ง' });
+                                $('#BtnSubBooking').prop('disabled', false).html('<i class="bx bx-check-double me-2"></i>ส่งคำขอการจองยานพาหนะ');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้' });
+                            $('#BtnSubBooking').prop('disabled', false).html('<i class="bx bx-check-double me-2"></i>ส่งคำขอการจองยานพาหนะ');
+                        }
+                    });
                 }
             });
         });
