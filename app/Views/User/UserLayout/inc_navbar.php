@@ -10,7 +10,10 @@
         <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
             <!-- Title -->
             <div class="navbar-nav align-items-center">
-                <span class="fw-semibold text-truncate" style="max-width: 220px;"><?=$title;?></span>
+                <div class="nav-item d-flex align-items-center">
+                    <i class="bx bx-chevron-right text-muted me-2 d-none d-md-block"></i>
+                    <span class="fw-bold text-dark fs-5" style="letter-spacing: -0.5px;"><?= $title ?></span>
+                </div>
             </div>
             <!-- /Title -->
 
@@ -20,25 +23,25 @@
                     <span class="badge rounded-pill bg-success">กำลังใช้งาน</span>
                 </li>
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                    <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                        <div class="avatar avatar-online">
+                    <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
+                        <div class="avatar avatar-online shadow-sm" style="width: 38px; height: 38px;">
                             <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?=@$_SESSION['pers_img']?>"
-                                alt="" class="w-px-40 h-auto rounded-circle">
+                                alt="User Avatar" class="rounded-circle border-white border-2 object-fit-cover w-100 h-100">
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <div class="dropdown-item">
-                                <div class="d-flex">
+                                <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0 me-3">
-                                        <div class="avatar avatar-online">
+                                        <div class="avatar avatar-online" style="width: 45px; height: 45px;">
                                             <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?=@$_SESSION['pers_img']?>"
-                                                alt="" class="w-px-40 h-auto rounded-circle">
+                                                alt="User Avatar" class="rounded-circle object-fit-cover w-100 h-100">
                                         </div>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <span class="fw-semibold d-block"><?=$_SESSION['username']?></span>
-                                        <small class="text-muted"><?=$_SESSION['status']?></small>
+                                        <span class="fw-bold d-block fs-6"><?=$_SESSION['username']?></span>
+                                        <small class="text-primary fw-medium"><?=$_SESSION['status']?></small>
                                     </div>
                                 </div>
                             </div>

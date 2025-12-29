@@ -35,7 +35,7 @@
     padding: 3rem 2.5rem;
     margin-bottom: 2.5rem;
     position: relative;
-    overflow: visible; /* Changed from hidden to ensure dropdowns and shadows aren't clipped */
+    overflow: hidden; /* Changed back to hidden to clip decorative orbs */
     color: #fff;
     box-shadow: 0 20px 50px -15px rgba(105, 108, 255, 0.3);
     z-index: 1;
@@ -51,11 +51,12 @@
     content: '';
     position: absolute;
     top: -20%;
-    right: -5%;
-    width: 300px;
-    height: 300px;
+    right: 0;
+    width: 250px;
+    height: 250px;
     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
     border-radius: 50%;
+    pointer-events: none;
 }
 
 .page-header::after {
@@ -378,6 +379,58 @@
     .page-header h4 { font-size: 1.75rem; }
     .page-header .d-flex { justify-content: center !important; flex-wrap: wrap; }
 }
+@media (max-width: 576px) {
+    .stats-row-container {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+        padding-bottom: 0.5rem !important;
+        gap: 0.35rem !important;
+        margin-bottom: 1rem !important;
+    }
+    .stats-col-mobile {
+        flex: 1 1 0 !important;
+        width: 25% !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+    }
+    .stats-card {
+        padding: 0.35rem !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 0.2rem !important;
+        border-radius: 8px !important;
+        min-height: auto !important;
+    }
+    .stats-card .icon-circle {
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 0.65rem !important;
+        margin-bottom: 0 !important;
+        border-radius: 5px !important;
+    }
+    .stats-card .stats-info {
+        min-width: 0;
+        width: 100%;
+    }
+    .stats-card .stats-title {
+        font-size: 0.5rem !important;
+        margin-bottom: 0 !important;
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .stats-card .stats-value {
+        font-size: 0.75rem !important;
+        line-height: 1;
+        white-space: nowrap;
+    }
+    .stats-card .stats-value small {
+        display: none !important;
+    }
+}
 </style>
 
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -387,7 +440,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div class="header-left">
                 <div class="d-flex align-items-center mb-1">
-                    <div class="bg-white bg-opacity-25 p-2 rounded-3 me-3">
+                    <div class="bg-opacity-25 p-2 rounded-3 me-3">
                         <i class='bx bxs-dish fs-3 text-white'></i>
                     </div>
                     <nav aria-label="breadcrumb">
@@ -425,44 +478,52 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="row mb-5">
-        <div class="col-sm-6 col-xl-3 mb-4 mb-xl-0">
+    <div class="row mb-5 g-3 stats-row-container">
+        <div class="col-6 col-sm-6 col-xl-3 stats-col-mobile">
             <div class="stats-card p-total premium-animate" style="animation-delay: 0.1s">
                 <div class="icon-circle">
                     <i class='bx bxs-file-find'></i>
                 </div>
-                <h6 class="stats-title">รายงานทั้งหมด</h6>
-                <h3 class="stats-value"><?= number_format($TotalReports ?? 0) ?> <small class="fs-6 text-muted fw-normal">ฉบับ</small></h3>
+                <div class="stats-info">
+                    <h6 class="stats-title">รายงานทั้งหมด</h6>
+                    <h3 class="stats-value"><?= number_format($TotalReports ?? 0) ?> <small class="fw-normal">ฉบับ</small></h3>
+                </div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3 mb-4 mb-xl-0">
+        <div class="col-6 col-sm-6 col-xl-3 stats-col-mobile">
             <div class="stats-card p-morning premium-animate" style="animation-delay: 0.2s">
                 <div class="icon-circle">
                     <i class='bx bxs-coffee-togo'></i>
                 </div>
-                <h6 class="stats-title">มื้อเช้า</h6>
-                <h3 class="stats-value"><?= number_format($BreakfastCount ?? 0) ?> <small class="fs-6 text-muted fw-normal">วัน</small></h3>
+                <div class="stats-info">
+                    <h6 class="stats-title">มื้อเช้า</h6>
+                    <h3 class="stats-value"><?= number_format($BreakfastCount ?? 0) ?> <small class="fw-normal">วัน</small></h3>
+                </div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3 mb-4 mb-xl-0">
+        <div class="col-6 col-sm-6 col-xl-3 stats-col-mobile">
             <div class="stats-card p-lunch premium-animate" style="animation-delay: 0.3s">
                 <div class="icon-circle">
                     <i class='bx bxs-bowl-hot'></i>
                 </div>
-                <h6 class="stats-title">มื้อกลางวัน</h6>
-                <h3 class="stats-value"><?= number_format($LunchCount ?? 0) ?> <small class="fs-6 text-muted fw-normal">วัน</small></h3>
+                <div class="stats-info">
+                    <h6 class="stats-title">มื้อกลางวัน</h6>
+                    <h3 class="stats-value"><?= number_format($LunchCount ?? 0) ?> <small class="fw-normal">วัน</small></h3>
+                </div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3 stats-col-mobile">
             <div class="stats-card p-dinner premium-animate" style="animation-delay: 0.4s">
                 <div class="icon-circle">
                     <i class='bx bxs-moon'></i>
                 </div>
-                <h6 class="stats-title">มื้อเย็น</h6>
-                <h3 class="stats-value"><?= number_format($DinnerCount ?? 0) ?> <small class="fs-6 text-muted fw-normal">วัน</small></h3>
+                <div class="stats-info">
+                    <h6 class="stats-title">มื้อเย็น</h6>
+                    <h3 class="stats-value"><?= number_format($DinnerCount ?? 0) ?> <small class="fw-normal">วัน</small></h3>
+                </div>
             </div>
         </div>
     </div>

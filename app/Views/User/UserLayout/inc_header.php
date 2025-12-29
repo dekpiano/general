@@ -63,5 +63,100 @@
     <script src="<?=base_url('assets/js/config.js')?>"></script>
     
     <!-- Custom CSS Section -->
+    <style>
+        /* --- Premium Sidebar --- */
+        #layout-menu .menu-inner .menu-item.active > .menu-link {
+            background: linear-gradient(72.47deg, #696cff 22.16%, rgba(105, 108, 255, 0.7) 76.47%) !important;
+            box-shadow: 0px 4px 12px rgba(105, 108, 255, 0.25);
+            color: #fff !important;
+            border-radius: 0.5rem;
+            margin: 0.125rem 0.5rem;
+            width: calc(100% - 1rem);
+        }
+
+        #layout-menu .menu-inner .menu-item.active .menu-icon {
+            color: #fff !important;
+        }
+
+        #layout-menu .menu-inner .menu-item .menu-link {
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            margin: 0.125rem 0.5rem;
+            width: calc(100% - 1rem);
+        }
+
+        #layout-menu .menu-inner .menu-item .menu-link:hover {
+            background-color: rgba(105, 108, 255, 0.08) !important;
+            color: #696cff !important;
+        }
+
+        #layout-menu .menu-inner .menu-item .menu-link:hover .menu-icon {
+            color: #696cff !important;
+            transform: translateX(3px);
+            transition: all 0.3s ease;
+        }
+
+        .menu-vertical .menu-header {
+            margin-top: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .menu-vertical .menu-header .menu-header-text {
+            font-weight: 700;
+            color: #a1acb8;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        /* --- Premium Navbar --- */
+        #layout-navbar {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(105, 108, 255, 0.1) !important;
+            border-radius: 1rem !important;
+            margin-top: 1rem !important;
+            transition: all 0.3s ease;
+        }
+
+        #layout-navbar.navbar-scrolled {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .navbar-dropdown .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .navbar-dropdown .dropdown-item {
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .navbar-dropdown .dropdown-item:hover {
+            background-color: rgba(105, 108, 255, 0.08);
+            color: #696cff;
+        }
+
+        .navbar-dropdown .dropdown-item i {
+            font-size: 1.25rem;
+        }
+
+        /* --- Sidebar Scrollbar --- */
+        .menu-inner::-webkit-scrollbar {
+            width: 4px;
+        }
+        .menu-inner::-webkit-scrollbar-thumb {
+            background: rgba(105, 108, 255, 0.2);
+            border-radius: 10px;
+        }
+        .menu-inner::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    </style>
     <?= $this->renderSection('customCSS') ?>
 </head>

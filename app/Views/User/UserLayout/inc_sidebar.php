@@ -1,19 +1,21 @@
         <!-- Menu -->
-        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-            <div class="app-brand demo">
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme border-end-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(10px);">
+            <div class="app-brand demo py-4">
                 <a href="<?=base_url()?>" class="app-brand-link">
                     <span class="app-brand-logo demo">
-                        <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="40">
+                        <div class="p-2 rounded-3 bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                            <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="32">
+                        </div>
                     </span>
-                    <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1.2rem; text-transform: uppercase;">สกจ.บริหารทั่วไป</span>
+                    <span class="app-brand-text demo menu-text fw-bold ms-3" style="font-size: 1.15rem; color: #566a7f; letter-spacing: -0.5px;">สกจ. <span class="text-primary">บริหารทั่วไป</span></span>
                 </a>
 
                 <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-                    <i class="bx bx-chevron-left bx-sm align-middle"></i>
+                    <i class="bx bx-chevron-left bx-sm align-middle text-primary"></i>
                 </a>
             </div>
 
-            <div class="menu-inner-shadow"></div>
+            <div class="menu-inner-shadow" style="background: linear-gradient(#fff 5%,rgba(255,255,255,0) 95%); height: 3rem;"></div>
 
             <ul class="menu-inner py-1">
                 <!-- Home -->
@@ -107,9 +109,9 @@
                 <li class="menu-header small text-uppercase">
                     <span class="menu-header-text">ผู้ดูแลระบบ</span>
                 </li>
-                <li class="menu-item">
-                    <a href="<?=base_url('Admin/Home');?>" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-cog"></i>
+                <li class="menu-item <?= $UrlMenuMain == "AdminHome" ? "active" : "" ?>">
+                    <a href="<?=base_url('Admin/Home');?>" class="menu-link text-danger fw-bold">
+                        <i class="menu-icon tf-icons bx bx-cog text-danger"></i>
                         <div>จัดการข้อมูลระบบ</div>
                     </a>
                 </li>
