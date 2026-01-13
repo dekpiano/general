@@ -29,9 +29,11 @@ $routes->setAutoRoute(false);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'ConUserHome::index');
+$routes->get('manual', 'ConUserManual::index');
 $routes->get('manual/booking', 'ConUserManual::bookingSystemManual');
 $routes->get('manual/car-booking', 'ConUserManual::carBookingSystemManual');
 $routes->get('manual/repair', 'ConUserManual::repairSystemManual');
+$routes->get('manual/food-report', 'ConUserManual::foodReportManual');
 
 //User งานจองห้อง
 $routes->get('Booking', 'ConUserBooking::BookingMain');

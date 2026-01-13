@@ -67,6 +67,14 @@ class ConLogin extends BaseController
                     $googleService = new \Google_Service_Oauth2($this->googleClient);  
                     //echo '<pre>';print_r($googleService); exit();          
                     $data = $googleService->userinfo->get();            
+                    
+                    // ตรวจสอบว่าอีเมลเป็น @skj.ac.th หรือไม่
+                    $userEmail = $data['email'];
+                    if (!str_ends_with($userEmail, '@skj.ac.th')) {
+                        session()->setFlashdata('login_error', 'กรุณาใช้อีเมลโรงเรียน @skj.ac.th ในการเข้าสู่ระบบเท่านั้น');
+                        session()->setFlashdata('error_email', $userEmail);
+                        return redirect()->to(base_url('LoginOfficerGeneral'));
+                    }
                                 
                 $CheckEmail = $DBPers->where('pers_username', $data['email'])->get()->getRowArray()>0?true:false;
                 if($CheckEmail){

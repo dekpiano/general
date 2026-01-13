@@ -1,92 +1,433 @@
 <?= $this->extend('User/UserLayout/user_layout') ?>
-<?= $this->section('content') ?>
+
 <?= $this->section('customCSS') ?>
 <style>
+    /* --- Premium Variables --- */
+    :root {
+        --manual-gradient: linear-gradient(135deg, #696cff 0%, #3f4191 100%);
+        --manual-primary: #696cff;
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(105, 108, 255, 0.1);
+    }
+
+    /* Hero Section */
     .manual-hero {
-        background: linear-gradient(135deg, #1fa2ff 0%, #12d8fa 50%, #a6ffcb 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-    .step-card {
-        border: none;
-        border-radius: 16px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: var(--manual-gradient);
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        position: relative;
         overflow: hidden;
-        border: 1px solid rgba(0,0,0,0.05);
+        color: #fff;
+        box-shadow: 0 20px 50px -15px rgba(105, 108, 255, 0.35);
+        margin-bottom: 2.5rem;
     }
-    .step-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+
+    .manual-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -15%;
+        width: 450px;
+        height: 450px;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        border-radius: 50%;
     }
-    .step-number {
+
+    .manual-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    .hero-title {
         font-size: 2.5rem;
-        font-weight: 900;
-        color: rgba(67, 89, 113, 0.1);
-        line-height: 1;
-        margin-bottom: 1rem;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 0.75rem;
+        color: #ffffff;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
-    .step-icon {
-        width: 60px;
-        height: 60px;
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+        color: #ffffff;
+        max-width: 600px;
+        text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Override breadcrumb colors in hero */
+    .manual-hero .breadcrumb-item a {
+        color: rgba(255,255,255,0.8) !important;
+    }
+
+    .manual-hero .breadcrumb-item.active {
+        color: #ffffff !important;
+    }
+
+    .manual-hero .breadcrumb-item::before {
+        color: rgba(255,255,255,0.6) !important;
+    }
+
+    /* Global text improvements */
+    .text-muted {
+        color: #697a8d !important;
+    }
+
+    p.text-muted {
+        color: #566a7f !important;
+    }
+
+    /* Pill Navigation */
+    .nav-manual {
+        background: var(--glass-bg);
+        border-radius: 50px;
+        padding: 6px;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+    }
+
+    .nav-manual .nav-link {
+        border-radius: 50px;
+        padding: 12px 28px;
+        font-weight: 600;
+        color: #32475c;
+        transition: all 0.3s ease;
+    }
+
+    .nav-manual .nav-link.active {
+        background: var(--manual-gradient);
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(105, 108, 255, 0.35);
+    }
+
+    .nav-manual .nav-link:hover:not(.active) {
+        background: rgba(105, 108, 255, 0.08);
+        color: var(--manual-primary);
+    }
+
+    /* Step Cards */
+    .step-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 0;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+
+    .step-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(105, 108, 255, 0.12);
+    }
+
+    .step-header {
+        background: linear-gradient(135deg, rgba(105, 108, 255, 0.08) 0%, rgba(105, 108, 255, 0.02) 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: var(--manual-gradient);
+        color: #fff;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        background: rgba(105, 108, 255, 0.1);
+        font-weight: 800;
+        font-size: 1.3rem;
+        box-shadow: 0 8px 20px rgba(105, 108, 255, 0.35);
+    }
+
+    .step-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #32475c;
+        margin-bottom: 4px;
+    }
+
+    .step-subtitle {
+        color: #566a7f;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+
+    /* Override bootstrap text colors for better contrast */
+    .step-body .text-muted {
+        color: #697a8d !important;
+    }
+
+    .step-body .text-secondary {
+        color: #566a7f !important;
+    }
+
+    .features-list strong {
+        color: #32475c;
+    }
+
+    .features-list small.text-muted {
+        color: #697a8d !important;
+    }
+
+    ol.text-secondary li,
+    ol.text-secondary {
+        color: #566a7f !important;
+    }
+
+    .tips-box .text-muted {
+        color: #566a7f !important;
+    }
+
+    /* Additional text contrast improvements */
+    small {
+        color: #697a8d;
+    }
+
+    small.text-muted {
+        color: #697a8d !important;
+    }
+
+    .accordion-body {
+        color: #566a7f !important;
+    }
+
+    /* Admin feature card text */
+    .admin-feature-card p {
+        color: #697a8d !important;
+    }
+
+    .admin-feature-card h5 {
+        color: #32475c;
+    }
+
+    /* Mockup text visibility */
+    .mockup-card-body .text-muted {
+        color: #697a8d !important;
+    }
+
+    /* Badge and label text */
+    .badge {
+        font-weight: 600;
+    }
+
+    /* FAQ title */
+    .faq-title {
+        color: #32475c !important;
+    }
+
+    .step-body {
+        padding: 2rem;
+    }
+
+    /* Mockup Cards within Steps */
+    .mockup-wrapper {
+        background: #f8faff;
+        border-radius: 16px;
+        padding: 2rem;
+        border: 2px dashed rgba(105, 108, 255, 0.15);
+        position: relative;
+    }
+
+    .mockup-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .mockup-card-header {
+        background: var(--manual-gradient);
+        padding: 12px 16px;
+        color: #fff;
+    }
+
+    .mockup-card-body {
+        padding: 16px;
+    }
+
+    /* Features List */
+    .features-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .features-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px dashed rgba(0,0,0,0.06);
+    }
+
+    .features-list li:last-child {
+        border-bottom: none;
+    }
+
+    .feature-icon {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        background: rgba(113, 221, 55, 0.15);
+        color: #71dd37;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .feature-icon.warning {
+        background: rgba(255, 171, 0, 0.15);
+        color: #ffab00;
+    }
+
+    .feature-icon.info {
+        background: rgba(3, 195, 236, 0.15);
+        color: #03c3ec;
+    }
+
+    .feature-icon.primary {
+        background: rgba(105, 108, 255, 0.15);
         color: #696cff;
+    }
+
+    /* FAQ Accordion */
+    .faq-section {
+        background: var(--glass-bg);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid var(--glass-border);
+    }
+
+    .accordion-premium .accordion-item {
+        border: none;
+        background: transparent;
+        margin-bottom: 12px;
+    }
+
+    .accordion-premium .accordion-button {
+        background: #f8faff;
+        border-radius: 12px !important;
+        font-weight: 600;
+        color: #32475c;
+        padding: 16px 20px;
+        box-shadow: none;
+    }
+
+    .accordion-premium .accordion-button:not(.collapsed) {
+        background: rgba(105, 108, 255, 0.1);
+        color: var(--manual-primary);
+    }
+
+    .accordion-premium .accordion-button::after {
+        background-size: 14px;
+    }
+
+    /* Admin Cards */
+    .admin-feature-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .admin-feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(105, 108, 255, 0.1);
+    }
+
+    .admin-icon-box {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.5rem;
         margin-bottom: 1rem;
     }
-    .screenshot-placeholder {
-        background: #f8f9fa;
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Tips Box */
+    .tips-box {
+        background: linear-gradient(135deg, rgba(255, 171, 0, 0.1) 0%, rgba(255, 171, 0, 0.05) 100%);
+        border: 1px solid rgba(255, 171, 0, 0.2);
         border-radius: 12px;
-        min-height: 250px;
+        padding: 16px;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px dashed #d9dee3;
-        color: #a1acb8;
-        font-weight: 500;
-        transition: all 0.3s;
+        gap: 12px;
+        align-items: flex-start;
     }
-    .screenshot-placeholder:hover {
-        border-color: #696cff;
-        color: #696cff;
-        background: rgba(105, 108, 255, 0.05);
+
+    .tips-box.success {
+        background: linear-gradient(135deg, rgba(113, 221, 55, 0.1) 0%, rgba(113, 221, 55, 0.05) 100%);
+        border-color: rgba(113, 221, 55, 0.2);
     }
-    .nav-pills .nav-link.active {
-        background-color: #696cff;
-        box-shadow: 0 4px 10px rgba(105, 108, 255, 0.4);
+
+    .tips-box i {
+        font-size: 1.5rem;
+        color: #ffab00;
     }
-    .accordion-button:not(.collapsed) {
-        background-color: rgba(105, 108, 255, 0.1);
-        color: #696cff;
+
+    .tips-box.success i {
+        color: #71dd37;
     }
 </style>
 <?= $this->endSection() ?>
 
+<?= $this->section('content') ?>
 <div class="container-xxl flex-grow-1 container-p-y">
-    
+
     <!-- Hero Section -->
-    <div class="text-center mb-5">
-        <h2 class="manual-hero mb-2 display-6">คู่มือการใช้งานระบบจองยานพาหนะ</h2>
-        <p class="text-muted fs-5">เรียนรู้วิธีการใช้งานระบบใหม่ ที่สะดวก รวดเร็ว และทันสมัยยิ่งขึ้น</p>
+    <div class="manual-hero animate-in">
+        <div class="hero-content">
+            <div class="d-flex align-items-center mb-3">
+                <i class='bx bxs-car fs-2 me-2'></i>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="<?= base_url('manual') ?>" class="text-white-50">คู่มือ</a></li>
+                        <li class="breadcrumb-item active text-white">ระบบจองยานพาหนะ</li>
+                    </ol>
+                </nav>
+            </div>
+            <h1 class="hero-title">คู่มือระบบจองยานพาหนะ</h1>
+            <p class="hero-subtitle">เรียนรู้วิธีการจองรถยนต์ รถตู้ และยานพาหนะต่างๆ ของโรงเรียน ตั้งแต่เริ่มต้นจนถึงการอนุมัติ</p>
+        </div>
     </div>
 
     <!-- Navigation Tabs -->
     <div class="row justify-content-center mb-5">
-        <div class="col-md-8 col-lg-6">
-            <ul class="nav nav-pills nav-fill p-1 bg-white rounded-pill shadow-sm border" role="tablist">
+        <div class="col-lg-6 col-md-8">
+            <ul class="nav nav-manual nav-fill" role="tablist">
                 <li class="nav-item">
-                    <button class="nav-link active rounded-pill py-2" data-bs-toggle="pill" data-bs-target="#user-manual" type="button">
-                        <i class="bx bx-user me-1"></i> สำหรับผู้จอง (User)
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#user-manual" type="button">
+                        <i class="bx bx-user me-1"></i> สำหรับผู้จอง
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link rounded-pill py-2" data-bs-toggle="pill" data-bs-target="#admin-manual" type="button">
-                        <i class="bx bx-shield-quarter me-1"></i> สำหรับผู้ดูแล (Admin)
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#admin-manual" type="button">
+                        <i class="bx bx-shield-quarter me-1"></i> สำหรับผู้อนุมัติ
                     </button>
                 </li>
             </ul>
@@ -94,35 +435,99 @@
     </div>
 
     <!-- Tab Content -->
-    <div class="tab-content border-0 shadow-none p-0 mt-0">
+    <div class="tab-content">
         
         <!-- User Manual -->
         <div class="tab-pane fade show active" id="user-manual">
             <div class="row g-4">
                 
-                <!-- Step 1 -->
-                <div class="col-12">
-                    <div class="card step-card p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-6 order-md-1">
-                                <div class="p-3">
-                                    <div class="step-number">01</div>
-                                    <h4 class="fw-bold mb-3 text-primary">ตรวจสอบตารางการเดินรถ</h4>
-                                    <p class="text-secondary mb-4">
-                                        ก่อนทำการจอง ท่านสามารถตรวจสอบตารางการเดินรถได้ที่หน้า <strong>"ปฏิทินจองยานพาหนะ"</strong> 
-                                        ระบบจะแสดงรายการรถที่ถูกจองแล้วในแต่ละวัน เพื่อให้ท่านวางแผนการเดินทางได้สะดวกขึ้น
-                                    </p>
-                                    <ul class="list-unstyled">
-                                        <li class="mb-2"><i class="bx bx-check-circle text-success me-2"></i>มุมมองแบบปฏิทินรายเดือน</li>
-                                        <li class="mb-2"><i class="bx bx-check-circle text-success me-2"></i>แยกสีตามสถานะ (รออนุมัติ/อนุมัติแล้ว)</li>
+                <!-- Step 1: เลือกยานพาหนะ -->
+                <div class="col-12 animate-in" style="animation-delay: 0.1s">
+                    <div class="step-card">
+                        <div class="step-header d-flex align-items-center gap-3">
+                            <div class="step-number">1</div>
+                            <div>
+                                <h4 class="step-title">เลือกยานพาหนะที่ต้องการจอง</h4>
+                                <p class="step-subtitle">ตรวจสอบรถว่างผ่าน Mini Calendar และคลิกวันที่เพื่อจอง</p>
+                            </div>
+                        </div>
+                        <div class="step-body">
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <h6 class="fw-bold mb-3"><i class='bx bx-navigation me-2 text-primary'></i>วิธีเข้าถึงหน้าจอง</h6>
+                                    <ol class="ps-3 text-secondary">
+                                        <li class="mb-2">ไปที่เมนู <strong class="text-dark">"จองยานพาหนะ"</strong> ในแถบเมนูหลัก</li>
+                                        <li class="mb-2">ระบบจะแสดงรายการรถทั้งหมด พร้อม <strong class="text-primary">ทะเบียนรถ</strong> และ <strong class="text-primary">ประเภทรถ</strong></li>
+                                        <li class="mb-2">แต่ละคันจะมี <strong class="text-success">ปฏิทินขนาดเล็ก (Mini Calendar)</strong> แสดงอยู่</li>
+                                        <li class="mb-2">สามารถเปลี่ยนเดือน/ปีเพื่อดูตารางล่วงหน้าได้</li>
+                                        <li class="mb-2"><strong class="text-dark">คลิกที่วันที่ในปฏิทิน</strong> เพื่อเข้าสู่ฟอร์มจองโดยตรง</li>
+                                    </ol>
+
+                                    <div class="tips-box mt-4">
+                                        <i class='bx bxs-bulb'></i>
+                                        <div>
+                                            <strong class="d-block mb-1">เคล็ดลับ</strong>
+                                            <span class="text-muted small">สีเขียว = มีการจองที่อนุมัติแล้ว, สีเหลือง = รอตรวจสอบ, วันที่ไม่มีสี = ว่าง พร้อมให้จอง!</span>
+                                        </div>
+                                    </div>
+
+                                    <ul class="features-list mt-4">
+                                        <li>
+                                            <div class="feature-icon"><i class='bx bx-check'></i></div>
+                                            <div>
+                                                <strong class="d-block">ดูรูปภาพรถ</strong>
+                                                <small class="text-muted">แต่ละคันมีรูปภาพประกอบให้ดู</small>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="feature-icon"><i class='bx bx-check'></i></div>
+                                            <div>
+                                                <strong class="d-block">เลือกวันจากปฏิทิน</strong>
+                                                <small class="text-muted">คลิกวันที่ต้องการจองได้โดยตรง</small>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="feature-icon info"><i class='bx bx-info-circle'></i></div>
+                                            <div>
+                                                <strong class="d-block">Sidebar เครื่องมือ</strong>
+                                                <small class="text-muted">ดูจำนวนรถทั้งหมด, รายการจองของฉัน, คู่มือ</small>
+                                            </div>
+                                        </li>
                                     </ul>
                                 </div>
-                            </div>
-                            <div class="col-md-6 order-md-2">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bx-calendar display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: หน้าปฏิทินการจอง</p>
+                                <div class="col-lg-6">
+                                    <div class="mockup-wrapper">
+                                        <!-- Mockup: Car Card with Mini Calendar -->
+                                        <div class="mockup-card mx-auto" style="max-width: 320px; transform: rotate(-2deg);">
+                                            <div class="mockup-card-header d-flex align-items-center gap-2">
+                                                <i class='bx bxs-car'></i>
+                                                <span class="fw-semibold">กค-1234 นครสวรรค์</span>
+                                            </div>
+                                            <div class="mockup-card-body">
+                                                <div class="text-muted small mb-2">รถตู้ 12 ที่นั่ง</div>
+                                                <div class="d-flex gap-2 mb-3">
+                                                    <div class="bg-light rounded px-2 py-1 flex-grow-1 text-center" style="font-size: 11px;">มกราคม</div>
+                                                    <div class="bg-light rounded px-2 py-1" style="font-size: 11px;">2569</div>
+                                                </div>
+                                                <div class="row g-1">
+                                                    <?php for($i=1; $i<=7; $i++): ?>
+                                                        <div class="col text-center"><small class="text-muted" style="font-size:9px;"><?= ['อา','จ','อ','พ','พฤ','ศ','ส'][$i-1] ?></small></div>
+                                                    <?php endfor; ?>
+                                                </div>
+                                                <div class="row g-1 mt-1">
+                                                    <?php for($d=1; $d<=14; $d++): ?>
+                                                        <div class="col">
+                                                            <div class="rounded-1 text-center py-1 <?= $d==5 ? 'bg-success text-white' : ($d==8 ? 'bg-warning text-dark' : 'bg-light') ?>" style="font-size: 10px; cursor: pointer;"><?= $d ?></div>
+                                                        </div>
+                                                        <?php if($d % 7 == 0): ?></div><div class="row g-1 mt-1"><?php endif; ?>
+                                                    <?php endfor; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-center mt-3">
+                                            <span class="badge bg-success me-1">สีเขียว = อนุมัติแล้ว</span>
+                                            <span class="badge bg-warning text-dark">สีเหลือง = รอตรวจสอบ</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -130,29 +535,104 @@
                     </div>
                 </div>
 
-                <!-- Step 2 -->
-                <div class="col-12">
-                    <div class="card step-card p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-6 order-md-2">
-                                <div class="p-3">
-                                    <div class="step-number text-end">02</div>
-                                    <h4 class="fw-bold mb-3 text-primary text-md-end">กรอกแบบฟอร์มการจอง</h4>
-                                    <p class="text-secondary mb-4 text-md-end">
-                                        คลิกที่ปุ่ม <strong>"จองยานพาหนะ"</strong> และกรอกข้อมูลในแบบฟอร์มใหม่ที่ทันสมัย
-                                        ด้วยระบบ <strong>Floating Labels</strong> และ <strong>Smart Search</strong> ช่วยให้การกรอกข้อมูลง่ายและถูกต้อง
-                                    </p>
-                                    <ul class="list-unstyled text-md-end">
-                                        <li class="mb-2">ค้นหาสถานที่หรือบุคลากรได้รวดเร็ว <i class="bx bx-search text-primary ms-2"></i></li>
-                                        <li class="mb-2">เลือกเวลาเดินทางไป-กลับ ได้อย่างแม่นยำ <i class="bx bx-time text-primary ms-2"></i></li>
-                                    </ul>
-                                </div>
+                <!-- Step 2: กรอกรายละเอียด -->
+                <div class="col-12 animate-in" style="animation-delay: 0.2s">
+                    <div class="step-card">
+                        <div class="step-header d-flex align-items-center gap-3">
+                            <div class="step-number">2</div>
+                            <div>
+                                <h4 class="step-title">กรอกรายละเอียดการจอง</h4>
+                                <p class="step-subtitle">ระบุปลายทาง วัตถุประสงค์ วันเวลา และข้อมูลติดต่อ</p>
                             </div>
-                            <div class="col-md-6 order-md-1">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bx-edit display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: ฟอร์มจองแบบ Floating Labels</p>
+                        </div>
+                        <div class="step-body">
+                            <div class="row g-4">
+                                <div class="col-lg-6 order-lg-2">
+                                    <h6 class="fw-bold mb-3"><i class='bx bx-edit me-2 text-primary'></i>ข้อมูลที่ต้องกรอก</h6>
+                                    
+                                    <ul class="features-list">
+                                        <li>
+                                            <div class="feature-icon primary"><i class='bx bx-map'></i></div>
+                                            <div>
+                                                <strong class="d-block">สถานที่ปลายทาง</strong>
+                                                <small class="text-muted">ระบุสถานที่ที่จะเดินทางไป</small>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="feature-icon primary"><i class='bx bx-detail'></i></div>
+                                            <div>
+                                                <strong class="d-block">วัตถุประสงค์ / ภารกิจ</strong>
+                                                <small class="text-muted">ระบุเหตุผลในการเดินทาง</small>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="feature-icon"><i class='bx bx-user'></i></div>
+                                            <div>
+                                                <strong class="d-block">จำนวนผู้ร่วมเดินทาง</strong>
+                                                <small class="text-muted">ระบุจำนวนคนที่จะไปด้วย</small>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="feature-icon warning"><i class='bx bx-calendar'></i></div>
+                                            <div>
+                                                <strong class="d-block">วันและเวลาเดินทาง</strong>
+                                                <small class="text-muted">ขาไป (เริ่มเดินทาง) และ ขากลับ (สิ้นสุด)</small>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="feature-icon info"><i class='bx bx-phone'></i></div>
+                                            <div>
+                                                <strong class="d-block">ข้อมูลติดต่อ</strong>
+                                                <small class="text-muted">ชื่อผู้จอง และเบอร์โทรศัพท์</small>
+                                            </div>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tips-box success mt-4">
+                                        <i class='bx bxs-check-shield'></i>
+                                        <div>
+                                            <strong class="d-block mb-1">ระบบตรวจสอบอัตโนมัติ</strong>
+                                            <span class="text-muted small">ระบบจะแจ้งเตือนทันทีหากวันเวลาที่เลือกมีการจองซ้อนกับคนอื่น</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 order-lg-1">
+                                    <div class="mockup-wrapper">
+                                        <!-- Mockup: Car Booking Form -->
+                                        <div class="mockup-card mx-auto" style="max-width: 340px; transform: rotate(2deg);">
+                                            <div class="mockup-card-header">
+                                                <i class='bx bxs-car me-1'></i> แบบฟอร์มจองยานพาหนะ
+                                            </div>
+                                            <div class="mockup-card-body">
+                                                <div class="mb-2">
+                                                    <div class="text-muted small mb-1" style="font-size: 10px;">สถานที่ปลายทาง *</div>
+                                                    <div class="border rounded p-2 bg-light" style="font-size: 11px;">กรุงเทพมหานคร...</div>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <div class="text-muted small mb-1" style="font-size: 10px;">วัตถุประสงค์ / ภารกิจ *</div>
+                                                    <div class="border rounded p-2 bg-light" style="font-size: 11px;">ประชุมสัมมนา...</div>
+                                                </div>
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-6">
+                                                        <div class="text-muted small mb-1" style="font-size: 10px;">วันที่ขาไป</div>
+                                                        <div class="border rounded p-2 bg-success bg-opacity-10 text-success text-center" style="font-size: 11px;">15/01/2569</div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-muted small mb-1" style="font-size: 10px;">เวลา</div>
+                                                        <div class="border rounded p-2 bg-light text-center" style="font-size: 11px;">06:00</div>
+                                                    </div>
+                                                </div>
+                                                <div class="p-2 bg-success bg-opacity-10 rounded mb-2">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class='bx bx-check-circle text-success'></i>
+                                                        <small class="text-success fw-bold" style="font-size: 10px;">ช่วงเวลานี้ว่าง! สามารถจองได้</small>
+                                                    </div>
+                                                </div>
+                                                <div class="bg-primary rounded-2 text-white text-center p-2 mt-3" style="font-size: 12px;">
+                                                    <i class='bx bx-check-double me-1'></i> ส่งคำขอจอง
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -160,30 +640,158 @@
                     </div>
                 </div>
 
-                <!-- Step 3 -->
-                <div class="col-12">
-                    <div class="card step-card p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-6 order-md-1">
-                                <div class="p-3">
-                                    <div class="step-number">03</div>
-                                    <h4 class="fw-bold mb-3 text-primary">ติดตามสถานะและรับแจ้งเตือน</h4>
-                                    <p class="text-secondary mb-4">
-                                        หลังจากส่งคำขอจอง ท่านสามารถติดตามสถานะได้ที่เมนู <strong>"ข้อมูลการจองของฉัน"</strong>
-                                        เมื่อผู้ดูแลทำการอนุมัติ ระบบจะส่งแจ้งเตือนผ่าน <strong>LINE และ Email</strong> ให้ท่านทราบทันที
-                                    </p>
-                                    <div class="d-flex gap-3 mt-3">
-                                        <span class="badge bg-label-warning px-3 py-2 fs-6">รออนุมัติ</span>
-                                        <i class="bx bx-right-arrow-alt align-self-center text-muted"></i>
-                                        <span class="badge bg-label-success px-3 py-2 fs-6">อนุมัติแล้ว</span>
+                <!-- Step 3: รอผลอนุมัติ -->
+                <div class="col-12 animate-in" style="animation-delay: 0.3s">
+                    <div class="step-card">
+                        <div class="step-header d-flex align-items-center gap-3">
+                            <div class="step-number">3</div>
+                            <div>
+                                <h4 class="step-title">รอผลการอนุมัติ</h4>
+                                <p class="step-subtitle">ติดตามสถานะคำขอและรับการแจ้งเตือนอัตโนมัติ</p>
+                            </div>
+                        </div>
+                        <div class="step-body">
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <h6 class="fw-bold mb-3"><i class='bx bx-bell me-2 text-primary'></i>การติดตามสถานะ</h6>
+                                    <p class="text-muted">เมื่อส่งคำขอแล้ว ระบบจะส่งเรื่องไปยังเจ้าหน้าที่งานยานพาหนะทันที ท่านสามารถติดตามสถานะได้ดังนี้:</p>
+
+                                    <ul class="features-list">
+                                        <li>
+                                            <div class="feature-icon warning"><i class='bx bx-time'></i></div>
+                                            <div>
+                                                <strong class="d-block">รออนุมัติ</strong>
+                                                <small class="text-muted">คำขออยู่ระหว่างการพิจารณาจากเจ้าหน้าที่</small>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="feature-icon"><i class='bx bx-check-double'></i></div>
+                                            <div>
+                                                <strong class="d-block">อนุมัติ</strong>
+                                                <small class="text-muted">ได้รับอนุมัติแล้ว พร้อมมอบหมายพนักงานขับรถ</small>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="feature-icon" style="background: rgba(255, 62, 29, 0.15); color: #ff3e1d;"><i class='bx bx-x'></i></div>
+                                            <div>
+                                                <strong class="d-block">ไม่อนุมัติ</strong>
+                                                <small class="text-muted">พร้อมเหตุผลประกอบจากเจ้าหน้าที่</small>
+                                            </div>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tips-box mt-4">
+                                        <i class='bx bxl-line fs-1 text-success'></i>
+                                        <div>
+                                            <strong class="d-block mb-1">แจ้งเตือนผ่าน LINE</strong>
+                                            <span class="text-muted small">ท่านจะได้รับแจ้งผลการอนุมัติผ่าน LINE Official ของโรงเรียนโดยอัตโนมัติ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mockup-wrapper">
+                                        <!-- Mockup: LINE Notification -->
+                                        <div class="mockup-card mx-auto" style="max-width: 300px; border-radius: 28px;">
+                                            <div class="bg-dark p-2 text-white d-flex justify-content-between align-items-center text-center" style="font-size: 11px; border-radius: 28px 28px 0 0;">
+                                                <span class="ms-2">9:41</span>
+                                                <span>การแจ้งเตือน</span>
+                                                <i class="bx bxs-battery-full me-2"></i>
+                                            </div>
+                                            <div class="p-3 bg-white">
+                                                <div class="d-flex align-items-start mb-3 gap-2">
+                                                    <div class="bg-success rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width: 40px; height: 40px;">
+                                                        <i class="bx bxl-line fs-5"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-bold small">SKJ School</div>
+                                                        <div class="text-muted" style="font-size: 10px;">เมื่อสักครู่</div>
+                                                    </div>
+                                                </div>
+                                                <div class="p-3 rounded-3 border" style="background: #f8faff;">
+                                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                                        <i class='bx bxs-check-circle text-success fs-4'></i>
+                                                        <strong class="text-success">อนุมัติการจองรถ!</strong>
+                                                    </div>
+                                                    <div class="text-muted small" style="line-height: 1.6;">
+                                                        <strong class="text-dark">รถทะเบียน กค-1234</strong><br>
+                                                        📅 วันที่ 15 ม.ค. 2569<br>
+                                                        ⏰ เวลา 06:00 - 18:00 น.<br>
+                                                        🚗 พนักงานขับรถ: นายสมชาย
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 order-md-2">
-                                <div class="screenshot-placeholder">
-                                    <div class="text-center">
-                                        <i class="bx bxs-bell-ring display-4 mb-2"></i>
-                                        <p>ภาพตัวอย่าง: การแจ้งเตือนผ่าน LINE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: ดูประวัติการจอง -->
+                <div class="col-12 animate-in" style="animation-delay: 0.4s">
+                    <div class="step-card">
+                        <div class="step-header d-flex align-items-center gap-3">
+                            <div class="step-number">4</div>
+                            <div>
+                                <h4 class="step-title">ดูประวัติการจองและจัดการ</h4>
+                                <p class="step-subtitle">ตรวจสอบรายการจอง แก้ไข หรือยกเลิกคำขอที่ยังไม่อนุมัติ</p>
+                            </div>
+                        </div>
+                        <div class="step-body">
+                            <div class="row g-4">
+                                <div class="col-lg-7">
+                                    <h6 class="fw-bold mb-3"><i class='bx bx-history me-2 text-primary'></i>วิธีดูประวัติการจอง</h6>
+                                    <ol class="ps-3 text-secondary">
+                                        <li class="mb-2">กดปุ่ม <strong class="text-dark">"รายการจองของฉัน"</strong> ที่ Sidebar ด้านขวา</li>
+                                        <li class="mb-2">ระบบจะแสดงรายการจองยานพาหนะทั้งหมดของท่าน</li>
+                                        <li class="mb-2">สามารถดูสถานะ, <strong class="text-warning">แก้ไข</strong>, หรือ <strong class="text-danger">ยกเลิก</strong> คำขอได้</li>
+                                        <li class="mb-2">ดูข้อมูล <strong class="text-success">พนักงานขับรถ</strong> ที่ได้รับมอบหมาย</li>
+                                    </ol>
+
+                                    <div class="row g-3 mt-3">
+                                        <div class="col-6">
+                                            <div class="p-3 bg-light rounded-3 text-center">
+                                                <i class='bx bx-edit fs-2 text-warning mb-2 d-block'></i>
+                                                <div class="fw-bold small">แก้ไขคำขอ</div>
+                                                <small class="text-muted">เฉพาะสถานะ "รออนุมัติ"</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-3 bg-light rounded-3 text-center">
+                                                <i class='bx bx-trash fs-2 text-danger mb-2 d-block'></i>
+                                                <div class="fw-bold small">ยกเลิกคำขอ</div>
+                                                <small class="text-muted">เฉพาะสถานะ "รออนุมัติ"</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="mockup-wrapper">
+                                        <!-- Mockup: History Table Row -->
+                                        <div class="mockup-card">
+                                            <div class="mockup-card-header bg-secondary">
+                                                <i class='bx bx-list-ul me-1'></i> ประวัติการจอง
+                                            </div>
+                                            <div class="mockup-card-body p-0">
+                                                <div class="d-flex align-items-center p-3 border-bottom">
+                                                    <span class="badge bg-success rounded-pill me-2" style="font-size: 10px;">อนุมัติ</span>
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-bold small">กค-1234 → กรุงเทพฯ</div>
+                                                        <div class="text-muted" style="font-size: 10px;">15 ม.ค. 68 | 06:00-18:00</div>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-center p-3 border-bottom bg-warning bg-opacity-10">
+                                                    <span class="badge bg-warning rounded-pill me-2" style="font-size: 10px;">รออนุมัติ</span>
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-bold small">รถตู้ → ชลบุรี</div>
+                                                        <div class="text-muted" style="font-size: 10px;">20 ม.ค. 68 | 07:00-19:00</div>
+                                                    </div>
+                                                    <i class='bx bx-edit text-warning me-2'></i>
+                                                    <i class='bx bx-trash text-danger'></i>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -196,77 +804,129 @@
 
         <!-- Admin Manual -->
         <div class="tab-pane fade" id="admin-manual">
-            <div class="row g-4 align-items-center">
-                <div class="col-lg-5 text-center mb-4 mb-lg-0">
-                    <img src="<?= base_url('assets/img/illustrations/man-with-laptop-light.png') ?>" alt="Admin Dashboard" class="img-fluid" style="max-height: 250px;">
-                    <h4 class="mt-3 fw-bold text-primary">ระบบจัดการสำหรับผู้ดูแล</h4>
-                    <p class="text-muted">ควบคุมและบริหารจัดการยานพาหนะได้อย่างเต็มประสิทธิภาพ</p>
+            <div class="row g-4 mb-4">
+                <div class="col-lg-5 text-center">
+                    <img src="<?= base_url('assets/img/illustrations/man-with-laptop-light.png') ?>" alt="Admin" class="img-fluid mb-3" style="max-height: 220px;">
+                    <h4 class="fw-bold text-primary">สำหรับเจ้าหน้าที่งานยานพาหนะ</h4>
+                    <p class="text-muted">จัดการอนุมัติคำขอและมอบหมายพนักงานขับรถ</p>
                 </div>
                 <div class="col-lg-7">
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <div class="card h-100 step-card">
-                                <div class="card-body text-center p-4">
-                                    <div class="step-icon mx-auto bg-label-primary text-primary">
-                                        <i class="bx bx-check-shield fs-2"></i>
-                                    </div>
-                                    <h5 class="mb-3 fw-bold">การอนุมัติคำขอ</h5>
-                                    <p class="text-muted small">
-                                        ตรวจสอบและอนุมัติคำขอจอง พร้อมระบุเหตุผลและจัดสรรคนขับรถได้ในคลิกเดียว
-                                    </p>
+                            <div class="admin-feature-card">
+                                <div class="admin-icon-box bg-label-primary text-primary">
+                                    <i class='bx bx-checkbox-checked'></i>
                                 </div>
+                                <h5 class="fw-bold mb-2">อนุมัติคำขอ</h5>
+                                <p class="text-muted small mb-0">ตรวจสอบรายละเอียดการจอง และกดอนุมัติ ระบบจะล็อคตารางรถและแจ้งผู้จองอัตโนมัติ</p>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card h-100 step-card">
-                                <div class="card-body text-center p-4">
-                                    <div class="step-icon mx-auto bg-label-success text-success">
-                                        <i class="bx bx-id-card fs-2"></i>
-                                    </div>
-                                    <h5 class="mb-3 fw-bold">จัดการพนักงานขับรถ</h5>
-                                    <p class="text-muted small">
-                                        ระบบตรวจสอบตารางงานคนขับรถอัตโนมัติ ป้องกันการจองซ้อนและบริหารเวลางานได้ง่ายขึ้น
-                                    </p>
+                            <div class="admin-feature-card">
+                                <div class="admin-icon-box bg-label-success text-success">
+                                    <i class='bx bx-id-card'></i>
                                 </div>
+                                <h5 class="fw-bold mb-2">มอบหมายพนักงานขับรถ</h5>
+                                <p class="text-muted small mb-0">เลือกพนักงานขับรถสำหรับแต่ละคำขอ ระบบจะตรวจสอบตารางงานอัตโนมัติ</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="admin-feature-card">
+                                <div class="admin-icon-box bg-label-danger text-danger">
+                                    <i class='bx bx-x-circle'></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">ไม่อนุมัติ</h5>
+                                <p class="text-muted small mb-0">ระบุเหตุผลประกอบการไม่อนุมัติ เพื่อให้ผู้จองทราบสาเหตุ</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="admin-feature-card">
+                                <div class="admin-icon-box bg-label-info text-info">
+                                    <i class='bx bx-pie-chart-alt-2'></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">ดูสถิติรายงาน</h5>
+                                <p class="text-muted small mb-0">กราฟแสดงสถิติการใช้รถ จำนวนคำขอ และรายงานสรุป</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
+            <!-- How to Access Admin -->
+            <div class="step-card">
+                <div class="step-header d-flex align-items-center gap-3">
+                    <div class="step-number"><i class='bx bx-shield'></i></div>
+                    <div>
+                        <h4 class="step-title">วิธีเข้าสู่หน้าจัดการอนุมัติ</h4>
+                        <p class="step-subtitle">เฉพาะผู้ดูแลงานยานพาหนะ และผู้บริหาร</p>
+                    </div>
+                </div>
+                <div class="step-body">
+                    <ol class="ps-3 text-secondary">
+                        <li class="mb-2">ไปที่หน้า <strong class="text-dark">"จองยานพาหนะ"</strong></li>
+                        <li class="mb-2">ที่ Sidebar ด้านขวา จะมีส่วน <strong class="text-info">"ส่วนงานเจ้าหน้าที่"</strong> แสดงอยู่</li>
+                        <li class="mb-2">กดปุ่ม <strong class="text-dark">"หน้าจัดการคำขอ"</strong></li>
+                        <li class="mb-2">จะเห็นจำนวนคำขอ <span class="badge bg-warning">รออนุมัติ</span> และ <span class="badge bg-success">อนุมัติแล้ว</span></li>
+                        <li class="mb-2">ในหน้าจัดการ กดปุ่ม <strong class="text-success">"อนุมัติ"</strong> และเลือก <strong class="text-primary">พนักงานขับรถ</strong></li>
+                        <li class="mb-0">หรือกด <strong class="text-danger">"ไม่อนุมัติ"</strong> พร้อมระบุเหตุผล</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- FAQ Section -->
-    <div class="mt-5">
-        <h4 class="fw-bold text-center mb-4 text-muted">คำถามที่พบบ่อย (FAQ)</h4>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="accordion shadow-sm rounded-3 overflow-hidden" id="accordionFAQ">
-                    <div class="accordion-item border-0 border-bottom">
-                        <h2 class="accordion-header" id="headingOne">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                <i class="bx bx-question-mark circle-icon me-2"></i> สามารถยกเลิกการจองได้หรือไม่?
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                            <div class="accordion-body text-secondary">
-                                ได้ครับ โดยท่านสามารถกดยกเลิกได้ที่หน้า "ประวัติการจอง" หากสถานะยังเป็น "รออนุมัติ" 
-                                หากอนุมัติแล้ว กรุณาติดต่อผู้ดูแลระบบเพื่อทำการยกเลิก
-                            </div>
-                        </div>
+    <div class="faq-section mt-5">
+        <h4 class="faq-title">
+            <i class='bx bx-help-circle fs-3'></i>
+            คำถามที่พบบ่อย (FAQ)
+        </h4>
+        <div class="accordion accordion-premium" id="accordionFAQ">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        <i class='bx bx-question-mark me-2'></i> สามารถยกเลิกการจองได้หรือไม่?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                    <div class="accordion-body">
+                        ได้ครับ โดยท่านสามารถกดยกเลิกได้ที่หน้า "ประวัติการจอง" หากสถานะยังเป็น "รออนุมัติ" หากอนุมัติแล้ว กรุณาติดต่อเจ้าหน้าที่งานยานพาหนะเพื่อทำการยกเลิก
                     </div>
-                    <div class="accordion-item border-0 border-bottom">
-                        <h2 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                <i class="bx bx-question-mark circle-icon me-2"></i> จำเป็นต้องจองล่วงหน้ากี่วัน?
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                            <div class="accordion-body text-secondary">
-                                เพื่อความสะดวกในการบริหารจัดการรถ แนะนำให้จองล่วงหน้าอย่างน้อย <strong>2-3 วันทำการ</strong> ครับ
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        <i class='bx bx-question-mark me-2'></i> จำเป็นต้องจองล่วงหน้ากี่วัน?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                    <div class="accordion-body">
+                        เพื่อความสะดวกในการบริหารจัดการรถ แนะนำให้จองล่วงหน้าอย่างน้อย <strong>3 วันทำการ</strong> เพื่อให้เจ้าหน้าที่มีเวลาจัดสรรพนักงานขับรถ
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        <i class='bx bx-question-mark me-2'></i> สามารถเลือกพนักงานขับรถได้หรือไม่?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                    <div class="accordion-body">
+                        ไม่สามารถเลือกได้โดยตรงครับ เจ้าหน้าที่งานยานพาหนะจะเป็นผู้จัดสรรพนักงานขับรถให้ตามความเหมาะสมและตารางงาน
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                        <i class='bx bx-question-mark me-2'></i> จองรถหลายคันพร้อมกันได้หรือไม่?
+                    </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                    <div class="accordion-body">
+                        ได้ครับ ท่านสามารถส่งคำขอจองหลายคันได้ โดยแต่ละคันจะต้องกรอกแบบฟอร์มแยกกัน
                     </div>
                 </div>
             </div>
@@ -274,5 +934,25 @@
     </div>
 
 </div>
+<?= $this->endSection() ?>
 
+<?= $this->section('customScripts') ?>
+<script>
+    // Animate elements on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.step-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+        observer.observe(el);
+    });
+</script>
 <?= $this->endSection() ?>

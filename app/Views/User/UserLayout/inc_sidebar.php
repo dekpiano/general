@@ -104,6 +104,13 @@
                     </a>
                 </li>
 
+                <li class="menu-item <?= $UrlMenuMain == "ManualFoodReport" ? "active" : "" ?>">
+                    <a href="<?=base_url('manual/food-report');?>" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-book-bookmark"></i>
+                        <div>คู่มือรายงานอาหาร</div>
+                    </a>
+                </li>
+
                 <!-- Admin Section -->
                 <?php if(isset($_SESSION['username']) && (@$_SESSION['status'] == "AdminGeneral" || @$_SESSION['status'] == 'ManagerGeneral')): ?>
                 <li class="menu-header small text-uppercase">

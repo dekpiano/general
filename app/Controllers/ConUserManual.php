@@ -8,8 +8,15 @@ class ConUserManual extends BaseController
 {
     public function index()
     {
-        // Default method, can be redirected or used for other purposes
-        return redirect()->to('/manual/booking');
+        // Manual Hub Page - shows all available manuals
+        $data['full_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $data['uri'] = service('uri');
+        $data['title'] = "คู่มือการใช้งานระบบ";
+        $data['description'] = "ศูนย์รวมคู่มือการใช้งานระบบทั้งหมด";
+        $data['UrlMenuMain'] = 'Manual';
+        $data['UrlMenuSub'] = '';
+
+        return view('User/UserManual/ManualIndex', $data);
     }
 
     public function bookingSystemManual()
@@ -52,5 +59,19 @@ class ConUserManual extends BaseController
 
         // Load the view for the repair system manual
         return view('User/UserManual/RepairManual', $data);
+    }
+
+    public function foodReportManual()
+    {
+        // Data for the view
+        $data['full_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $data['uri'] = service('uri');
+        $data['title'] = "คู่มือการใช้งานระบบรายงานอาหาร";
+        $data['description'] = "ขั้นตอนและวิธีการใช้งานระบบรายงานอาหารโรงเรียน";
+        $data['UrlMenuMain'] = 'ManualFoodReport';
+        $data['UrlMenuSub'] = '';
+
+        // Load the view for the food report manual
+        return view('User/UserManual/FoodReportManual', $data);
     }
 }
