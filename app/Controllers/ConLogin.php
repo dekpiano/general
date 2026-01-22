@@ -76,23 +76,26 @@ class ConLogin extends BaseController
                         return redirect()->to(base_url('LoginOfficerGeneral'));
                     }
                                 
-                $CheckEmail = $DBPers->where('pers_username', $data['email'])->get()->getRowArray()>0?true:false;
+                $CheckEmail = $DBPers->where('pers_username', $data['email'])->get()->getRowArray() !== null;
                 if($CheckEmail){
                         $UserData = array('login_oauth_uid' => $data['id'],
                                             'updated_at' => date('Y-m-d H:i:s'));
                         $DBPers->where('pers_username', $data['email'])->update($UserData);
 
                             $User = $DBPers->where('pers_username', $data['email'])->get()->getRowArray();
-                            $User2 = $DBrloes->select('MAX(admin_rloes_status) AS admin_rloes_status, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll')->where('admin_rloes_userid', $User['pers_id'])->groupBy('admin_rloes_userid')->get()->getRowArray();
-                           //print_r($User2); exit();
+                            $User2 = $DBrloes->select('MAX(admin_rloes_status) AS admin_rloes_status, GROUP_CONCAT(admin_rloes_nanetype) AS rloesAll')
+                                ->where('admin_rloes_userid', $User['pers_id'])
+                                ->groupBy('admin_rloes_userid')
+                                ->get()->getRowArray();
+
                             $newdata = [
                                 'username'  => $User['pers_prefix'].$User['pers_firstname'].' '.$User['pers_lastname'],
                                 'id'     => $User['pers_id'],
                                 'pers_img' => $User['pers_img'],
                                 'logged_in' => true,
                                 'email' => $User['pers_username'],
-                                'rloes' => $User2['rloesAll'],
-                                'status' => (isset($User2) != "" ?$User2['admin_rloes_status']:"Member")
+                                'rloes' => $User2 ? $User2['rloesAll'] : '',
+                                'status' => $User2 ? $User2['admin_rloes_status'] : 'Member'
                             ];                
                             $session->set($newdata);  
                             
@@ -100,10 +103,13 @@ class ConLogin extends BaseController
                             //     return redirect()->to(base_url('Admin/Home'));
                             // }else{
                                 // Check if the protocol is already present
-                                $redirectUrl = $_SESSION['Return'];
+                                $redirectUrl = isset($_SESSION['Return']) && !empty($_SESSION['Return']) ? $_SESSION['Return'] : base_url();
+                                
+                                // ถ้าไม่มี http/https นำหน้า แสดงว่าเป็น path ภายใน ให้ใช้ base_url()
                                 if (strpos($redirectUrl, 'http') !== 0) {
-                                    $redirectUrl = "https://" . $redirectUrl;
+                                    $redirectUrl = base_url($redirectUrl);
                                 }
+                                
                                 return redirect()->to($redirectUrl);
                             // }
                            

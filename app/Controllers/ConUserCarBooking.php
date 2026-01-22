@@ -527,6 +527,12 @@ class ConUserCarBooking extends BaseController
 
     public function CarBookingApproveAdmin(){
         $session = session();
+        
+        // ตรวจสอบ session ก่อนดำเนินการ
+        if (!isset($_SESSION['id'])) {
+            echo 0; return;
+        }
+        
         $database = \Config\Database::connect();
         $DBCarReservation = $database->table('tb_car_reservation');
 
@@ -602,6 +608,12 @@ class ConUserCarBooking extends BaseController
 
     public function CarBookingNoApproveAdmin(){
         $session = session();
+        
+        // ตรวจสอบ session ก่อนดำเนินการ
+        if (!isset($_SESSION['id'])) {
+            echo 0; return;
+        }
+        
         $database = \Config\Database::connect();
         $DBCarReservation = $database->table('tb_car_reservation');
         $Datethai = new Datethai();

@@ -40,8 +40,8 @@
                                         </div>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <span class="fw-bold d-block fs-6"><?=$_SESSION['username']?></span>
-                                        <small class="text-primary fw-medium"><?=$_SESSION['status']?></small>
+                                        <span class="fw-bold d-block fs-6"><?=@$_SESSION['username']?></span>
+                                        <small class="text-primary fw-medium"><?=@$_SESSION['status'] ?? 'Member'?></small>
                                     </div>
                                 </div>
                             </div>

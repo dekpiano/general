@@ -304,10 +304,10 @@
                             <div class="col-md-6">
                                 <?php if(!in_array('งานอาคารสถานที่', explode(",", @$_SESSION['rloes']))) : ?>
                                     <div class="form-floating">
-                                        <input type="text" class="form-control bg-light" value="<?=$_SESSION['username']?>" readonly disabled>
+                                        <input type="text" class="form-control bg-light" value="<?=@$_SESSION['username']?>" readonly disabled>
                                         <label>ชื่อผู้จอง</label>
                                     </div>
-                                    <input type="hidden" name="booking_Booker" value="<?=$_SESSION['id']?>">
+                                    <input type="hidden" name="booking_Booker" value="<?=@$_SESSION['id']?>">
                                 <?php else: ?>
                                     <div class="form-floating">
                                         <select class="form-select select2Teach" id="booking_Booker" name="booking_Booker" required>
@@ -418,23 +418,51 @@ $(document).ready(function() {
             booking_timeEnd: $('#booking_timeEnd').val()
         };
 
-        if(data.booking_dateStart && data.booking_timeStart && data.booking_dateEnd && data.booking_timeEnd) {
-            $.post("<?=base_url('Booking/DB/CheckDate')?>", data, function(res) {
+        // แจ้งเตือนถ้าข้อมูลไม่ครบ
+        if (!data.booking_dateStart || !data.booking_timeStart || !data.booking_dateEnd || !data.booking_timeEnd) {
+            let missingFields = [];
+            if(!data.booking_dateStart) missingFields.push('วันที่เริ่ม');
+            if(!data.booking_timeStart) missingFields.push('เวลาเริ่ม');
+            if(!data.booking_dateEnd) missingFields.push('วันที่สิ้นสุด');
+            if(!data.booking_timeEnd) missingFields.push('เวลาสิ้นสุด');
+
+            $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning').addClass('alert-warning d-block').html('🕐 กรุณาเลือก <b>' + missingFields.join(', ') + '</b> ให้ครบถ้วนเพื่อตรวจสอบสถานะห้องว่าง');
+            $('#BtnSubBooking').addClass('disabled').prop('disabled', true);
+            return;
+        }
+
+        $.ajax({
+            url: "<?=base_url('Booking/DB/CheckDate')?>",
+            type: "POST",
+            data: data,
+            dataType: "json",
+            success: function(res) {
                 $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning')
                                 .addClass(res.class)
                                 .html(res.message);
                 
                 if(res.status === 0) {
-                    $('#BtnSubBooking').prop('disabled', true);
+                    $('#BtnSubBooking').addClass('disabled').prop('disabled', true);
                 } else {
-                    $('#BtnSubBooking').prop('disabled', false);
+                    $('#BtnSubBooking').removeClass('disabled').prop('disabled', false);
                 }
-            });
-        }
+            },
+            error: function() {
+                $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning').addClass('alert-danger d-block').html('❌ ไม่สามารถเชื่อมต่อระบบตรวจสอบวันว่างได้ กรุณาลองใหม่อีกครั้ง');
+                $('#BtnSubBooking').addClass('disabled').prop('disabled', true);
+            }
+        });
     });
 
     // Trigger check if date is pre-filled
     if($('#booking_dateStart').val()) {
+        // ตั้งเวลาเริ่มต้นให้เพื่อให้ระบบตรวจสอบได้ทันที (ถ้ายังไม่ได้เลือก)
+        if(!$('#booking_timeStart').val()){
+            $("#booking_timeStart").val("08:30");
+        }
+        if(!$('#booking_timeEnd').val()){
+            $("#booking_timeEnd").val("16:30");
+        }
         $('.check-time').first().trigger('change');
     }
 
@@ -510,7 +538,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     btnSubmit.addEventListener('click', function(event) {
         event.preventDefault();
-        if (!form.checkValidity()) {
+
+        // ตรวจสอบทั้ง class และ property disabled
+        if ($('#BtnSubBooking').hasClass('disabled') || $('#BtnSubBooking').is(':disabled')) {
+            Swal.fire({ icon: 'warning', title: 'ไม่สามารถดำเนินการได้', text: 'กรุณาตรวจสอบวันและเวลาที่ว่างก่อนส่งข้อมูล' });
+            return;
+        }
             form.classList.add('was-validated');
             Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: 'กรุณากรอกข้อมูลที่จำเป็น (*) ทั้งหมด' });
             return;

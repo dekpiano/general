@@ -116,8 +116,8 @@
     </div>
 
     <?php  
-    $Type = explode(',', $_SESSION['rloes']);
-    $CheckWho = (in_array('งานยานพาหนะ', $Type) || $_SESSION['status'] == "AdminGeneral") ? 1 : 0;
+    $Type = isset($_SESSION['rloes']) ? explode(',', $_SESSION['rloes']) : [];
+    $CheckWho = (in_array('งานยานพาหนะ', $Type) || @$_SESSION['status'] == "AdminGeneral") ? 1 : 0;
     ?>
 
     <div class="row g-4">
@@ -218,7 +218,7 @@
                             <div class="col-md-6">
                                 <?php if(!$CheckWho) : ?>
                                     <div class="form-floating">
-                                        <input type="text" class="form-control bg-light" value="<?=$_SESSION['username']?>" readonly disabled>
+                                        <input type="text" class="form-control bg-light" value="<?=@$_SESSION['username']?>" readonly disabled>
                                         <label>ชื่อผู้จอง</label>
                                     </div>
                                     <input type="hidden" name="car_reserv_memberID" value="<?=$Booking->car_reserv_memberID?>">
@@ -285,13 +285,26 @@
                 car_reserv_EndTime: $('#car_reserv_EndTime').val()
             };
 
+            // แจ้งเตือนถ้าข้อมูลไม่ครบ
             if (!formData.car_reserv_StartDate || !formData.car_reserv_StartTime || 
-                !formData.car_reserv_EndDate || !formData.car_reserv_EndTime) return;
+                !formData.car_reserv_EndDate || !formData.car_reserv_EndTime) {
+                
+                let missingFields = [];
+                if(!formData.car_reserv_StartDate) missingFields.push('วันที่ไป');
+                if(!formData.car_reserv_StartTime) missingFields.push('เวลาไป');
+                if(!formData.car_reserv_EndDate) missingFields.push('วันที่กลับ');
+                if(!formData.car_reserv_EndTime) missingFields.push('เวลากลับ');
+
+                $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning').addClass('alert-warning d-block').html('🕐 กรุณาเลือก <b>' + missingFields.join(', ') + '</b> ให้ครบถ้วนเพื่อตรวจสอบสถานะห้องว่าง');
+                $('#BtnSubBooking').addClass('disabled').prop('disabled', true);
+                return;
+            }
 
             $.ajax({
                 url: '<?= base_url('Booking/DB/CheckDateCarBooking') ?>',
                 type: 'POST',
                 data: formData,
+                dataType: 'json',
                 success: function(res) {
                     $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning').addClass('d-block ' + res.class).html(res.message);
                     if (res.status == 1) {
@@ -299,6 +312,10 @@
                     } else {
                          $('#BtnSubBooking').addClass('disabled').prop('disabled', true);
                     }
+                },
+                error: function() {
+                    $('#AlertMessage').removeClass('d-none alert-success alert-danger alert-warning').addClass('alert-danger d-block').html('❌ ไม่สามารถเชื่อมต่อระบบตรวจสอบวันว่างได้ กรุณาลองใหม่อีกครั้ง');
+                    $('#BtnSubBooking').addClass('disabled').prop('disabled', true);
                 }
             });
         };
@@ -348,7 +365,12 @@
         // --- Form Submission ---
         $('#FormEditCarReservation').on('submit', function(e) {
             e.preventDefault();
-            if ($('#BtnSubBooking').hasClass('disabled')) return;
+            
+            // ตรวจสอบทั้ง class และ property disabled
+            if ($('#BtnSubBooking').hasClass('disabled') || $('#BtnSubBooking').is(':disabled')) {
+                Swal.fire({ icon: 'warning', title: 'ไม่สามารถดำเนินการได้', text: 'กรุณาตรวจสอบวันและเวลาที่ว่างก่อนส่งข้อมูล' });
+                return;
+            }
 
             const form = this;
             if (!form.checkValidity()) {

@@ -22,7 +22,7 @@
                         </div>
                         <div class="d-flex gap-2">
                             <?php $checkRloes = explode(",",@$_SESSION['rloes']);?>
-                            <?php if(!empty($_SESSION['username']) && $_SESSION['username'] != '' && (in_array("งานแจ้งซ่อม",$checkRloes) || in_array("งานอาคารสถานที่",$checkRloes))):?>
+                            <?php if(!empty($_SESSION['username']) && (in_array("งานแจ้งซ่อม",$checkRloes) || in_array("งานอาคารสถานที่",$checkRloes))):?>
                             <button type="button" class="btn btn-warning shadow-sm fw-bold" id="ModalFormAdmin">
                                 <i class="bx bx-wrench me-1"></i> สำหรับผู้ซ่อม
                             </button>

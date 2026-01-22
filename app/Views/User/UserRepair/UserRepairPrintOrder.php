@@ -4,120 +4,310 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ใบแจ้งซ่อม</title>
-    <link rel="stylesheet" href="<?= base_url('assets/css/user-repair.css') ?>">
+    <style>
+        body {
+            font-family: 'thsarabun', sans-serif;
+            font-size: 16px;
+            line-height: 1.4;
+            color: #000;
+        }
+        .document-container {
+            width: 100%;
+            margin: 0 auto;
+            padding-top: 0;
+        }
+        /* Header Section */
+        .document-header {
+            text-align: center;
+            margin-bottom: 8px;
+            margin-top: 0;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+            padding-top: 0;
+        }
+        .document-header img {
+            width: 45px;
+            height: auto;
+        }
+        .document-header h1 {
+            font-size: 22px;
+            margin: 5px 0 0 0;
+            font-weight: bold;
+        }
+        .document-header h2 {
+            font-size: 18px;
+            margin: 3px 0;
+            font-weight: normal;
+        }
+        .document-header p {
+            font-size: 14px;
+            margin: 2px 0;
+            color: #333;
+        }
+        /* Document Info */
+        .document-info {
+            display: table;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .document-info-left, .document-info-right {
+            display: table-cell;
+            width: 50%;
+        }
+        .document-info-right {
+            text-align: right;
+        }
+        .document-number {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        /* Main Title */
+        .document-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 15px 0;
+            text-decoration: underline;
+        }
+        /* Content Table */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .content-table th, .content-table td {
+            border: 1px solid #000;
+            padding: 6px 10px;
+            vertical-align: top;
+            font-size: 16px;
+        }
+        .content-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: left;
+            width: 25%;
+        }
+        .section-header {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            text-align: center;
+            font-size: 16px;
+            padding: 8px;
+        }
+        /* Status Badge */
+        .status-completed {
+            color: #006600;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #cc6600;
+            font-weight: bold;
+        }
+        /* Image Container */
+        .image-container {
+            text-align: center;
+            padding: 10px;
+            min-height: 120px;
+        }
+        .image-container img {
+            max-height: 110px;
+            max-width: 100%;
+            border: 1px solid #ccc;
+        }
+        .no-image {
+            color: #999;
+            font-style: italic;
+            font-size: 14px;
+        }
+        /* Signature Section */
+        .signature-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .signature-table td {
+            width: 50%;
+            text-align: center;
+            vertical-align: bottom;
+            padding: 10px 20px;
+        }
+        .signature-img {
+            height: 50px;
+            margin-bottom: 5px;
+        }
+        .signature-line {
+            border-bottom: 1px dotted #000;
+            width: 200px;
+            margin: 0 auto 5px auto;
+        }
+        .signature-name {
+            font-size: 16px;
+            margin: 3px 0;
+        }
+        .signature-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 2px 0;
+        }
+        .signature-date {
+            font-size: 14px;
+            margin: 2px 0;
+        }
+        /* Footer */
+        .document-footer {
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 1px solid #999;
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
 </head>
-<body class="print-page">
-    <div class="print-container" style="margin-top: 20px;">
-        <div class="print-header" >
-                        <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="Logo" style="width: 70px; height: auto; margin: 15px;">
-            <div class="print-header-text">
-                <h1>ระบบแจ้งซ่อมออนไลน์</h1>
-                <p>โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</p>
+<body>
+    <div class="document-container">
+        <!-- Header -->
+        <div class="document-header">
+            <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="ตราโรงเรียน">
+            <h1>โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</h1>
+            <p>สังกัดองค์การบริหารส่วนจังหวัดนครสวรรค์</p>
+        </div>
+
+        <!-- Document Info -->
+        <div class="document-info">
+            <div class="document-info-left">
+                <span class="document-number">เลขที่: <?=$RepairUser[0]->repair_order?></span>
+            </div>
+            <div class="document-info-right">
+                <span>วันที่: <?=$Datethai->thai_date_fullmonth(strtotime($RepairUser[0]->repair_datetime))?></span>
             </div>
         </div>
 
-        <h2 class="print-document-title">ใบแจ้งซ่อม</h2>
+        <!-- Title -->
+        <div class="document-title">ใบแจ้งซ่อม</div>
 
-        <div class="print-section-title">ข้อมูลการแจ้งซ่อม</div>
-        <table class="print-content-table">
-            <tbody>
-                <tr>
-                    <th>เลขที่ใบแจ้งซ่อม</th>
-                    <td><?=$RepairUser[0]->repair_order?></td>
-                </tr>
-                <tr>
-                    <th>วันที่แจ้งซ่อม</th>
-                    <td><?=$Datethai->thai_date_and_time(strtotime($RepairUser[0]->repair_datetime))?></td>
-                </tr>
-                <tr>
-                    <th>ผู้แจ้งซ่อม</th>
-                    <td><?=$RepairUser[0]->pers_prefix.$RepairUser[0]->pers_firstname.' '.$RepairUser[0]->pers_lastname?></td>
-                </tr>
-                <tr>
-                    <th>รายการแจ้งซ่อม</th>
-                    <td><?=$RepairUser[0]->repair_caselist?></td>
-                </tr>
-                <tr>
-                    <th>รายละเอียดปัญหาและสถานที่</th>
-                    <td>
-                        <?=$RepairUser[0]->repair_detail?> <br>
-                        <b>สถานที่:</b> <?=$RepairUser[0]->repair_building?> ชั้น <?=$RepairUser[0]->repair_class?> ห้อง <?=$RepairUser[0]->repair_room?>
-                    </td>
-                </tr>
-                <tr>
-                    <th>ภาพประกอบ</th>
-                    <td>
-                        <?php if(!empty($RepairUser[0]->repair_imguser)) : ?>
-                        <img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>" style="max-width: 300px; max-height: 200px; border: 1px solid #ddd; padding: 5px;">
-                        <?php else: ?>
-                        (ไม่ได้แนบภาพ)
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="print-section-title">ข้อมูลการดำเนินการ</div>
-        <table class="print-content-table">
-            <tbody>
-                <tr>
-                    <th>สถานะ</th>
-                    <td><?=$RepairUser[0]->repair_status ?? 'รอดำเนินการ'?></td>
-                </tr>
-                <tr>
-                    <th>ผู้รับซ่อม</th>
-                    <td>
-                        <?php 
-                            if(!isset($Repairman[0]->pers_prefix)) {
-                                echo 'รอดำเนินการ';
-                            } else {
-                                echo @$Repairman[0]->pers_prefix.@$Repairman[0]->pers_firstname.' '.@$Repairman[0]->pers_lastname;
-                            }
-                        ?>
-                    </td>
-                </tr>
-                <tr>
-                    <th>วันที่ดำเนินการ</th>
-                    <td>
-                        <?php 
-                            if($RepairUser[0]->repair_datework == '0000-00-00 00:00:00' || $RepairUser[0]->repair_datework == null){
-                                echo 'รอดำเนินการ';
-                            } else {
-                                echo $Datethai->thai_date_and_time(strtotime($RepairUser[0]->repair_datework));
-                            }
-                        ?>
-                    </td>
-                </tr>
-                <tr>
-                    <th>สาเหตุ/วิธีแก้ไข</th>
-                    <td><?=$RepairUser[0]->repair_cause ?? 'รอดำเนินการ'?></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <table class="print-signature-section">
+        <!-- Section 1: ข้อมูลผู้แจ้ง -->
+        <table class="content-table">
             <tr>
-                <td class="print-signature-box">
-                    <?php if($RepairUser[0]->repair_usersignature) : ?>
-                    <img src="<?=$RepairUser[0]->repair_usersignature?>" alt="ลายเซ็นผู้แจ้งซ่อม" style="max-width: 200px; max-height: 100px;">
+                <td colspan="4" class="section-header">ส่วนที่ 1: ข้อมูลการแจ้งซ่อม</td>
+            </tr>
+            <tr>
+                <th>ผู้แจ้งซ่อม</th>
+                <td><?=$RepairUser[0]->pers_prefix.$RepairUser[0]->pers_firstname.' '.$RepairUser[0]->pers_lastname?></td>
+                <th>เบอร์โทรศัพท์</th>
+                <td><?=$RepairUser[0]->repair_phone ?? '-'?></td>
+            </tr>
+            <tr>
+                <th>ประเภทงาน</th>
+                <td><?=$RepairUser[0]->repair_caselist?></td>
+                <th>สถานที่</th>
+                <td>อาคาร <?=$RepairUser[0]->repair_building?> ชั้น <?=$RepairUser[0]->repair_class?> ห้อง <?=$RepairUser[0]->repair_room?></td>
+            </tr>
+            <tr>
+                <th>รายละเอียดปัญหา</th>
+                <td colspan="3"><?=nl2br($RepairUser[0]->repair_detail ?: '-')?></td>
+            </tr>
+            <tr>
+                <th style="text-align: center;">รูปภาพประกอบ</th>
+                <td colspan="3" class="image-container">
+                    <?php if(!empty($RepairUser[0]->repair_imguser)) : ?>
+                    <img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>">
+                    <?php else: ?>
+                    <span class="no-image">(ไม่มีรูปภาพประกอบ)</span>
                     <?php endif; ?>
-                    <div class="print-signature-line"></div>
-                    <p>(<?=$RepairUser[0]->pers_prefix.$RepairUser[0]->pers_firstname.' '.$RepairUser[0]->pers_lastname?>)</p>
-                    <p><strong>ผู้แจ้งซ่อม</strong></p>
-                    <p>วันที่: <?=$Datethai->thai_date_fullmonth(strtotime($RepairUser[0]->repair_datetime))?></p>
                 </td>
-                <td class="print-signature-box">
-                    <?php if($RepairUser[0]->repair_adminsignature) : ?>
-                    <img src="<?=$RepairUser[0]->repair_adminsignature;?>" alt="ลายเซ็นผู้รับซ่อม" style="max-width: 200px; max-height: 100px;">
+            </tr>
+        </table>
+
+        <!-- Section 2: ผลการดำเนินการ -->
+        <table class="content-table">
+            <tr>
+                <td colspan="4" class="section-header">ส่วนที่ 2: ผลการดำเนินการ</td>
+            </tr>
+            <tr>
+                <th>สถานะ</th>
+                <td>
+                    <?php if($RepairUser[0]->repair_status == 'ดำเนินการเรียบร้อย'): ?>
+                    <span class="status-completed">✓ <?=$RepairUser[0]->repair_status?></span>
+                    <?php else: ?>
+                    <span class="status-pending"><?=$RepairUser[0]->repair_status ?? 'รอดำเนินการ'?></span>
                     <?php endif; ?>
-                    <div class="print-signature-line"></div>
-                    <p>(<?=@$Repairman[0]->pers_prefix.@$Repairman[0]->pers_firstname.' '.@$Repairman[0]->pers_lastname ?? '...........................................'?>)</p>
-                    <p><strong>ผู้รับซ่อม</strong></p>
-                    <p>วันที่: <?php if($RepairUser[0]->repair_datework != '0000-00-00 00:00:00' && $RepairUser[0]->repair_datework != null) echo $Datethai->thai_date_fullmonth(strtotime($RepairUser[0]->repair_datework)); else echo '...........................................'; ?></p>
+                </td>
+                <th>วันที่ดำเนินการ</th>
+                <td>
+                    <?php 
+                        if($RepairUser[0]->repair_datework == '0000-00-00 00:00:00' || $RepairUser[0]->repair_datework == null){
+                            echo '-';
+                        } else {
+                            echo $Datethai->thai_date_fullmonth(strtotime($RepairUser[0]->repair_datework));
+                        }
+                    ?>
+                </td>
+            </tr>
+            <tr>
+                <th>ผู้รับผิดชอบ</th>
+                <td colspan="3">
+                    <?php 
+                        if(!isset($Repairman[0]->pers_prefix)) {
+                            echo '-';
+                        } else {
+                            echo $Repairman[0]->pers_prefix.$Repairman[0]->pers_firstname.' '.$Repairman[0]->pers_lastname;
+                        }
+                    ?>
+                </td>
+            </tr>
+            <tr>
+                <th>สาเหตุ/วิธีแก้ไข</th>
+                <td colspan="3"><?=nl2br($RepairUser[0]->repair_cause ?: '-')?></td>
+            </tr>
+            <tr>
+                <th style="text-align: center;">รูปภาพหลังซ่อม</th>
+                <td colspan="3" class="image-container">
+                    <?php if(!empty($RepairUser[0]->repair_imgwork)) : ?>
+                    <img src="<?=base_url('uploads/admin/Repair/').$RepairUser[0]->repair_imgwork?>">
+                    <?php else: ?>
+                    <span class="no-image">(ไม่มีรูปภาพ)</span>
+                    <?php endif; ?>
                 </td>
             </tr>
         </table>
 
     </div>
+
+    <!-- Footer for mPDF -->
+    <htmlpagefooter name="MyFooter">
+        <table class="signature-table">
+            <tr>
+                <td>
+                    <?php if($RepairUser[0]->repair_usersignature) : ?>
+                    <img src="<?=$RepairUser[0]->repair_usersignature?>" class="signature-img">
+                    <?php else: ?>
+                    <div style="height: 50px;"></div>
+                    <?php endif; ?>
+                    <div class="signature-line"></div>
+                    <p class="signature-name">(<?=$RepairUser[0]->pers_prefix.$RepairUser[0]->pers_firstname.' '.$RepairUser[0]->pers_lastname?>)</p>
+                    <p class="signature-title">ผู้แจ้งซ่อม</p>
+                    <p class="signature-date">วันที่ <?=$Datethai->thai_date_fullmonth(strtotime($RepairUser[0]->repair_datetime))?></p>
+                </td>
+                <td>
+                    <?php if($RepairUser[0]->repair_adminsignature) : ?>
+                    <img src="<?=$RepairUser[0]->repair_adminsignature;?>" class="signature-img">
+                    <?php else: ?>
+                    <div style="height: 50px;"></div>
+                    <?php endif; ?>
+                    <div class="signature-line"></div>
+                    <p class="signature-name">(<?=@$Repairman[0]->pers_prefix.@$Repairman[0]->pers_firstname.' '.@$Repairman[0]->pers_lastname ?? '...........................................'?>)</p>
+                    <p class="signature-title">ผู้ดำเนินการซ่อม</p>
+                    <p class="signature-date">วันที่ <?php if($RepairUser[0]->repair_datework != '0000-00-00 00:00:00' && $RepairUser[0]->repair_datework != null) echo $Datethai->thai_date_fullmonth(strtotime($RepairUser[0]->repair_datework)); else echo '...........................................'; ?></p>
+                </td>
+            </tr>
+        </table>
+        
+        <div class="document-footer">
+            กลุ่มงานเทคโนโลยีสารสนเทศและงานเว็บไซต์ | โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
+        </div>
+    </htmlpagefooter>
+
+    <!-- Activate footer -->
+    <sethtmlpagefooter name="MyFooter" value="on" />
 </body>
 </html>

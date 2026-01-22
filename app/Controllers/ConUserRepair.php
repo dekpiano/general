@@ -643,14 +643,17 @@ class ConUserRepair extends BaseController
                 'mode' => 'utf-8',
                 'default_font' => 'thsarabun',
                 'default_font_size' => 16,
-                'margin_top' => 0
+                'margin_top' => 5, // ให้ header ชิดบนสุด
+                'margin_bottom' => 40, // ปรับให้กระชับขึ้นเพื่อให้เนื้อหาด้านบนขยายได้อีก
+                'margin_left' => 15,
+                'margin_right' => 15,
+                'margin_footer' => 5 // ให้ footer อยู่ต่ำเกือบสุด (5mm จากขอบล่าง)
             )
         );
 
         
-        $html_footer = "<hr><div style='text-align: left;font-size: 0.8rem;text-align: right;'>กลุ่มงานเทคโนโลยีสารสนเทศและงานเว็บไซต์<br>";
-        $html_footer .= "โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์ สังกัดกองการศึกษา ศาสนา และวัฒนธรรม องค์การบริหารส่วนจังหวัดนครสวรรค์</div>";
-        $mpdf->SetHTMLFooter($html_footer);
+       
+        // ย้ายการจัดการ Footer ไปไว้ใน View เพื่อให้ signatures อยู่ล่างสุดเสมอร่วมกับ footer text
        
         $html = view('User/UserRepair/UserRepairPrintOrder',$data);
          // เพิ่ม HTML เข้าไปใน PDF

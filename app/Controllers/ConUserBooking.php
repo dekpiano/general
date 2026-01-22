@@ -878,13 +878,20 @@ class ConUserBooking extends BaseController
 
     public function BookingCheckApproveAdmin(){
         $session = session();
+        
+        // ตรวจสอบ session ก่อนดำเนินการ
+        if (!isset($_SESSION['status']) || !isset($_SESSION['id'])) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'กรุณาเข้าสู่ระบบใหม่'
+            ]);
+        }
+        
         $Datethai = new Datethai();  
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
         $DBpersonnel = \Config\Database::connect('personnel');
         $DBpers = $DBpersonnel->table('personnel'); 
-
-      
 
         if($_SESSION['status'] === "ExecutiveGeneral"){
             $Approve = ['booking_executive_approve'=>'อนุมัติ','booking_executive_reason'=>'','booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
@@ -997,6 +1004,15 @@ class ConUserBooking extends BaseController
 
     public function BookingNoApproveAdmin(){
         $session = session();
+        
+        // ตรวจสอบ session ก่อนดำเนินการ
+        if (!isset($_SESSION['status']) || !isset($_SESSION['id'])) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'กรุณาเข้าสู่ระบบใหม่'
+            ]);
+        }
+        
         $Datethai = new Datethai();  
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');

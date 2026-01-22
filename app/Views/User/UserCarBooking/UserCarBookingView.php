@@ -203,7 +203,7 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const isApproved = row.car_reserv_status === 'อนุมัติ';
                     const isPending = row.car_reserv_status === 'รอตรวจสอบ';
-                    const isOwner = row.car_reserv_memberID == '<?= $_SESSION['id'] ?>';
+                    const isOwner = row.car_reserv_memberID == '<?= @$_SESSION['id'] ?? '' ?>';
                     
                     let actions = `<div class="d-flex justify-content-center gap-2">`;
                     
