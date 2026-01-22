@@ -34,7 +34,7 @@
     <?php endif; ?>
 
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=22.2"></script>
+    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=23"></script>
     <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepairStatistics.js?v=1.4"></script>
     <?php elseif($uri->getSegment(1) == 'CarBooking') : ?>
     <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservation.js?v=5"></script> 

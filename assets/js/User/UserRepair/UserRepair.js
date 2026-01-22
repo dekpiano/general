@@ -1,304 +1,374 @@
-$(document).ready(function() {
-    // Initialize Select2 ONLY for the specific form, preserving DataTables default selects
-    $('#FormAddRepair .form-select').select2({
-        theme: "bootstrap-5",
-        width: '100%',
-        dropdownParent: $(document.body) 
+$(document).ready(function () {
+  // Initialize Select2 ONLY for the specific form, preserving DataTables default selects
+  $("#FormAddRepair .form-select").select2({
+    theme: "bootstrap-5",
+    width: "100%",
+    dropdownParent: $(document.body),
+  });
+
+  // Handle Floating Label for Select2 (Scoped to FormAddRepair)
+  $("#FormAddRepair .form-select")
+    .on("select2:open", function (e) {
+      $(this).closest(".form-floating-custom").addClass("is-focused");
+    })
+    .on("select2:close", function (e) {
+      $(this).closest(".form-floating-custom").removeClass("is-focused");
+    })
+    .on("change", function (e) {
+      if ($(this).val()) {
+        $(this).closest(".form-floating-custom").addClass("is-filled");
+      } else {
+        $(this).closest(".form-floating-custom").removeClass("is-filled");
+      }
     });
 
-    // Handle Floating Label for Select2 (Scoped to FormAddRepair)
-    $('#FormAddRepair .form-select').on('select2:open', function (e) {
-        $(this).closest('.form-floating-custom').addClass('is-focused');
-    }).on('select2:close', function (e) {
-        $(this).closest('.form-floating-custom').removeClass('is-focused');
-    }).on('change', function (e) {
-        if($(this).val()) {
-            $(this).closest('.form-floating-custom').addClass('is-filled');
-        } else {
-            $(this).closest('.form-floating-custom').removeClass('is-filled');
-        }
-    });
+  // Initial check for pre-filled values
+  $("#FormAddRepair .form-select").each(function () {
+    if ($(this).val()) {
+      $(this).closest(".form-floating-custom").addClass("is-filled");
+    }
+  });
 
-    // Initial check for pre-filled values
-    $('#FormAddRepair .form-select').each(function() {
-        if($(this).val()) {
-            $(this).closest('.form-floating-custom').addClass('is-filled');
-        }
-    });
+  ShowDataLocationRoom(); // Initialize DataTable
 
-    ShowDataLocationRoom(); // Initialize DataTable
+  // REAL-TIME CAPTCHA VALIDATION
+  $(document).on("input", "#captcha_input", function () {
+    const userAnswer = parseInt($(this).val());
+    const correctAnswer = parseInt($(".captcha-badge").data("answer"));
+    const btnSubmit = $("#BtnSubRepair");
 
-    // REAL-TIME CAPTCHA VALIDATION
-    $(document).on('input', '#captcha_input', function() {
-        const userAnswer = parseInt($(this).val());
-        const correctAnswer = parseInt($('.captcha-badge').data('answer'));
-        const btnSubmit = $('#BtnSubRepair');
-
-        if (userAnswer === correctAnswer) {
-            btnSubmit.removeClass('disabled').prop('disabled', false);
-            $(this).removeClass('is-invalid').addClass('is-valid');
-        } else {
-            btnSubmit.addClass('disabled').prop('disabled', true);
-            $(this).removeClass('is-valid');
-            if ($(this).val() !== "") {
-                $(this).addClass('is-invalid');
-            } else {
-                $(this).removeClass('is-invalid');
-            }
-        }
-    });
-
+    if (userAnswer === correctAnswer) {
+      btnSubmit.removeClass("disabled").prop("disabled", false);
+      $(this).removeClass("is-invalid").addClass("is-valid");
+    } else {
+      btnSubmit.addClass("disabled").prop("disabled", true);
+      $(this).removeClass("is-valid");
+      if ($(this).val() !== "") {
+        $(this).addClass("is-invalid");
+      } else {
+        $(this).removeClass("is-invalid");
+      }
+    }
+  });
 });
 
 function toThaiDateString(date) {
-    let monthNames = [
-        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
-        "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
-        "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-    ];
+  let monthNames = [
+    "มกราคม",
+    "กุมภาพันธ์",
+    "มีนาคม",
+    "เมษายน",
+    "พฤษภาคม",
+    "มิถุนายน",
+    "กรกฎาคม",
+    "สิงหาคม",
+    "กันยายน",
+    "ตุลาคม",
+    "พฤศจิกายน",
+    "ธันวาคม",
+  ];
 
-    let year = date.getFullYear() + 543;
-    let month = monthNames[date.getMonth()];
-    let numOfDay = date.getDate();
+  let year = date.getFullYear() + 543;
+  let month = monthNames[date.getMonth()];
+  let numOfDay = date.getDate();
 
-    let hour = date.getHours().toString().padStart(2, "0");
-    let minutes = date.getMinutes().toString().padStart(2, "0");
-    let second = date.getSeconds().toString().padStart(2, "0");
+  let hour = date.getHours().toString().padStart(2, "0");
+  let minutes = date.getMinutes().toString().padStart(2, "0");
+  let second = date.getSeconds().toString().padStart(2, "0");
 
-    return `${numOfDay} ${month} ${year} ` +
-        `${hour}:${minutes}:${second} น.`;
+  return `${numOfDay} ${month} ${year} ` + `${hour}:${minutes}:${second} น.`;
 }
 
-$(document).on('change', '#repair_caselist', function() {
-    if ($(this).val() === "งานอาคารสถานที่") {
-        Swal.fire({
-            title: 'แจ้งเตือน?',
-            text: "สำหรับงานอาคารสถานที่!... ให้ทำบันทึกข้อความ (ตามนโยบายงานอาคารสถานที่) ที่กลุ่มงานบริหารทั่วไป",
-            icon: 'warning',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'ตกลง!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // window.location.href = "../Repair/Add";
-            }
-        })
-    }
-
+$(document).on("change", "#repair_caselist", function () {
+  if ($(this).val() === "งานอาคารสถานที่") {
+    Swal.fire({
+      title: "แจ้งเตือน?",
+      text: "สำหรับงานอาคารสถานที่!... ให้ทำบันทึกข้อความ (ตามนโยบายงานอาคารสถานที่) ที่กลุ่มงานบริหารทั่วไป",
+      icon: "warning",
+      confirmButtonColor: "#3085d6",
+      confirmButtonText: "ตกลง!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // window.location.href = "../Repair/Add";
+      }
+    });
+  }
 });
 
 // ShowDataLocationRoom(); // Removed immediate call
 
 function ShowDataLocationRoom() {
-    // Get year from URL parameter or default to current year/dropdown value
-    const urlParams = new URLSearchParams(window.location.search);
-    let selectedYear = urlParams.get('year');
-    if (!selectedYear) {
-         selectedYear = $('#yearFilter').val(); // Fallback to dropdown value
-    }
+  // Get year from URL parameter or default to current year/dropdown value
+  const urlParams = new URLSearchParams(window.location.search);
+  let selectedYear = urlParams.get("year");
+  if (!selectedYear) {
+    selectedYear = $("#yearFilter").val(); // Fallback to dropdown value
+  }
 
-    $('#TbDataRepair').DataTable({
-        destroy: true, // Allow re-initialization
-        responsive: true,
-        'processing': true,
-        'serverMethod': 'post',
-        'ajax': {
-            'url': 'Repair/DataTable/ShowRepari',
-            'data': function(d) {
-                d.year = selectedYear; // Send year to server
-            }
+  $("#TbDataRepair").DataTable({
+    destroy: true, // Allow re-initialization
+    responsive: true,
+    processing: true,
+    serverMethod: "post",
+    ajax: {
+      url: "Repair/DataTable/ShowRepari",
+      data: function (d) {
+        d.year = selectedYear; // Send year to server
+      },
+    },
+    order: [
+      [3, "desc"], // เรียงตามใบแจ้งซ่อม (repair_order) ล่าสุด
+    ],
+    columns: [
+      {
+        data: "repair_status",
+        className: "all",
+        render: function (data, type, row) {
+          let icon = "";
+          let className = "";
+          let extraClass = "";
+          data = data ? data.trim() : ""; // Trim whitespace
+          data = data ? data.trim() : "";
+          console.log("Repair Status:", data); // Debug log
+
+          if (data === "รอดำเนินการ") {
+            icon = "bi-clock-history";
+            className = "badge bg-label-warning";
+          } else if (data === "กำลังดำเนินการ") {
+            icon = "bi-gear";
+            className = "badge bg-label-primary";
+            extraClass = "loading-text";
+          } else if (
+            data.includes("เรียบร้อย") ||
+            data.includes("เสร็จสิ้น") ||
+            data === "อนุมัติ"
+          ) {
+            // Match "ดำเนินการเรียบร้อย", "เสร็จสิ้น", etc.
+            icon = "bi-check-circle-fill";
+            className = "badge bg-success text-white";
+          } else if (data.includes("ยกเลิก") || data.includes("ไม่อนุมัติ")) {
+            icon = "bi-x-circle";
+            className = "badge bg-label-danger";
+          } else {
+            icon = "bi-question-circle";
+            className = "badge bg-label-secondary";
+          }
+          return `<span class="${className} ${extraClass}"><i class="bi ${icon} me-1"></i> ${data}</span>`;
         },
-        order: [
-            [3, 'desc'] // เรียงตามใบแจ้งซ่อม (repair_order) ล่าสุด
-        ],
-        'columns': [
-            {
-                data: 'repair_status',
-                className: 'all',
-                render: function(data, type, row) {
-                    let icon = '';
-                    let className = '';
-                    let extraClass = '';
-                    data = data ? data.trim() : ''; // Trim whitespace
-                    data = data ? data.trim() : '';
-                    console.log("Repair Status:", data); // Debug log
-
-                    if (data === "รอดำเนินการ") {
-                        icon = 'bi-clock-history';
-                        className = 'badge bg-label-warning';
-                    } else if (data === "กำลังดำเนินการ") {
-                        icon = 'bi-gear';
-                        className = 'badge bg-label-primary';
-                        extraClass = 'loading-text';
-                    } else if (data.includes("เรียบร้อย") || data.includes("เสร็จสิ้น") || data === "อนุมัติ") { 
-                        // Match "ดำเนินการเรียบร้อย", "เสร็จสิ้น", etc.
-                        icon = 'bi-check-circle-fill';
-                        className = 'badge bg-success text-white';
-                    } else if (data.includes("ยกเลิก") || data.includes("ไม่อนุมัติ")) {
-                        icon = 'bi-x-circle';
-                        className = 'badge bg-label-danger';
-                    } else {
-                        icon = 'bi-question-circle';
-                        className = 'badge bg-label-secondary';
-                    }
-                    return `<span class="${className} ${extraClass}"><i class="bi ${icon} me-1"></i> ${data}</span>`;
-                }
-            },
-            {
-                data: 'repair_caselist',
-                className: 'all',
-                render: function(data, type, row) {
-                    return `<i class="bi bi-list-check text-muted me-2"></i>${data}`;
-                }
-            },
-            {
-                data: 'repair_datetime',
-                render: function(data, type, row) {
-                    if (type === 'display' && data) {
-                        return '<i class="bi bi-calendar-check text-muted me-2"></i>' + data;
-                    }
-                    return data;
-                }
-            },
-            {
-                data: 'repair_order',
-                render: function(data, type, row) {
-                    return `<i class="bi bi-file-earmark-text text-muted me-2"></i>${data}`;
-                }
-            },
-            {
-                data: 'UserFullname',
-                render: function(data, type, row) {
-                    return `<i class="bi bi-person text-muted me-2"></i>${data}`;
-                }
-            },
-            {
-                data: 'repair_ID',
-                render: function(data, type, row) {
-                    return '<a href="Repair/View/' + row.repair_order + '" data-id="' + row.repair_ID + '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>';
-                }
-            }
-        ]
-    });
+      },
+      {
+        data: "repair_caselist",
+        className: "all",
+        render: function (data, type, row) {
+          return `<i class="bi bi-list-check text-muted me-2"></i>${data}`;
+        },
+      },
+      {
+        data: "repair_datetime",
+        render: function (data, type, row) {
+          if (type === "display" && data) {
+            return (
+              '<i class="bi bi-calendar-check text-muted me-2"></i>' + data
+            );
+          }
+          return data;
+        },
+      },
+      {
+        data: "repair_order",
+        render: function (data, type, row) {
+          return `<i class="bi bi-file-earmark-text text-muted me-2"></i>${data}`;
+        },
+      },
+      {
+        data: "UserFullname",
+        render: function (data, type, row) {
+          return `<i class="bi bi-person text-muted me-2"></i>${data}`;
+        },
+      },
+      {
+        data: "repair_ID",
+        render: function (data, type, row) {
+          return (
+            '<a href="Repair/View/' +
+            row.repair_order +
+            '" data-id="' +
+            row.repair_ID +
+            '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>'
+          );
+        },
+      },
+    ],
+  });
 }
 
-$(document).on('click', '#BtnRepairFullDetail1', function() {
-    $('#ModalShowRepair').modal('show');
-    $.post('Repair/DB/CheckRepairFullDetail', {
-        RepairId: $(this).attr('data-id')
-    }, function(data) {
+$(document).on("click", "#BtnRepairFullDetail1", function () {
+  $("#ModalShowRepair").modal("show");
+  $.post(
+    "Repair/DB/CheckRepairFullDetail",
+    {
+      RepairId: $(this).attr("data-id"),
+    },
+    function (data) {
+      let datetime = new Date(data[0][0].repair_datetime);
+      let dateworIf = new Date(data[0][0].repair_datework);
+      let datework;
 
-        let datetime = new Date(data[0][0].repair_datetime);
-        let dateworIf = new Date(data[0][0].repair_datework);
-        let datework;
+      if (isNaN(dateworIf)) {
+        datework = "";
+      } else {
+        datework = toThaiDateString(dateworIf);
+      }
 
-        if (isNaN(dateworIf)) {
-            datework = "";
-        } else {
-            datework = toThaiDateString(dateworIf);
-        }
+      $("#show_repair_order").text(data[0][0].repair_order);
+      $("#show_repair_caselist").text(data[0][0].repair_caselist);
+      $("#show_repair_datetime").text(toThaiDateString(datetime));
+      $("#show_repair_detail").text(data[0][0].repair_detail);
+      $("#show_repair_location").text(
+        data[0][0].repair_building +
+          " ชั้น " +
+          data[0][0].repair_class +
+          " ห้อง " +
+          data[0][0].repair_room,
+      );
+      $("#show_repair_userID").text(
+        data[0][0].pers_prefix +
+          data[0][0].pers_firstname +
+          " " +
+          data[0][0].pers_lastname,
+      );
+      $("#show_repair_posi").text(data[0][0].posi_name);
+      $("#show_repair_datework").text(datework);
+      $("#show_repair_Repairman").text(
+        data[1][0].pers_prefix +
+          data[1][0].pers_firstname +
+          " " +
+          data[1][0].pers_lastname,
+      );
+      $("#show_repair_cause").text(data[0][0].repair_cause);
+      $("#show_repair_status").text(data[0][0].repair_status);
 
-        $('#show_repair_order').text(data[0][0].repair_order);
-        $('#show_repair_caselist').text(data[0][0].repair_caselist);
-        $('#show_repair_datetime').text(toThaiDateString(datetime));
-        $('#show_repair_detail').text(data[0][0].repair_detail);
-        $('#show_repair_location').text(data[0][0].repair_building + ' ชั้น ' + data[0][0].repair_class + ' ห้อง ' + data[0][0].repair_room);
-        $('#show_repair_userID').text(data[0][0].pers_prefix + data[0][0].pers_firstname + ' ' + data[0][0].pers_lastname);
-        $('#show_repair_posi').text(data[0][0].posi_name);
-        $('#show_repair_datework').text(datework);
-        $('#show_repair_Repairman').text(data[1][0].pers_prefix + data[1][0].pers_firstname + ' ' + data[1][0].pers_lastname);
-        $('#show_repair_cause').text(data[0][0].repair_cause);
-        $('#show_repair_status').text(data[0][0].repair_status);
+      $("#show_repair_imguser").html(
+        '<img src="uploads/admin/Repair/User/' +
+          data[0][0].repair_imguser +
+          '" class="img-fluid" alt="รูปที่ผู้ใช้งานส่งมา">',
+      );
 
-        $('#show_repair_imguser').html('<img src="uploads/admin/Repair/User/' + data[0][0].repair_imguser + '" class="img-fluid" alt="รูปที่ผู้ใช้งานส่งมา">');
+      $("#show_repair_imgwork").html(
+        '<img src="uploads/admin/Repair/' +
+          data[0][0].repair_imgwork +
+          '" class="img-fluid" alt="รูปที่ทำงาน">',
+      );
+      $("#show_repair_usersignature").html(
+        '<img src="' +
+          data[0][0].repair_usersignature +
+          '" class="img-fluid" alt="รูปลายมือชื่อ">',
+      );
 
-        $('#show_repair_imgwork').html('<img src="uploads/admin/Repair/' + data[0][0].repair_imgwork + '" class="img-fluid" alt="รูปที่ทำงาน">');
-        $('#show_repair_usersignature').html('<img src="' + data[0][0].repair_usersignature + '" class="img-fluid" alt="รูปลายมือชื่อ">');
+      $("#repair_order").val(data[0][0].repair_order);
+      $("#repair_cause").val(data[0][0].repair_cause);
+      $("#repair_status").val(data[0][0].repair_status);
 
-        $('#repair_order').val(data[0][0].repair_order);
-        $('#repair_cause').val(data[0][0].repair_cause);
-        $('#repair_status').val(data[0][0].repair_status);
-
-        $('.PrintOrder').attr('href', "Repair/PrintOrder/" + data[0][0].repair_order);
-    }, 'json');
-
+      $(".PrintOrder").attr(
+        "href",
+        "Repair/PrintOrder/" + data[0][0].repair_order,
+      );
+    },
+    "json",
+  );
 });
 
 // Disable userID initially
-$('#repair_userID').prop('disabled', true);
+$("#repair_userID").prop("disabled", true);
 
-$(document).on('change', '#repair_posi', function() {
-    const posiId = $(this).val();
-    if (!posiId) return;
+$(document).on("change", "#repair_posi", function () {
+  const posiId = $(this).val();
+  if (!posiId) return;
 
-    // Reset and Disable while loading
-    $('#repair_userID').prop('disabled', true).html('<option value="" selected disabled>กำลังโหลด...</option>').trigger('change');
-    $('#repair_phone').val('');
+  // Reset and Disable while loading
+  $("#repair_userID")
+    .prop("disabled", true)
+    .html('<option value="" selected disabled>กำลังโหลด...</option>')
+    .trigger("change");
+  $("#repair_phone").val("");
 
-    $.post('../Repair/DB/CheckPosiUser', {
-        repair_posi: posiId
-    }, function(data) {
-        $('#repair_userID').prop('disabled', false).empty().append('<option value="" selected disabled></option>').trigger('change');
-        
-        $.each(data, function(key, val) {
-            var optionElement = $('<option>')
-                .attr('value', val.pers_id)
-                .attr('data-phone', val.pers_phone || '')
-                .text(val.pers_prefix + val.pers_firstname + ' ' + val.pers_lastname);
-            $('#repair_userID').append(optionElement);
+  $.post(
+    "../Repair/DB/CheckPosiUser",
+    {
+      repair_posi: posiId,
+    },
+    function (data) {
+      $("#repair_userID")
+        .prop("disabled", false)
+        .empty()
+        .append('<option value="" selected disabled></option>')
+        .trigger("change");
+
+      $.each(data, function (key, val) {
+        var optionElement = $("<option>")
+          .attr("value", val.pers_id)
+          .attr("data-phone", val.pers_phone || "")
+          .text(val.pers_prefix + val.pers_firstname + " " + val.pers_lastname);
+        $("#repair_userID").append(optionElement);
+      });
+
+      // Refresh select2 if initialized
+      if ($("#repair_userID").hasClass("select2-hidden-accessible")) {
+        $("#repair_userID").select2({
+          theme: "bootstrap-5",
+          width: "100%",
+          dropdownParent: $(document.body),
         });
-        
-        // Refresh select2 if initialized
-        if ($('#repair_userID').hasClass('select2-hidden-accessible')) {
-            $('#repair_userID').select2({
-                theme: "bootstrap-5",
-                width: '100%',
-                dropdownParent: $(document.body) 
-            });
-        }
-
-    }, 'json');
+      }
+    },
+    "json",
+  );
 });
 
 // Auto-populate phone number when requester is selected
-$(document).on('change', '#repair_userID', function() {
-    const selectedOption = $(this).find('option:selected');
-    const phone = selectedOption.data('phone');
-    if (phone) {
-        $('#repair_phone').val(phone).trigger('change');
-        // Manually trigger filled state for floating label if needed
-        $('#repair_phone').closest('.form-floating').addClass('is-filled');
-    } else {
-        $('#repair_phone').val('');
-    }
+$(document).on("change", "#repair_userID", function () {
+  const selectedOption = $(this).find("option:selected");
+  const phone = selectedOption.data("phone");
+  if (phone) {
+    $("#repair_phone").val(phone).trigger("change");
+    // Manually trigger filled state for floating label if needed
+    $("#repair_phone").closest(".form-floating").addClass("is-filled");
+  } else {
+    $("#repair_phone").val("");
+  }
 });
 
-document.addEventListener('submit', async function(e) {
-    if (e.target && e.target.id === 'FormAddRepair') {
-        e.preventDefault();
+document.addEventListener("submit", async function (e) {
+  if (e.target && e.target.id === "FormAddRepair") {
+    e.preventDefault();
 
-        const form = e.target;
-        if (!form.checkValidity()) {
-            e.stopPropagation();
-            form.classList.add('was-validated');
-            return;
-        }
+    const form = e.target;
+    if (!form.checkValidity()) {
+      e.stopPropagation();
+      form.classList.add("was-validated");
+      return;
+    }
 
-        const formData = new FormData(form);
-        const repair_posi = formData.get('repair_posi') ? $(form).find('#repair_posi option:selected').text() : 'ไม่ได้ระบุ';
-        const repair_userID = formData.get('repair_userID') ? $(form).find('#repair_userID option:selected').text() : 'ไม่ได้ระบุ';
-        const repair_building = formData.get('repair_building') || 'ไม่ได้ระบุ';
-        const repair_class = formData.get('repair_class') || 'ไม่ได้ระบุ';
-        const repair_room = formData.get('repair_room') || 'ไม่มี';
-        const repair_phone = formData.get('repair_phone') || 'ไม่ได้ระบุ';
-        const repair_caselist = formData.get('repair_caselist') || 'ไม่ได้ระบุ';
-        const repair_detail = formData.get('repair_detail') || 'ไม่มี';
-        const imageInput = form.querySelector('#repair_imguser');
-        let imageUrl = null;
-        if (imageInput.files && imageInput.files[0]) {
-            imageUrl = URL.createObjectURL(imageInput.files[0]);
-        }
+    const formData = new FormData(form);
+    const repair_posi = formData.get("repair_posi")
+      ? $(form).find("#repair_posi option:selected").text()
+      : "ไม่ได้ระบุ";
+    const repair_userID = formData.get("repair_userID")
+      ? $(form).find("#repair_userID option:selected").text()
+      : "ไม่ได้ระบุ";
+    const repair_building = formData.get("repair_building") || "ไม่ได้ระบุ";
+    const repair_class = formData.get("repair_class") || "ไม่ได้ระบุ";
+    const repair_room = formData.get("repair_room") || "ไม่มี";
+    const repair_phone = formData.get("repair_phone") || "ไม่ได้ระบุ";
+    const repair_caselist = formData.get("repair_caselist") || "ไม่ได้ระบุ";
+    const repair_detail = formData.get("repair_detail") || "ไม่มี";
+    const imageInput = form.querySelector("#repair_imguser");
+    let imageUrl = null;
+    if (imageInput.files && imageInput.files[0]) {
+      imageUrl = URL.createObjectURL(imageInput.files[0]);
+    }
 
-        const confirmationHtml = `
+    const confirmationHtml = `
             <div style="text-align: left; padding: 1rem;">
                 <p><strong><i class="bi bi-person-badge"></i> ตำแหน่ง:</strong> ${repair_posi}</p>
                 <p><strong><i class="bi bi-person-circle"></i> ผู้แจ้งซ่อม:</strong> ${repair_userID}</p>
@@ -308,274 +378,354 @@ document.addEventListener('submit', async function(e) {
                 <hr>
                 <p><strong><i class="bi bi-tools"></i> รายการแจ้งซ่อม:</strong> ${repair_caselist}</p>
                 <p><strong><i class="bi bi-card-text"></i> รายละเอียด:</strong> ${repair_detail}</p>
-                ${imageUrl ? `<hr><p><strong><i class="bi bi-image"></i> รูปภาพที่แนบ:</strong></p><img src="${imageUrl}" class="img-fluid rounded">` : ''}
+                ${imageUrl ? `<hr><p><strong><i class="bi bi-image"></i> รูปภาพที่แนบ:</strong></p><img src="${imageUrl}" class="img-fluid rounded">` : ""}
             </div>
         `;
 
-        Swal.fire({
-            title: 'โปรดยืนยันข้อมูล',
-            html: confirmationHtml,
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'ยืนยันการแจ้งซ่อม',
-            cancelButtonText: 'ยกเลิก',
-            onClose: () => {
-                if (imageUrl) {
-                    URL.revokeObjectURL(imageUrl); // Clean up the object URL
-                }
+    Swal.fire({
+      title: "โปรดยืนยันข้อมูล",
+      html: confirmationHtml,
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "ยืนยันการแจ้งซ่อม",
+      cancelButtonText: "ยกเลิก",
+      onClose: () => {
+        if (imageUrl) {
+          URL.revokeObjectURL(imageUrl); // Clean up the object URL
+        }
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        // Math Challenge Validation
+        const captchaInput = document.getElementById("captcha_input");
+        if (!captchaInput || !captchaInput.value.trim()) {
+          Swal.fire(
+            "แจ้งเตือน!",
+            "กรุณากรอกผลลัพธ์ตัวเลข (Captcha)",
+            "warning",
+          );
+          return;
+        }
+
+        if (signaturePad.isEmpty()) {
+          Swal.fire("แจ้งเตือน!", "กรุณาลงลายมือชื่อก่อนบันทึก!", "warning");
+          return;
+        }
+
+        // ใช้ PNG แทน SVG เพื่อให้ขนาดเล็กลงและแสดงผลถูกต้อง
+        const dataURL = signaturePad.toDataURL("image/png", 0.8);
+        formData.append("Signature", dataURL);
+
+        const btn = document.getElementById("BtnSubRepair");
+        btn.innerHTML =
+          '<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span>กำลังบันทึก...</span>';
+        btn.classList.add("disabled");
+
+        try {
+          const res = await fetch("../Repair/DB/Insert", {
+            method: "POST",
+            body: formData,
+          });
+
+          let responseData;
+          try {
+            responseData = await res.json();
+          } catch (e) {
+            console.error("Invalid JSON response:", await res.text());
+            throw new Error("Invalid server response");
+          }
+
+          if (responseData.status === "success") {
+            Swal.fire({
+              title: "สำเร็จ!",
+              text: responseData.message || "บันทึกแจ้งซ่อมสำเร็จ!",
+              icon: "success",
+              confirmButtonColor: "#3085d6",
+              confirmButtonText: "ตกลง!",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = "../Repair";
+              }
+            });
+          } else if (responseData.status === "error") {
+            if (responseData.message === "Incorrect Captcha") {
+              Swal.fire(
+                "แจ้งเตือน!",
+                "คำนวณตัวเลขผิด กรุณาคำนวณใหม่",
+                "warning",
+              );
+            } else {
+              Swal.fire(
+                "แจ้งเตือน!",
+                responseData.message || "เกิดข้อผิดพลาดในการบันทึก",
+                "error",
+              );
             }
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                // Math Challenge Validation
-                const captchaInput = document.getElementById('captcha_input');
-                if (!captchaInput || !captchaInput.value.trim()) {
-                    Swal.fire('แจ้งเตือน!', 'กรุณากรอกผลลัพธ์ตัวเลข (Captcha)', 'warning');
-                    return;
-                }
-
-                if (signaturePad.isEmpty()) {
-                    Swal.fire('แจ้งเตือน!', 'กรุณาลงลายมือชื่อก่อนบันทึก!', 'warning');
-                    return;
-                }
-
-                const dataURL = signaturePad.toDataURL('image/svg+xml');
-                // formData handles captcha_input automatically since it's in the form
-                formData.append('Signature', dataURL);
-
-                const btn = document.getElementById('BtnSubRepair');
-                btn.innerHTML = '<div id="spinner" class="spinner-border spinner-border-sm text-white" role="status"></div> <span>กำลังบันทึก...</span>';
-                btn.classList.add("disabled");
-
-                try {
-                    const res = await fetch('../Repair/DB/Insert', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    let responseData;
-                    try {
-                        responseData = await res.json();
-                    } catch (e) {
-                        console.error("Invalid JSON response:", await res.text());
-                        throw new Error("Invalid server response");
-                    }
-
-                    if (responseData.status === 'success') {
-                         Swal.fire({
-                            title: 'สำเร็จ!',
-                            text: responseData.message || "บันทึกแจ้งซ่อมสำเร็จ!",
-                            icon: 'success',
-                            confirmButtonColor: '#3085d6',
-                            confirmButtonText: 'ตกลง!'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "../Repair";
-                            }
-                        });
-                    } else if (responseData.status === 'error') {
-                        if (responseData.message === 'Incorrect Captcha') {
-                             Swal.fire('แจ้งเตือน!', 'คำนวณตัวเลขผิด กรุณาคำนวณใหม่', 'warning');
-                        } else {
-                             Swal.fire('แจ้งเตือน!', responseData.message || 'เกิดข้อผิดพลาดในการบันทึก', 'error');
-                        }
-                    } else {
-                        // Unexpected status
-                        console.error('Unknown status:', responseData);
-                        Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดไม่ทราบสาเหตุ', 'error');
-                    }
-
-                } catch (err) {
-                    console.error('❌ เกิดข้อผิดพลาด:', err);
-                    Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดระหว่างส่งข้อมูล', 'error');
-                } finally {
-                    btn.classList.remove("disabled");
-                    document.getElementById('spinner')?.remove();
-                    btn.innerHTML = "บันทึกแจ้งซ่อม";
-                }
-            }
-        });
-    }
+          } else {
+            // Unexpected status
+            console.error("Unknown status:", responseData);
+            Swal.fire("ผิดพลาด!", "เกิดข้อผิดพลาดไม่ทราบสาเหตุ", "error");
+          }
+        } catch (err) {
+          console.error("❌ เกิดข้อผิดพลาด:", err);
+          Swal.fire("ผิดพลาด!", "เกิดข้อผิดพลาดระหว่างส่งข้อมูล", "error");
+        } finally {
+          btn.classList.remove("disabled");
+          document.getElementById("spinner")?.remove();
+          btn.innerHTML = "บันทึกแจ้งซ่อม";
+        }
+      }
+    });
+  }
 });
 
-
-
-$(document).on('click', '#ModalFormAdmin', function() {
-    //$(this).css('display', 'none');
-    $('#ModalRepairSaveAdmin').modal('show');
-    //$('#ModalShowRepair').modal('hide');
+$(document).on("click", "#ModalFormAdmin", function () {
+  //$(this).css('display', 'none');
+  $("#ModalRepairSaveAdmin").modal("show");
+  //$('#ModalShowRepair').modal('hide');
 });
 
-// Signature Pad Logic
+// Signature Pad Logic - ปรับปรุงให้แสดงผลเต็มและใช้ PNG
 const canvas = document.getElementById("signature-pad");
 let signaturePad = null;
+let isInitialized = false; // ป้องกัน resize ซ้ำ
 
-function resizeCanvas() {
-    if (!canvas) return;
-    
-    // When zoomed out to less than 100%, for some very strange reason,
-    // some browsers report devicePixelRatio as less than 1
-    // and only part of the canvas is cleared then.
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+// กำหนดขนาดคงที่สำหรับ canvas เพื่อให้ลายเซ็นแสดงผลถูกต้อง
+const SIGNATURE_WIDTH = 400;
+const SIGNATURE_HEIGHT = 150;
 
-    // This part causes the canvas to be cleared
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
+function initCanvas() {
+  if (!canvas || isInitialized) return;
 
-    // If signaturePad exists, we might want to clear it or it will be cleared by resize anyway
-    if (signaturePad) {
-        signaturePad.clear(); // Clean slate on resize to avoid artifacts
-    }
+  // ใช้ ratio เพื่อให้คมชัด แต่กำหนดขนาดให้คงที่
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  // กำหนดขนาดแสดงผล (CSS pixels)
+  canvas.style.width = "100%";
+  canvas.style.height = SIGNATURE_HEIGHT + "px";
+  canvas.style.maxWidth = SIGNATURE_WIDTH + "px";
+
+  // กำหนดขนาด internal canvas สำหรับความคมชัด
+  const displayWidth = Math.min(canvas.offsetWidth, SIGNATURE_WIDTH);
+  canvas.width = displayWidth * ratio;
+  canvas.height = SIGNATURE_HEIGHT * ratio;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(ratio, ratio);
+
+  // เติมพื้นหลังขาว
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  isInitialized = true;
+}
+
+// ฟังก์ชัน resize ที่เก็บลายเซ็นไว้ก่อนแล้ว restore กลับ
+function resizeCanvasSafe() {
+  if (!canvas || !signaturePad) return;
+  
+  // ถ้าไม่มีลายเซ็น ให้ init ใหม่ได้
+  if (signaturePad.isEmpty()) {
+    isInitialized = false;
+    initCanvas();
+    return;
+  }
+  
+  // ถ้ามีลายเซ็นอยู่แล้ว ให้เก็บไว้ก่อน
+  const signatureData = signaturePad.toData();
+  
+  // ใช้ ratio เพื่อให้คมชัด
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  // ตรวจสอบว่าขนาดจริงเปลี่ยนหรือไม่
+  const displayWidth = Math.min(canvas.offsetWidth, SIGNATURE_WIDTH);
+  const newWidth = displayWidth * ratio;
+  
+  // ถ้าขนาดไม่เปลี่ยน ไม่ต้องทำอะไร (ป้องกัน scroll trigger)
+  if (Math.abs(canvas.width - newWidth) < 5) {
+    return;
+  }
+
+  // กำหนดขนาดแสดงผล (CSS pixels)
+  canvas.style.width = "100%";
+  canvas.style.height = SIGNATURE_HEIGHT + "px";
+  canvas.style.maxWidth = SIGNATURE_WIDTH + "px";
+
+  // กำหนดขนาด internal canvas
+  canvas.width = newWidth;
+  canvas.height = SIGNATURE_HEIGHT * ratio;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(ratio, ratio);
+
+  // เติมพื้นหลังขาว
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Restore ลายเซ็นกลับมา
+  if (signatureData && signatureData.length > 0) {
+    signaturePad.fromData(signatureData);
+  }
 }
 
 // Initialize if canvas exists
 if (canvas) {
-    // Set a default height via JS to ensure it's not too small if CSS is missing
-    canvas.style.height = "200px"; 
+  signaturePad = new SignaturePad(canvas, {
+    backgroundColor: "rgb(255,255,255)", // พื้นหลังขาว
+    penColor: "rgb(0,0,150)", // สีน้ำเงินเข้ม
+    minWidth: 1,
+    maxWidth: 2.5,
+    velocityFilterWeight: 0.7,
+  });
 
-    signaturePad = new SignaturePad(canvas, {
-        backgroundColor: 'rgb(250,250,250)',
-        penColor: 'rgb(0,0,250)'
-    });
+  // Init canvas ครั้งแรก
+  initCanvas();
 
-    // Resize initially
-    resizeCanvas();
-    
-    // Helper to resize when window changes
-    window.addEventListener("resize", resizeCanvas);
-    
-    // Special handling for Modal (UserRepairView.php)
-    // When the modal shows, the canvas is finally visible and has dimensions.
-    // We must resize it then.
-    $('#ModalRepairSaveAdmin').on('shown.bs.modal', function () {
-        resizeCanvas();
-    });
+  // ใช้ debounce เพื่อป้องกันการ resize ซ้ำเมื่อ scroll บนมือถือ
+  let resizeTimeout;
+  window.addEventListener("resize", function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(resizeCanvasSafe, 200);
+  });
+
+  // Special handling for Modal (UserRepairView.php)
+  $("#ModalRepairSaveAdmin").on("shown.bs.modal", function () {
+    isInitialized = false;
+    initCanvas();
+  });
 }
 
 const clearBtn = document.getElementById("clear");
 if (clearBtn && signaturePad) {
-    clearBtn.addEventListener("click", () => {
-        signaturePad.clear();
-    });
+  clearBtn.addEventListener("click", () => {
+    signaturePad.clear();
+    // เติมพื้นหลังขาวใหม่หลังล้าง
+    const ctx = canvas.getContext("2d");
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width / ratio, canvas.height / ratio);
+  });
 }
 
-$(document).on('submit', '#FormSaveRepairAdmin', function(e) {
-    e.preventDefault();
+$(document).on("submit", "#FormSaveRepairAdmin", function (e) {
+  e.preventDefault();
 
-    if (signaturePad.isEmpty()) {
-        alert("กรุณาเซ็นก่อนบันทึก!");
-        return;
-    }
+  if (signaturePad.isEmpty()) {
+    alert("กรุณาเซ็นก่อนบันทึก!");
+    return;
+  }
 
-     // ปุ่ม loading
-    $('#btnSaveRepair').prop('disabled', true);
-    $('#btnSaveText').text('กำลังบันทึก...');
-    $('#btnSpinner').show();
+  // ปุ่ม loading
+  $("#btnSaveRepair").prop("disabled", true);
+  $("#btnSaveText").text("กำลังบันทึก...");
+  $("#btnSpinner").show();
 
-    var dataURL = signaturePad.toDataURL('image/svg+xml');
-    var formData = new FormData(this);
-    formData.append('Signature', dataURL); // เพิ่มคีย์และค่าที่ต้องการส่ง
+  // ใช้ PNG แทน SVG เพื่อให้ขนาดเล็กลงและแสดงผลถูกต้อง
+  var dataURL = signaturePad.toDataURL("image/png", 0.8);
+  var formData = new FormData(this);
+  formData.append("Signature", dataURL);
 
-    $.ajax({
-        url: "../../Repair/DB/UpdateWork",
-        method: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        cache: false,
-        dataType: "json", // ให้ jQuery แปรงเป็น JSON ให้อัตโนมัติ
-        success: function(response) {
+  $.ajax({
+    url: "../../Repair/DB/UpdateWork",
+    method: "POST",
+    data: formData,
+    processData: false,
+    contentType: false,
+    cache: false,
+    dataType: "json", // ให้ jQuery แปรงเป็น JSON ให้อัตโนมัติ
+    success: function (response) {
+      $("#btnSaveRepair").prop("disabled", false);
+      $("#btnSaveText").text("บันทึกข้อมูล");
+      $("#btnSpinner").hide();
 
-            $('#btnSaveRepair').prop('disabled', false);
-            $('#btnSaveText').text('บันทึกข้อมูล');
-            $('#btnSpinner').hide();
+      $("#ModalRepairSaveAdmin").modal("hide");
+      $(".modal-backdrop").remove();
 
-            $('#ModalRepairSaveAdmin').modal('hide');
-            $('.modal-backdrop').remove();
+      if (response.status === "success") {
+        Swal.fire({
+          title: "สำเร็จ!",
+          text: response.message,
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "ตกลง!",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.reload(true);
+          }
+        });
+      } else {
+        Swal.fire(
+          "แจ้งเตือน!",
+          response.message || "บันทึกข้อมูลไม่สำเร็จ!",
+          "error",
+        );
+      }
+    },
+    error: function (xhr, status, error) {
+      console.error("AJAX Error:", status, error);
+      console.error("Response Text:", xhr.responseText);
 
-            if (response.status === 'success') {
-                Swal.fire({
-                    title: 'สำเร็จ!',
-                    text: response.message,
-                    icon: 'success',
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'ตกลง!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.reload(true);
-                    }
-                })
+      $("#btnSaveRepair").prop("disabled", false);
+      $("#btnSaveText").text("บันทึกข้อมูล");
+      $("#btnSpinner").hide();
 
-            } else {
-                Swal.fire(
-                    'แจ้งเตือน!', 
-                    response.message || 'บันทึกข้อมูลไม่สำเร็จ!',
-                    'error'
-                )
-            }
-           
-        },
-        error: function(xhr, status, error) {
-            console.error('AJAX Error:', status, error);
-            console.error('Response Text:', xhr.responseText);
-            
-            $('#btnSaveRepair').prop('disabled', false);
-            $('#btnSaveText').text('บันทึกข้อมูล');
-            $('#btnSpinner').hide();
-            
-            var errorMsg = 'เกิดข้อผิดพลาดระหว่างบันทึก!';
-            if (xhr.status === 404) errorMsg = 'ไม่พบ Path สำหรับบันทึกข้อมูล (404)';
-            else if (xhr.status === 500) errorMsg = 'Server ทำงานผิดพลาด (500)';
-            
-            Swal.fire('แจ้งเตือน!', errorMsg + '\nกรุณาตรวจสอบ Console (F12)', 'error');
-        }
-    });
+      var errorMsg = "เกิดข้อผิดพลาดระหว่างบันทึก!";
+      if (xhr.status === 404) errorMsg = "ไม่พบ Path สำหรับบันทึกข้อมูล (404)";
+      else if (xhr.status === 500) errorMsg = "Server ทำงานผิดพลาด (500)";
+
+      Swal.fire(
+        "แจ้งเตือน!",
+        errorMsg + "\nกรุณาตรวจสอบ Console (F12)",
+        "error",
+      );
+    },
+  });
 });
 
-$(document).on('click', '#BtnCleanupImages', function() {
-    Swal.fire({
-        title: 'ยืนยันการล้างไฟล์ขยะ?',
-        text: "ระบบจะลบรูปภาพที่ไม่ได้อ้างอิงถึงในฐานข้อมูลออกอย่างถาวร!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'ใช่, ฉันต้องการลบ!',
-        cancelButtonText: 'ยกเลิก'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'กำลังล้างไฟล์ขยะ...',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+$(document).on("click", "#BtnCleanupImages", function () {
+  Swal.fire({
+    title: "ยืนยันการล้างไฟล์ขยะ?",
+    text: "ระบบจะลบรูปภาพที่ไม่ได้อ้างอิงถึงในฐานข้อมูลออกอย่างถาวร!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "ใช่, ฉันต้องการลบ!",
+    cancelButtonText: "ยกเลิก",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "กำลังล้างไฟล์ขยะ...",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-            $.ajax({
-                url: "../../Repair/DB/CleanupImages",
-                method: "POST",
-                dataType: "json",
-                success: function(response) {
-                    if (response.status === 'success') {
-                        Swal.fire({
-                            title: 'สำเร็จ!',
-                            text: response.message,
-                            icon: 'success',
-                            confirmButtonText: 'ตกลง'
-                        });
-                    } else {
-                        Swal.fire('แจ้งเตือน!', response.message, 'error');
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Cleanup Error:', xhr.responseText);
-                    Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดระหว่างลบไฟล์ขยะ', 'error');
-                }
+      $.ajax({
+        url: "../../Repair/DB/CleanupImages",
+        method: "POST",
+        dataType: "json",
+        success: function (response) {
+          if (response.status === "success") {
+            Swal.fire({
+              title: "สำเร็จ!",
+              text: response.message,
+              icon: "success",
+              confirmButtonText: "ตกลง",
             });
-        }
-    });
+          } else {
+            Swal.fire("แจ้งเตือน!", response.message, "error");
+          }
+        },
+        error: function (xhr) {
+          console.error("Cleanup Error:", xhr.responseText);
+          Swal.fire("ผิดพลาด!", "เกิดข้อผิดพลาดระหว่างลบไฟล์ขยะ", "error");
+        },
+      });
+    }
+  });
 });

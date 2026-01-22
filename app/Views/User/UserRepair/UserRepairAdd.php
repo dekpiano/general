@@ -140,6 +140,12 @@
     #signature-pad {
         cursor: crosshair;
         background: #fff;
+        display: block;
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        max-width: 100%;
+        width: 100%;
+        height: 150px;
     }
 
     /* Action Buttons */

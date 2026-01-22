@@ -14,6 +14,61 @@ class ConUserRepair extends BaseController
        
     }
 
+    /**
+     * ดึง Email ของเจ้าหน้าที่ตามชื่องาน (หัวหน้า + เจ้าหน้าที่)
+     * @param string $departmentName ชื่องาน เช่น "งานแจ้งซ่อม", "งานอาคารสถานที่"
+     * @return array รายชื่อ Email
+     */
+    private function getStaffEmailsByDepartment($departmentName)
+    {
+        $database = \Config\Database::connect();
+        $DBpers = \Config\Database::connect('personnel');
+        
+        // ดึง user_id ของเจ้าหน้าที่ในงานที่ระบุ
+        $staffIds = $database->table('tb_admin_rloes')
+            ->select('admin_rloes_userid')
+            ->where('admin_rloes_nanetype', $departmentName)
+            ->where('admin_rloes_userid !=', '') // ไม่เอาแถวที่ยังไม่มีคนรับผิดชอบ
+            ->get()
+            ->getResult();
+        
+        if (empty($staffIds)) {
+            return [];
+        }
+        
+        // ดึง Email (pers_username) ของแต่ละคน
+        $emails = [];
+        foreach ($staffIds as $staff) {
+            $person = $DBpers->table('tb_personnel')
+                ->select('pers_username')
+                ->where('pers_id', $staff->admin_rloes_userid)
+                ->where('pers_status', 'กำลังใช้งาน')
+                ->get()
+                ->getRow();
+            
+            if ($person && !empty($person->pers_username)) {
+                $emails[] = $person->pers_username;
+            }
+        }
+        
+        return array_unique($emails); // ลบ Email ซ้ำ
+    }
+
+    /**
+     * ดึงข้อมูลบุคลากรจาก pers_id
+     * @param string $persId รหัสบุคลากร
+     * @return object|null ข้อมูลบุคลากร
+     */
+    private function getPersonnelInfo($persId)
+    {
+        $DBpers = \Config\Database::connect('personnel');
+        return $DBpers->table('tb_personnel')
+            ->select('pers_prefix, pers_firstname, pers_lastname, pers_username')
+            ->where('pers_id', $persId)
+            ->get()
+            ->getRow();
+    }
+
 
     public function DataMain(){
         $data['full_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
@@ -185,8 +240,8 @@ class ConUserRepair extends BaseController
                 'repair_detail' => $this->request->getVar('repair_detail'),
                 'repair_status' => 'รอดำเนินการ',
                 'repair_Repairman' => '',
-                'repair_imguser' => isset($newName) ?$newName:"",
-                'repair_usersignature' => $this->request->getPost('Signature')
+                'repair_imguser' => isset($newName) ? $newName : "",
+                'repair_usersignature' => $this->request->getPost('Signature') // เก็บเป็น PNG Base64
             ];
             if($TBrepair->insert($dataInsert)){
                 $DBpers = \Config\Database::connect('personnel');
@@ -198,10 +253,11 @@ class ConUserRepair extends BaseController
                 ->get()->getRow();
 
                 // ดึงข้อมูลผู้แจ้งเพื่อใช้ใน Email/Line
-                $Requester = $TBPres->select('pers_prefix,pers_firstname,pers_lastname')
+                $Requester = $TBPres->select('pers_prefix,pers_firstname,pers_lastname,pers_username')
                     ->where('pers_id', $this->request->getVar('repair_userID'))
                     ->get()->getRow();
                 $RequesterName = $Requester ? $Requester->pers_prefix.$Requester->pers_firstname.' '.$Requester->pers_lastname : 'ไม่ระบุ';
+                $RequesterEmail = ($Requester && !empty($Requester->pers_username)) ? $Requester->pers_username : 'noreply@skj.ac.th';
                 
                 // 2. สร้างข้อความ
                 $msg = "🛠️ มีงานแจ้งซ่อมมาใหม่\n";
@@ -217,27 +273,39 @@ class ConUserRepair extends BaseController
                     // 3. ส่งข้อความ Line (ใช้ userId หรือ groupId ของช่าง)
                     $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
 
-                    // 4. ส่ง Email
+                    // 4. ส่ง Email - ดึงรายชื่อจากตาราง tb_admin_rloes
                     if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
-                        $MailAdmin = ['surawut.c@skj.ac.th','dekpiano@skj.ac.th','trin.p@skj.ac.th'];
+                        // ส่งไปที่หัวหน้าและเจ้าหน้าที่งานอาคารสถานที่
+                        $MailAdmin = $this->getStaffEmailsByDepartment('งานอาคารสถานที่');
                     }else{
-                        $MailAdmin = 'dekpiano@skj.ac.th'; 
+                        // ส่งไปที่หัวหน้าและเจ้าหน้าที่งานแจ้งซ่อม
+                        $MailAdmin = $this->getStaffEmailsByDepartment('งานแจ้งซ่อม');
+                    }
+                    
+                    // ถ้าไม่พบ Email จาก roles ให้ใช้ fallback
+                    if (empty($MailAdmin)) {
+                        $MailAdmin = ['dekpiano@skj.ac.th'];
                     }
                     
                     $email = \Config\Services::email();
-                    $email->setFrom('adminRepair@skj.ac.th', 'จากระบบแจ้งซ่อมออนไลน์');
+                    // ผู้ส่งคือผู้แจ้งซ่อม
+                    $email->setFrom($RequesterEmail, $RequesterName . ' (แจ้งซ่อมผ่านระบบ)');
                     $email->setTo($MailAdmin);
-                    $email->setSubject('แจ้งซ่อมจาก '.$RequesterName);
+                    $email->setSubject('[แจ้งซ่อม] ' . $this->request->getVar('repair_caselist') . ' - ' . $RequesterName);
 
                     // กำหนดข้อความในรูปแบบ HTML
-                    $htmlMessage = '<h4>ระบบแจ้งซ่อม รายละเอียด</h4>';
-                    $htmlMessage .= '<p>ใบแจ้งซ่อม : '.$OrderNumber.'</p>';
-                    $htmlMessage .= '<p>วันที่แจ้งซ่อม : '.$DateTimeToday.'</p>';
-                    $htmlMessage .= '<p>ผู้แจ้งซ่อม : '.$RequesterName.'</p>';
-                    $htmlMessage .= '<p>เบอร์โทรติดต่อ : '.$this->request->getVar('repair_phone').'</p>';
-                    $htmlMessage .= '<p>รายการแจ้งซ่อม : '.$this->request->getVar('repair_caselist').'</p>';
-                    $htmlMessage .= '<p>รายละเอียด : '.$this->request->getVar('repair_detail').' อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
-                    $htmlMessage .= 'ดูทั้งหมด <a href="'.base_url('Repair/View/'.$OrderNumber).'">'.base_url('Repair/View/'.$OrderNumber).'</a>';
+                    $htmlMessage = '<h4>📧 แจ้งซ่อมใหม่จากระบบ</h4>';
+                    $htmlMessage .= '<hr>';
+                    $htmlMessage .= '<p><strong>ใบแจ้งซ่อม:</strong> '.$OrderNumber.'</p>';
+                    $htmlMessage .= '<p><strong>วันที่แจ้งซ่อม:</strong> '.$Datethai->thai_date_and_time(strtotime($DateTimeToday)).'</p>';
+                    $htmlMessage .= '<p><strong>ผู้แจ้งซ่อม:</strong> '.$RequesterName.'</p>';
+                    $htmlMessage .= '<p><strong>เบอร์โทรติดต่อ:</strong> '.$this->request->getVar('repair_phone').'</p>';
+                    $htmlMessage .= '<hr>';
+                    $htmlMessage .= '<p><strong>รายการแจ้งซ่อม:</strong> '.$this->request->getVar('repair_caselist').'</p>';
+                    $htmlMessage .= '<p><strong>รายละเอียด:</strong> '.$this->request->getVar('repair_detail').'</p>';
+                    $htmlMessage .= '<p><strong>สถานที่:</strong> อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
+                    $htmlMessage .= '<hr>';
+                    $htmlMessage .= '<p><a href="'.base_url('Repair/View/'.$OrderNumber).'" style="background: #696cff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">👉 ดูรายละเอียดและรับงาน</a></p>';
 
                     $email->setMessage($htmlMessage);
                     $email->setMailType('html');
@@ -380,7 +448,7 @@ class ConUserRepair extends BaseController
                     'repair_Repairman' => $this->request->getPost('repair_Repairman'),
                     'repair_cause' => $this->request->getPost('repair_cause'),
                     'repair_imgwork'  => $newName,
-                    'repair_adminsignature' => $this->request->getPost('Signature')
+                    'repair_adminsignature' => $this->request->getPost('Signature') // เก็บเป็น PNG Base64
                 ];
             } else {
                 $data = [
@@ -388,7 +456,7 @@ class ConUserRepair extends BaseController
                     'repair_datework' => $this->request->getPost('repair_datework'),
                     'repair_Repairman' => $this->request->getPost('repair_Repairman'),
                     'repair_cause' => $this->request->getPost('repair_cause'),
-                    'repair_adminsignature' => $this->request->getPost('Signature')
+                    'repair_adminsignature' => $this->request->getPost('Signature') // เก็บเป็น PNG Base64
                 ];
             }
 
@@ -413,13 +481,24 @@ class ConUserRepair extends BaseController
                              $RequesterName = $Requester->pers_prefix . $Requester->pers_firstname . ' ' . $Requester->pers_lastname;
                              $currentStatus = $this->request->getPost('repair_status');
                              
+                             // ดึงข้อมูลเจ้าหน้าที่รับงาน (ผู้ส่ง Email)
+                             $repairmanId = $this->request->getPost('repair_Repairman');
+                             $Repairman = $TBpers->select('pers_prefix, pers_firstname, pers_lastname, pers_username')
+                                 ->where('pers_id', $repairmanId)
+                                 ->get()->getRow();
+                             
+                             $RepairmanName = $Repairman ? $Repairman->pers_prefix . $Repairman->pers_firstname . ' ' . $Repairman->pers_lastname : 'เจ้าหน้าที่ซ่อม';
+                             $RepairmanEmail = ($Repairman && !empty($Repairman->pers_username)) ? $Repairman->pers_username : 'noreply@skj.ac.th';
+                             
                              try {
                                  $email = \Config\Services::email();
-                                 $email->setFrom('adminRepair@skj.ac.th', 'ระบบแจ้งซ่อมออนไลน์ (สวนกุหลาบวิทยาลัย จิรประวัติ)');
+                                 // ผู้ส่งคือเจ้าหน้าที่รับงาน
+                                 $email->setFrom($RepairmanEmail, $RepairmanName . ' (งานแจ้งซ่อม)');
                                  $email->setTo($Requester->pers_username);
-                                 $email->setSubject('อัปเดตสถานะแจ้งซ่อม: ' . $RepairInfo->repair_caselist . ' [' . $currentStatus . ']');
+                                 $email->setSubject('[อัปเดตสถานะ] ' . $RepairInfo->repair_caselist . ' - ' . $currentStatus);
 
-                                 $htmlMessage = '<h4>เรียน ' . $RequesterName . '</h4>';
+                                 $htmlMessage = '<h4>📧 แจ้งอัปเดตสถานะการซ่อม</h4>';
+                                 $htmlMessage .= '<p>เรียน ' . $RequesterName . '</p>';
                                  $htmlMessage .= '<p>รายการแจ้งซ่อมของท่านมีการอัปเดตสถานะเป็น: <strong style="color: #696cff;">' . $currentStatus . '</strong></p>';
                                  $htmlMessage .= '<hr>';
                                  $htmlMessage .= '<p><strong>เลขที่ใบแจ้งซ่อม:</strong> ' . $RepairInfo->repair_order . '</p>';
@@ -431,9 +510,11 @@ class ConUserRepair extends BaseController
                                     $htmlMessage .= '<p><strong>บันทึกจากเจ้าหน้าที่:</strong> ' . $this->request->getPost('repair_cause') . '</p>';
                                  }
                                  
+                                 $htmlMessage .= '<hr>';
+                                 $htmlMessage .= '<p><strong>ผู้ดำเนินการ:</strong> ' . $RepairmanName . '</p>';
                                  $htmlMessage .= '<p><strong>วันที่อัปเดต:</strong> ' . $Datethai->thai_date_and_time(strtotime(date('Y-m-d H:i:s'))) . '</p>';
                                  $htmlMessage .= '<hr>';
-                                 $htmlMessage .= '<p>ท่านสามารถตรวจสอบความคืบหน้าได้ที่: <a href="' . base_url('Repair/View/' . $RepairInfo->repair_order) . '">คลิกที่นี่เพื่อดูรายละเอียด</a></p>';
+                                 $htmlMessage .= '<p><a href="' . base_url('Repair/View/' . $RepairInfo->repair_order) . '" style="background: #696cff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">👉 ดูรายละเอียด</a></p>';
 
                                  $email->setMessage($htmlMessage);
                                  $email->setMailType('html');
