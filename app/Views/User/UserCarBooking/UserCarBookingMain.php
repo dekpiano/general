@@ -60,6 +60,19 @@
 
     .page-header p { color: rgba(255,255,255,0.8); margin-bottom: 0; }
 
+    .btn-white {
+        background-color: #ffffff !important;
+        color: var(--car-primary) !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        transition: all 0.3s ease;
+    }
+    .btn-white:hover {
+        background-color: #f8f9ff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2) !important;
+    }
+
     /* --- Car Cards --- */
     .car-card {
         background: var(--glass-bg);
@@ -186,17 +199,26 @@
     <!-- Premium Page Header -->
     <div class="page-header premium-animate">
         <div class="header-content">
-            <div class="d-flex align-items-center mb-2">
-                <i class='bx bxs-car fs-2 me-2'></i>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="<?=base_url()?>" class="text-white-50">หน้าแรก</a></li>
-                        <li class="breadcrumb-item active text-white" aria-current="page">จองยานพาหนะ</li>
-                    </ol>
-                </nav>
+            <div class="row align-items-center">
+                <div class="col-md-9">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class='bx bxs-car fs-2 me-2'></i>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="<?=base_url()?>" class="text-white-50">หน้าแรก</a></li>
+                                <li class="breadcrumb-item active text-white" aria-current="page">จองยานพาหนะ</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <h2>ระบบจองยานพาหนะ (Car Booking)</h2>
+                    <p>เลือกยานพาหนะที่ต้องการ ตรวจสอบวันว่างในปฏิทิน และคลิกเพื่อทำการจองครับ</p>
+                </div>
+                <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                    <a target="_blank" href="<?=base_url('manual/car-booking') ?>" class="btn btn-white text-primary fw-bold shadow-sm rounded-pill px-4">
+                        <i class='bx bx-book-content me-1'></i> คู่มือการใช้งาน
+                    </a>
+                </div>
             </div>
-            <h2>ระบบจองยานพาหนะ (Car Booking)</h2>
-            <p>เลือกยานพาหนะที่ต้องการ ตรวจสอบวันว่างในปฏิทิน และคลิกเพื่อทำการจองครับ</p>
         </div>
     </div>
 
@@ -288,18 +310,7 @@
                         </div>
                     </a>
 
-                    <!-- User Manual -->
-                    <a target="_blank" href="<?=base_url('manual/car-booking') ?>" class="action-card shadow-sm p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar bg-label-success p-2 rounded-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                <i class='bx bx-book-reader fs-3'></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold text-dark">คู่มือการใช้งาน</h6>
-                                <small class="text-muted">วิดีโอและเอกสารสอน</small>
-                            </div>
-                        </div>
-                    </a>
+
 
                     <!-- Admin Section -->
                     <?php if(isset($_SESSION['username']) && (in_array("งานยานพาหนะ", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral" || @$_SESSION['status'] =="AdminGeneral")):?>

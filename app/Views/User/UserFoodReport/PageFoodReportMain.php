@@ -261,6 +261,20 @@
     border-color: rgba(255, 255, 255, 0.5);
 }
 
+.btn-white-premium {
+    background: #ffffff !important;
+    color: var(--food-primary) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-white-premium:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2) !important;
+    background: #f8f9ff !important;
+}
+
 /* --- Floating Labels & Forms --- */
 .form-floating-premium .form-control {
     border-radius: 12px;
@@ -454,7 +468,10 @@
                 <p class="mb-0 text-white-50">ระบบติดตามและบันทึกข้อมูลโภชนาการรายวัน</p>
             </div>
             
-            <div class="header-actions">
+            <div class="header-actions flex-wrap">
+                <a target="_blank" href="<?=base_url('manual/food-report') ?>" class="btn btn-white-premium rounded-pill px-4 me-md-2">
+                    <i class='bx bx-book-content me-1'></i> คู่มือการใช้งาน
+                </a>
                 <div class="position-relative me-md-2" style="min-width: 160px;">
                     <select class="year-select-premium w-100" id="yearFilter" onchange="window.location.href='<?=base_url('FoodReport')?>?year='+this.value">
                         <?php foreach($years as $y): ?>

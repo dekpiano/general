@@ -117,38 +117,69 @@
 
     /* Premium Buttons */
     .btn-glass-primary {
-        background: white;
-        color: var(--repair-primary);
-        border: none;
+        background: #ffffff !important;
+        color: var(--repair-primary) !important;
+        border: none !important;
         padding: 0.75rem 1.5rem;
         border-radius: 1rem;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-weight: 700;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
         transition: all 0.3s ease;
     }
 
     .btn-glass-primary:hover {
-        background: #f8f9ff;
-        transform: scale(1.05);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        color: var(--repair-primary);
+        background: #f8f9ff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2) !important;
+        color: var(--repair-primary) !important;
     }
 
     .btn-add-repair {
-        background: linear-gradient(135deg, #696cff 0%, #4345bb 100%);
-        color: white;
+        background: linear-gradient(135deg, #ff8a00 0%, #ff5e3a 100%);
+        color: white !important;
         border: none;
-        padding: 0.75rem 1.75rem;
+        padding: 0.85rem 2.25rem;
         border-radius: 1rem;
-        font-weight: 600;
-        box-shadow: 0 8px 20px rgba(105, 108, 255, 0.3);
-        transition: all 0.3s ease;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 10px 25px rgba(255, 94, 58, 0.4);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: pulse-repair 2s infinite;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-add-repair::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transform: rotate(45deg);
+        transition: 0.5s;
+        display: block;
+        animation: shine-repair 3s infinite;
     }
 
     .btn-add-repair:hover {
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 12px 25px rgba(105, 108, 255, 0.4);
-        color: white;
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 30px rgba(255, 94, 58, 0.5);
+        color: white !important;
+    }
+
+    @keyframes pulse-repair {
+        0% { box-shadow: 0 0 0 0 rgba(255, 94, 58, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(255, 94, 58, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 94, 58, 0); }
+    }
+
+    @keyframes shine-repair {
+        0% { left: -100%; transition-property: left; }
+        20% { left: 100%; transition-property: left; }
+        100% { left: 100%; transition-property: left; }
     }
 
     /* Status Badges Premium */
@@ -212,7 +243,7 @@
     <!-- Premium Header -->
     <div class="glass-header">
         <div class="row align-items-center">
-            <div class="col-md-7">
+            <div class="col-md-8">
                 <h2 class="display-6"><i class='bx bxs-wrench me-3'></i>ระบบแจ้งซ่อมออนไลน์</h2>
                 <div class="d-flex align-items-center mt-2">
                     <span class="badge bg-white text-primary rounded-pill px-3 me-2">Repair Management</span>
@@ -223,13 +254,19 @@
                         </ol>
                     </nav>
                 </div>
+                <!-- ปุ่มคู่มือและตัวเลือกปี -->
+                <div class="d-flex align-items-center gap-2 mt-4 flex-wrap">
+                    <a target="_blank" href="<?=base_url('manual/repair') ?>" class="btn btn-glass-primary py-2">
+                        <i class='bx bx-book-content me-1'></i> คู่มือการใช้งาน
+                    </a>
+                    <select class="year-select shadow-sm" id="yearFilter" onchange="window.location.href='<?=base_url('Repair')?>?year='+this.value">
+                        <?php foreach($years as $y): ?>
+                        <option value="<?=$y?>" <?=$y == $selectedYear ? 'selected' : ''?>>ปีงบประมาณ <?=$y+543?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
-            <div class="col-md-5 d-flex justify-content-md-end gap-3 header-actions align-items-center">
-                <select class="year-select shadow-sm" id="yearFilter" onchange="window.location.href='<?=base_url('Repair')?>?year='+this.value">
-                    <?php foreach($years as $y): ?>
-                    <option value="<?=$y?>" <?=$y == $selectedYear ? 'selected' : ''?>>ปีงบประมาณ <?=$y+543?></option>
-                    <?php endforeach; ?>
-                </select>
+            <div class="col-md-4 d-flex justify-content-md-end header-actions align-items-center mt-3 mt-md-0">
                 <a href="<?=base_url('Repair/Add')?>" class="btn btn-add-repair">
                     <i class="bx bx-plus-circle me-1"></i> แจ้งซ่อมใหม่
                 </a>
