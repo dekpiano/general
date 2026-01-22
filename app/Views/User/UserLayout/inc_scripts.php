@@ -64,5 +64,39 @@
     });
     </script>
 
+    <!-- OneSignal Push Notification SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: "be488231-0e72-4fe0-962d-fcb32cb761e7", // ใส่ ID ที่คุณให้มาเรียบร้อยครับ
+                safari_web_id: "YOUR-SAFARI-WEB-ID", // ถ้ามี
+                notifyButton: {
+                    enable: true,
+                },
+                allowLocalhostAsSecureOrigin: true,
+            });
+
+            // Tag User (ถ้ามีการ Login)
+            const userId = "<?= $_SESSION['id'] ?? '' ?>";
+            const userRoles = "<?= $_SESSION['rloes'] ?? '' ?>";
+            
+            if (userId) {
+                OneSignal.login(userId);
+                OneSignal.User.addTag("user_id", userId);
+                
+                // ตรวจสอบ Role เพื่อติดแท็กสำหรับ Admin
+                <?php if (isset($_SESSION['rloes']) || isset($_SESSION['status'])): ?>
+                    const roles = "<?= $_SESSION['rloes'] ?? '' ?>";
+                    const status = "<?= $_SESSION['status'] ?? '' ?>";
+                    if (roles.includes("งานอาคารสถานที่") || status === "ExecutiveGeneral") {
+                        OneSignal.User.addTag("role", "admin_booking");
+                    }
+                <?php endif; ?>
+            }
+        });
+    </script>
+
     <?= $this->renderSection('customScripts') ?>
     <?= $this->renderSection('scripts') ?>

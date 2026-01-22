@@ -12,11 +12,69 @@ class ConUserBooking extends BaseController
         
     }
 
+    private $oneSignalAppId = 'be488231-0e72-4fe0-962d-fcb32cb761e7';
+    private $oneSignalApiKey = 'os_v2_app_xzeiemioojh6bfrn7szszn3b46vk2igzrooeom4rtulcfh2t47lyy6rf6mccwtbxfwgzhvpjurm4trrduldx73e3wwz35nwjtsgyhwa';
+
     public function DataMain(){
        $data['full_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
        $data['uri'] = service('uri'); 
        
         return $data;
+    }
+
+    private function sendPushNotification($title, $message, $url = null, $tags = null, $userIds = null)
+    {
+        $content = array(
+            "en" => $message,
+            "th" => $message
+        );
+        $headings = array(
+            "en" => $title,
+            "th" => $title
+        );
+
+        $fields = array(
+            'app_id' => $this->oneSignalAppId,
+            'headings' => $headings,
+            'contents' => $content,
+            'chrome_web_badge' => base_url('assets/img/icons/icon-192x192.png'),
+            'chrome_web_icon' => base_url('assets/img/icons/icon-512x512.png'),
+            'firefox_icon' => base_url('assets/img/icons/icon-512x512.png')
+        );
+
+        if ($url) {
+            $fields['url'] = $url;
+        }
+
+        if ($userIds) {
+            $fields['include_external_user_ids'] = is_array($userIds) ? $userIds : array($userIds);
+        } elseif ($tags) {
+            $fields['filters'] = array();
+            foreach ($tags as $key => $value) {
+                $fields['filters'][] = array("field" => "tag", "key" => $key, "relation" => "=", "value" => $value);
+            }
+        } else {
+            $fields['included_segments'] = array('All');
+        }
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json; charset=utf-8',
+            'Authorization: Basic ' . $this->oneSignalApiKey
+        ));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
     }
 
     private function sendLineMessage($userId, $messageText)
@@ -257,6 +315,14 @@ class ConUserBooking extends BaseController
                 $msg .= "⛪ สถานที่: {$Booking['location_name']}\n";
                 $msg .= "🎯 วัตถุประสงค์: {$Booking['booking_title']}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Booking/Approve/Admin");
+
+                // Send OneSignal Notification to Admins
+                $this->sendPushNotification(
+                    "มีการจองสถานที่ใหม่!",
+                    "โดย {$Booking['pers_prefix']}{$Booking['pers_firstname']} - {$Booking['location_name']}",
+                    base_url("/Booking/Approve/Admin"),
+                    ['role' => 'admin_booking']
+                );
 
                 // 1. Line Message
                 if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
@@ -995,6 +1061,17 @@ class ConUserBooking extends BaseController
                 $line_msg .= "ตรวจสอบสถานะ: " . base_url("Booking/View/All");
 
                 $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $line_msg);
+
+                // Send OneSignal Notification to Booker
+                // We use booking_Booker as the External User ID because we tagged it in inc_scripts.php
+                $bookerId = $DBbooking->select('booking_Booker')->where('booking_id', $this->request->getPost('BookingID'))->get()->getRow()->booking_Booker;
+                $this->sendPushNotification(
+                    "การจองของคุณได้รับการอนุมัติแล้ว ✅",
+                    "สถานที่: {$CheckUserForEmail->location_name} เลขที่: {$CheckUserForEmail->booking_order}",
+                    base_url("Booking/View/All"),
+                    null,
+                    $bookerId
+                );
             }
             
         }

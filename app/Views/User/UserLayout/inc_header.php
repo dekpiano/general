@@ -32,6 +32,11 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="<?=base_url('assets/img/favicon/favicon.ico')?>" />
 
+    <!-- PWA Manifest & App Icons -->
+    <link rel="manifest" href="<?=base_url('manifest.json')?>">
+    <meta name="theme-color" content="#696cff">
+    <link rel="apple-touch-icon" href="<?=base_url('assets/img/icons/icon-192x192.png')?>">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

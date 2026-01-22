@@ -105,10 +105,20 @@ class ConLogin extends BaseController
                                 // Check if the protocol is already present
                                 $redirectUrl = isset($_SESSION['Return']) && !empty($_SESSION['Return']) ? $_SESSION['Return'] : base_url();
                                 
-                                // ถ้าไม่มี http/https นำหน้า แสดงว่าเป็น path ภายใน ให้ใช้ base_url()
-                                if (strpos($redirectUrl, 'http') !== 0) {
+                                // ป้องกันปัญหา URL ซ้อนกัน โดยเช็คว่ามี host อยู่ในสายอักขระหรือไม่
+                                if (strpos($redirectUrl, 'http') === 0) {
+                                    // เป็น URL สมบูรณ์แล้ว (เช่น https://...)
+                                } elseif (strpos($redirectUrl, $_SERVER['HTTP_HOST']) !== false) {
+                                    // ถ้ามี host แต่ไม่มี http (กรณีผิดพลาดจากหน้า Navbar เดิม) ให้เติมโปรโตคอล
+                                    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+                                    $redirectUrl = $protocol . "://" . $redirectUrl;
+                                } else {
+                                    // เป็นแค่ path (เช่น 'Booking') ให้ใช้ base_url()
                                     $redirectUrl = base_url($redirectUrl);
                                 }
+
+                                // เคลียร์ session return เพื่อไม่ให้ค้าง
+                                session()->remove('Return');
                                 
                                 return redirect()->to($redirectUrl);
                             // }

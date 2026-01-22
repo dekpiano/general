@@ -60,7 +60,7 @@
                     <span class="text-muted small d-none d-sm-block">ผู้ใช้งานทั่วไป</span>
                 </li>
                 <li class="nav-item">
-                    <a href="<?=base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>" 
+                    <a href="<?= base_url('LoginOfficerGeneral?return_to=' . urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]")) ?>" 
                        class="btn btn-primary btn-sm">
                         <i class="bx bx-log-in me-1"></i>
                         <span class="d-none d-sm-inline-block">เข้าสู่ระบบ</span>
