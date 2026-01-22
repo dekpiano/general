@@ -26,7 +26,7 @@
             padding-top: 0;
         }
         .document-header img {
-            width: 45px;
+            width: 8mm;
             height: auto;
         }
         .document-header h1 {
@@ -106,13 +106,10 @@
         /* Image Container */
         .image-container {
             text-align: center;
-            padding: 10px;
-            min-height: 120px;
+            padding: 5px;
         }
         .image-container img {
-            max-height: 110px;
-            max-width: 100%;
-            border: 1px solid #ccc;
+            /* Moved to inline style for mPDF compatibility */
         }
         .no-image {
             color: #999;
@@ -131,8 +128,8 @@
             padding: 10px 20px;
         }
         .signature-img {
-            height: 50px;
-            margin-bottom: 5px;
+            height: 18mm;
+            margin-bottom: 2px;
         }
         .signature-line {
             border-bottom: 1px dotted #000;
@@ -140,16 +137,17 @@
             margin: 0 auto 5px auto;
         }
         .signature-name {
-            font-size: 16px;
-            margin: 3px 0;
+            font-size: 18px;
+            margin: 2px 0;
+            font-weight: bold;
         }
         .signature-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             margin: 2px 0;
         }
         .signature-date {
-            font-size: 14px;
+            font-size: 16px;
             margin: 2px 0;
         }
         /* Footer */
@@ -165,25 +163,34 @@
 </head>
 <body>
     <div class="document-container">
-        <!-- Header -->
-        <div class="document-header">
-            <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="ตราโรงเรียน">
-            <h1>โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</h1>
-            <p>สังกัดองค์การบริหารส่วนจังหวัดนครสวรรค์</p>
-        </div>
+        <!-- New Streamlined Header -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+            <tr style="margin-bottom: 10px;">
+                
+                <td colspan="3"  style="width: 40%; text-align: center; vertical-align: middle;">
+                    <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" style="width: 16mm; height: auto;" alt="ตราโรงเรียน"><br>
+                    <b style="font-size: 18px;">โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</b><br>
+                    <small style="font-size: 12px;">สังกัดองค์การบริหารส่วนจังหวัดนครสวรรค์</small>
+                </td>
 
-        <!-- Document Info -->
-        <div class="document-info">
-            <div class="document-info-left">
-                <span class="document-number">เลขที่: <?=$RepairUser[0]->repair_order?></span>
-            </div>
-            <div class="document-info-right">
-                <span>วันที่: <?=$Datethai->thai_date_fullmonth(strtotime($RepairUser[0]->repair_datetime))?></span>
-            </div>
-        </div>
+            </tr>
+           
+            <tr>
+                <td style="width: 30%; vertical-align: bottom; font-size: 16px;">
+                    <b>เลขที่:</b> <?=$RepairUser[0]->repair_order?>
+                </td>
+                <td style="text-align: center; font-size: 24px; font-weight: bold; padding-bottom: 10px; padding-top: 20px;">
+                    ใบแจ้งซ่อม
+                </td>
+                <td style="width: 30%; text-align: right; vertical-align: bottom; font-size: 16px;">
+                    <b>วันที่:</b> <?=$Datethai->thai_date_fullmonth(strtotime($RepairUser[0]->repair_datetime))?>
+                </td>
+            </tr>
+        </table>
 
-        <!-- Title -->
-        <div class="document-title">ใบแจ้งซ่อม</div>
+        <!-- Thin separator line instead of thick border -->
+        <div style="border-bottom: 1px solid #000; margin-bottom: 15px;"></div>
+
 
         <!-- Section 1: ข้อมูลผู้แจ้ง -->
         <table class="content-table">
@@ -210,7 +217,7 @@
                 <th style="text-align: center;">รูปภาพประกอบ</th>
                 <td colspan="3" class="image-container">
                     <?php if(!empty($RepairUser[0]->repair_imguser)) : ?>
-                    <img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>">
+                    <img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>" style="max-height: 30mm; max-width: 80mm; border: 1px solid #ccc; object-fit: contain;">
                     <?php else: ?>
                     <span class="no-image">(ไม่มีรูปภาพประกอบ)</span>
                     <?php endif; ?>
@@ -263,7 +270,7 @@
                 <th style="text-align: center;">รูปภาพหลังซ่อม</th>
                 <td colspan="3" class="image-container">
                     <?php if(!empty($RepairUser[0]->repair_imgwork)) : ?>
-                    <img src="<?=base_url('uploads/admin/Repair/').$RepairUser[0]->repair_imgwork?>">
+                    <img src="<?=base_url('uploads/admin/Repair/').$RepairUser[0]->repair_imgwork?>" style="max-height: 40mm; max-width: 100mm; border: 1px solid #ccc; object-fit: contain;">
                     <?php else: ?>
                     <span class="no-image">(ไม่มีรูปภาพ)</span>
                     <?php endif; ?>
@@ -271,11 +278,7 @@
             </tr>
         </table>
 
-    </div>
-
-    <!-- Footer for mPDF -->
-    <htmlpagefooter name="MyFooter">
-        <table class="signature-table">
+          <table class="signature-table">
             <tr>
                 <td>
                     <?php if($RepairUser[0]->repair_usersignature) : ?>
@@ -301,6 +304,12 @@
                 </td>
             </tr>
         </table>
+
+    </div>
+
+    <!-- Footer for mPDF -->
+    <htmlpagefooter name="MyFooter">
+      
         
         <div class="document-footer">
             กลุ่มงานเทคโนโลยีสารสนเทศและงานเว็บไซต์ | โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
