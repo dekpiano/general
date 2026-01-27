@@ -61,4 +61,3 @@ class Datethai {
             return $thai_date_return;   
         } 
 }
-?>

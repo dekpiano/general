@@ -439,4 +439,9 @@
 </div>
 
 <?= $this->endSection() ?>
+ 
+<?= $this->section('customScripts') ?>
+<script src="<?= base_url('assets/js/User/UserCarReservation/UserCarReservation.js?v=' . time()) ?>"></script>
+<script src="<?= base_url('assets/js/User/UserCarReservation/UserCarReservationChart.js?v=' . time()) ?>"></script>
+<?= $this->endSection() ?>
 

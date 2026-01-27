@@ -69,6 +69,10 @@
     <script>
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(async function(OneSignal) {
+            if (window.location.hostname !== "general.skj.ac.th" && window.location.hostname !== "localhost" && !window.location.hostname.includes("127.0.0.1")) {
+                console.log("OneSignal disabled on this domain");
+                return;
+            }
             await OneSignal.init({
                 appId: "be488231-0e72-4fe0-962d-fcb32cb761e7", // ใส่ ID ที่คุณให้มาเรียบร้อยครับ
                 safari_web_id: "YOUR-SAFARI-WEB-ID", // ถ้ามี

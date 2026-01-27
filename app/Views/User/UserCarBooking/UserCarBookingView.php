@@ -93,10 +93,10 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-1">
                         <li class="breadcrumb-item"><a href="<?=base_url('CarBooking');?>" class="text-white-50">จองยานพาหนะ</a></li>
-                        <li class="breadcrumb-item active text-white">ประวัติการจอง</li>
+                        <li class="breadcrumb-item active text-white">ตารางการใช้รถ</li>
                     </ol>
                 </nav>
-                <h3 class="mb-0 fw-bold text-white">ประวัติการจองของฉัน</h3>
+                <h3 class="mb-0 fw-bold text-white">ตารางการจองยานพาหนะทั้งหมด</h3>
             </div>
             <i class='bx bxs-car fs-1 text-white-50'></i>
         </div>

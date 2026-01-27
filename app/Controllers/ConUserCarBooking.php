@@ -130,6 +130,7 @@ class ConUserCarBooking extends BaseController
             }
 
             $data[]=[
+                'car_reserv_id' => $value->car_reserv_id,
                 'car_reserv_order' => $value->car_reserv_order,
                 'car_reserv_carID' => $value->car_reserv_carID,
                 'car_registration' => $value->car_registration,
@@ -209,8 +210,7 @@ class ConUserCarBooking extends BaseController
 
         // Validation: Check if critical fields are present
         if(empty($order) || empty($memberID) || empty($carID) || empty($startDate) || empty($endDate)){
-            echo 0; // Return 0 (Error) if data is missing
-            return;
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ข้อมูลไม่ครบถ้วน']);
         }
         
         $Car_dateStart = $this->thaidate_to_mysql($startDate);
@@ -228,8 +228,7 @@ class ConUserCarBooking extends BaseController
             ->countAllResults();
             
         if($isOverlap > 0){
-             echo 0;
-             return;
+             return $this->response->setJSON(['status' => 'error', 'message' => 'มีการจองในช่วงเวลานี้แล้ว']);
         }
 
         $data = [
@@ -313,7 +312,9 @@ class ConUserCarBooking extends BaseController
                 $email->setMessage($html);
                 $email->send();
             }
-            echo 1;
+            return $this->response->setJSON(['status' => 'success', 'message' => 'บันทึกข้อมูลการจองเรียบร้อยแล้ว']);
+        } else {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่สามารถบันทึกข้อมูลได้']);
         }
 
     }
@@ -442,7 +443,17 @@ class ConUserCarBooking extends BaseController
        $DBpersonnel = $DBpers->table('tb_personnel');
 
        $S_data = $DBCarReservation->select('
-       skjacth_general.tb_car_reservation.*,
+        tb_car_reservation.car_reserv_id,
+        tb_car_reservation.car_reserv_order,
+        tb_car_reservation.car_reserv_memberID,
+        tb_car_reservation.car_reserv_driver,
+        tb_car_reservation.car_reserv_location,
+        tb_car_reservation.car_reserv_detail,
+        tb_car_reservation.car_reserv_status,
+        tb_car_reservation.car_reserv_StartDate,
+        tb_car_reservation.car_reserv_StartTime,
+        tb_car_reservation.car_reserv_EndDate,
+        tb_car_reservation.car_reserv_EndTime,
         skjacth_general.tb_school_car.car_img,
         skjacth_general.tb_school_car.car_registration,
         skjacth_general.tb_school_car.car_province,
@@ -530,7 +541,7 @@ class ConUserCarBooking extends BaseController
         
         // ตรวจสอบ session ก่อนดำเนินการ
         if (!isset($_SESSION['id'])) {
-            echo 0; return;
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Session expired']);
         }
         
         $database = \Config\Database::connect();
@@ -553,7 +564,6 @@ class ConUserCarBooking extends BaseController
                 skjacth_general.tb_car_reservation.car_reserv_EndDate,
                 skjacth_general.tb_car_reservation.car_reserv_order,
                 skjacth_personnel.tb_personnel.pers_prefix,
-                skjacth_personnel.tb_personnel.pers_firstname,
                 skjacth_personnel.tb_personnel.pers_firstname,
                 skjacth_personnel.tb_personnel.pers_lastname,
                 skjacth_personnel.tb_personnel.pers_username
@@ -600,9 +610,9 @@ class ConUserCarBooking extends BaseController
                     $email->send();
                 }
             }
-            echo 1;
+            return $this->response->setJSON(['status' => 'success', 'message' => 'อนุมัติการจองเรียบร้อยแล้ว']);
         } else {
-            echo 0;
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่สามารถดำเนินการได้']);
         }
     }
 
@@ -611,7 +621,7 @@ class ConUserCarBooking extends BaseController
         
         // ตรวจสอบ session ก่อนดำเนินการ
         if (!isset($_SESSION['id'])) {
-            echo 0; return;
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Session expired']);
         }
         
         $database = \Config\Database::connect();
@@ -672,9 +682,9 @@ class ConUserCarBooking extends BaseController
                 }
             }
 
-            echo 1;
+            return $this->response->setJSON(['status' => 'success', 'message' => 'ไม่อนุมัติการจองเรียบร้อยแล้ว']);
         } else {
-            echo 0;
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่สามารถดำเนินการได้']);
         }
     }
 
@@ -693,24 +703,32 @@ class ConUserCarBooking extends BaseController
             'car_reserv_approver' => ""
         );
         
-        $DBCarReservation->where('car_reserv_id', $this->request->getVar('carbookingID'));
         if($DBCarReservation->update($data)){
-            echo 1;
+            return $this->response->setJSON(['status' => 'success', 'message' => 'รีเซ็ตสถานะเรียบร้อยแล้ว']);
         } else {
-            echo 0;
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่สามารถดำเนินการได้']);
         }
     }
 
     public function CarBookingCancel(){
         $session = session();
         $database = \Config\Database::connect();
-        $DBbooking = $database->table('tb_booking');
+        $DBCarReservation = $database->table('tb_car_reservation');
+
+        $id = $this->request->getVar('car_reserv_id');
+        if(!$id){
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบ ID การจอง']);
+        }
 
         $data = [
-            'booking_admin_approve' => 'ยกเลิกโดยผู้จอง'
+            'car_reserv_status' => 'ไม่อนุมัติ' // หรือใช้สถานะ 'ยกเลิก' ถ้ามี
         ];        
-        $DBbooking->where('booking_id', $this->request->getVar('KeyID'));
-        echo $DBbooking->update($data);
+        $DBCarReservation->where('car_reserv_id', $id);
+        if($DBCarReservation->update($data)){
+            return $this->response->setJSON(['status' => 'success', 'message' => 'ยกเลิกการจองเรียบร้อยแล้ว']);
+        } else {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่สามารถยกเลิกได้']);
+        }
     }
 
     public function ShowTimeCarBooking(){
@@ -1143,24 +1161,26 @@ class ConUserCarBooking extends BaseController
         bookerPosi.posi_name AS BookerPosi,
         CONCAT(approver.pers_prefix,approver.pers_firstname,' ',approver.pers_lastname) AS ApproverName,
         approverPosi.posi_name AS ApproverPosi,
-        skjacth_general.tb_car_reservation.*,
+        tb_car_reservation.*,
         skjacth_general.tb_school_car.car_registration,
         skjacth_general.tb_school_car.car_province,
         skjacth_general.tb_school_car.car_category,
         skjacth_general.tb_school_car.car_brand,
         skjacth_general.tb_school_car.car_model
         ")
-        ->join('skjacth_personnel.tb_personnel AS driver','driver.pers_id = skjacth_general.tb_car_reservation.car_reserv_driver')
-        ->join('skjacth_personnel.tb_personnel AS booker','booker.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID')
-        ->join('skjacth_personnel.tb_personnel AS approver','approver.pers_id = skjacth_general.tb_car_reservation.car_reserv_approver')
-        ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
-        ->join('skjacth_skj.tb_position AS driverPosi','driverPosi.posi_id = driver.pers_position')
-        ->join('skjacth_skj.tb_position AS bookerPosi','bookerPosi.posi_id = booker.pers_position')
-        ->join('skjacth_skj.tb_position AS approverPosi','approverPosi.posi_id = approver.pers_position')
-        ->where('skjacth_general.tb_car_reservation.car_reserv_id',$KeyCarBooking)
+        ->join('skjacth_personnel.tb_personnel AS driver','driver.pers_id = tb_car_reservation.car_reserv_driver', 'left')
+        ->join('skjacth_personnel.tb_personnel AS booker','booker.pers_id = tb_car_reservation.car_reserv_memberID', 'left')
+        ->join('skjacth_personnel.tb_personnel AS approver','approver.pers_id = tb_car_reservation.car_reserv_approver', 'left')
+        ->join('skjacth_general.tb_school_car','skjacth_general.tb_school_car.car_ID = tb_car_reservation.car_reserv_carID', 'left')
+        ->join('skjacth_skj.tb_position AS driverPosi','driverPosi.posi_id = driver.pers_position', 'left')
+        ->join('skjacth_skj.tb_position AS bookerPosi','bookerPosi.posi_id = booker.pers_position', 'left')
+        ->join('skjacth_skj.tb_position AS approverPosi','approverPosi.posi_id = approver.pers_position', 'left')
+        ->where('tb_car_reservation.car_reserv_id',$KeyCarBooking)
         ->get()->getRow();
 
-       
+        if (!$ViewCarBooking) {
+            return "ไม่พบข้อมูลการจอง";
+        }
         $ExecutiveGeneral = $DBAdminRloe->select('
         CONCAT(skjacth_personnel.tb_personnel.pers_prefix,skjacth_personnel.tb_personnel.pers_firstname," ",skjacth_personnel.tb_personnel.pers_lastname) AS ExecutiveName,
         skjacth_skj.tb_position.posi_name,
@@ -1205,6 +1225,27 @@ class ConUserCarBooking extends BaseController
         
         $mpdf->SetTitle('ใบขออนุญาตใช้รถส่วนกลาง');
 
+        // Placeholder for null values
+        $ViewCarBooking->car_reserv_created_at = $ViewCarBooking->car_reserv_created_at ?? date('Y-m-d H:i:s');
+        $ViewCarBooking->BookerName = $ViewCarBooking->BookerName ?? '-';
+        $ViewCarBooking->BookerPosi = $ViewCarBooking->BookerPosi ?? '-';
+        $ViewCarBooking->car_reserv_location = $ViewCarBooking->car_reserv_location ?? '-';
+        $ViewCarBooking->car_reserv_detail = $ViewCarBooking->car_reserv_detail ?? '-';
+        $ViewCarBooking->car_reserv_number = $ViewCarBooking->car_reserv_number ?? '0';
+        $ViewCarBooking->DriverName = $ViewCarBooking->DriverName ?? '-';
+        $ViewCarBooking->DriverPosi = $ViewCarBooking->DriverPosi ?? '-';
+        $ViewCarBooking->car_brand = $ViewCarBooking->car_brand ?? '-';
+        $ViewCarBooking->car_registration = $ViewCarBooking->car_registration ?? '-';
+        $ViewCarBooking->car_province = $ViewCarBooking->car_province ?? '';
+
+        $ExecutiveGeneralName = $ExecutiveGeneral->ExecutiveName ?? '............................................';
+        $ExecutiveGeneralPosi = ($ExecutiveGeneral->posi_name ?? '-') . ' ' . ($ExecutiveGeneral->pers_academic ?? '');
+
+        $DeputyDirectorGeneralName = $DeputyDirectorGeneral->ExecutiveName ?? '............................................';
+        $DeputyDirectorGeneralPosi = ($DeputyDirectorGeneral->posi_name ?? '-') . ' ' . ($DeputyDirectorGeneral->pers_academic ?? '');
+        
+        $DeputyDirectorName = $DeputyDirector->ExecutiveName ?? '............................................';
+        
         $html = '
         <style>
         @page {
@@ -1237,15 +1278,17 @@ class ConUserCarBooking extends BaseController
             <div style="position: absolute;">
                 <div style="text-align:left;">
                     <div style="text-align:center;">(ลงชื่อ) ............................................ หัวหน้าฝ่ายบริหารทั่วไป</div>
-                    <div style="margin-left:40px;">('.$ExecutiveGeneral->ExecutiveName.')</div>
-                    <div style="margin-left:40px;">ตำแหน่ง '.$ExecutiveGeneral->posi_name.' '.$ExecutiveGeneral->pers_academic.'</div>
+                    <div style="margin-left:40px;">('.$ExecutiveGeneralName.')</div>
+                    <div style="margin-left:40px;">ตำแหน่ง '.$ExecutiveGeneralPosi.'</div>
                 </div>            
             </div>
 
             <div style="margin-top:5rem;">
-                <div>(ลงชื่อ) ............................................ หัวหน้าส่วนราชการประจำหน่วยการบริหารราชการส่วนท้องถิ่น/หรือผู้แทน</div>
-                <div style="margin-left:28px;">('.$DeputyDirectorGeneral->ExecutiveName.')</div>
-                <div style="margin-left:0px;">ตำแหน่ง '.$DeputyDirectorGeneral->posi_name.' '.$DeputyDirectorGeneral->pers_academic.'</div>
+                <div style="text-align:left;">
+                    <div style="text-align:center;">(ลงชื่อ) ............................................ รองผู้อำนวยการฝ่ายบริหารทั่วไป</div>
+                    <div style="margin-left:40px;">('.$DeputyDirectorGeneralName.')</div>
+                    <div style="margin-left:40px;">ตำแหน่ง '.$DeputyDirectorGeneralPosi.'</div>
+                </div>            
             </div>
 
             <div style="margin-top:1rem;">
@@ -1263,7 +1306,7 @@ class ConUserCarBooking extends BaseController
             <div style="margin-left:17rem;margin-top:40px;">
                 <div style="text-align:center;">
                     <div>(ลงชื่อ) ............................................ ผู้อนุญาต</div>
-                    <div style="margin-left:-20px;">('.$DeputyDirector->ExecutiveName.')</div>
+                    <div style="margin-left:-20px;">('.$DeputyDirectorName.')</div>
                     <div style="margin-left:-30px; font-size:17px;">
                     ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
                     </div>
