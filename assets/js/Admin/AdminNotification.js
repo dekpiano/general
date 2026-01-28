@@ -19,19 +19,40 @@ $(document).ready(function() {
         $.ajax({
             url: BASE_URL + '/Admin/Notifications/getPending',
             method: 'GET',
-            data: { system: currentSystem }, // Pass current system to filter
+            data: { system: currentSystem },
             dataType: 'json',
+            cache: false, // Prevent caching issues on mobile
             success: function(response) {
                 list.empty();
                 if (response.status === 'success') {
                     const data = response.data;
                     const totalCount = response.totalCount;
 
+                    // Update all badge instances (ID and Class)
+                    const allBadges = $('#notification-badge, .badge-notifications');
                     if (totalCount > 0) {
-                        badge.text(totalCount).show();
+                        allBadges.text(totalCount).fadeIn(200);
+                        
+                        // Set App Badge (PWA Icon Badge)
+                        if ('setAppBadge' in navigator) {
+                            navigator.setAppBadge(totalCount).catch((error) => {
+                                console.error('App badge error:', error);
+                            });
+                        }
                     } else {
-                        badge.hide();
+                        allBadges.hide();
+                        
+                        // Clear App Badge
+                        if ('clearAppBadge' in navigator) {
+                            navigator.clearAppBadge().catch((error) => {
+                                console.error('App badge clear error:', error);
+                            });
+                        }
                     }
+
+                    // Update dropdown header if exists
+                    const header = $('.dropdown-notifications-all-count');
+                    if (header.length) header.text(totalCount);
 
                     let hasData = false;
                     
@@ -45,7 +66,6 @@ $(document).ready(function() {
                         const items = data[sys.key];
                         if (items && items.length > 0) {
                             hasData = true;
-                            // Add System Heading
                             list.append(`
                                 <li class="dropdown-header d-flex align-items-center py-2 bg-light">
                                     <i class="bi ${sys.icon} me-2 text-primary"></i>
@@ -58,8 +78,8 @@ $(document).ready(function() {
                                 let colorClass = noti.color || 'bg-primary';
                                 
                                 let item = `
-                                    <li>
-                                        <a class="dropdown-item d-flex align-items-center py-3 border-bottom" href="${noti.link}">
+                                    <li class="list-group-item list-group-item-action dropdown-notifications-item">
+                                        <a class="d-flex align-items-center py-2" href="${noti.link}">
                                             <div class="flex-shrink-0 me-3">
                                                 <div class="avatar">
                                                     <span class="avatar-initial rounded-circle ${colorClass}">
@@ -68,8 +88,8 @@ $(document).ready(function() {
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold text-wrap" style="max-width: 250px;">${noti.title}</h6>
-                                                <small class="text-muted d-block small">${noti.time}</small>
+                                                <h6 class="mb-1 fw-bold text-wrap" style="max-width: 250px; font-size: 0.85rem;">${noti.title}</h6>
+                                                <small class="text-muted d-block" style="font-size: 0.75rem;">${noti.time}</small>
                                             </div>
                                         </a>
                                     </li>
@@ -80,10 +100,10 @@ $(document).ready(function() {
                     });
 
                     if (!hasData) {
-                        list.append('<li><a class="dropdown-item text-center py-4" href="javascript:void(0);"><i class="bi bi-check2-circle fs-2 text-success d-block mb-2"></i>ไม่มีรายการรออนุมัติ</a></li>');
+                        list.append('<li><div class="dropdown-item text-center py-4"><i class="bi bi-check2-circle fs-2 text-success d-block mb-2"></i>ไม่มีรายการรออนุมัติ</div></li>');
                     } else {
                         list.append(`
-                            <li>
+                            <li class="dropdown-menu-footer border-top">
                                 <a class="dropdown-item text-center text-primary fw-bold py-3" href="javascript:void(0);">
                                     ดูทั้งหมด (${totalCount})
                                 </a>
@@ -91,8 +111,8 @@ $(document).ready(function() {
                         `);
                     }
                 } else {
-                    badge.hide();
-                    list.append(`<li><a class="dropdown-item text-center text-danger py-3" href="javascript:void(0);">เกิดข้อผิดพลาด: ${response.message}</a></li>`);
+                    allBadges.hide();
+                    list.append(`<li><div class="dropdown-item text-center text-danger py-3">เกิดข้อผิดพลาด: ${response.message}</div></li>`);
                 }
             },
             error: function(xhr, status, error) {

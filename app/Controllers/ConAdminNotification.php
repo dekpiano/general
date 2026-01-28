@@ -62,9 +62,9 @@ class ConAdminNotification extends BaseController
                 }
                 $carCount = $database->table('tb_car_reservation')
                     ->whereNotIn('car_reserv_status', ['อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก'])
-                    ->distinct()
-                    ->countAllResults('car_reserv_order');
-                $totalCount += $carCount;
+                    ->select('COUNT(DISTINCT car_reserv_order) as total')
+                    ->get()->getRow()->total;
+                $totalCount += (int)$carCount;
             }
 
             // 2. Room Bookings
@@ -95,9 +95,9 @@ class ConAdminNotification extends BaseController
                 }
                 $roomCount = $database->table('tb_booking')
                     ->whereNotIn('booking_admin_approve', ['อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก'])
-                    ->distinct()
-                    ->countAllResults('booking_order');
-                $totalCount += $roomCount;
+                    ->select('COUNT(DISTINCT booking_order) as total')
+                    ->get()->getRow()->total;
+                $totalCount += (int)$roomCount;
             }
 
             // 3. Repair Requests
@@ -128,9 +128,9 @@ class ConAdminNotification extends BaseController
                 }
                 $repairCount = $database->table('tb_repair')
                     ->where('repair_status', 'รอดำเนินการ')
-                    ->distinct()
-                    ->countAllResults('repair_order');
-                $totalCount += $repairCount;
+                    ->select('COUNT(DISTINCT repair_order) as total')
+                    ->get()->getRow()->total;
+                $totalCount += (int)$repairCount;
             }
 
             return $this->response->setJSON([

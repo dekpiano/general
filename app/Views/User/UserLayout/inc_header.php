@@ -50,7 +50,7 @@
     <link rel="stylesheet" href="<?=base_url('assets/vendor/css/core.css')?>" class="template-customizer-core-css" />
     <link rel="stylesheet" href="<?=base_url('assets/vendor/css/theme-default.css')?>"
         class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="<?=base_url('assets/css/demo.css?v=1')?>" />
+    <link rel="stylesheet" href="<?=base_url('assets/css/demo.css?v=2')?>" />
     <link rel="stylesheet" href="<?=base_url('assets/css/flatpickr.css?v=3')?>" />
     <link rel="stylesheet" href="<?=base_url('assets/css/select2.css?v=2')?>" />
     <link rel="stylesheet" href="<?=base_url('assets/css/user-repair.css?v=2')?>" />

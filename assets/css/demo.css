@@ -19,7 +19,9 @@
   text-transform: lowercase;
 }
 
-.layout-navbar-fixed .layout-wrapper:not(.layout-horizontal):not(.layout-without-menu) .layout-page {
+.layout-navbar-fixed
+  .layout-wrapper:not(.layout-horizontal):not(.layout-without-menu)
+  .layout-page {
   padding-top: 76px !important;
 }
 
@@ -69,4 +71,47 @@
 .layout-demo-info {
   text-align: center;
   margin-top: 1rem;
+}
+/* Custom Notification Badge Positioning by Device */
+
+/* 1. Desktop (Large Devices) */
+@media (min-width: 1200px) {
+  .badge-notifications {
+    top: -2px !important;
+    right: -2px !important;
+    font-size: 0.6rem !important;
+    padding: 0.35em 0.5em !important;
+  }
+}
+
+/* 2. Tablet (Medium Devices) */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .badge-notifications {
+    top: -3px !important;
+    right: -10px !important;
+    font-size: 0.65rem !important;
+    padding: 0.4em 0.6em !important;
+  }
+}
+
+/* 3. Phone (Small Devices) */
+@media (max-width: 767.98px) {
+      .badge-notifications {
+        top: 5px !important;
+        right: 60px !important;
+        font-size: 0.7rem !important;
+        padding: 0.45em 0.7em !important;
+        box-shadow: 0 0 0 2px #fff;
+    }
+}
+
+.badge-notifications {
+  position: absolute !important;
+  border: 1.5px solid #fff;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  min-height: 18px;
 }

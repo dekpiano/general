@@ -18,18 +18,19 @@
             <!-- /Title -->
 
             <ul class="navbar-nav flex-row align-items-center ms-auto">
-                <?php if(isset($_SESSION['username'])): ?>
+                <?php if(isset($_SESSION['username']) && (isset($_SESSION['rloes']) && $_SESSION['rloes'] != '' || in_array(@$_SESSION['status'], ['AdminGeneral', 'ManagerGeneral', 'ExecutiveGeneral', 'admin']))): ?>
                 <!-- Notifications -->
                 <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
                     <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown"
                         data-bs-auto-close="outside" aria-expanded="false">
                         <i class="bi bi-bell fs-4"></i>
-                        <span id="notification-badge" class="badge bg-danger rounded-pill badge-notifications" style="display:none; position: absolute; top: -5px; right: -5px; font-size: 0.65rem;">0</span>
+                        <span id="notification-badge" class="badge bg-danger rounded-pill badge-notifications" style="display:none;">0</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end py-0" style="min-width: 320px; max-height: 500px; overflow-y: auto;">
                         <li class="dropdown-menu-header border-bottom">
                             <div class="dropdown-header d-flex align-items-center py-3">
                                 <h5 class="text-body mb-0 me-auto fw-bold">การแจ้งเตือน Admin</h5>
+                                <span class="badge bg-label-primary dropdown-notifications-all-count">0</span>
                             </div>
                         </li>
                         <li class="dropdown-notifications-list">
@@ -52,9 +53,9 @@
                 </li>
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                     <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
-                        <div class="avatar avatar-online shadow-sm" style="width: 38px; height: 38px;">
+                        <div class="avatar avatar-online" style="width: 38px; height: 38px; background: transparent !important;">
                             <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?=@$_SESSION['pers_img']?>"
-                                alt="User Avatar" class="rounded-circle border-white border-2 object-fit-cover w-100 h-100">
+                                alt="User Avatar" class="rounded-circle object-fit-cover w-100 h-100">
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -62,7 +63,7 @@
                             <div class="dropdown-item">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0 me-3">
-                                        <div class="avatar avatar-online" style="width: 45px; height: 45px;">
+                                        <div class="avatar avatar-online" style="width: 45px; height: 45px; background: transparent !important;">
                                             <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?=@$_SESSION['pers_img']?>"
                                                 alt="User Avatar" class="rounded-circle object-fit-cover w-100 h-100">
                                         </div>
