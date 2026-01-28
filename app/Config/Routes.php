@@ -149,6 +149,8 @@ $routes->post('FoodReport/delete', 'ConUserFoodReport::foodReportDelete');
 
 $routes->get('check-vendor', 'ConUserFoodReport::checkVendor');
 
+$routes->get('Admin/Notifications/getPending', 'ConAdminNotification::getPendingNotifications');
+
 $routes->post('Webhook', 'Webhook::index');
 /*
  * --------------------------------------------------------------------

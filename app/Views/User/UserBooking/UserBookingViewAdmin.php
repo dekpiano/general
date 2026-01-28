@@ -21,26 +21,61 @@
 
     /* Modern Banner Styling */
     .admin-banner {
-        background: var(--primary-gradient);
-        border-radius: 12px;
-        padding: 1.5rem;
-        color: white;
-        margin-bottom: 2rem;
+        background: #fff;
+        border-radius: 20px;
+        padding: 0;
+        margin-bottom: 2.5rem;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 10px 30px rgba(105, 108, 255, 0.15);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid #f1f4f9;
+        display: flex;
     }
 
-    .admin-banner::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 300px;
-        height: 300px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 50%;
-        z-index: 1;
+    .banner-accent {
+        width: 10px;
+        background: var(--primary-gradient);
+    }
+
+    .banner-body {
+        padding: 2rem;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .banner-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .banner-icon-box {
+        width: 60px;
+        height: 60px;
+        background: #f8faff;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #696cff;
+        border: 1px solid #eef2f7;
+    }
+
+    .banner-text h3 {
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+    }
+
+    .banner-text p {
+        color: #7f8c8d;
+        margin-bottom: 0;
+    }
+
+    .banner-img {
+        height: 80px;
     }
 
     /* Compact Stats Cards */
@@ -158,13 +193,21 @@
 
 <div class="container-xxl flex-grow-1 container-p-y admin-view-content-lux">
     <!-- Banner Header -->
-    <div class="admin-banner d-flex align-items-center justify-content-between">
-        <div class="z-px-2">
-            <h3 class="fw-bold text-white mb-1"><i class='bx bxs-buildings me-2'></i>จัดการอนุมัติห้องประชุมและสถานที่</h3>
-            <p class="mb-0 text-white opacity-75">ตรวจสอบ ติดตาม และอนุมัติรายการขอใช้สถานที่ทั้งหมดของโรงเรียน</p>
-        </div>
-        <div class="d-none d-md-block z-px-2">
-            <img src="<?=base_url('assets/img/illustrations/man-with-laptop-light.png')?>" height="100" alt="Admin Illustration">
+    <div class="admin-banner shadow-sm">
+        <div class="banner-accent"></div>
+        <div class="banner-body">
+            <div class="banner-info">
+                <div class="banner-icon-box">
+                    <i class='bx bxs-buildings'></i>
+                </div>
+                <div class="banner-text">
+                    <h3 class="fw-bold mb-1">จัดการอนุมัติห้องประชุมและสถานที่</h3>
+                    <p>ตรวจสอบ ติดตาม และอนุมัติรายการขอใช้สถานที่ทั้งหมดของโรงเรียน</p>
+                </div>
+            </div>
+            <div class="d-none d-md-block">
+                <img src="<?=base_url('assets/img/illustrations/man-with-laptop-light.png')?>" class="banner-img" alt="Admin Illustration">
+            </div>
         </div>
     </div>
 

@@ -19,6 +19,34 @@
 
             <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <?php if(isset($_SESSION['username'])): ?>
+                <!-- Notifications -->
+                <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
+                    <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside" aria-expanded="false">
+                        <i class="bi bi-bell fs-4"></i>
+                        <span id="notification-badge" class="badge bg-danger rounded-pill badge-notifications" style="display:none; position: absolute; top: -5px; right: -5px; font-size: 0.65rem;">0</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end py-0" style="min-width: 320px; max-height: 500px; overflow-y: auto;">
+                        <li class="dropdown-menu-header border-bottom">
+                            <div class="dropdown-header d-flex align-items-center py-3">
+                                <h5 class="text-body mb-0 me-auto fw-bold">การแจ้งเตือน Admin</h5>
+                            </div>
+                        </li>
+                        <li class="dropdown-notifications-list">
+                            <ul class="list-group list-group-flush" id="notification-list">
+                                <li class="list-group-item list-group-item-action dropdown-notifications-item text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">กำลังโหลด...</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <!--/ Notifications -->
+                <?php endif; ?>
+
+                <?php if(isset($_SESSION['username'])): ?>
                 <li class="nav-item me-2 d-none d-sm-block">
                     <span class="badge rounded-pill bg-success">กำลังใช้งาน</span>
                 </li>

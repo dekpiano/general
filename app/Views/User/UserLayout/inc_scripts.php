@@ -22,6 +22,11 @@
     <script src="<?=base_url()?>/assets/js/dashboards-analytics.js"></script>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.15/index.global.min.js"></script>
+    
+    <?php if(isset($_SESSION['username'])): ?>
+    <!-- Admin Notifications Logic -->
+    <script src="<?=base_url()?>/assets/js/Admin/AdminNotification.js?v=1.3"></script>
+    <?php endif; ?>
 
     <!-- Page-specific scripts -->
     <?php if($uri->getSegment(1) == 'Booking') : ?>

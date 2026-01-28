@@ -445,6 +445,7 @@ class ConUserCarBooking extends BaseController
        $S_data = $DBCarReservation->select('
         tb_car_reservation.car_reserv_id,
         tb_car_reservation.car_reserv_order,
+        tb_car_reservation.car_reserv_carID,
         tb_car_reservation.car_reserv_memberID,
         tb_car_reservation.car_reserv_driver,
         tb_car_reservation.car_reserv_location,

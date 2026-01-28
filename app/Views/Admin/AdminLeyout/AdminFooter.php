@@ -74,6 +74,7 @@
     <?php if($uri->getSegment(2) == 'Car') : ?>
     <script src="<?=base_url()?>/assets/js/Admin/AdminCar/AdminCarMain.js?v=1.6"></script>
     <?php endif;?>
+    <script src="<?=base_url()?>/assets/js/Admin/AdminNotification.js?v=1.0"></script>
 
     <script>
 // Example starter JavaScript for disabling form submissions if there are invalid fields

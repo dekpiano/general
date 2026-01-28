@@ -30,56 +30,82 @@
 
     /* Page Header Upgraded */
     .page-header-premium {
-        background: var(--primary-gradient);
+        background: #fff;
         border-radius: 24px;
-        padding: 2.5rem;
-        margin-bottom: 2rem;
+        padding: 0;
+        margin-bottom: 2.5rem;
         position: relative;
         overflow: hidden;
-        color: white;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border: 1px solid #f1f4f9;
+        display: flex;
     }
 
-    .page-header-premium::after {
-        content: '';
-        position: absolute;
-        top: -100px;
-        right: -100px;
-        width: 300px;
-        height: 300px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        z-index: 1;
+    .header-accent {
+        width: 12px;
+        background: var(--primary-gradient);
     }
 
-    .page-header-premium::before {
-        content: '';
-        position: absolute;
-        bottom: -50px;
-        left: -50px;
-        width: 150px;
-        height: 150px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 50%;
-        z-index: 1;
-    }
-
-    .header-content {
+    .header-body {
+        padding: 2.5rem;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         position: relative;
-        z-index: 2;
     }
 
-    .header-icon {
-        width: 64px;
-        height: 64px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
+    .header-info {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .header-icon-box {
+        width: 80px;
+        height: 80px;
+        background: #f8faff;
+        border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
+        font-size: 2.5rem;
+        color: #667eea;
+        transition: all 0.3s;
+        border: 1px solid #eef2f7;
+    }
+
+    .page-header-premium:hover .header-icon-box {
+        transform: rotate(10deg);
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .header-text h2 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .header-text p {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+
+    .header-actions {
+        text-align: right;
+    }
+
+    .header-date-badge {
+        background: #f8faff;
+        color: #667eea;
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
         margin-bottom: 1rem;
+        display: inline-block;
+        border: 1px solid #eef2f7;
     }
 
     /* Quick Action Cards */
@@ -243,25 +269,26 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     
     <!-- Header -->
-    <div class="page-header-premium mb-5">
-        <div class="header-content">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <div class="header-icon">
-                        <i class='bx bxs-car-garage'></i>
-                    </div>
-                    <h2 class="fw-bold mb-2">จัดการการจองยานพาหนะ</h2>
-                    <p class="mb-0 opacity-75">ตรวจสอบ และอนุมัติรายการขอใช้รถยนต์ส่วนกลางของบุคลากร</p>
+    <div class="page-header-premium">
+        <div class="header-accent"></div>
+        <div class="header-body">
+            <div class="header-info">
+                <div class="header-icon-box shadow-sm">
+                    <i class='bx bxs-car-garage'></i>
                 </div>
-                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                    <button class="btn btn-white btn-lg rounded-pill shadow-sm px-4" onclick="location.reload()">
-                        <i class='bx bx-refresh me-2'></i> รีโหลดข้อมูล
+                <div class="header-text">
+                    <h2 class="fw-bold mb-1">จัดการการจองยานพาหนะ สำหรับผู้ดูแล</h2>
+                    <p class="mb-0">ตรวจสอบ ตรวจทาน และอนุมัติรายการขอใช้รถยนต์ส่วนกลาง</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="header-date-badge">
+                    <i class='bx bx-calendar-star me-1'></i> วันนี้: <?= date('d F Y') ?>
+                </div>
+                <div>
+                    <button class="btn btn-primary btn-lg rounded-pill shadow-primary px-4" onclick="location.reload()">
+                        <i class='bx bx-refresh me-1'></i> อัปเดตข้อมูล
                     </button>
-                    <div class="mt-3">
-                        <span class="badge bg-white/20 p-2 px-3 rounded-pill">
-                            <i class='bx bx-calendar me-1'></i> <?= date('d M Y') ?>
-                        </span>
-                    </div>
                 </div>
             </div>
         </div>

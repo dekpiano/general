@@ -43,6 +43,7 @@
     <!-- Helpers -->
     <script src="<?=base_url()?>/assets/vendor/js/helpers.js"></script>
     <script src="<?=base_url()?>/assets/js/config.js"></script>
+    <script>const BASE_URL = '<?= base_url() ?>';</script>
 </head>
 
 <body style="font-family:'Sarabun'">
