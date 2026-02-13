@@ -520,8 +520,7 @@ class ConUserBooking extends BaseController
            
         }
       
-       $DBbooking
-        ->select('booking_order,booking_telephone,booking_title,booking_locationroom,booking_Booker,booking_admin_approve,booking_admin_reason,booking_id,location_name,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
+        $DBbooking->select('booking_order,booking_telephone,booking_title,booking_locationroom,booking_Booker,booking_admin_approve,booking_admin_reason,booking_id,location_name,location_img,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
         $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
         $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
         $data['Booking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
