@@ -697,4 +697,156 @@ class ConUserRepair extends BaseController
 
         return $this->response->setJSON($data);
     }
+
+    /**
+     * API: ดึงรายการแจ้งซ่อมทั้งหมด (รองรับการกรองตามปี และสถานะ)
+     */
+    public function getRepairList()
+    {
+        $database = \Config\Database::connect();
+        $builder = $database->table('tb_repair');
+        $Datethai = new Datethai();
+
+        $year = $this->request->getVar('year') ?? date('Y');
+        $status = $this->request->getVar('status');
+
+        $builder->select('
+            tb_repair.repair_ID, 
+            tb_repair.repair_order, 
+            tb_repair.repair_datetime, 
+            tb_repair.repair_userID, 
+            tb_repair.repair_phone, 
+            tb_repair.repair_caselist, 
+            tb_repair.repair_status, 
+            tb_repair.repair_building, 
+            tb_repair.repair_class, 
+            tb_repair.repair_room,
+            tb_repair.repair_detail,
+            tb_repair.repair_cause,
+            tb_repair.repair_imguser,
+            tb_repair.repair_imgwork,
+            tb_personnel.pers_prefix, 
+            tb_personnel.pers_firstname, 
+            tb_personnel.pers_lastname
+        ');
+        $builder->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id');
+        $builder->where("YEAR(tb_repair.repair_datetime)", $year);
+
+        if (!empty($status)) {
+            $builder->where('tb_repair.repair_status', $status);
+        }
+
+        $builder->orderBy('tb_repair.repair_order', 'DESC');
+        $results = $builder->get()->getResult();
+
+        $data = [];
+        foreach ($results as $row) {
+            $data[] = [
+                "id" => $row->repair_ID,
+                "order_no" => $row->repair_order,
+                "datetime" => $row->repair_datetime,
+                "datetime_th" => $Datethai->thai_date_fullmonth(strtotime($row->repair_datetime)),
+                "user_id" => $row->repair_userID,
+                "user_fullname" => $row->pers_prefix . $row->pers_firstname . ' ' . $row->pers_lastname,
+                "phone" => $row->repair_phone,
+                "category" => $row->repair_caselist,
+                "detail" => $row->repair_detail,
+                "repair_cause" => $row->repair_cause,
+                "status" => $row->repair_status,
+                "location" => [
+                    "building" => $row->repair_building,
+                    "class" => $row->repair_class,
+                    "room" => $row->repair_room
+                ],
+                "images" => [
+                    "user_upload" => $row->repair_imguser ? base_url('uploads/admin/Repair/User/' . $row->repair_imguser) : null,
+                    "work_finish" => $row->repair_imgwork ? base_url('uploads/admin/Repair/' . $row->repair_imgwork) : null
+                ]
+            ];
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'count' => count($data),
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * API: ดึงรายละเอียดการแจ้งซ่อมตาม ID หรือ Order Number
+     */
+    public function getRepairDetail($id)
+    {
+        $database = \Config\Database::connect();
+        $DBpers = \Config\Database::connect('personnel');
+        $builder = $database->table('tb_repair');
+        $Datethai = new Datethai();
+
+        $builder->select('tb_repair.*, tb_position.posi_name, tb_personnel.pers_prefix, tb_personnel.pers_firstname, tb_personnel.pers_lastname');
+        $builder->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id');
+        $builder->join('skjacth_skj.tb_position', 'tb_repair.repair_posi = tb_position.posi_id');
+        
+        if (is_numeric($id)) {
+            $builder->where('repair_ID', $id);
+        } else {
+            $builder->where('repair_order', $id);
+        }
+        
+        $repair = $builder->get()->getRow();
+
+        if (!$repair) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'ไม่พบข้อมูลการแจ้งซ่อมที่ระบุ'
+            ])->setStatusCode(404);
+        }
+
+        // ดึงชื่อช่าง (ถ้ามี)
+        $repairmanName = "รอดำเนินการ";
+        if (!empty($repair->repair_Repairman)) {
+            $repairman = $DBpers->table('tb_personnel')
+                ->select("CONCAT(pers_prefix, pers_firstname, ' ', pers_lastname) AS fullname")
+                ->where('pers_id', $repair->repair_Repairman)
+                ->get()
+                ->getRow();
+            if ($repairman) {
+                $repairmanName = $repairman->fullname;
+            }
+        }
+
+        $data = [
+            "id" => $repair->repair_ID,
+            "order_no" => $repair->repair_order,
+            "datetime" => $repair->repair_datetime,
+            "datetime_th" => $Datethai->thai_date_fullmonth(strtotime($repair->repair_datetime)),
+            "user" => [
+                "id" => $repair->repair_userID,
+                "fullname" => $repair->pers_prefix . $repair->pers_firstname . ' ' . $repair->pers_lastname,
+                "phone" => $repair->repair_phone,
+                "position" => $repair->posi_name
+            ],
+            "category" => $repair->repair_caselist,
+            "detail" => $repair->repair_detail,
+            "status" => $repair->repair_status,
+            "location" => [
+                "building" => $repair->repair_building,
+                "class" => $repair->repair_class,
+                "room" => $repair->repair_room
+            ],
+            "repairman" => $repairmanName,
+            "date_work" => $repair->repair_datework,
+            "cause" => $repair->repair_cause,
+            "images" => [
+                "user_upload" => $repair->repair_imguser ? base_url('uploads/admin/Repair/User/' . $repair->repair_imguser) : null,
+                "work_finish" => $repair->repair_imgwork ? base_url('uploads/admin/Repair/' . $repair->repair_imgwork) : null,
+                "user_signature" => $repair->repair_usersignature ?: null,
+                "admin_signature" => $repair->repair_adminsignature ?: null
+            ]
+        ];
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
 }

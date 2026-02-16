@@ -98,6 +98,8 @@ $routes->get('Repair/View/(:any)', 'ConUserRepair::ViewOrder/$1');
 $routes->get('Repair/RepairStatistics', 'ConUserRepair::RepairStatistics');
 $routes->match(['get', 'post'],'Repair/DB/CleanupImages', 'ConUserRepair::CleanupImages');
 $routes->match(['get', 'post'],'Repair/DB/StatisticsCaselist', 'ConUserRepair::RepairStatisticsCaselist');
+$routes->get('Repair/Api/getRepairList', 'ConUserRepair::getRepairList');
+$routes->get('Repair/Api/getRepairDetail/(:any)', 'ConUserRepair::getRepairDetail/$1');
 
 $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
 //$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
