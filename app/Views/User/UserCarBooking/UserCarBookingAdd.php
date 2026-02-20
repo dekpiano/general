@@ -324,13 +324,20 @@
         };
 
         const datePickerConfig = {
-            dateFormat: "d/m/Y",
+            altInput: true,
+            altFormat: "d/m/Y",
+            dateFormat: "Y-m-d",
             allowInput: false,
             formatDate: (date, format, locale) => {
-                let day = String(date.getDate()).padStart(2, '0');
-                let month = String(date.getMonth() + 1).padStart(2, '0');
-                let year = date.getFullYear() + 543;
-                return `${day}/${month}/${year}`;
+                // If formatting for the display (altInput), use BE year
+                if (format === "d/m/Y") {
+                    let day = String(date.getDate()).padStart(2, '0');
+                    let month = String(date.getMonth() + 1).padStart(2, '0');
+                    let year = date.getFullYear() + 543;
+                    return `${day}/${month}/${year}`;
+                }
+                // Otherwise use the default Flatpickr formatting
+                return flatpickr.formatDate(date, format);
             },
             onChange: checkAvailability
         };

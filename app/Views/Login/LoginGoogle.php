@@ -3,129 +3,240 @@
 <?= $this->section('customCSS') ?>
 <style>
     .login-page-wrapper {
-        min-height: 80vh;
+        min-height: 90vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 2rem;
+        background: radial-gradient(circle at top right, #f8f9ff 0%, #eef2f7 100%);
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Floating blobs for premium background */
+    .login-page-wrapper::before,
+    .login-page-wrapper::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+    }
+    .login-page-wrapper::before {
+        width: 300px; height: 300px;
+        background: rgba(105, 108, 255, 0.1);
+        top: -100px; left: -100px;
+    }
+    .login-page-wrapper::after {
+        width: 250px; height: 250px;
+        background: rgba(3, 195, 236, 0.1);
+        bottom: -50px; right: -50px;
     }
 
     .login-card {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        padding: 3rem;
-        max-width: 450px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 28px;
+        box-shadow: 0 25px 50px -12px rgba(105, 108, 255, 0.15);
+        padding: 3.5rem 2.5rem;
+        max-width: 480px;
         width: 100%;
         text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        animation: fadeIn 0.8s ease-out;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        position: relative;
+        z-index: 1;
+        animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes cardAppear {
+        from { opacity: 0; transform: translateY(30px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .login-logo-container {
+        position: relative;
+        margin-bottom: 2rem;
+        display: inline-block;
     }
 
     .login-logo {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(45deg, #696cff, #8592a3);
-        border-radius: 50%;
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, #696cff 0%, #3f4191 100%);
+        border-radius: 24px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 1.5rem;
+        margin: 0 auto;
         color: white;
-        font-size: 2.5rem;
-        box-shadow: 0 5px 15px rgba(105, 108, 255, 0.4);
+        font-size: 2.8rem;
+        box-shadow: 0 10px 25px -5px rgba(105, 108, 255, 0.4);
+        transform: rotate(-5deg);
+        transition: transform 0.3s ease;
+    }
+
+    .login-card:hover .login-logo {
+        transform: rotate(0deg) scale(1.05);
     }
 
     .login-title {
         font-family: 'Prompt', sans-serif;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.5rem;
+        font-weight: 700;
+        color: #2b3a4a;
+        margin-bottom: 0.75rem;
+        font-size: 1.75rem;
     }
 
     .login-subtitle {
-        color: #666;
-        margin-bottom: 2rem;
-        font-size: 0.95rem;
+        color: #697a8d;
+        margin-bottom: 2.5rem;
+        font-size: 1rem;
+        line-height: 1.6;
     }
 
-    /* Target the Google Button passed from controller */
+    /* Login Action Area */
+    .login-action-box {
+        background: #f8faff;
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px dashed #d4d8e1;
+        margin-bottom: 2rem;
+    }
+
+    .login-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #696cff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Enhanced Google Button */
     .login-card a.btn {
         width: 100% !important;
         margin-right: 0 !important;
-        padding: 12px 20px;
-        font-size: 1rem;
-        font-weight: 500;
-        border-radius: 50px;
-        background: white;
-        color: #444;
-        border: 1px solid #ddd;
+        padding: 16px 24px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 16px;
+        background: #fff;
+        color: #3c4043;
+        border: 1px solid #dadce0;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        gap: 12px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .login-card a.btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-        background: #f8f9fa;
-        border-color: #cdd1e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        background: #fff;
+        border-color: #696cff;
+        color: #696cff;
     }
 
     .login-card a.btn i {
-        font-size: 1.4rem;
-        color: #db4437; /* Google Red */
+        font-size: 1.5rem;
+        color: #ea4335; /* Google Identity Red */
     }
 
     /* Error Alert Styling */
     .error-alert {
-        background: linear-gradient(135deg, rgba(255, 62, 29, 0.1) 0%, rgba(255, 62, 29, 0.05) 100%);
-        border: 1px solid rgba(255, 62, 29, 0.3);
-        border-radius: 12px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
+        background: #fff5f5;
+        border: 1px solid #ffe2e2;
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
         text-align: left;
+        border-left: 5px solid #ff3e1d;
     }
 
     .error-alert i {
         color: #ff3e1d;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
     }
 
     .error-alert .error-title {
-        color: #ff3e1d;
-        font-weight: 600;
-        font-size: 0.9rem;
+        color: #b91c1c;
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
     }
 
     .error-alert .error-email {
-        color: #566a7f;
-        font-size: 0.8rem;
-        background: rgba(0,0,0,0.05);
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-        margin-top: 4px;
+        color: #7f8c8d;
+        font-size: 0.85rem;
+        font-family: monospace;
+        word-break: break-all;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* Footer Info */
+    .login-footer {
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
     }
+
+    .help-link {
+        color: #696cff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .help-link:hover { text-decoration: underline; }
 
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
-        20%, 60% { transform: translateX(-5px); }
-        40%, 80% { transform: translateX(5px); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
     }
 
     .shake-animation {
-        animation: shake 0.5s ease-in-out;
+        animation: shake 0.4s ease-in-out 0s 2;
+    }
+
+    /* Mobile Responsiveness Improvements */
+    @media (max-width: 576px) {
+        .login-page-wrapper {
+            padding: 1rem;
+            align-items: flex-start; /* Start from top on small phones */
+            padding-top: 10vh;
+        }
+
+        .login-card {
+            padding: 2.5rem 1.5rem;
+            border-radius: 24px;
+        }
+
+        .login-logo {
+            width: 70px;
+            height: 70px;
+            font-size: 2.2rem;
+            border-radius: 20px;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+        }
+
+        .login-subtitle {
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .login-action-box {
+            padding: 1.5rem 1rem;
+            border-radius: 16px;
+        }
+
+        .login-card a.btn {
+            padding: 14px 20px;
+            font-size: 1rem;
+        }
     }
 </style>
 <?= $this->endSection() ?>
@@ -133,22 +244,23 @@
 <?= $this->section('content') ?>
 <div class="login-page-wrapper">
     <div class="login-card">
-        <div class="login-logo">
-            <i class='bx bxs-school'></i>
+        <div class="login-logo-container">
+            <div class="login-logo">
+                <i class='bx bxs-user-badge'></i>
+            </div>
         </div>
         
-        <h3 class="login-title">SKJ General System</h3>
+        <h3 class="login-title">Officer Login</h3>
         <p class="login-subtitle">ระบบบริหารจัดการงานทั่วไป<br>โรงเรียนสวนกุหลาบวิทยาลัย จิรประวัติ นครสวรรค์</p>
 
         <?php if(session()->getFlashdata('login_error')): ?>
         <div class="error-alert shake-animation">
-            <div class="d-flex align-items-start gap-2">
-                <i class='bx bxs-error-circle mt-1'></i>
+            <div class="d-flex align-items-start gap-3">
+                <i class='bx bxs-error-alt mt-1'></i>
                 <div>
                     <div class="error-title"><?= session()->getFlashdata('login_error') ?></div>
                     <?php if(session()->getFlashdata('error_email')): ?>
                     <div class="error-email">
-                        <i class='bx bx-envelope me-1'></i>
                         <?= session()->getFlashdata('error_email') ?>
                     </div>
                     <?php endif; ?>
@@ -157,12 +269,17 @@
         </div>
         <?php endif; ?>
 
-        <div class="my-4">
+        <div class="login-action-box">
+            <span class="login-label">กรุณาเลือกวิธีการเข้าสู่ระบบ</span>
             <?= $GoogleButton; ?>
         </div>
 
-        <div class="mt-4">
-            <small class="text-muted">กรุณาเข้าสู่ระบบด้วยบัญชี Google ของโรงเรียน<br><strong class="text-primary">@skj.ac.th</strong> เท่านั้น</small>
+        <div class="login-footer">
+            <p class="mb-2 small text-muted">
+                <i class='bx bx-info-circle me-1'></i> 
+                สงวนสิทธิ์การเข้าใช้งานเฉพาะบุคลากรที่ใช้อีเมล 
+                <strong class="text-dark">@skj.ac.th</strong> เท่านั้น
+            </p>
         </div>
     </div>
 </div>

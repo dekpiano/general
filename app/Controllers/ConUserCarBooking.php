@@ -23,11 +23,39 @@ class ConUserCarBooking extends BaseController
 
     function thaidate_to_mysql($dateStr)
     {
-        $parts = explode('/', $dateStr);
-        if (count($parts) === 3) {
-            return ($parts[2] - 543) . '-' . str_pad($parts[1], 2, '0', STR_PAD_LEFT) . '-' . str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+        if (!$dateStr) return null;
+        
+        // If already in Y-m-d format (Gregorian AD)
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateStr)) {
+            $year = (int)substr($dateStr, 0, 4);
+            if ($year > 2400) {
+                return ($year - 543) . substr($dateStr, 4);
+            }
+            return $dateStr;
         }
-        return null;
+
+        // Handle d/m/Y or d-m-Y (BE or AD)
+        $separator = strpos($dateStr, '/') !== false ? '/' : '-';
+        $parts = explode($separator, $dateStr);
+        if (count($parts) === 3) {
+            // Check if year is first or last
+            if (strlen($parts[0]) === 4) { // Y-m-d or Y/m/d
+                $year = (int)$parts[0];
+                $month = $parts[1];
+                $day = $parts[2];
+            } else { // d/m/Y or d-m-Y
+                $day = $parts[0];
+                $month = $parts[1];
+                $year = (int)$parts[2];
+            }
+
+            if ($year > 2400) {
+                $year -= 543;
+            }
+            return $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+        }
+
+        return $dateStr;
     }
 
     public function CarBookingMain()
@@ -806,21 +834,22 @@ class ConUserCarBooking extends BaseController
 
         $data = array();
         foreach ($S_data as $key => $value) {
-            $start = $value->car_reserv_StartDate . ' ' . $value->car_reserv_StartTime;
-            $end = $value->car_reserv_EndDate . ' ' . $value->car_reserv_EndTime;
+            $startTime = trim($value->car_reserv_StartTime ?: '00:00:00');
+            $endTime = trim($value->car_reserv_EndTime ?: '00:00:00');
+            
+            $start = $value->car_reserv_StartDate . ' ' . $startTime;
+            $end = $value->car_reserv_EndDate . ' ' . $endTime;
 
             $data[] = [
                 'id' => $value->car_reserv_id,
-                // Title for calendar view (short)
                 'title' => $value->car_reserv_location,
                 'start' => $start,
                 'end' => $end,
-                'approved' => $value->car_reserv_status,
-                'car_id' => $value->car_reserv_carID,
+                'approved' => trim($value->car_reserv_status),
+                'car_id' => trim($value->car_reserv_carID),
                 'member_id' => $value->car_reserv_memberID,
                 'detail' => $value->car_reserv_detail,
                 'color' => $this->getStatusColor($value->car_reserv_status),
-                // Additional info for popup
                 'car_info' => $value->car_category . ' ' . $value->car_registration . ' ' . $value->car_province,
                 'location' => $value->car_reserv_location,
                 'booker_name' => $value->pers_prefix . $value->pers_firstname . ' ' . $value->pers_lastname,

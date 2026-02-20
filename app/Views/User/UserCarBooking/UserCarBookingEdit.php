@@ -321,22 +321,29 @@
         };
 
         const datePickerConfig = {
-            dateFormat: "d/m/Y",
+            altInput: true,
+            altFormat: "d/m/Y",
+            dateFormat: "Y-m-d",
             allowInput: false,
             formatDate: (date, format, locale) => {
-                let day = String(date.getDate()).padStart(2, '0');
-                let month = String(date.getMonth() + 1).padStart(2, '0');
-                let year = date.getFullYear() + 543;
-                return `${day}/${month}/${year}`;
+                // If formatting for the display (altInput), use BE year
+                if (format === "d/m/Y") {
+                    let day = String(date.getDate()).padStart(2, '0');
+                    let month = String(date.getMonth() + 1).padStart(2, '0');
+                    let year = date.getFullYear() + 543;
+                    return `${day}/${month}/${year}`;
+                }
+                // Otherwise use the default Flatpickr formatting
+                return flatpickr.formatDate(date, format);
             },
             onChange: checkAvailability
         };
 
-        // Pre-fill Dates - Ensure format matches dateFormat (d/m/Y Gregorian) for proper parsing
+        // Pre-fill Dates - Using data directly from database (Y-m-d)
         <?php if($Booking->car_reserv_StartDate): ?>
         $("#car_reserv_StartDate").flatpickr({ 
             ...datePickerConfig, 
-            defaultDate: "<?= date('d/m/Y', strtotime($Booking->car_reserv_StartDate)) ?>" 
+            defaultDate: "<?= $Booking->car_reserv_StartDate ?>" 
         });
         <?php else: ?>
         $("#car_reserv_StartDate").flatpickr(datePickerConfig);
@@ -345,7 +352,7 @@
         <?php if($Booking->car_reserv_EndDate): ?>
         $("#car_reserv_EndDate").flatpickr({ 
             ...datePickerConfig, 
-            defaultDate: "<?= date('d/m/Y', strtotime($Booking->car_reserv_EndDate)) ?>" 
+            defaultDate: "<?= $Booking->car_reserv_EndDate ?>" 
         });
         <?php else: ?>
         $("#car_reserv_EndDate").flatpickr(datePickerConfig);

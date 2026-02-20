@@ -731,6 +731,7 @@ class ConUserRepair extends BaseController
         ');
         $builder->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id');
         $builder->where("YEAR(tb_repair.repair_datetime)", $year);
+        $builder->where('tb_repair.repair_caselist !=', 'งานอาคารสถานที่');
 
         if (!empty($status)) {
             $builder->where('tb_repair.repair_status', $status);
