@@ -1,0 +1,116 @@
+INFO - 2026-02-25 11:50:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 11:50:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 11:50:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 11:50:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 11:50:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 11:50:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 11:51:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 11:51:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 13:06:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 13:06:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:26:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:26:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:26:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:26:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:29:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:29:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:39:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:39:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:43:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:43:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:45:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:45:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:46:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:46:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:46:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:46:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:48:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:48:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:54:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:54:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:55:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:55:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:56:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 16:56:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:03:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:03:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-25 17:06:18 --> Undefined array key "MemoHeader"
+in /home/skjacth/domains/skj.ac.th/public_html/librarie_skj/mpdf/vendor/mpdf/mpdf/src/Mpdf.php on line 13183.
+ 1 /home/skjacth/domains/skj.ac.th/public_html/librarie_skj/mpdf/vendor/mpdf/mpdf/src/Mpdf.php(13183): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "MemoHeader"', '/home/skjacth/domains/skj.ac.th/public_html/librarie_skj/mpdf/vendor/mpdf/mpdf/src/Mpdf.php', 13183)
+ 2 APPPATH/Controllers/ConUserRepair.php(739): Mpdf\Mpdf->WriteHTML(' <img src="/var/www/html/uploads/krut/krut-1.5-cm.png" class="garuda"> <div class="memo-title">บันทึกข้อความ</div> <table class="header-section"> <tr> <td colspan="2"> <span class="label">ส่วนราชการ</span> <span class="value">กลุ่มบริหารทั่วไป งานอาคารสถานที่ โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</span></td> </tr> <tr> <td width="50%"> <span class="label">ที่</span> <span class="value">นว 123</span></td> <td width="50%"> <span class="label">วันที่</span> <span class="value">25 กุมภาพันธ์ 2569</span></td> </tr> <tr> <td colspan="2"> <span class="label">เรื่อง</span> <span class="value">ขออนุมัติซ่อมแซมอาคารสถานที่</span></td> </tr> </table> <div class="divider"></div> <div class="section-content"> <span class="label">เรียน</span> <span class="value">ผู้อำนวยการโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</span> </div> <div class="section-content indent"> ด้วยงานอาคารสถานที่ กลุ่มบริหารทั่วไป ได้รับแจ้งปัญหา/ความชำรุดเสียหายบริเวณ <span class="font-bold">ประตูห้องนอน</span> เนื่องจาก <span class="font-bold">ตอนนี้พี่ลองรีเฟรชหน้าแล้วเลือก "ตำแหน่ง" ตามด้วย "ชื่อผู้แจ้ง" ดูอีกครั้งครับ ข้อมูลชื่อและตำแหน่งของผู้แจ้งจะเด้งไปแสดงที่ท้ายกระดาษจำลอง A4 ทันทีที่เลือกเลยครับ!</span> </div> <div class="section-content indent"> ในการนี้ เพื่อให้การจัดการเรียนการสอนและกิจกรรมของโรงเรียนดำเนินไปได้ด้วยความเรียบร้อย และป้องกันไม่ให้เกิดความเสียหายมากขึ้น จึงขออนุมัติดำเนินการซ่อมแซมจุดดังกล่าว </div> <div class="section-content indent"> จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ </div> <div class="signature-container"> <table class="signature-table"> <tr> <td width="50%"></td> <td width="50%" align="center"> <p style="margin-bottom: 10pt;">ลงชื่อ..............................................................</p> <p>(นางสาวแพรวพลอย ศักดิ์พรพรหม)</p> <p>ครูช่วยปฏิบัติการสอน</p></td> </tr> </table> </div> <div style="margin-top: 15mm;"> <table width="100%" style="border-spacing: 5mm;"> <tr> <td class="approval-box"> <p class="font-bold" style="text-decoration: underline; margin-bottom: 5pt;">ความเห็นของหัวหน้างานอาคารสถานที่</p> <div style="height: 12mm;"></div> <p>........................................................................</p> <p>(ว่าที่ร้อยตรีทัพธนพล พิพัฒน์เดชาวัชญ์)</p> <p>หัวหน้างานอาคารสถานที่ฯ</p></td> <td class="approval-box"> <p class="font-bold" style="text-decoration: underline; margin-bottom: 5pt;">ความเห็นของรองผู้อำนวยการ ฝ่ายบริหารทั่วไป</p> <div style="height: 12mm;"></div> <p>........................................................................</p> <p>(นางเพ็ญประภา เพตรา)</p> <p>รองผู้อำนวยการโรงเรียน ฝ่ายบริหารทั่วไป</p></td> </tr> </table> </div> <div style="margin-top: 5mm; border: 0.5pt solid #888; padding: 4mm; text-align: center;"> <p class="font-bold" style="text-decoration: underline;">คำสั่ง / การพิจารณาอนุมัติ</p> <p style="margin-top: 3mm;">[   ] อนุมัติ         [   ] ไม่อนุมัติ เนื่องจาก...................................................</p> <div style="height: 15mm;"></div> <p>ลงชื่อ..............................................................</p> <p>(นายอภิรักษ์ อุ่นใจ)</p> <p>ผู้อำนวยการโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ)</p> </div> ')
+ 3 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConUserRepair->RepairBuildingMemoPrint()
+ 4 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserRepair))
+ 5 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-02-25 17:10:27 --> Undefined array key "MemoHeader"
+in /home/skjacth/domains/skj.ac.th/public_html/librarie_skj/mpdf/vendor/mpdf/mpdf/src/Mpdf.php on line 13183.
+ 1 /home/skjacth/domains/skj.ac.th/public_html/librarie_skj/mpdf/vendor/mpdf/mpdf/src/Mpdf.php(13183): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "MemoHeader"', '/home/skjacth/domains/skj.ac.th/public_html/librarie_skj/mpdf/vendor/mpdf/mpdf/src/Mpdf.php', 13183)
+ 2 APPPATH/Controllers/ConUserRepair.php(739): Mpdf\Mpdf->WriteHTML(' <img src="/var/www/html/uploads/krut/krut-1.5-cm.png" class="garuda"> <div class="memo-title">บันทึกข้อความ</div> <table class="header-section"> <tr> <td colspan="2"> <span class="label">ส่วนราชการ</span> <span class="value">กลุ่มบริหารทั่วไป งานอาคารสถานที่ โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</span></td> </tr> <tr> <td width="50%"> <span class="label">ที่</span> <span class="value">นว 123</span></td> <td width="50%"> <span class="label">วันที่</span> <span class="value">25 กุมภาพันธ์ 2569</span></td> </tr> <tr> <td colspan="2"> <span class="label">เรื่อง</span> <span class="value">ขออนุมัติซ่อมแซมอาคารสถานที่</span></td> </tr> </table> <div class="divider"></div> <div class="section-content"> <span class="label">เรียน</span> <span class="value">ผู้อำนวยการโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</span> </div> <div class="section-content indent"> ด้วยงานอาคารสถานที่ กลุ่มบริหารทั่วไป ได้รับแจ้งปัญหา/ความชำรุดเสียหายบริเวณ <span class="font-bold">ประตูห้องนอน</span> เนื่องจาก <span class="font-bold">ตอนนี้พี่ลองรีเฟรชหน้าแล้วเลือก "ตำแหน่ง" ตามด้วย "ชื่อผู้แจ้ง" ดูอีกครั้งครับ ข้อมูลชื่อและตำแหน่งของผู้แจ้งจะเด้งไปแสดงที่ท้ายกระดาษจำลอง A4 ทันทีที่เลือกเลยครับ!</span> </div> <div class="section-content indent"> ในการนี้ เพื่อให้การจัดการเรียนการสอนและกิจกรรมของโรงเรียนดำเนินไปได้ด้วยความเรียบร้อย และป้องกันไม่ให้เกิดความเสียหายมากขึ้น จึงขออนุมัติดำเนินการซ่อมแซมจุดดังกล่าว </div> <div class="section-content indent"> จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ </div> <div class="signature-container"> <table class="signature-table"> <tr> <td width="50%"></td> <td width="50%" align="center"> <p style="margin-bottom: 10pt;">ลงชื่อ..............................................................</p> <p>(นางสาวแพรวพลอย ศักดิ์พรพรหม)</p> <p>ครูช่วยปฏิบัติการสอน</p></td> </tr> </table> </div> <div style="margin-top: 15mm;"> <table width="100%" style="border-spacing: 5mm;"> <tr> <td class="approval-box"> <p class="font-bold" style="text-decoration: underline; margin-bottom: 5pt;">ความเห็นของหัวหน้างานอาคารสถานที่</p> <div style="height: 12mm;"></div> <p>........................................................................</p> <p>(ว่าที่ร้อยตรีทัพธนพล พิพัฒน์เดชาวัชญ์)</p> <p>หัวหน้างานอาคารสถานที่ฯ</p></td> <td class="approval-box"> <p class="font-bold" style="text-decoration: underline; margin-bottom: 5pt;">ความเห็นของรองผู้อำนวยการ ฝ่ายบริหารทั่วไป</p> <div style="height: 12mm;"></div> <p>........................................................................</p> <p>(นางเพ็ญประภา เพตรา)</p> <p>รองผู้อำนวยการโรงเรียน ฝ่ายบริหารทั่วไป</p></td> </tr> </table> </div> <div style="margin-top: 5mm; border: 0.5pt solid #888; padding: 4mm; text-align: center;"> <p class="font-bold" style="text-decoration: underline;">คำสั่ง / การพิจารณาอนุมัติ</p> <p style="margin-top: 3mm;">[   ] อนุมัติ         [   ] ไม่อนุมัติ เนื่องจาก...................................................</p> <div style="height: 15mm;"></div> <p>ลงชื่อ..............................................................</p> <p>(นายอภิรักษ์ อุ่นใจ)</p> <p>ผู้อำนวยการโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ)</p> </div> ')
+ 3 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConUserRepair->RepairBuildingMemoPrint()
+ 4 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserRepair))
+ 5 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2026-02-25 17:15:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:15:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:29:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:29:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:32:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:32:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:32:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:41:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:41:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:41:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:41:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:41:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:42:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:42:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:42:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:51:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:52:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-25 17:52:12 --> Undefined variable $repair_pers
+in APPPATH/Views/User/UserRepair/UserRepairBuildingMemo.php on line 259.
+ 1 APPPATH/Views/User/UserRepair/UserRepairBuildingMemo.php(259): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $repair_pers', '/var/www/html/app/Views/User/UserRepair/UserRepairBuildingMemo.php', 259)
+ 2 SYSTEMPATH/View/View.php(213): include('/var/www/html/app/Views/User/UserRepair/UserRepairBuildingMemo.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1184): CodeIgniter\View\View->render('User/UserRepair/UserRepairBuildingMemo', [], true)
+ 5 APPPATH/Controllers/ConUserRepair.php(710): view('User/UserRepair/UserRepairBuildingMemo', [...])
+ 6 SYSTEMPATH/CodeIgniter.php(934): App\Controllers\ConUserRepair->RepairBuildingMemo()
+ 7 SYSTEMPATH/CodeIgniter.php(499): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ConUserRepair))
+ 8 SYSTEMPATH/CodeIgniter.php(368): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH/index.php(67): CodeIgniter\CodeIgniter->run()
+INFO - 2026-02-25 17:52:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:52:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:52:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:52:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:53:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:56:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:57:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:57:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:58:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 17:59:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 18:00:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 18:00:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 18:00:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 18:00:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 18:00:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 18:00:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 18:01:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-25 18:02:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

@@ -794,27 +794,118 @@ $(document).ready(function() {
         "displayLength": 10
     });
 
-    // 3. Form Submission (Add/Edit)
+    // 3. Image Compression Function
+    async function compressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 1280; // Max width/height
+
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    canvas.toBlob((blob) => {
+                        // Strictly allow only English alphanumeric characters, dashes and underscores
+                        let safeName = file.name.split('.').slice(0, -1).join('.') // Get name without extension
+                            .replace(/[^\w-]/g, "_") // Replace non-alphanumeric/underscore/dash with _
+                            .replace(/_+/g, "_") // Consolidate multiple underscores
+                            .trim();
+                        
+                        safeName = (safeName || 'image') + '.jpg';
+
+                        resolve(new File([blob], safeName, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        }));
+                    }, 'image/jpeg', 0.7); // 0.7 quality
+                };
+            };
+        });
+    }
+
+    // 4. Form Submission (Add/Edit)
     const addForm = document.getElementById('addReportForm');
     if (addForm) {
-        addForm.addEventListener('submit', function(e) {
+        addForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const $btn = $('#btnSaveReport');
-            $btn.prop('disabled', true).find('.btn-text').addClass('d-none').end().find('.btn-loading').removeClass('d-none');
+            const $btnText = $btn.find('.btn-text');
+            const $btnLoading = $btn.find('.btn-loading');
+            
+            $btn.prop('disabled', true);
+            $btnText.addClass('d-none');
+            $btnLoading.removeClass('d-none');
 
-            fetch(this.action, { method: 'POST', body: new FormData(this) })
-                .then(r => r.json())
-                .then(data => {
-                    $btn.prop('disabled', false).find('.btn-text').removeClass('d-none').end().find('.btn-loading').addClass('d-none');
-                    if (data.status === 'success') {
-                        bootstrap.Modal.getInstance(document.getElementById('modalAddFoodReport')).hide();
-                        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
-                        table.ajax.reload();
-                    } else Swal.fire({ icon: 'error', title: 'ผิดพลาด!', text: data.message });
-                }).catch(err => {
-                    $btn.prop('disabled', false).find('.btn-text').removeClass('d-none').end().find('.btn-loading').addClass('d-none');
-                    Swal.fire({ icon: 'error', title: 'ผิดพลาด!', text: err.message });
-                });
+            try {
+                const formData = new FormData(this);
+                const fileInput = document.getElementById('food_images');
+                const files = fileInput.files;
+                
+                // Clear existing files from formData
+                formData.delete('food_images[]');
+
+                if (files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        $btnLoading.html(`<span class="spinner-border spinner-border-sm me-1"></span> กำลังย่อรูปที่ ${i + 1}/${files.length}...`);
+                        
+                        // Compress only if it's an image
+                        if (file.type.startsWith('image/')) {
+                            const compressedFile = await compressImage(file);
+                            formData.append('food_images[]', compressedFile);
+                        } else {
+                            formData.append('food_images[]', file);
+                        }
+                    }
+                }
+
+                $btnLoading.html('<span class="spinner-border spinner-border-sm me-1"></span> กำลังบันทึกข้อมูล...');
+                
+                const response = await fetch(this.action, { 
+                    method: 'POST', 
+                    body: formData 
+                }).then(r => r.json());
+
+                $btn.prop('disabled', false);
+                $btnText.removeClass('d-none');
+                $btnLoading.addClass('d-none').html('<span class="spinner-border spinner-border-sm me-1"></span> กำลังประมวลผล...');
+
+                if (response.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('modalAddFoodReport')).hide();
+                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+                    table.ajax.reload();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'ผิดพลาด!', text: response.message });
+                }
+
+            } catch (err) {
+                console.error(err);
+                $btn.prop('disabled', false);
+                $btnText.removeClass('d-none');
+                $btnLoading.addClass('d-none').html('<span class="spinner-border spinner-border-sm me-1"></span> กำลังประมวลผล...');
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด!', text: "เกิดข้อผิดพลาดในการส่งข้อมูล: " + err.message });
+            }
         });
     }
 

@@ -80,7 +80,7 @@
     }
 
     .login-title {
-        font-family: 'Prompt', sans-serif;
+        font-family: 'K2D', sans-serif;
         font-weight: 700;
         color: #2b3a4a;
         margin-bottom: 0.75rem;

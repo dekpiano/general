@@ -315,7 +315,8 @@ class ConUserRepair extends BaseController
 
                 return $this->response->setJSON([
                     'status' => 'success', 
-                    'message' => 'บันทึกข้อมูลสำเร็จ'
+                    'message' => 'บันทึกข้อมูลสำเร็จ',
+                    'repair_order' => $OrderNumber
                 ]);
                 
             }else{
@@ -664,6 +665,231 @@ class ConUserRepair extends BaseController
 
          $mpdf->Output('example.pdf', 'I');
     
+    }
+
+    public function RepairBuildingMemo()
+    {
+        $session = session();
+        $DBskj = \Config\Database::connect('skj');
+        $Skj = $DBskj->table('tb_position');
+
+        $data = $this->DataMain();
+        $data['title']="บันทึกข้อความ (งานอาคารสถานที่)";
+        $data['description']="สร้างบันทึกข้อความราชการเพื่อขอซ่อมแซมอาคารสถานที่";
+        $data['UrlMenuMain'] = 'Repair';
+        $data['UrlMenuSub'] = '';
+
+        $data['Posi'] = $Skj->get()->getResult();
+        $data['Datethai'] = new Datethai();
+
+        $order = $this->request->getVar('order');
+        $data['repair_order'] = $order;
+        $data['memo_data_db'] = null;
+        $data['repair_info'] = null;
+        
+        $db = \Config\Database::connect();
+        if ($order) {
+            if ($db->tableExists('tb_repair_memo')) {
+                $memo_data = $db->table('tb_repair_memo')->where('repair_order', $order)->get()->getRowArray();
+                if ($memo_data) {
+                    $data['memo_data_db'] = $memo_data;
+                }
+            }
+            if (!$data['memo_data_db']) {
+                $repair_info = $db->table('tb_repair')->where('repair_order', $order)->get()->getRowArray();
+                if ($repair_info) {
+                    $data['repair_info'] = $repair_info;
+                    $DBpers = \Config\Database::connect('personnel');
+                    $pers = $DBpers->table('tb_personnel')->where('pers_id', $repair_info['repair_userID'])->get()->getRowArray();
+                    if ($pers) {
+                        $data['repair_pers'] = $pers;
+                    }
+                }
+            }
+        }
+
+        return view('User/UserRepair/UserRepairBuildingMemo', $data);
+    }
+
+    public function RepairBuildingMemoPrint()
+    {
+        require SHARED_LIB_PATH . '/mpdf/vendor/autoload.php';
+        
+        $data['Datethai'] = new Datethai();
+        $data['memo_data'] = $this->request->getPost();
+        
+        // Find position name based on position ID selected
+        if (!empty($data['memo_data']['memo_posi'])) {
+            $DBskj = \Config\Database::connect('skj');
+            $posiRecord = $DBskj->table('tb_position')->where('posi_id', $data['memo_data']['memo_posi'])->get()->getRow();
+            if ($posiRecord) {
+                $data['memo_data']['memo_posi'] = $posiRecord->posi_name;
+            }
+        }
+
+        // Handle Images
+        $image1 = $this->request->getFile('memo_image1');
+        $image2 = $this->request->getFile('memo_image2');
+        
+        $data['img1'] = "";
+        $data['img2'] = "";
+
+        // Ensure directory exists
+        if (!is_dir(ROOTPATH . 'uploads/admin/Repair/Memo/')) {
+            mkdir(ROOTPATH . 'uploads/admin/Repair/Memo/', 0777, true);
+        }
+
+        if (!empty($image1) && $image1->isValid() && !$image1->hasMoved()) {
+            $newName = $image1->getRandomName();
+            $image1->move(ROOTPATH . 'uploads/admin/Repair/Memo/', $newName);
+            $data['img1'] = 'uploads/admin/Repair/Memo/' . $newName;
+        }
+        
+        if (!empty($image2) && $image2->isValid() && !$image2->hasMoved()) {
+            $newName2 = $image2->getRandomName();
+            $image2->move(ROOTPATH . 'uploads/admin/Repair/Memo/', $newName2);
+            $data['img2'] = 'uploads/admin/Repair/Memo/' . $newName2;
+        }
+
+        $db = \Config\Database::connect();
+        
+        // 1. Create table if not exists
+        if (!$db->tableExists('tb_repair_memo')) {
+            $forge = \Config\Database::forge();
+            $forge->addField([
+                'memo_id' => [
+                    'type'           => 'INT',
+                    'constraint'     => 11,
+                    'unsigned'       => true,
+                    'auto_increment' => true,
+                ],
+                'repair_order' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '50',
+                    'unique'     => true,
+                ],
+                'memo_agency' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '255',
+                    'null'       => true,
+                ],
+                'memo_no' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '100',
+                    'null'       => true,
+                ],
+                'memo_date' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '100',
+                    'null'       => true,
+                ],
+                'memo_subject' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '255',
+                    'null'       => true,
+                ],
+                'memo_to' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '255',
+                    'null'       => true,
+                ],
+                'memo_location' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '255',
+                    'null'       => true,
+                ],
+                'memo_reason' => [
+                    'type'       => 'TEXT',
+                    'null'       => true,
+                ],
+                'memo_budget' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '100',
+                    'null'       => true,
+                ],
+                'memo_fullname' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '255',
+                    'null'       => true,
+                ],
+                'memo_posi' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '255',
+                    'null'       => true,
+                ],
+                'memo_img1' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '255',
+                    'null'       => true,
+                ],
+                'memo_img2' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => '255',
+                    'null'       => true,
+                ],
+                'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
+                'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+            ]);
+            $forge->addKey('memo_id', true);
+            $forge->createTable('tb_repair_memo');
+        }
+
+        // 2. Prepare data for DB
+        $repair_order = $this->request->getPost('repair_order');
+        if ($repair_order) {
+            $dbData = [
+                'memo_agency' => $data['memo_data']['memo_agency'] ?? null,
+                'memo_no' => $data['memo_data']['memo_no'] ?? null,
+                'memo_date' => $data['memo_data']['memo_date'] ?? null,
+                'memo_subject' => $data['memo_data']['memo_subject'] ?? null,
+                'memo_to' => $data['memo_data']['memo_to'] ?? null,
+                'memo_location' => $data['memo_data']['memo_location'] ?? null,
+                'memo_reason' => $data['memo_data']['memo_reason'] ?? null,
+                'memo_budget' => $data['memo_data']['memo_budget'] ?? null,
+                'memo_fullname' => $data['memo_data']['memo_fullname'] ?? null,
+                'memo_posi' => $data['memo_data']['memo_posi'] ?? null,
+            ];
+
+            $existing = $db->table('tb_repair_memo')->where('repair_order', $repair_order)->get()->getRow();
+            
+            // For images: if new image is uploaded, use it. Otherwise, if updating, retain old image for DB and PDF generating.
+            if (!empty($data['img1'])) {
+                $dbData['memo_img1'] = $data['img1'];
+            } elseif ($existing && !empty($existing->memo_img1)) {
+                $data['img1'] = $existing->memo_img1; // Retain in PDF
+            }
+            
+            if (!empty($data['img2'])) {
+                $dbData['memo_img2'] = $data['img2'];
+            } elseif ($existing && !empty($existing->memo_img2)) {
+                $data['img2'] = $existing->memo_img2; // Retain in PDF
+            }
+
+            if ($existing) {
+                // Update
+                $db->table('tb_repair_memo')->where('repair_order', $repair_order)->update($dbData);
+            } else {
+                // Insert
+                $dbData['repair_order'] = $repair_order;
+                $db->table('tb_repair_memo')->insert($dbData);
+            }
+        }
+
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'mode' => 'utf-8',
+            'default_font' => 'thsarabun',
+            'default_font_size' => 16,
+            'margin_top' => 15, // 1.5 cm from top edge for Garuda
+            'margin_bottom' => 15,
+            'margin_left' => 30, // 3 cm
+            'margin_right' => 20, // 2 cm
+        ]);
+
+        $html = view('User/UserRepair/UserRepairBuildingMemoPrint', $data);
+        $mpdf->WriteHTML($html);
+        
+        return $this->response->setHeader('Content-Type', 'application/pdf')->setBody($mpdf->Output('memo_building.pdf', 'I'));
     }
 
     public function RepairStatistics(){

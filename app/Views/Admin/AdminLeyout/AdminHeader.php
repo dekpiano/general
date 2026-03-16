@@ -23,8 +23,12 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@200;300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=K2D:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bs-font-sans-serif: 'K2D', sans-serif !important; }
+        body, .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 { font-family: 'K2D', sans-serif !important; }
+    </style>
 
     <!-- Icons. Uncomment required icon fonts -->
     <link rel="stylesheet" href="<?=base_url()?>/assets/vendor/fonts/boxicons.css" />
@@ -58,4 +62,4 @@
     <script src="<?=base_url()?>/assets/js/config.js"></script>
   </head>
 
-  <body style="font-family:'Sarabun'">
+  <body>

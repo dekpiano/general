@@ -86,10 +86,18 @@ class ConUserFoodReport extends BaseController
                     $originalName = $img->getName();
 
                     try {
+                        // Strictly allow only English alphanumeric characters
+                        $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+                        $sanitizedName = preg_replace('/[^\w-]/', '_', $nameWithoutExt);
+                        $sanitizedName = trim(preg_replace('/_+/', '_', $sanitizedName), '_');
+                        $finalName = ($sanitizedName ?: 'image') . '-' . uniqid() . '.jpg';
+
                         $response = $client->request('POST', $upload_server_url, [
+                            'headers' => ['X-Auth-Token' => 'Dekpiano2025!!'],
                             'multipart' => [
-                                'file' => new \CURLFile($local_temp_path, $mimeType, $originalName),
+                                'file' => new \CURLFile($local_temp_path, $mimeType, $finalName),
                                 'path' => 'general/FoodReport/' . $date_folder,
+                                'desired_filename' => $finalName,
                             ]
                         ]);
 
@@ -193,10 +201,18 @@ class ConUserFoodReport extends BaseController
                     $originalName = $img->getName();
 
                     try {
+                        // Strictly allow only English alphanumeric characters
+                        $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+                        $sanitizedName = preg_replace('/[^\w-]/', '_', $nameWithoutExt);
+                        $sanitizedName = trim(preg_replace('/_+/', '_', $sanitizedName), '_');
+                        $finalName = ($sanitizedName ?: 'image') . '-' . uniqid() . '.jpg';
+
                         $response = $client->request('POST', $upload_server_url, [
+                            'headers' => ['X-Auth-Token' => 'Dekpiano2025!!'],
                             'multipart' => [
-                                'file' => new \CURLFile($local_temp_path, $mimeType, $originalName),
+                                'file' => new \CURLFile($local_temp_path, $mimeType, $finalName),
                                 'path' => 'general/FoodReport/' . $date_folder,
+                                'desired_filename' => $finalName,
                             ]
                         ]);
 
@@ -235,6 +251,7 @@ class ConUserFoodReport extends BaseController
 
                     try {
                         $response = $client->request('POST', $upload_server_delete_url, [
+                            'headers' => ['X-Auth-Token' => 'Dekpiano2025!!'],
                             'json' => [
                                 'files' => $old_images,
                                 'path' => $path
@@ -264,6 +281,7 @@ class ConUserFoodReport extends BaseController
     }
 
     public function foodReportDelete()
+
     {
         $id = $this->request->getVar('id');
         if (!$id) {
@@ -290,6 +308,7 @@ class ConUserFoodReport extends BaseController
                     $path = 'general/FoodReport/' . $foodDate;
 
                     $response = $client->request('POST', $upload_server_delete_url, [
+                        'headers' => ['X-Auth-Token' => 'Dekpiano2025!!'],
                         'json' => [
                             'files' => $images,
                             'path' => $path

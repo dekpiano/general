@@ -356,6 +356,8 @@
 
 <?= $this->section('scripts') ?>
 <script>
+    const SESSION_PERS_ID = '<?= session()->get('id') ?? '' ?>';
+
     function reloadTable() {
         if ($.fn.DataTable.isDataTable('#TbDataRepair')) {
             const table = $('#TbDataRepair').DataTable();

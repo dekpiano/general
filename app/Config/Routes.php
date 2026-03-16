@@ -100,6 +100,8 @@ $routes->match(['get', 'post'],'Repair/DB/CleanupImages', 'ConUserRepair::Cleanu
 $routes->match(['get', 'post'],'Repair/DB/StatisticsCaselist', 'ConUserRepair::RepairStatisticsCaselist');
 $routes->get('Repair/Api/getRepairList', 'ConUserRepair::getRepairList');
 $routes->get('Repair/Api/getRepairDetail/(:any)', 'ConUserRepair::getRepairDetail/$1');
+$routes->get('Repair/BuildingMemo', 'ConUserRepair::RepairBuildingMemo');
+$routes->post('Repair/BuildingMemo/Print', 'ConUserRepair::RepairBuildingMemoPrint');
 
 $routes->get('/LoginOfficerGeneral', 'ConLogin::LoginOfficerGeneral');
 //$routes->get('/LoginEoffice', 'ConUserHome::LoginEoffice');
@@ -148,6 +150,8 @@ $routes->get('FoodReport/getReportById/(:num)', 'ConUserFoodReport::getReportByI
 $routes->post('FoodReport/insert', 'ConUserFoodReport::foodReportInsert');
 $routes->post('FoodReport/update', 'ConUserFoodReport::foodReportUpdate');
 $routes->post('FoodReport/delete', 'ConUserFoodReport::foodReportDelete');
+
+
 
 $routes->get('check-vendor', 'ConUserFoodReport::checkVendor');
 

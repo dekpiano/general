@@ -30,6 +30,14 @@
                                 <i class="bx bx-trash me-1"></i> ล้างไฟล์ขยะ
                             </button>
                             <?php endif; ?>
+                            
+                            <?php if($Order[0]->repair_caselist === 'งานอาคารสถานที่' && session()->get('id') == $Order[0]->repair_userID): ?>
+                            <a href="<?=base_url('Repair/BuildingMemo?order=').$Order[0]->repair_order?>" 
+                                class="btn btn-outline-warning shadow-sm fw-bold">
+                                <i class="bx bx-file me-1"></i> บันทึกข้อความ
+                            </a>
+                            <?php endif; ?>
+
                             <a href="<?=base_url('Repair/PrintOrder/').$Order[0]->repair_order?>" target="_blank"
                                 class="btn btn-primary shadow-sm fw-bold PrintOrder">
                                 <i class="bx bx-printer me-1"></i> พิมพ์ใบแจ้งซ่อม

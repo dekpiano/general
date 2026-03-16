@@ -79,21 +79,7 @@ function toThaiDateString(date) {
   return `${numOfDay} ${month} ${year} ` + `${hour}:${minutes}:${second} น.`;
 }
 
-$(document).on("change", "#repair_caselist", function () {
-  if ($(this).val() === "งานอาคารสถานที่") {
-    Swal.fire({
-      title: "แจ้งเตือน?",
-      text: "สำหรับงานอาคารสถานที่!... ให้ทำบันทึกข้อความ (ตามนโยบายงานอาคารสถานที่) ที่กลุ่มงานบริหารทั่วไป",
-      icon: "warning",
-      confirmButtonColor: "#3085d6",
-      confirmButtonText: "ตกลง!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // window.location.href = "../Repair/Add";
-      }
-    });
-  }
-});
+// Removed immediate redirect for 'งานอาคารสถานที่' so users can fill the repair form first.
 
 // ShowDataLocationRoom(); // Removed immediate call
 
@@ -189,13 +175,19 @@ function ShowDataLocationRoom() {
       {
         data: "repair_ID",
         render: function (data, type, row) {
-          return (
-            '<a href="Repair/View/' +
+          let buttons = '<a href="Repair/View/' +
             row.repair_order +
             '" data-id="' +
             row.repair_ID +
-            '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>'
-          );
+            '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>';
+            
+          // If login and the current user is the owner of this repair
+          if (typeof SESSION_PERS_ID !== 'undefined' && SESSION_PERS_ID !== '' && String(row.repair_userID) === String(SESSION_PERS_ID)) {
+              if (row.repair_caselist === 'งานอาคารสถานที่') {
+                  buttons += ' <a href="Repair/BuildingMemo" class="btn btn-sm btn-outline-warning ms-1" title="ออกบันทึกข้อความ"><i class="bi bi-file-earmark-text"></i> ย้อนหลัง</a>';
+              }
+          }
+          return buttons;
         },
       },
     ],
@@ -438,17 +430,36 @@ document.addEventListener("submit", async function (e) {
           }
 
           if (responseData.status === "success") {
-            Swal.fire({
-              title: "สำเร็จ!",
-              text: responseData.message || "บันทึกแจ้งซ่อมสำเร็จ!",
-              icon: "success",
-              confirmButtonColor: "#3085d6",
-              confirmButtonText: "ตกลง!",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.href = "../Repair";
-              }
-            });
+            if (repair_caselist === "งานอาคารสถานที่") {
+                Swal.fire({
+                  title: "บันทึกแจ้งซ่อมสำเร็จ!",
+                  text: "ต้องการทำบันทึกข้อความ (ตามนโยบายงานอาคารสถานที่) ต่อเลยหรือไม่?",
+                  icon: "success",
+                  showCancelButton: true,
+                  confirmButtonColor: "#3085d6",
+                  cancelButtonColor: "#6c757d",
+                  confirmButtonText: "ไปทำบันทึกข้อความ",
+                  cancelButtonText: "กลับหน้าแรก"
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "../Repair/BuildingMemo?order=" + responseData.repair_order;
+                  } else {
+                    window.location.href = "../Repair";
+                  }
+                });
+            } else {
+                Swal.fire({
+                  title: "สำเร็จ!",
+                  text: responseData.message || "บันทึกแจ้งซ่อมสำเร็จ!",
+                  icon: "success",
+                  confirmButtonColor: "#3085d6",
+                  confirmButtonText: "ตกลง!",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "../Repair";
+                  }
+                });
+            }
           } else if (responseData.status === "error") {
             if (responseData.message === "Incorrect Captcha") {
               Swal.fire(
