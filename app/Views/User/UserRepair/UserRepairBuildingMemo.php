@@ -245,18 +245,18 @@
                         <div class="mb-3">
                             <label class="form-label">ตำแหน่ง <span class="text-danger">*</span></label>
                             <?php
-                                $d_posi = $memo_data_db['memo_posi'] ?? '';
+                                $d_posi = $memo_data_db['memo_posi'] ?? ($repair_info['repair_posi'] ?? '');
                             ?>
                             <select name="memo_posi" id="input_posi" class="form-select" required>
                                 <option value="" <?= empty($d_posi)?'selected':'' ?> disabled>-- เลือกตำแหน่ง --</option>
                                 <?php foreach ($Posi as $v) :?>
-                                <option value="<?=$v->posi_id?>" <?= ($d_posi==$v->posi_name)?'selected':'' ?> ><?=$v->posi_name?></option>
+                                <option value="<?=$v->posi_id?>" <?= ($d_posi==$v->posi_name || $d_posi==$v->posi_id)?'selected':'' ?> ><?=$v->posi_name?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div>
                             <label class="form-label">ชื่อ - นามสกุล ผู้แจ้ง <span class="text-danger">*</span></label>
-                            <?php $d_fullname = $memo_data_db['memo_fullname'] ?? ($repair_pers ? ($repair_pers['pers_prefix'].$repair_pers['pers_firstname'].' '.$repair_pers['pers_lastname']) : ''); ?>
+                            <?php $d_fullname = $memo_data_db['memo_fullname'] ?? (isset($repair_pers) ? ($repair_pers['pers_prefix'].$repair_pers['pers_firstname'].' '.$repair_pers['pers_lastname']) : ''); ?>
                             <select name="memo_fullname" id="input_fullname" class="form-select" required <?= empty($d_fullname)?'disabled':'' ?>>
                                 <?php if(empty($d_fullname)): ?>
                                     <option value="" selected disabled>-- กรุณาเลือกตำแหน่งก่อน --</option>
@@ -352,7 +352,7 @@
                         <div class="row mt-5">
                             <div class="col-6 offset-6 a4-signature-box">
                                 <p>ลงชื่อ..............................................................</p>
-                                <p>(<span id="prev_fullname" class="a4-value"><?= session()->get('fullname') ?></span>)</p>
+                                <p>(<span id="prev_fullname" class="a4-value"><?= !empty($d_fullname) ? $d_fullname : '........................................' ?></span>)</p>
                                 <p><span id="prev_posi" class="a4-value text-muted">ตำแหน่ง................................</span></p>
                             </div>
                         </div>
@@ -446,7 +446,7 @@
                     $.each(data, function(key, val) {
                         const fullName = val.pers_prefix + val.pers_firstname + " " + val.pers_lastname;
                         // Select matched user session if possible
-                        const isMatch = (fullName === '<?= session()->get('fullname') ?>') ? 'selected' : '';
+                        const isMatch = (fullName === '<?= $d_fullname ?>') ? 'selected' : '';
                         
                         var option = `<option value="${fullName}" ${isMatch}>${fullName}</option>`;
                         $('#input_fullname').append(option);
@@ -458,6 +458,11 @@
                 "json"
             );
         });
+
+        // Trigger initial load if position is already selected
+        if($('#input_posi').val()) {
+            $('#input_posi').trigger('change');
+        }
 
         // Special handler for budget
         const budgetInput = document.getElementById('input_budget');
