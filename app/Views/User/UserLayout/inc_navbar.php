@@ -18,7 +18,7 @@
             <!-- /Title -->
 
             <ul class="navbar-nav flex-row align-items-center ms-auto">
-                <?php if(isset($_SESSION['username']) && (isset($_SESSION['rloes']) && $_SESSION['rloes'] != '' || in_array(@$_SESSION['status'], ['AdminGeneral', 'ManagerGeneral', 'ExecutiveGeneral', 'admin']))): ?>
+                <?php if(session()->has('username') && (session('rloes') != '' || in_array(session('status'), ['AdminGeneral', 'ManagerGeneral', 'ExecutiveGeneral', 'admin']))): ?>
                 <!-- Notifications -->
                 <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
                     <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown"
@@ -47,14 +47,14 @@
                 <!--/ Notifications -->
                 <?php endif; ?>
 
-                <?php if(isset($_SESSION['username'])): ?>
+                <?php if(session()->has('username')): ?>
                 <li class="nav-item me-2 d-none d-sm-block">
                     <span class="badge rounded-pill bg-success">กำลังใช้งาน</span>
                 </li>
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                     <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                         <div class="avatar avatar-online" style="width: 38px; height: 38px; background: transparent !important;">
-                            <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?=@$_SESSION['pers_img']?>"
+                            <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?= session('pers_img') ?>"
                                 alt="User Avatar" class="rounded-circle object-fit-cover w-100 h-100">
                         </div>
                     </a>
@@ -64,13 +64,13 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0 me-3">
                                         <div class="avatar avatar-online" style="width: 45px; height: 45px; background: transparent !important;">
-                                            <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?=@$_SESSION['pers_img']?>"
+                                            <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?= session('pers_img') ?>"
                                                 alt="User Avatar" class="rounded-circle object-fit-cover w-100 h-100">
                                         </div>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <span class="fw-bold d-block fs-6"><?=@$_SESSION['username']?></span>
-                                        <small class="text-primary fw-medium"><?=@$_SESSION['status'] ?? 'Member'?></small>
+                                        <span class="fw-bold d-block fs-6"><?= session('username') ?></span>
+                                        <small class="text-primary fw-medium"><?= session('status') ?? 'Member' ?></small>
                                     </div>
                                 </div>
                             </div>

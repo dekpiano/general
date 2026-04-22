@@ -544,6 +544,8 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({ icon: 'warning', title: 'ไม่สามารถดำเนินการได้', text: 'กรุณาตรวจสอบวันและเวลาที่ว่างก่อนส่งข้อมูล' });
             return;
         }
+
+        if (!form.checkValidity()) {
             form.classList.add('was-validated');
             Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: 'กรุณากรอกข้อมูลที่จำเป็น (*) ทั้งหมด' });
             return;

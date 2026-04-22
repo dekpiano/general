@@ -79,7 +79,8 @@ class ConUserBooking extends BaseController
 
     private function sendLineMessage($userId, $messageText)
     {
-        if (ENVIRONMENT !== 'production') {
+        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+        if (ENVIRONMENT !== 'production' || $isLocal) {
             return null;
         }
         $accessToken = '6uPLX8E6wzICMzMr16kab9Qrf1gorrrbHBJHJ4rK7HFCsP/258uqhgqbf8i9VoopJX4o/4T9Go4gfKzQmxQryJG+LvnYfD3tHtrKXJ24SfsFEKXcW6xFBepKWOGRsoito2pr5neKVHNmSfjfDdwNowdB04t89/1O/w1cDnyilFU=';
@@ -324,8 +325,9 @@ class ConUserBooking extends BaseController
                     ['role' => 'admin_booking']
                 );
 
-                // 1. Line Message
-                if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+                // 1. Line Message & Email (ส่งเฉพาะบน Server จริงเท่านั้น)
+                $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+                if (ENVIRONMENT === 'production' && !$isLocal) {
                 $this->sendLineMessage('C135052df1f6c6de703cc6a2a9758b872', $msg);
                 
                 // 2. Email to Booker
@@ -1217,7 +1219,7 @@ class ConUserBooking extends BaseController
     }
 
     public function BookingRequestform($IDBooking){
-        require SHARED_LIB_PATH . '/mpdf/vendor/autoload.php';
+        require_once ROOTPATH . 'vendor/autoload.php';
         $session = session();
         $Datethai = new Datethai();  
         $database = \Config\Database::connect();
@@ -1255,12 +1257,29 @@ class ConUserBooking extends BaseController
         //print_r($DeputyExecutive); exit();
        
 
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
         $mpdf = new \Mpdf\Mpdf(
             array(
                 'format' => 'A4',
                 'mode' => 'utf-8',
                 'default_font' => 'thsarabun',
-                'default_font_size' => 16
+                'default_font_size' => 16,
+                'fontDir' => array_merge($fontDirs, [
+                    ROOTPATH . 'vendor/mpdf/mpdf/ttfonts',
+                ]),
+                'fontdata' => $fontData + [
+                    'thsarabun' => [
+                        'R' => 'THSarabunNew.ttf',
+                        'B' => 'THSarabunNew Bold.ttf',
+                        'I' => 'THSarabunNew Italic.ttf',
+                        'BI' => 'THSarabunNew BoldItalic.ttf'
+                    ]
+                ],
             )
         );
         $mpdf->SetTitle('แบบคำขอใช้อาคารสถานที่ ของ '.$Booking->pers_prefix.$Booking->pers_firstname.' '.$Booking->pers_lastname);

@@ -1,0 +1,42 @@
+# CodeIgniter 4 .gitignore
+# -------------------------------------------------------------------
+
+# Environment Files
+.env
+.env.test
+.env.production
+
+# Vendor Directory
+vendor/
+
+# Writable Directory (Cache, Logs, Sessions, etc.)
+writable/*
+!writable/index.html
+!writable/.htaccess
+
+# Project Specific Uploads
+uploads/*
+!uploads/index.html
+!uploads/.htaccess
+Uploadfile/
+
+# IDE & OS Files
+.idea/
+.vscode/
+*.swp
+*.bak
+.DS_Store
+Thumbs.db
+
+# PHPUnit & Testing
+.phpunit.result.cache
+tests/_output/*
+tests/_support/_generated/*
+
+# Database Dumps (Optional, usually good to ignore)
+*.sql
+
+# Logs
+*.log
+
+vendor/*

@@ -419,12 +419,18 @@
                                 <i class="bx bx-camera me-2 fs-4"></i> ขั้นตอนที่ 3: รูปภาพประกอบ
                             </div>
                             <div class="card-body-premium">
-                                <div class="upload-zone mb-3" onclick="document.getElementById('repair_imguser').click()">
-                                    <img src="<?=base_url('assets/img/icons/uni-comp.png')?>" id="imageResult" class="img-fluid rounded mb-2" style="max-height: 120px;">
-                                    <p class="small text-muted mb-0">คลิกที่นี่เพื่อแนบรูปภาพ</p>
+                                <p class="small text-muted mb-3">แนบรูปภาพประกอบ (สูงสุด 3 รูป)</p>
+                                <div class="row g-2">
+                                    <?php for($i=0; $i<3; $i++): ?>
+                                    <div class="col-12">
+                                        <div class="upload-zone p-2 h-100 d-flex flex-column align-items-center justify-content-center" onclick="triggerFileInput(<?=$i?>)">
+                                            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%229%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23f8f9fa%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%221%22%20fill%3D%22%23dee2e6%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%3E16:9%3C/text%3E%3C/svg%3E" id="imageResult<?=$i?>" class="img-fluid rounded mb-1" style="width: 100%; aspect-ratio: 16/9; object-fit: cover;">
+                                            <span class="x-small text-muted" style="font-size: 0.6rem;">รูปที่ <?=$i+1?></span>
+                                        </div>
+                                    </div>
+                                    <?php endfor; ?>
                                 </div>
-                                <input type="file" id="repair_imguser" name="repair_imguser" class="d-none" accept="image/*"
-                                       onchange="document.getElementById('imageResult').src = window.URL.createObjectURL(this.files[0])">
+                                <input type="file" id="repair_imguser_input" class="d-none" accept="image/*">
                             </div>
                         </div>
                     </div>
@@ -470,6 +476,37 @@
             </div>
         </div>
     </form>
+
+    <!-- Modal for Cropping Image -->
+    <div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white" id="cropModalLabel"><i class="bx bx-crop me-2"></i> ครอบตัดรูปภาพ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="croppie-container" style="height: 450px;"></div>
+                </div>
+                <div class="modal-footer bg-light d-flex justify-content-between">
+                    <div class="rotation-controls">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-rotate-left">
+                            <i class="bx bx-rotate-left"></i> หมุนซ้าย
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-rotate-right">
+                            <i class="bx bx-rotate-right"></i> หมุนขวา
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="button" class="btn btn-primary" id="btn-crop">
+                            <i class="bx bx-check me-1"></i> ตกลง และใช้รูปนี้
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?= $this->endSection() ?>

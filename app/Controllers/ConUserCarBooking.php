@@ -84,7 +84,8 @@ class ConUserCarBooking extends BaseController
 
     private function sendLineMessage($userId, $messageText)
     {
-        if (ENVIRONMENT !== 'production') {
+        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+        if (ENVIRONMENT !== 'production' || $isLocal) {
             return null;
         }
         $accessToken = 'sNlR5f0V6R5ymIr7KPd5Xp8orbv7moKfar4WUYQF2uOwLvIVJrl0QYkd6vdNArphKzH9Uu0kIeOyjIXOjYkAnXcLmdCR0zJeAOakv8LrwTjlqXi9i0nJrYe/9aBFQsSuvybozfMDE6Ao/C1kmaqDgAdB04t89/1O/w1cDnyilFU=';
@@ -323,8 +324,9 @@ class ConUserCarBooking extends BaseController
                     $msg .= "🎯 วัตถุประสงค์: {$Car['car_reserv_detail']}\n";
                     $msg .= "👉 รับงาน: " . base_url("/CarBooking/Approve/Admin");
 
-                    // 3. Send Notification
-                    if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+                    // 3. Send Notification (ส่งเฉพาะบน Server จริงเท่านั้น)
+                    $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+                    if (ENVIRONMENT === 'production' && !$isLocal) {
                         $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
 
                         // Send Email to Booker
@@ -641,7 +643,8 @@ class ConUserCarBooking extends BaseController
                     $msg .= "อนุมัติโดย: " . ($session->get('username') ?: 'เจ้าหน้าที่') . "\n";
                     $msg .= "ตรวจสอบสถานะ: " . base_url("CarBooking/View");
 
-                    if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+                    $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+                    if (ENVIRONMENT === 'production' && !$isLocal) {
                         $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
 
                         // Send Email to Booker (Approved)
@@ -724,7 +727,8 @@ class ConUserCarBooking extends BaseController
 
             if ($Car) {
                 try {
-                    if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+                    $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+                    if (ENVIRONMENT === 'production' && !$isLocal) {
                         $userEmail = $session->get('email');
                         if ($userEmail) {
                             $email = \Config\Services::email();
@@ -1313,16 +1317,33 @@ class ConUserCarBooking extends BaseController
             ->get()->getRow();
         //echo '<pre>';print_r($DeputyDirectorGeneral);exit();
 
-        require SHARED_LIB_PATH . '/mpdf/vendor/autoload.php';
+        require_once ROOTPATH . 'vendor/autoload.php';
         $session = session();
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
         $mpdf = new \Mpdf\Mpdf(
             array(
-            'format' => 'A4',
-            'mode' => 'utf-8',
-            'default_font' => 'thsarabun',
-            'default_font_size' => 16
-        )
-            );
+                'format' => 'A4',
+                'mode' => 'utf-8',
+                'default_font' => 'thsarabun',
+                'default_font_size' => 16,
+                'fontDir' => array_merge($fontDirs, [
+                    ROOTPATH . 'vendor/mpdf/mpdf/ttfonts',
+                ]),
+                'fontdata' => $fontData + [
+                    'thsarabun' => [
+                        'R' => 'THSarabunNew.ttf',
+                        'B' => 'THSarabunNew Bold.ttf',
+                        'I' => 'THSarabunNew Italic.ttf',
+                        'BI' => 'THSarabunNew BoldItalic.ttf'
+                    ]
+                ],
+            )
+        );
 
         $mpdf->SetTitle('ใบขออนุญาตใช้รถส่วนกลาง');
 
@@ -1386,7 +1407,7 @@ class ConUserCarBooking extends BaseController
 
             <div style="margin-top:5rem;">
                 <div style="text-align:left;">
-                    <div style="text-align:center;">(ลงชื่อ) ............................................ รองผู้อำนวยการฝ่ายบริหารทั่วไป</div>
+                    <div style="">(ลงชื่อ) ............................................ รองผู้อำนวยการฝ่ายบริหารทั่วไป</div>
                     <div style="margin-left:40px;">(' . $DeputyDirectorGeneralName . ')</div>
                     <div style="margin-left:40px;">ตำแหน่ง ' . $DeputyDirectorGeneralPosi . '</div>
                 </div>            

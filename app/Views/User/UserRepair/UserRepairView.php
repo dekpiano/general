@@ -29,6 +29,9 @@
                             <button type="button" class="btn btn-outline-danger shadow-sm fw-bold" id="BtnCleanupImages">
                                 <i class="bx bx-trash me-1"></i> ล้างไฟล์ขยะ
                             </button>
+                            <button type="button" class="btn btn-outline-secondary shadow-sm fw-bold" id="BtnMigrateImages">
+                                <i class="bx bx-move me-1"></i> ย้ายไฟล์เข้าโฟลเดอร์
+                            </button>
                             <?php endif; ?>
                             
                             <?php if($Order[0]->repair_caselist === 'งานอาคารสถานที่' && session()->get('id') == $Order[0]->repair_userID): ?>
@@ -92,7 +95,17 @@
                     <h6 class="mb-2 fw-bold text-dark"><i class="bx bx-image me-2"></i>ภาพประกอบ</h6>
                     <div id="show_repair_imguser" class="text-center p-3 border border-dashed rounded">
                         <?php if(!empty($Order[0]->repair_imguser)) : ?>
-                        <img src="<?=base_url('uploads/admin/Repair/User/').$Order[0]->repair_imguser?>" class="img-fluid rounded shadow-sm" style="max-height: 300px;" alt="ภาพประกอบการแจ้งซ่อม">
+                            <div class="row g-2 justify-content-center">
+                            <?php 
+                                $imgs = explode(',', $Order[0]->repair_imguser);
+                                foreach($imgs as $img) : 
+                                    if(empty($img)) continue;
+                            ?>
+                                <div class="col-12 mb-3">
+                                    <img src="<?=base_url('uploads/user/Repair/').$img?>" class="img-fluid rounded shadow-sm border" style="width: 100%;" alt="ภาพประกอบการแจ้งซ่อม">
+                                </div>
+                            <?php endforeach; ?>
+                            </div>
                         <?php else: ?>
                         <div class="text-muted my-3"><i class="bx bx-image-alt fs-1"></i><br>ไม่ได้แนบภาพมาด้วย</div>
                         <?php endif; ?>
@@ -158,7 +171,17 @@
                     <h6 class="mb-2 fw-bold text-dark">ภาพการดำเนินงาน</h6>
                     <div id="show_repair_imgwork" class="text-center p-3 border border-dashed rounded mb-4">
                         <?php if(!empty($Order[0]->repair_imgwork)) : ?>
-                        <img src="<?=base_url('uploads/admin/Repair/').$Order[0]->repair_imgwork?>" class="img-fluid rounded shadow-sm" style="max-height: 250px;" alt="ภาพการดำเนินงาน">
+                            <div class="row g-2 justify-content-center">
+                            <?php 
+                                $imgs_work = explode(',', $Order[0]->repair_imgwork);
+                                foreach($imgs_work as $img_w) : 
+                                    if(empty($img_w)) continue;
+                            ?>
+                                <div class="col-12 mb-3">
+                                    <img src="<?=base_url('uploads/admin/Repair/').$img_w?>" class="img-fluid rounded shadow-sm border" style="width: 100%;" alt="ภาพการดำเนินงาน">
+                                </div>
+                            <?php endforeach; ?>
+                            </div>
                         <?php else: ?>
                          <div class="text-muted my-3"><i class="bx bx-image-alt fs-1"></i><br>ไม่มีรูปภาพ</div>
                         <?php endif; ?>
@@ -235,21 +258,19 @@
                                 <textarea class="form-control" name="repair_cause" id="repair_cause" rows="3"><?=$Order[0]->repair_cause;?></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="repair_imgwork" class="form-label">รูปภาพหลังซ่อมเสร็จ</label>
-                                <input type="hidden" name="imgwork" id="imgwork" value="<?=$Order[0]->repair_imgwork;?>">
-                                <input class="form-control" type="file" name="repair_imgwork" id="repair_imgwork">
-                                <div class="mt-2 text-center p-2 border rounded bg-light">
-                                    <img src="<?=base_url('uploads/admin/Repair/').$Order[0]->repair_imgwork?>" class="img-fluid rounded" id="preview_imgwork" style="max-height: 150px; display: <?=empty($Order[0]->repair_imgwork)?'none':'inline'?>;">
+                                <label class="form-label">รูปภาพหลังซ่อมเสร็จ (สูงสุด 3 รูป)</label>
+                                <div class="row g-2 mb-2">
+                                    <?php for($j=0; $j<3; $j++): ?>
+                                    <div class="col-4">
+                                        <div class="upload-zone p-2 d-flex flex-column align-items-center justify-content-center" onclick="triggerAdminFileInput(<?=$j?>)" style="border: 1px dashed #dee2e6; cursor: pointer;">
+                                            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%229%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23f8f9fa%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%221%22%20fill%3D%22%23dee2e6%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%3E16:9%3C/text%3E%3C/svg%3E" id="adminImageResult<?=$j?>" class="img-fluid rounded mb-1" style="width: 100%; aspect-ratio: 16/9; object-fit: cover;">
+                                            <span class="x-small text-muted" style="font-size: 0.6rem;">รูปที่ <?=$j+1?></span>
+                                        </div>
+                                    </div>
+                                    <?php endfor; ?>
                                 </div>
-                                <script>
-                                repair_imgwork.onchange = e => {
-                                    const [file] = repair_imgwork.files;
-                                    if (file) {
-                                        preview_imgwork.src = URL.createObjectURL(file);
-                                        preview_imgwork.style.display = "inline";
-                                    }
-                                };
-                                </script>
+                                <input type="file" id="repair_imgwork_input" class="d-none" accept="image/*">
+                                <input type="hidden" name="imgwork" id="imgwork" value="<?=$Order[0]->repair_imgwork;?>">
                             </div>
                         </div>
                     </div>
@@ -278,5 +299,36 @@
         </div>
     </div>
 </div>
+
+    <!-- Modal for Cropping Image -->
+    <div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white" id="cropModalLabel"><i class="bx bx-crop me-2"></i> ครอบตัดรูปภาพ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="croppie-container" style="height: 450px;"></div>
+                </div>
+                <div class="modal-footer bg-light d-flex justify-content-between">
+                    <div class="rotation-controls">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-rotate-left">
+                            <i class="bx bx-rotate-left"></i> หมุนซ้าย
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-rotate-right">
+                            <i class="bx bx-rotate-right"></i> หมุนขวา
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="button" class="btn btn-primary" id="btn-crop">
+                            <i class="bx bx-check me-1"></i> ตกลง และใช้รูปนี้
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <?= $this->endSection() ?>

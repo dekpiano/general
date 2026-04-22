@@ -8,8 +8,8 @@ services:
       - "8085:80"
       - "8086:443"
     volumes:
-      - .:/var/www/html
-      - d:/librarie_skj:/home/skjacth/domains/skj.ac.th/public_html/librarie_skj:cached
+      - .:/var/www/html:cached
+      - app_writable:/var/www/html/writable
     environment:
       # Database connection settings for CodeIgniter
       DB_HOST: skj2025_db
@@ -18,6 +18,9 @@ services:
       DB_PASSWORD: rootpassword
     networks:
       - skj2025_default
+
+volumes:
+  app_writable:
 
 networks:
   skj2025_default:

@@ -1,9 +1,9 @@
     <!-- Core JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="<?=base_url()?>/assets/vendor/libs/popper/popper.js"></script>
-    <script src="<?=base_url()?>/assets/vendor/js/bootstrap.js"></script>
-    <script src="<?=base_url()?>/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-    <script src="<?=base_url()?>/assets/vendor/js/menu.js"></script>
+    <script src="<?=base_url('assets/vendor/libs/popper/popper.js')?>"></script>
+    <script src="<?=base_url('assets/vendor/js/bootstrap.js')?>"></script>
+    <script src="<?=base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js')?>"></script>
+    <script src="<?=base_url('assets/vendor/js/menu.js')?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script src="https://hcaptcha.com/1/api.js" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -14,36 +14,36 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"></script>
-    <script src="<?=base_url()?>/assets/js/select2.js"></script>
+    <script src="<?=base_url('assets/js/select2.js')?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="<?=base_url()?>/assets/js/main.js"></script>
-    <script src="<?=base_url()?>/assets/js/dashboards-analytics.js"></script>
+    <script src="<?=base_url('assets/js/main.js')?>"></script>
+    <script src="<?=base_url('assets/js/dashboards-analytics.js')?>"></script>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.15/index.global.min.js"></script>
     
     <?php if(isset($_SESSION['username']) && (isset($_SESSION['rloes']) && $_SESSION['rloes'] != '' || in_array(@$_SESSION['status'], ['AdminGeneral', 'ManagerGeneral', 'ExecutiveGeneral', 'admin']))): ?>
     <!-- Admin Notifications Logic -->
-    <script src="<?=base_url()?>/assets/js/Admin/AdminNotification.js?v=1.3"></script>
+    <script src="<?=base_url('assets/js/Admin/AdminNotification.js')?>?v=1.3"></script>
     <?php endif; ?>
 
     <!-- Page-specific scripts -->
     <?php if($uri->getSegment(1) == 'Booking') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBooking.js?v=29"></script>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingSignature.js?v=1.3"></script>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingCrop.js?v=3"></script>
+    <script src="<?=base_url('assets/js/User/UserBooking/UserBooking.js')?>?v=29"></script>
+    <script src="<?=base_url('assets/js/User/UserBooking/UserBookingSignature.js')?>?v=1.3"></script>
+    <script src="<?=base_url('assets/js/User/UserBooking/UserBookingCrop.js')?>?v=3"></script>
     
     <?php if($uri->getSegment(2) == ''): ?>
-    <script src="<?=base_url()?>/assets/js/User/UserBooking/UserBookingChart.js?v=1.3"></script>
+    <script src="<?=base_url('assets/js/User/UserBooking/UserBookingChart.js')?>?v=1.3"></script>
     <?php endif; ?>
 
     <?php elseif($uri->getSegment(1) == 'Repair') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepair.js?v=23"></script>
-    <script src="<?=base_url()?>/assets/js/User/UserRepair/UserRepairStatistics.js?v=1.4"></script>
+    <script src="<?=base_url('assets/js/User/UserRepair/UserRepair.js')?>?v=24"></script>
+    <script src="<?=base_url('assets/js/User/UserRepair/UserRepairStatistics.js')?>?v=1.4"></script>
     <?php elseif($uri->getSegment(1) == 'CarBooking') : ?>
-    <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservation.js?v=5"></script> 
-    <script src="<?=base_url()?>/assets/js/User/UserCarReservation/UserCarReservationChart.js?v=1.3"></script>   
+    <script src="<?=base_url('assets/js/User/UserCarReservation/UserCarReservation.js')?>?v=5"></script> 
+    <script src="<?=base_url('assets/js/User/UserCarReservation/UserCarReservationChart.js')?>?v=1.3"></script>   
     <?php endif; ?>
 
     <script>
@@ -67,6 +67,31 @@
     window.addEventListener('load', function() {
         document.body.classList.add('loaded');
     });
+
+    // แจ้งเตือนเมื่อ Login สำเร็จ
+    <?php if (session()->getFlashdata('login_success')): ?>
+    Swal.fire({
+        icon: 'success',
+        title: 'เข้าสู่ระบบสำเร็จ!',
+        text: <?= json_encode(session()->getFlashdata('login_success')) ?>,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    });
+    <?php endif; ?>
+
+    // แจ้งเตือนเมื่อ Login ผิดพลาด
+    <?php if (session()->getFlashdata('login_error')): ?>
+    Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด!',
+        text: <?= json_encode(session()->getFlashdata('login_error')) ?>,
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#3085d6'
+    });
+    <?php endif; ?>
     </script>
 
     <!-- OneSignal Push Notification SDK -->
@@ -109,3 +134,5 @@
 
     <?= $this->renderSection('customScripts') ?>
     <?= $this->renderSection('scripts') ?>
+
+

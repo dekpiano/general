@@ -106,7 +106,7 @@
         /* Image Container */
         .image-container {
             text-align: center;
-            padding: 5px;
+            padding: 0;
         }
         .image-container img {
             /* Moved to inline style for mPDF compatibility */
@@ -216,10 +216,19 @@
             <tr>
                 <th style="text-align: center;">รูปภาพประกอบ</th>
                 <td colspan="3" class="image-container">
-                    <?php if(!empty($RepairUser[0]->repair_imguser)) : ?>
-                    <img src="<?=base_url('uploads/admin/Repair/User/').$RepairUser[0]->repair_imguser?>" style="max-height: 30mm; max-width: 80mm; border: 1px solid #ccc; object-fit: contain;">
+                    <?php 
+                        if(!empty($RepairUser[0]->repair_imguser)) : 
+                            $user_imgs = explode(',', $RepairUser[0]->repair_imguser);
+                            $user_imgs = array_filter($user_imgs);
+                            $u_count = count($user_imgs);
+                    ?>
+                        <div style="text-align: center; padding: 5px 0;">
+                            <?php foreach($user_imgs as $img): ?>
+                                <img src="<?=ROOTPATH . 'uploads/user/Repair/'.$img?>" style="width: 150px; margin: 5px; display: inline-block; vertical-align: top;">
+                            <?php endforeach; ?>
+                        </div>
                     <?php else: ?>
-                    <span class="no-image">(ไม่มีรูปภาพประกอบ)</span>
+                        <span class="no-image">(ไม่มีรูปภาพประกอบ)</span>
                     <?php endif; ?>
                 </td>
             </tr>
@@ -269,10 +278,19 @@
             <tr>
                 <th style="text-align: center;">รูปภาพหลังซ่อม</th>
                 <td colspan="3" class="image-container">
-                    <?php if(!empty($RepairUser[0]->repair_imgwork)) : ?>
-                    <img src="<?=base_url('uploads/admin/Repair/').$RepairUser[0]->repair_imgwork?>" style="max-height: 40mm; max-width: 100mm; border: 1px solid #ccc; object-fit: contain;">
+                    <?php 
+                        if(!empty($RepairUser[0]->repair_imgwork)) : 
+                            $work_imgs = explode(',', $RepairUser[0]->repair_imgwork);
+                            $work_imgs = array_filter($work_imgs);
+                            $w_count = count($work_imgs);
+                    ?>
+                        <div style="text-align: center; padding: 5px 0;">
+                            <?php foreach($work_imgs as $img_w): ?>
+                                <img src="<?=ROOTPATH . 'uploads/admin/Repair/'.$img_w?>" style="width: 150px; margin: 5px; display: inline-block; vertical-align: top;">
+                            <?php endforeach; ?>
+                        </div>
                     <?php else: ?>
-                    <span class="no-image">(ไม่มีรูปภาพ)</span>
+                        <span class="no-image">(ไม่มีรูปภาพ)</span>
                     <?php endif; ?>
                 </td>
             </tr>

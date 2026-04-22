@@ -1,3 +1,17 @@
+let currentCropIndex = 0;
+let isAdminCrop = false; // Track if we are cropping for user or admin
+window.triggerFileInput = function(index) {
+    currentCropIndex = index;
+    isAdminCrop = false;
+    $('#repair_imguser_input').click();
+};
+
+window.triggerAdminFileInput = function(index) {
+    currentCropIndex = index;
+    isAdminCrop = true;
+    $('#repair_imgwork_input').click();
+};
+
 $(document).ready(function () {
   // Initialize Select2 ONLY for the specific form, preserving DataTables default selects
   $("#FormAddRepair .form-select").select2({
@@ -50,6 +64,100 @@ $(document).ready(function () {
       }
     }
   });
+});
+
+let croppieInstance = null;
+let croppedBlobs = [null, null, null]; // Support up to 3 images for user
+let adminCroppedBlobs = [null, null, null]; // Support up to 3 images for admin
+
+
+
+
+// Handle file selection and show cropper (User)
+$(document).on('change', '#repair_imguser_input', function() {
+    initCroppie(this);
+});
+
+// Handle file selection and show cropper (Admin)
+$(document).on('change', '#repair_imgwork_input', function() {
+    initCroppie(this);
+});
+
+function initCroppie(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            $('#cropModal').modal('show');
+            if (croppieInstance) {
+                croppieInstance.destroy();
+                croppieInstance = null;
+            }
+            
+            $('#cropModal').on('shown.bs.modal', function () {
+                if (croppieInstance) croppieInstance.destroy();
+                croppieInstance = new Croppie(document.getElementById('croppie-container'), {
+                    viewport: { width: 400, height: 225, type: 'square' },
+                    boundary: { width: '100%', height: 400 },
+                    showZoomer: true,
+                    enableOrientation: true,
+                    mouseWheelZoom: 'ctrl'
+                });
+                croppieInstance.bind({
+                    url: e.target.result
+                });
+                $(this).off('shown.bs.modal');
+            });
+        };
+        reader.readAsDataURL(file);
+        $(input).val('');
+    }
+}
+
+// Handle Rotation
+$(document).on('click', '#btn-rotate-left', function() {
+    if (croppieInstance) {
+        croppieInstance.rotate(-90);
+    }
+});
+
+$(document).on('click', '#btn-rotate-right', function() {
+    if (croppieInstance) {
+        croppieInstance.rotate(90);
+    }
+});
+
+// Handle cropping action
+$(document).on('click', '#btn-crop', function() {
+    if (croppieInstance) {
+        croppieInstance.result({
+            type: 'blob',
+            size: { width: 1280, height: 720 },
+            format: 'png',
+            quality: 0.9
+        }).then(function(blob) {
+            if (isAdminCrop) {
+                adminCroppedBlobs[currentCropIndex] = blob;
+                const url = URL.createObjectURL(blob);
+                $(`#adminImageResult${currentCropIndex}`).attr('src', url);
+            } else {
+                croppedBlobs[currentCropIndex] = blob;
+                const url = URL.createObjectURL(blob);
+                $(`#imageResult${currentCropIndex}`).attr('src', url);
+            }
+            
+            $('#cropModal').modal('hide');
+            
+            Swal.fire({
+                icon: 'success',
+                title: `เตรียมรูปที่ ${currentCropIndex + 1} เรียบร้อย`,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        });
+    }
 });
 
 function toThaiDateString(date) {
@@ -240,17 +348,39 @@ $(document).on("click", "#BtnRepairFullDetail1", function () {
       $("#show_repair_cause").text(data[0][0].repair_cause);
       $("#show_repair_status").text(data[0][0].repair_status);
 
-      $("#show_repair_imguser").html(
-        '<img src="uploads/admin/Repair/User/' +
-          data[0][0].repair_imguser +
-          '" class="img-fluid" alt="รูปที่ผู้ใช้งานส่งมา">',
-      );
+      if (data[0][0].repair_imguser) {
+          const imgs = data[0][0].repair_imguser.split(',');
+          let imgsHtml = '<div class="row g-2">';
+          imgs.forEach(img => {
+              if (img) {
+                  imgsHtml += `
+                      <div class="col-12 mb-2">
+                          <img src="/uploads/user/Repair/${img}" class="img-fluid rounded border shadow-sm w-100" alt="รูปที่ผู้ใช้งานส่งมา">
+                      </div>`;
+              }
+          });
+          imgsHtml += '</div>';
+          $("#show_repair_imguser").html(imgsHtml);
+      } else {
+          $("#show_repair_imguser").html('<span class="text-muted">ไม่มีรูปภาพ</span>');
+      }
 
-      $("#show_repair_imgwork").html(
-        '<img src="uploads/admin/Repair/' +
-          data[0][0].repair_imgwork +
-          '" class="img-fluid" alt="รูปที่ทำงาน">',
-      );
+      if (data[0][0].repair_imgwork) {
+          const imgs_w = data[0][0].repair_imgwork.split(',');
+          let imgsWorkHtml = '<div class="row g-2">';
+          imgs_w.forEach(img => {
+              if (img) {
+                  imgsWorkHtml += `
+                      <div class="col-12 mb-2">
+                          <img src="/uploads/admin/Repair/${img}" class="img-fluid rounded border shadow-sm w-100" alt="รูปการดำเนินการของช่าง">
+                      </div>`;
+              }
+          });
+          imgsWorkHtml += '</div>';
+          $("#show_repair_imgwork").html(imgsWorkHtml);
+      } else {
+          $("#show_repair_imgwork").html('<span class="text-muted">ไม่มีรูปภาพ</span>');
+      }
       $("#show_repair_usersignature").html(
         '<img src="' +
           data[0][0].repair_usersignature +
@@ -342,6 +472,17 @@ document.addEventListener("submit", async function (e) {
     }
 
     const formData = new FormData(form);
+    
+    // Remove original repair_imguser from formData to avoid confusion
+    formData.delete('repair_imguser');
+
+    // Append all cropped blobs that exist
+    croppedBlobs.forEach((blob, index) => {
+        if (blob) {
+            formData.append('repair_imguser[]', blob, `repair_photo_${index}.png`);
+        }
+    });
+
     const repair_posi = formData.get("repair_posi")
       ? $(form).find("#repair_posi option:selected").text()
       : "ไม่ได้ระบุ";
@@ -354,11 +495,14 @@ document.addEventListener("submit", async function (e) {
     const repair_phone = formData.get("repair_phone") || "ไม่ได้ระบุ";
     const repair_caselist = formData.get("repair_caselist") || "ไม่ได้ระบุ";
     const repair_detail = formData.get("repair_detail") || "ไม่มี";
-    const imageInput = form.querySelector("#repair_imguser");
-    let imageUrl = null;
-    if (imageInput.files && imageInput.files[0]) {
-      imageUrl = URL.createObjectURL(imageInput.files[0]);
-    }
+    
+    let imagesHtml = '';
+    croppedBlobs.forEach((blob, index) => {
+        if (blob) {
+            const url = URL.createObjectURL(blob);
+            imagesHtml += `<img src="${url}" class="img-fluid rounded mb-2 border" style="max-height: 150px;"> `;
+        }
+    });
 
     const confirmationHtml = `
             <div style="text-align: left; padding: 1rem;">
@@ -370,7 +514,7 @@ document.addEventListener("submit", async function (e) {
                 <hr>
                 <p><strong><i class="bi bi-tools"></i> รายการแจ้งซ่อม:</strong> ${repair_caselist}</p>
                 <p><strong><i class="bi bi-card-text"></i> รายละเอียด:</strong> ${repair_detail}</p>
-                ${imageUrl ? `<hr><p><strong><i class="bi bi-image"></i> รูปภาพที่แนบ:</strong></p><img src="${imageUrl}" class="img-fluid rounded">` : ""}
+                ${imagesHtml ? `<hr><p><strong><i class="bi bi-image"></i> รูปภาพที่แนบ (${croppedBlobs.filter(b => b).length} รูป):</strong></p>${imagesHtml}` : ""}
             </div>
         `;
 
@@ -384,9 +528,7 @@ document.addEventListener("submit", async function (e) {
       confirmButtonText: "ยืนยันการแจ้งซ่อม",
       cancelButtonText: "ยกเลิก",
       onClose: () => {
-        if (imageUrl) {
-          URL.revokeObjectURL(imageUrl); // Clean up the object URL
-        }
+        // imageUrl is not defined here, removed to avoid ReferenceError
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -638,6 +780,16 @@ $(document).on("submit", "#FormSaveRepairAdmin", function (e) {
   var formData = new FormData(this);
   formData.append("Signature", dataURL);
 
+  // Remove original repair_imgwork from formData to avoid confusion
+  formData.delete('repair_imgwork');
+
+  // Append all admin cropped blobs that exist
+  adminCroppedBlobs.forEach((blob, index) => {
+    if (blob) {
+      formData.append('repair_imgwork[]', blob, `admin_photo_${index}.png`);
+    }
+  });
+
   $.ajax({
     url: "../../Repair/DB/UpdateWork",
     method: "POST",
@@ -735,6 +887,55 @@ $(document).on("click", "#BtnCleanupImages", function () {
         error: function (xhr) {
           console.error("Cleanup Error:", xhr.responseText);
           Swal.fire("ผิดพลาด!", "เกิดข้อผิดพลาดระหว่างลบไฟล์ขยะ", "error");
+        },
+      });
+    }
+  });
+});
+
+$(document).on("click", "#BtnMigrateImages", function () {
+  Swal.fire({
+    title: "ยืนยันการจัดระเบียบไฟล์?",
+    text: "ระบบจะย้ายไฟล์รูปภาพที่มีอยู่เดิมไปไว้ในโฟลเดอร์ที่ถูกต้องตามฐานข้อมูล (User/Admin)!",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "เริ่มจัดระเบียบ!",
+    cancelButtonText: "ยกเลิก",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "กำลังจัดระเบียบไฟล์...",
+        text: "กรุณารอสักครู่...",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      $.ajax({
+        url: "../../Repair/DB/MigrateImages",
+        method: "POST",
+        dataType: "json",
+        success: function (response) {
+          if (response.status === "success") {
+            Swal.fire({
+              title: "สำเร็จ!",
+              text: response.message,
+              icon: "success",
+              confirmButtonText: "ตกลง",
+            }).then(() => {
+                window.location.reload();
+            });
+          } else {
+            Swal.fire("แจ้งเตือน!", response.message, "error");
+          }
+        },
+        error: function (xhr) {
+          console.error("Migration Error:", xhr.responseText);
+          Swal.fire("ผิดพลาด!", "เกิดข้อผิดพลาดระหว่างย้ายไฟล์", "error");
         },
       });
     }

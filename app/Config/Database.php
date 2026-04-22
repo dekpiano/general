@@ -26,7 +26,7 @@ class Database extends Config
      */
     public $default = [
         'DSN'      => '',
-        'hostname' => 'db',
+        'hostname' => 'skj2025_db',
         'username' => 'root',
         'password' => 'rootpassword',
         'database' => 'skjacth_general',
@@ -46,7 +46,7 @@ class Database extends Config
 
     public $personnel = [
         'DSN'      => '',
-        'hostname' => 'db',
+        'hostname' => 'skj2025_db',
         'username' => 'root',
         'password' => 'rootpassword',
         'database' => 'skjacth_personnel',
@@ -66,7 +66,7 @@ class Database extends Config
 
     public $skj = [
         'DSN'      => '',
-        'hostname' => 'db',
+        'hostname' => 'skj2025_db',
         'username' => 'root',
         'password' => 'rootpassword',
         'database' => 'skjacth_skj',
@@ -120,5 +120,11 @@ class Database extends Config
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
         }
+
+        // Set hostname from environment if available
+        $dbHost = getenv('DB_HOST') ?: 'skj2025_db';
+        $this->default['hostname']   = $dbHost;
+        $this->personnel['hostname'] = $dbHost;
+        $this->skj['hostname']       = $dbHost;
     }
 }

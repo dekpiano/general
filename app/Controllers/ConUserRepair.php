@@ -153,8 +153,9 @@ class ConUserRepair extends BaseController
 
     private function sendLineMessage($userId, $messageText)
     {
-        // ไม่ส่งถ้าไม่ใช่ production หรือเป็น localhost
-        if (ENVIRONMENT !== 'production' || in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+        // ไม่ส่งถ้าไม่ใช่ production หรือเป็น localhost (รองรับ port เช่น :8086)
+        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+        if (ENVIRONMENT !== 'production' || $isLocal) {
             return null;
         }
         $accessToken = '7gfC9gYjR4S/xRSGeqlOuXo9ZVR5TSvyAUSdgDRMDn4los6yawPmupV+iq47du3cwHjMYzG9SeWz97kGTGsNm+tVww6pHgHQNk7xA3HNHUatjywK/0Pfq98hW5EmM0Xg9PpGHcRZ3zpnQ7evs8yYWwdB04t89/1O/w1cDnyilFU=';
@@ -218,13 +219,29 @@ class ConUserRepair extends BaseController
             }
             $DateTimeToday = date('Y-m-d H:i:s');
             
-            $image = $this->request->getFile('repair_imguser');
+            $files = $this->request->getFileMultiple('repair_imguser');
+            $imageNames = [];
 
-            if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
-                $newName = $image->getRandomName();
-                $image->move(ROOTPATH . 'uploads/admin/Repair/User/', $newName);
-        
-                $this->resizeImage('uploads/admin/Repair/User/' . $newName, 2048, 1024);
+            if ($files) {
+                foreach ($files as $image) {
+                    if ($image && $image->isValid() && !$image->hasMoved()) {
+                        $newName = $image->getRandomName();
+                        $image->move(ROOTPATH . 'uploads/user/Repair/', $newName);
+                        $this->resizeImage('uploads/user/Repair/' . $newName, 2048, 1024);
+                        $imageNames[] = $newName;
+                    }
+                }
+            }
+
+            // Fallback for single file (if sent without array notation)
+            if (empty($imageNames)) {
+                $image = $this->request->getFile('repair_imguser');
+                if ($image && $image->isValid() && !$image->hasMoved()) {
+                    $newName = $image->getRandomName();
+                    $image->move(ROOTPATH . 'uploads/user/Repair/', $newName);
+                    $this->resizeImage('uploads/user/Repair/' . $newName, 2048, 1024);
+                    $imageNames[] = $newName;
+                }
             }
 
             $dataInsert = [
@@ -240,7 +257,7 @@ class ConUserRepair extends BaseController
                 'repair_detail' => $this->request->getVar('repair_detail'),
                 'repair_status' => 'รอดำเนินการ',
                 'repair_Repairman' => '',
-                'repair_imguser' => isset($newName) ? $newName : "",
+                'repair_imguser' => implode(',', $imageNames),
                 'repair_usersignature' => $this->request->getPost('Signature') // เก็บเป็น PNG Base64
             ];
             if($TBrepair->insert($dataInsert)){
@@ -268,8 +285,9 @@ class ConUserRepair extends BaseController
                 $msg .= "📅 วันที่แจ้ง: {$Datethai->thai_date_fullmonth(strtotime(date('Y-m-d H:i:s')))}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Repair/View/".$Repair->repair_order);
 
-                // ไม่ส่งแจ้งเตือนถ้าเป็น development environment หรือเป็น localhost
-                if (ENVIRONMENT === 'production' && !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+                // ไม่ส่งแจ้งเตือนถ้าเป็น development environment หรือเป็น localhost (รองรับ port เช่น :8086)
+                $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+                if (ENVIRONMENT === 'production' && !$isLocal) {
                     // 3. ส่งข้อความ Line (ใช้ userId หรือ groupId ของช่าง)
                     $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
 
@@ -429,42 +447,59 @@ class ConUserRepair extends BaseController
             $DBrepair = \Config\Database::connect();
             $TBrepair = $DBrepair->table('tb_repair');
             $Datethai = new Datethai();       
-            $image = $this->request->getFile('repair_imgwork');
-            
+            $files = $this->request->getFileMultiple('repair_imgwork');
+            $imageNames = [];
+
             $imgWorkPost = $this->request->getVar('imgwork');
             if (!empty($imgWorkPost)) {
-                $filePath = ROOTPATH .'uploads/admin/Repair/'.$imgWorkPost;
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                $oldImgs = explode(',', $imgWorkPost);
+                foreach($oldImgs as $oldImg) {
+                    if (empty($oldImg)) continue;
+                    $filePath = ROOTPATH .'uploads/admin/Repair/'.$oldImg;
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
                 }
             }
 
-            if (!empty($image) && $image->isValid() && !$image->hasMoved()) {
-                $newName = $image->getRandomName();
-                $image->move(ROOTPATH . 'uploads/admin/Repair/', $newName);
-                $this->resizeImage('uploads/admin/Repair/' . $newName, 2048, 1024);
-                $data = [
-                    'repair_status' => $this->request->getPost('repair_status'),
-                    'repair_datework' => $this->request->getPost('repair_datework'),
-                    'repair_Repairman' => $this->request->getPost('repair_Repairman'),
-                    'repair_cause' => $this->request->getPost('repair_cause'),
-                    'repair_imgwork'  => $newName,
-                    'repair_adminsignature' => $this->request->getPost('Signature') // เก็บเป็น PNG Base64
-                ];
-            } else {
-                $data = [
-                    'repair_status' => $this->request->getPost('repair_status'),
-                    'repair_datework' => $this->request->getPost('repair_datework'),
-                    'repair_Repairman' => $this->request->getPost('repair_Repairman'),
-                    'repair_cause' => $this->request->getPost('repair_cause'),
-                    'repair_adminsignature' => $this->request->getPost('Signature') // เก็บเป็น PNG Base64
-                ];
+            if ($files) {
+                foreach ($files as $image) {
+                    if ($image && $image->isValid() && !$image->hasMoved()) {
+                        $newName = $image->getRandomName();
+                        $image->move(ROOTPATH . 'uploads/admin/Repair/', $newName);
+                        $this->resizeImage('uploads/admin/Repair/' . $newName, 2048, 1024);
+                        $imageNames[] = $newName;
+                    }
+                }
+            }
+
+            // Fallback for single file
+            if (empty($imageNames)) {
+                $image = $this->request->getFile('repair_imgwork');
+                if ($image && $image->isValid() && !$image->hasMoved()) {
+                    $newName = $image->getRandomName();
+                    $image->move(ROOTPATH . 'uploads/admin/Repair/', $newName);
+                    $this->resizeImage('uploads/admin/Repair/' . $newName, 2048, 1024);
+                    $imageNames[] = $newName;
+                }
+            }
+
+            $data = [
+                'repair_status' => $this->request->getPost('repair_status'),
+                'repair_datework' => $this->request->getPost('repair_datework'),
+                'repair_Repairman' => $this->request->getPost('repair_Repairman'),
+                'repair_cause' => $this->request->getPost('repair_cause'),
+                'repair_adminsignature' => $this->request->getPost('Signature') // เก็บเป็น PNG Base64
+            ];
+
+            if (!empty($imageNames)) {
+                $data['repair_imgwork'] = implode(',', $imageNames);
             }
 
             if ($TBrepair->where('repair_order', $this->request->getPost('repair_order'))->update($data)) {
-                 // ไม่ส่งแจ้งเตือนถ้าไม่ใช่ production หรือเป็น localhost
-                 $host = explode(':', $_SERVER['HTTP_HOST'])[0];
-                 if (ENVIRONMENT === 'production' && !in_array($host, ['localhost', '127.0.0.1'])) {
+                 // ไม่ส่งแจ้งเตือนถ้าไม่ใช่ production หรือเป็น localhost (รองรับ port เช่น :8086)
+                 $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+                 if (ENVIRONMENT === 'production' && !$isLocal) {
                     $DBpers = \Config\Database::connect('personnel');
                     $TBpers = $DBpers->table('tb_personnel');
                     
@@ -561,13 +596,23 @@ class ConUserRepair extends BaseController
         
         $usedImages = [];
         foreach ($repairData as $row) {
-            if (!empty($row->repair_imguser)) $usedImages[] = $row->repair_imguser;
-            if (!empty($row->repair_imgwork)) $usedImages[] = $row->repair_imgwork;
+            if (!empty($row->repair_imguser)) {
+                $imgs = explode(',', $row->repair_imguser);
+                foreach($imgs as $img) {
+                    if (!empty($img)) $usedImages[] = $img;
+                }
+            }
+            if (!empty($row->repair_imgwork)) {
+                $imgs_w = explode(',', $row->repair_imgwork);
+                foreach($imgs_w as $img_w) {
+                    if (!empty($img_w)) $usedImages[] = $img_w;
+                }
+            }
         }
         
         $paths = [
             'uploads/admin/Repair/' => 'repair_imgwork',
-            'uploads/admin/Repair/User/' => 'repair_imguser'
+            'uploads/user/Repair/' => 'repair_imguser'
         ];
         
         $deletedCount = 0;
@@ -614,7 +659,7 @@ class ConUserRepair extends BaseController
 
     
     public function PrintOrder($RepairId){
-        require SHARED_LIB_PATH . '/mpdf/vendor/autoload.php';
+        require_once ROOTPATH . 'vendor/autoload.php';
 
         $DBrepair = \Config\Database::connect();
         $TBrepair = $DBrepair->table('tb_repair');
@@ -638,17 +683,33 @@ class ConUserRepair extends BaseController
         }
 
        
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
         $mpdf = new \Mpdf\Mpdf(
             array(
                 'format' => 'A4',
                 'mode' => 'utf-8',
                 'default_font' => 'thsarabun',
                 'default_font_size' => 16,
-                'margin_top' => 5, // ให้ header ชิดบนสุด
-                'margin_bottom' => 40, // ปรับให้กระชับขึ้นเพื่อให้เนื้อหาด้านบนขยายได้อีก
+                'margin_top' => 5,
+                'margin_bottom' => 40,
                 'margin_left' => 15,
                 'margin_right' => 15,
-                'margin_footer' => 5 // ให้ footer อยู่ต่ำเกือบสุด (5mm จากขอบล่าง)
+                'margin_footer' => 5,
+                'fontDir' => array_merge($fontDirs, [
+                    ROOTPATH . 'vendor/mpdf/mpdf/ttfonts',
+                ]),
+                'fontdata' => $fontData + [
+                    'thsarabun' => [
+                        'R' => 'THSarabunNew.ttf',
+                        'B' => 'THSarabunNew Bold.ttf',
+                        'I' => 'THSarabunNew Italic.ttf',
+                        'BI' => 'THSarabunNew BoldItalic.ttf'
+                    ]
+                ],
             )
         );
 
@@ -713,7 +774,7 @@ class ConUserRepair extends BaseController
 
     public function RepairBuildingMemoPrint()
     {
-        require SHARED_LIB_PATH . '/mpdf/vendor/autoload.php';
+        require_once ROOTPATH . 'vendor/autoload.php';
         
         $data['Datethai'] = new Datethai();
         $data['memo_data'] = $this->request->getPost();
@@ -875,15 +936,31 @@ class ConUserRepair extends BaseController
             }
         }
 
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
         $mpdf = new \Mpdf\Mpdf([
             'format' => 'A4',
             'mode' => 'utf-8',
             'default_font' => 'thsarabun',
             'default_font_size' => 16,
-            'margin_top' => 15, // 1.5 cm from top edge for Garuda
+            'margin_top' => 15,
             'margin_bottom' => 15,
-            'margin_left' => 30, // 3 cm
-            'margin_right' => 20, // 2 cm
+            'margin_left' => 30,
+            'margin_right' => 20,
+            'fontDir' => array_merge($fontDirs, [
+                ROOTPATH . 'vendor/mpdf/mpdf/ttfonts',
+            ]),
+            'fontdata' => $fontData + [
+                'thsarabun' => [
+                    'R' => 'THSarabunNew.ttf',
+                    'B' => 'THSarabunNew Bold.ttf',
+                    'I' => 'THSarabunNew Italic.ttf',
+                    'BI' => 'THSarabunNew BoldItalic.ttf'
+                ]
+            ],
         ]);
 
         $html = view('User/UserRepair/UserRepairBuildingMemoPrint', $data);
@@ -1074,6 +1151,75 @@ class ConUserRepair extends BaseController
         return $this->response->setJSON([
             'status' => 'success',
             'data' => $data
+        ]);
+    }
+    public function MigrateImages()
+    {
+        // Check permissions (Admin only)
+        $session = session();
+        $checkRloes = explode(",", @$_SESSION['rloes']);
+        if (empty($_SESSION['username']) || (!in_array("งานแจ้งซ่อม", $checkRloes) && !in_array("งานอาคารสถานที่", $checkRloes))) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้']);
+        }
+
+        $db = \Config\Database::connect();
+        $tbrepair = $db->table('tb_repair');
+        $rows = $tbrepair->select('repair_imguser, repair_imgwork')->get()->getResult();
+        
+        $userTarget = ROOTPATH . 'uploads/user/Repair/';
+        $adminTarget = ROOTPATH . 'uploads/admin/Repair/';
+        
+        // Ensure target directories exist
+        if (!is_dir($userTarget)) @mkdir($userTarget, 0777, true);
+        if (!is_dir($adminTarget)) @mkdir($adminTarget, 0777, true);
+        
+        $movedUser = 0;
+        $movedAdmin = 0;
+        
+        foreach ($rows as $row) {
+            // 1. Move User Images (repair_imguser)
+            if (!empty($row->repair_imguser)) {
+                $imgs = explode(',', $row->repair_imguser);
+                foreach($imgs as $img) {
+                    if (empty($img)) continue;
+                    
+                    // Possible source locations for user images
+                    $sources = [
+                        ROOTPATH . 'uploads/admin/Repair/User/' . $img,
+                        ROOTPATH . 'uploads/admin/Repair/' . $img
+                    ];
+                    
+                    foreach($sources as $src) {
+                        if (file_exists($src) && $src !== ($userTarget . $img)) {
+                            if (@rename($src, $userTarget . $img)) {
+                                $movedUser++;
+                                break; // Found and moved
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 2. Move Admin Images (repair_imgwork)
+            if (!empty($row->repair_imgwork)) {
+                $imgs_w = explode(',', $row->repair_imgwork);
+                foreach($imgs_w as $img_w) {
+                    if (empty($img_w)) continue;
+                    
+                    // Possible source locations for admin images (maybe accidentally put in User folder)
+                    $src = ROOTPATH . 'uploads/admin/Repair/User/' . $img_w;
+                    if (file_exists($src) && $src !== ($adminTarget . $img_w)) {
+                        if (@rename($src, $adminTarget . $img_w)) {
+                            $movedAdmin++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $this->response->setJSON([
+            'status' => 'success', 
+            'message' => "ย้ายไฟล์เข้าโฟลเดอร์ที่ถูกต้องเรียบร้อยแล้ว (User: $movedUser ไฟล์, Admin: $movedAdmin ไฟล์)"
         ]);
     }
 }

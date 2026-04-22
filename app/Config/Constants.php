@@ -93,24 +93,4 @@ define('EVENT_PRIORITY_NORMAL', 100);
  */
 define('EVENT_PRIORITY_HIGH', 10);
 
-/*
- | --------------------------------------------------------------------------
- | Shared Library Path
- | --------------------------------------------------------------------------
- |
- | Path to shared library used across multiple projects.
- | Automatically detects Windows (Local XAMPP) or Linux (Docker/Production).
- |
- */
-// ตรวจสอบ OS ว่าเป็น Windows หรือไม่ (Windows ใช้ \ เป็นตัวคั่น path, Linux ใช้ /)
-if (DIRECTORY_SEPARATOR === '\\') {
-    // โค้ดกำลังรันบนเครื่องคอมพิวเตอร์ของคุณ (Windows / Local XAMPP)
-    defined('SHARED_LIB_PATH') OR define('SHARED_LIB_PATH', 'D:\librarie_skj');
-} else {
-    // โค้ดกำลังรันบน Linux (Docker หรือ Production Server)
-    if (is_dir('/domains/librarie_skj')) {
-        defined('SHARED_LIB_PATH') OR define('SHARED_LIB_PATH', '/domains/librarie_skj');
-    } else {
-        defined('SHARED_LIB_PATH') OR define('SHARED_LIB_PATH', '/home/skjacth/domains/skj.ac.th/public_html/librarie_skj');
-    }
-}
+

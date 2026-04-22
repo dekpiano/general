@@ -271,7 +271,9 @@
 
         <div class="login-action-box">
             <span class="login-label">กรุณาเลือกวิธีการเข้าสู่ระบบ</span>
-            <?= $GoogleButton; ?>
+            <a href="<?= $GoogleButton; ?>" class="btn btn-primary">
+                <i class="tf-icons bx bxl-google"></i> Login by Google 
+            </a>
         </div>
 
         <div class="login-footer">

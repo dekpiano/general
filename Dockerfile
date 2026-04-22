@@ -1,4 +1,4 @@
-FROM php:8.0-apache
+FROM php:8.3-apache
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -27,17 +27,17 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 
 # Configure PHP settings (Optimization)
 RUN { \
-    echo 'opcache.memory_consumption=256'; \
-    echo 'opcache.interned_strings_buffer=16'; \
-    echo 'opcache.max_accelerated_files=20000'; \
-    echo 'opcache.revalidate_freq=2'; \
+    echo 'opcache.memory_consumption=512'; \
+    echo 'opcache.interned_strings_buffer=64'; \
+    echo 'opcache.max_accelerated_files=32531'; \
+    echo 'opcache.revalidate_freq=0'; \
     echo 'opcache.fast_shutdown=1'; \
     echo 'opcache.enable_cli=1'; \
     echo 'opcache.preload=/var/www/html/preload.php'; \
     echo 'opcache.preload_user=www-data'; \
-    echo 'realpath_cache_size=4096K'; \
-    echo 'realpath_cache_ttl=600'; \
-    echo 'memory_limit=512M'; \
+    echo 'realpath_cache_size=32M'; \
+    echo 'realpath_cache_ttl=1200'; \
+    echo 'memory_limit=1024M'; \
     echo 'upload_max_filesize=100M'; \
     echo 'post_max_size=108M'; \
     } > /usr/local/etc/php/conf.d/docker-php-optimization.ini
