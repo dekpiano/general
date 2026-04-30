@@ -1,11 +1,69 @@
 <?= $this->extend('User/UserLayout/user_layout') ?>
 <?= $this->section('content') ?>
 
+<?php 
+    // ประกาศตัวแปรสิทธิ์การใช้งานไว้ด้านบนสุดเพื่อให้เรียกใช้ได้ทั้งหน้า
+    $checkRloes = explode(",",@$_SESSION['rloes']);
+    $isAdmin = (!empty($_SESSION['username']) && (in_array("งานแจ้งซ่อม",$checkRloes) || in_array("งานอาคารสถานที่",$checkRloes)));
+?>
+
+<style>
+/* Star Rating CSS - Mobile Friendly */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 15px; /* เพิ่มระยะห่างให้กดง่ายขึ้นบนมือถือ */
+}
+.star-rating input {
+    display: none;
+}
+.star-rating label {
+    font-size: 2.5rem; /* ขยายขนาดดาวให้ใหญ่ขึ้นสำหรับนิ้วสัมผัส */
+    color: #e9ecef;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    padding: 5px; /* เพิ่มพื้นที่กด */
+}
+.star-rating label:active {
+    transform: scale(1.2); /* มี Feedback เมื่อกด */
+}
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+    color: #ffc107;
+}
+.star-rating label:hover:before,
+.star-rating label:hover ~ label:before,
+.star-rating input:checked ~ label:before {
+    content: "\ea83";
+    font-family: 'boxicons';
+}
+.star-display {
+    color: #ffc107;
+    letter-spacing: 2px;
+}
+
+/* ปรับปรุง Modal สำหรับมือถือ */
+@media (max-width: 576px) {
+    .star-rating label {
+        font-size: 2.2rem;
+        gap: 10px;
+    }
+    .modal-body {
+        padding: 1.5rem 1rem !important;
+    }
+    #FormEvaluation label.fw-bold {
+        font-size: 0.9rem;
+    }
+}
+</style>
+
 <div class="container-xxl flex-grow-1 container-p-y">
 
    <!-- Header -->
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col-12 <?php if($isAdmin){echo "col-md-8";}?> ">
             <div class="card bg-label-primary border-0 text-white overflow-hidden wave-bg">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -21,35 +79,54 @@
                             </nav>
                         </div>
                         <div class="d-flex gap-2">
-                            <?php $checkRloes = explode(",",@$_SESSION['rloes']);?>
-                            <?php if(!empty($_SESSION['username']) && (in_array("งานแจ้งซ่อม",$checkRloes) || in_array("งานอาคารสถานที่",$checkRloes))):?>
-                            <button type="button" class="btn btn-warning shadow-sm fw-bold" id="ModalFormAdmin">
-                                <i class="bx bx-wrench me-1"></i> สำหรับผู้ซ่อม
-                            </button>
-                            <button type="button" class="btn btn-outline-danger shadow-sm fw-bold" id="BtnCleanupImages">
-                                <i class="bx bx-trash me-1"></i> ล้างไฟล์ขยะ
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary shadow-sm fw-bold" id="BtnMigrateImages">
-                                <i class="bx bx-move me-1"></i> ย้ายไฟล์เข้าโฟลเดอร์
-                            </button>
-                            <?php endif; ?>
+                            <?php // ลบส่วนประกาศตัวแปรซ้ำซ้อนออก ?>
                             
                             <?php if($Order[0]->repair_caselist === 'งานอาคารสถานที่' && session()->get('id') == $Order[0]->repair_userID): ?>
                             <a href="<?=base_url('Repair/BuildingMemo?order=').$Order[0]->repair_order?>" 
-                                class="btn btn-outline-warning shadow-sm fw-bold">
+                                class="btn btn-outline-warning shadow-sm fw-bold btn-sm">
                                 <i class="bx bx-file me-1"></i> บันทึกข้อความ
                             </a>
                             <?php endif; ?>
 
                             <a href="<?=base_url('Repair/PrintOrder/').$Order[0]->repair_order?>" target="_blank"
-                                class="btn btn-primary shadow-sm fw-bold PrintOrder">
-                                <i class="bx bx-printer me-1"></i> พิมพ์ใบแจ้งซ่อม
+                                class="btn btn-primary shadow-sm fw-bold PrintOrder btn-sm">
+                                <i class="bx bx-printer me-1"></i> พิมพ์
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    
+
+    <!-- Admin Control Panel (Horizontal Bar) -->
+    <?php if($isAdmin): ?>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-label-warning overflow-hidden">
+                <div class="card-body py-2 px-3">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="d-flex align-items-center text-warning">
+                            <i class="bx bx-shield-quarter fs-4 me-2"></i>
+                            <span class="fw-bold">แผงควบคุมเจ้าหน้าที่:</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-warning btn-sm fw-bold px-3" id="ModalFormAdmin">
+                                <i class="bx bx-wrench me-1"></i> รับงาน/บันทึกการซ่อม
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" id="BtnCleanupImages">
+                                <i class="bx bx-trash me-1"></i> ล้างรูปขยะ
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="BtnMigrateImages">
+                                <i class="bx bx-move me-1"></i> จัดระเบียบไฟล์
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <?php endif; ?>
+
     </div>
 
     <div class="row">
@@ -116,6 +193,7 @@
 
         <!-- Right: Operation Info -->
         <div class="col-lg-5 mb-4">
+            
             <div class="card border-0 shadow-sm rounded-3 h-100">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
                     <h5 class="card-title text-primary mb-0"><i class="bx bx-cog me-2"></i>ข้อมูลการดำเนินการ</h5>
@@ -134,6 +212,52 @@
                         <span class="badge <?=$badge_class?> fs-4 py-2 px-4 rounded-pill">
                             <i class="bx <?=$icon_class?> me-2"></i><?=$status?>
                         </span>
+                    </div>
+
+                    <!-- Evaluation Section -->
+                    <div class="mt-4">
+                        <?php 
+                            $isOwner = (session()->get('id') == $Order[0]->repair_userID);
+                            
+                            // แสดงปุ่มถ้า (สถานะเรียบร้อย) AND (เป็นเจ้าของ OR เป็น Admin)
+                            if(trim($status) == 'ดำเนินการเรียบร้อย' && ($isOwner || $isAdmin)): 
+                        ?>
+                            <?php if(empty($Evaluation)): ?>
+                                <div class="alert alert-primary d-flex align-items-center border-0 shadow-sm" role="alert">
+                                    <i class="bx bx-star fs-3 me-3"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">ประเมินความพึงพอใจ</div>
+                                        <div class="small">งานซ่อมเสร็จสิ้นแล้ว รบกวนคุณสละเวลาสักครู่เพื่อประเมินการทำงานครับ</div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm ms-2" id="BtnOpenEvaluation">ประเมิน</button>
+                                </div>
+                            <?php else: ?>
+                                <div class="card bg-label-success border-0 shadow-none mb-0">
+                                    <div class="card-body p-3">
+                                        <div class="fw-bold mb-2 text-success"><i class="bx bxs-check-shield me-1"></i> ประเมินแล้ว</div>
+                                        <div class="row g-2 small text-dark">
+                                            <div class="col-6">ความรวดเร็ว:</div>
+                                            <div class="col-6 star-display">
+                                                <?= str_repeat('<i class="bx bxs-star"></i>', $Evaluation->eval_score_speed) ?>
+                                            </div>
+                                            <div class="col-6">คุณภาพ:</div>
+                                            <div class="col-6 star-display">
+                                                <?= str_repeat('<i class="bx bxs-star"></i>', $Evaluation->eval_score_quality) ?>
+                                            </div>
+                                            <div class="col-6">การบริการ:</div>
+                                            <div class="col-6 star-display">
+                                                <?= str_repeat('<i class="bx bxs-star"></i>', $Evaluation->eval_score_service) ?>
+                                            </div>
+                                        </div>
+                                        <?php if(!empty($Evaluation->eval_comment)): ?>
+                                            <div class="mt-2 p-2 bg-white rounded-3 small border border-success border-opacity-25">
+                                                <strong>ความเห็น:</strong> <?= $Evaluation->eval_comment ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
 
                     <ul class="list-unstyled">
@@ -327,6 +451,74 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluation Modal -->
+    <div class="modal fade" id="ModalEvaluation" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title text-white"><i class="bx bx-star me-2"></i>ประเมินความพึงพอใจ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="FormEvaluation">
+                    <div class="modal-body p-4">
+                        <input type="hidden" name="repair_order" value="<?=$Order[0]->repair_order?>">
+                        
+                        <div class="text-center mb-4">
+                            <p class="text-muted">ความพึงพอใจของคุณช่วยให้เราพัฒนาการบริการให้ดียิ่งขึ้น</p>
+                        </div>
+
+                        <!-- Speed Score -->
+                        <div class="mb-4">
+                            <label class="d-block text-center fw-bold mb-2">1. ความรวดเร็วในการให้บริการ</label>
+                            <div class="star-rating">
+                                <input type="radio" id="speed-5" name="score_speed" value="5" required /><label for="speed-5"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="speed-4" name="score_speed" value="4" /><label for="speed-4"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="speed-3" name="score_speed" value="3" /><label for="speed-3"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="speed-2" name="score_speed" value="2" /><label for="speed-2"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="speed-1" name="score_speed" value="1" /><label for="speed-1"><i class="bx bx-star"></i></label>
+                            </div>
+                        </div>
+
+                        <!-- Quality Score -->
+                        <div class="mb-4">
+                            <label class="d-block text-center fw-bold mb-2">2. คุณภาพการซ่อมแซม</label>
+                            <div class="star-rating">
+                                <input type="radio" id="quality-5" name="score_quality" value="5" required /><label for="quality-5"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="quality-4" name="score_quality" value="4" /><label for="quality-4"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="quality-3" name="score_quality" value="3" /><label for="quality-3"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="quality-2" name="score_quality" value="2" /><label for="quality-2"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="quality-1" name="score_quality" value="1" /><label for="quality-1"><i class="bx bx-star"></i></label>
+                            </div>
+                        </div>
+
+                        <!-- Service Score -->
+                        <div class="mb-4">
+                            <label class="d-block text-center fw-bold mb-2">3. มารยาทและการให้บริการของเจ้าหน้าที่</label>
+                            <div class="star-rating">
+                                <input type="radio" id="service-5" name="score_service" value="5" required /><label for="service-5"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="service-4" name="score_service" value="4" /><label for="service-4"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="service-3" name="score_service" value="3" /><label for="service-3"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="service-2" name="score_service" value="2" /><label for="service-2"><i class="bx bx-star"></i></label>
+                                <input type="radio" id="service-1" name="score_service" value="1" /><label for="service-1"><i class="bx bx-star"></i></label>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="comment" class="form-label fw-bold">ข้อเสนอแนะเพิ่มเติม (ถ้ามี)</label>
+                            <textarea class="form-control bg-light border-0" id="comment" name="comment" rows="3" placeholder="เขียนความเห็นของคุณที่นี่..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-0">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn btn-success px-4 fw-bold shadow-sm" id="BtnSaveEvaluation">
+                            <i class="bx bx-check-circle me-1"></i> ส่งผลการประเมิน
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

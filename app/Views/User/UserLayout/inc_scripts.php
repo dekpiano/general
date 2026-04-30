@@ -123,7 +123,22 @@
                 // ตรวจสอบ Role เพื่อติดแท็กสำหรับ Admin
                 <?php if (isset($_SESSION['rloes']) || isset($_SESSION['status'])): ?>
                     const roles = "<?= $_SESSION['rloes'] ?? '' ?>";
+                    const levels = "<?= $_SESSION['rloes_level'] ?? '' ?>";
                     const status = "<?= $_SESSION['status'] ?? '' ?>";
+                    
+                    if (roles.includes("งานอาคารสถานที่") || status === "ExecutiveGeneral") {
+                        OneSignal.User.addTag("role", "admin_building");
+                        if (levels.includes("1/หัวหน้างาน")) {
+                            OneSignal.User.addTag("role", "head_building");
+                        }
+                    }
+                    if (roles.includes("งานแจ้งซ่อม") || status === "ExecutiveGeneral") {
+                        OneSignal.User.addTag("role", "admin_repair");
+                        if (levels.includes("1/หัวหน้างาน")) {
+                            OneSignal.User.addTag("role", "head_repair");
+                        }
+                    }
+                    // Keep admin_booking for room booking system compatibility
                     if (roles.includes("งานอาคารสถานที่") || status === "ExecutiveGeneral") {
                         OneSignal.User.addTag("role", "admin_booking");
                     }

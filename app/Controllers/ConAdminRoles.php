@@ -62,7 +62,7 @@ class ConAdminRoles extends BaseController
             'msg' => "An error occurred."
         ];
 
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->is('post')) {
             $database = \Config\Database::connect();
             $builder = $database->table('tb_admin_rloes');
 
@@ -101,7 +101,7 @@ class ConAdminRoles extends BaseController
             'msg' => "An error occurred."
         ];
 
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->is('post')) {
             $rloes_id = $this->request->getPost('rloes_id');
 
             if (empty($rloes_id)) {
@@ -129,7 +129,7 @@ class ConAdminRoles extends BaseController
     }
      public function AddDepartment()
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->is('post')) {
             $departmentName = $this->request->getPost('department_name');
 
             if (empty($departmentName)) {

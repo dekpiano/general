@@ -500,10 +500,12 @@ $departmentColors = [
                                 <i class='bx bxs-star'></i>
                                 <?= htmlspecialchars($v_Manager->admin_rloes_nanetype) ?>
                             </div>
-                            <select class="select2Rloes form-select SettingGeneralRloes"
-                                rloes-id="<?=$v_Manager->admin_rloes_id;?>"
-                                rloes-level="<?=$v_Manager->admin_rloes_level;?>"
-                                Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
+                            <div class="d-flex gap-2">
+                                <select class="select2Rloes form-select SettingGeneralRloes flex-grow-1"
+                                    rloes-id="<?=$v_Manager->admin_rloes_id;?>"
+                                    rloes-level="<?=$v_Manager->admin_rloes_level;?>"
+                                    Key-nanetype="<?=$v_Manager->admin_rloes_nanetype;?>">
+                                    <option value="">-- ไม่ระบุ --</option>
                                 <?php foreach ($NameTeacher as $v_NameTeacher) : ?>
                                 <option
                                     <?=$v_Manager->admin_rloes_userid == $v_NameTeacher->pers_id ? 'selected' : '';?>
@@ -511,7 +513,8 @@ $departmentColors = [
                                     <?=$v_NameTeacher->pers_prefix.$v_NameTeacher->pers_firstname." ".$v_NameTeacher->pers_lastname?>
                                 </option>
                                 <?php endforeach; ?>
-                            </select>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -547,11 +550,16 @@ $departmentColors = [
                         $isHead = ($SubLevel[0] ?? '2') === '1';
                     ?>
                     <div class="staff-card">
-                        <div class="position-label">
+                        <div class="position-label d-flex justify-content-between align-items-center">
                             <span class="position-badge <?=$isHead ? 'head' : 'staff'?>">
                                 <i class='bx <?=$isHead ? 'bxs-star' : 'bxs-user'?> me-1'></i>
                                 <?= htmlspecialchars(isset($SubLevel[1]) ? $SubLevel[1] : 'เจ้าหน้าที่') ?>
                             </span>
+                            <button type="button" class="btn btn-sm btn-icon btn-outline-danger btn-delete-role" 
+                                    data-id="<?=$v_Manager->admin_rloes_id?>" 
+                                    data-name="<?=htmlspecialchars(isset($SubLevel[1]) ? $SubLevel[1] : 'เจ้าหน้าที่')?>">
+                                <i class='bx bx-trash'></i>
+                            </button>
                         </div>
                         <select class="select2Rloes form-select SettingGeneralRloes"
                             rloes-id="<?=$v_Manager->admin_rloes_id;?>"
@@ -904,6 +912,51 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         }
+    });
+
+    // --- New Delete Button Logic ---
+    $(document).on('click', '.btn-delete-role', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        const card = $(this).closest('.staff-card');
+
+        Swal.fire({
+            title: 'ยืนยันการลบตำแหน่ง?',
+            text: `คุณกำลังจะลบตำแหน่ง "${name}" ออกจากระบบถาวร`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff3e1d',
+            cancelButtonColor: '#8592a3',
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?= base_url('Admin/Rloes/DeleteRole') ?>',
+                    type: 'POST',
+                    data: { rloes_id: id },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                            card.fadeOut(500, function() { $(this).remove(); });
+                        } else {
+                            Swal.fire('เกิดข้อผิดพลาด!', response.msg, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+                    }
+                });
+            }
+        });
     });
 });
 </script>

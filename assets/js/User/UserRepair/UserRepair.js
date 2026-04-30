@@ -798,32 +798,21 @@ $(document).on("submit", "#FormSaveRepairAdmin", function (e) {
     contentType: false,
     cache: false,
     dataType: "json", // ให้ jQuery แปรงเป็น JSON ให้อัตโนมัติ
-    success: function (response) {
-      $("#btnSaveRepair").prop("disabled", false);
-      $("#btnSaveText").text("บันทึกข้อมูล");
-      $("#btnSpinner").hide();
-
-      $("#ModalRepairSaveAdmin").modal("hide");
-      $(".modal-backdrop").remove();
-
-      if (response.status === "success") {
+    success: function (responseData) {
+      if (responseData.status === "success") {
         Swal.fire({
           title: "สำเร็จ!",
-          text: response.message,
+          text: responseData.message,
           icon: "success",
           confirmButtonColor: "#3085d6",
           confirmButtonText: "ตกลง!",
         }).then((result) => {
           if (result.isConfirmed) {
-            window.location.reload(true);
+            location.reload();
           }
         });
       } else {
-        Swal.fire(
-          "แจ้งเตือน!",
-          response.message || "บันทึกข้อมูลไม่สำเร็จ!",
-          "error",
-        );
+        Swal.fire("ผิดพลาด!", responseData.message, "error");
       }
     },
     error: function (xhr, status, error) {
@@ -844,7 +833,48 @@ $(document).on("submit", "#FormSaveRepairAdmin", function (e) {
         "error",
       );
     },
+    complete: function () {
+      $("#btnSaveRepair").prop("disabled", false);
+      $("#btnSaveText").html('<i class="bx bx-save me-1"></i> บันทึกการซ่อม');
+      $("#btnSpinner").hide();
+    },
   });
+});
+
+// --- EVALUATION SYSTEM ---
+$(document).on("click", "#BtnOpenEvaluation", function() {
+    $("#ModalEvaluation").modal("show");
+});
+
+$(document).on("submit", "#FormEvaluation", function(e) {
+    e.preventDefault();
+    
+    const btn = $("#BtnSaveEvaluation");
+    const originalBtnHtml = btn.html();
+    
+    btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm me-2"></span> กำลังส่ง...');
+    
+    const formData = $(this).serialize();
+    
+    $.post("../../Repair/DB/SaveEvaluation", formData, function(res) {
+        if (res.status === "success") {
+            $("#ModalEvaluation").modal("hide");
+            Swal.fire({
+                title: "สำเร็จ!",
+                text: res.message,
+                icon: "success",
+                confirmButtonColor: "#28a745"
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire("แจ้งเตือน", res.message, "warning");
+            btn.prop("disabled", false).html(originalBtnHtml);
+        }
+    }, "json").fail(function() {
+        Swal.fire("ผิดพลาด", "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์", "error");
+        btn.prop("disabled", false).html(originalBtnHtml);
+    });
 });
 
 $(document).on("click", "#BtnCleanupImages", function () {

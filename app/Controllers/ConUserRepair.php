@@ -14,6 +14,77 @@ class ConUserRepair extends BaseController
        
     }
 
+    private $oneSignalAppId = 'be488231-0e72-4fe0-962d-fcb32cb761e7';
+    private $oneSignalApiKey = 'os_v2_app_xzeiemioojh6bfrn7szszn3b46vk2igzrooeom4rtulcfh2t47lyy6rf6mccwtbxfwgzhvpjurm4trrduldx73e3wwz35nwjtsgyhwa';
+
+    private function sendPushNotification($title, $message, $url = null, $tags = null, $userIds = null)
+    {
+        $content = array(
+            "en" => $message,
+            "th" => $message
+        );
+        $headings = array(
+            "en" => $title,
+            "th" => $title
+        );
+
+        $fields = array(
+            'app_id' => $this->oneSignalAppId,
+            'headings' => $headings,
+            'contents' => $content,
+            'chrome_web_badge' => base_url('assets/img/icons/icon-192x192.png'),
+            'chrome_web_icon' => base_url('assets/img/icons/icon-512x512.png'),
+            'firefox_icon' => base_url('assets/img/icons/icon-512x512.png')
+        );
+
+        if ($url) {
+            $fields['url'] = $url;
+        }
+
+        if ($userIds) {
+            $fields['include_external_user_ids'] = is_array($userIds) ? $userIds : array($userIds);
+        } elseif ($tags) {
+            $fields['filters'] = array();
+            $first = true;
+            foreach ($tags as $key => $value) {
+                if (!$first) {
+                    $fields['filters'][] = array("operator" => "OR");
+                }
+                if (is_array($value)) {
+                    foreach ($value as $v) {
+                        if (!$first) $fields['filters'][] = array("operator" => "OR");
+                        $fields['filters'][] = array("field" => "tag", "key" => $key, "relation" => "=", "value" => $v);
+                        $first = false;
+                    }
+                } else {
+                    $fields['filters'][] = array("field" => "tag", "key" => $key, "relation" => "=", "value" => $value);
+                    $first = false;
+                }
+            }
+        } else {
+            $fields['included_segments'] = array('All');
+        }
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json; charset=utf-8',
+            'Authorization: Basic ' . $this->oneSignalApiKey
+        ));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
     /**
      * ดึง Email ของเจ้าหน้าที่ตามชื่องาน (หัวหน้า + เจ้าหน้าที่)
      * @param string $departmentName ชื่องาน เช่น "งานแจ้งซ่อม", "งานอาคารสถานที่"
@@ -291,6 +362,17 @@ class ConUserRepair extends BaseController
                     // 3. ส่งข้อความ Line (ใช้ userId หรือ groupId ของช่าง)
                     $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
 
+                    // 5. ส่ง OneSignal Push Notification หาเจ้าหน้าที่และหัวหน้างาน
+                    $isBuilding = ($this->request->getVar('repair_caselist') == "งานอาคารสถานที่");
+                    $targetRoles = $isBuilding ? ['admin_building', 'head_building'] : ['admin_repair', 'head_repair'];
+                    
+                    $this->sendPushNotification(
+                        "🛠️ มีงานแจ้งซ่อมมาใหม่!",
+                        "โดย {$RequesterName} - {$this->request->getVar('repair_caselist')}",
+                        base_url("/Repair/View/".$Repair->repair_order),
+                        ['role' => $targetRoles]
+                    );
+
                     // 4. ส่ง Email - ดึงรายชื่อจากตาราง tb_admin_rloes
                     if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
                         // ส่งไปที่หัวหน้าและเจ้าหน้าที่งานอาคารสถานที่
@@ -409,6 +491,11 @@ class ConUserRepair extends BaseController
             ->get()->getResult();
 
         $data['Order'] = array_merge($data['RepaiUser'],$data['Repairman']);
+
+        // ตรวจสอบว่ามีการประเมินไปแล้วหรือยัง
+        $data['Evaluation'] = $DBrepair->table('tb_repair_evaluations')
+            ->where('repair_order', $IDorder)
+            ->get()->getRow();
 
         //echo "<pre>"; print_r($data['Order']); exit();
         
@@ -555,6 +642,15 @@ class ConUserRepair extends BaseController
                                  $email->setMessage($htmlMessage);
                                  $email->setMailType('html');
                                  $email->send();
+
+                                 // 6. ส่ง OneSignal Push Notification หาผู้แจ้งซ่อม
+                                 $this->sendPushNotification(
+                                     "🛠️ อัปเดตสถานะการซ่อม",
+                                     "รายการ: {$RepairInfo->repair_caselist} สถานะ: {$currentStatus}",
+                                     base_url('Repair/View/' . $RepairInfo->repair_order),
+                                     null,
+                                     $RepairInfo->repair_userID
+                                 );
                              } catch (\Exception $e) {
                                  log_message('error', 'Repair Email Error: ' . $e->getMessage());
                              }
@@ -1221,5 +1317,51 @@ class ConUserRepair extends BaseController
             'status' => 'success', 
             'message' => "ย้ายไฟล์เข้าโฟลเดอร์ที่ถูกต้องเรียบร้อยแล้ว (User: $movedUser ไฟล์, Admin: $movedAdmin ไฟล์)"
         ]);
+    }
+
+    public function RepairSaveEvaluation()
+    {
+        try {
+            $db = \Config\Database::connect();
+            $repair_order = $this->request->getPost('repair_order');
+
+            // เช็คก่อนว่าเคยประเมินหรือยัง
+            $exists = $db->table('tb_repair_evaluations')
+                ->where('repair_order', $repair_order)
+                ->countAllResults();
+
+            if ($exists > 0) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'คุณได้ประเมินรายการนี้ไปเรียบร้อยแล้ว'
+                ]);
+            }
+
+            $dataInsert = [
+                'repair_order' => $repair_order,
+                'eval_score_speed' => $this->request->getPost('score_speed'),
+                'eval_score_quality' => $this->request->getPost('score_quality'),
+                'eval_score_service' => $this->request->getPost('score_service'),
+                'eval_comment' => $this->request->getPost('comment'),
+                'eval_datetime' => date('Y-m-d H:i:s')
+            ];
+
+            if ($db->table('tb_repair_evaluations')->insert($dataInsert)) {
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'message' => 'ขอบคุณสำหรับคะแนนการประเมินและข้อเสนอแนะของคุณ!'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()
+            ]);
+        }
     }
 }

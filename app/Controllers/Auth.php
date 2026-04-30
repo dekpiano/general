@@ -151,6 +151,7 @@ class Auth extends BaseController
                     'email'     => $result->pers_username,
                     'pers_img'  => $result->pers_img,
                     'rloes'     => $result->rloesAll ?: '',
+                    'rloes_level' => $result->rloesLevelAll ?: '',
                     'status'    => $result->admin_rloes_status ?: 'Member',
                     'logged_in' => true,
                 ];
@@ -232,6 +233,7 @@ class Auth extends BaseController
                     'email'     => $result->pers_username,
                     'pers_img'  => $result->pers_img,
                     'rloes'     => $result->rloesAll ?: '',
+                    'rloes_level' => $result->rloesLevelAll ?: '',
                     'status'    => $result->admin_rloes_status ?: 'Member',
                     'logged_in' => true,
                 ];
