@@ -103,7 +103,7 @@ $routes->match(['GET', 'POST'],'Repair/DB/StatisticsCaselist', 'ConUserRepair::R
 $routes->get('Repair/Api/getRepairList', 'ConUserRepair::getRepairList');
 $routes->get('Repair/Api/getRepairDetail/(:any)', 'ConUserRepair::getRepairDetail/$1');
 $routes->get('Repair/BuildingMemo', 'ConUserRepair::RepairBuildingMemo');
-$routes->post('Repair/BuildingMemo/Print', 'ConUserRepair::RepairBuildingMemoPrint');
+$routes->match(['GET', 'POST'], 'Repair/BuildingMemo/Print', 'ConUserRepair::RepairBuildingMemoPrint');
 $routes->post('Repair/DB/SaveEvaluation', 'ConUserRepair::RepairSaveEvaluation');
 
 

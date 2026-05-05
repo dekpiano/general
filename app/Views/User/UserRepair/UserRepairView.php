@@ -113,6 +113,13 @@
                             <button type="button" class="btn btn-warning btn-sm fw-bold px-3" id="ModalFormAdmin">
                                 <i class="bx bx-wrench me-1"></i> รับงาน/บันทึกการซ่อม
                             </button>
+
+                            <?php if(!empty($MemoData)): ?>
+                            <a href="<?=base_url('Repair/BuildingMemo/Print?order=').$Order[0]->repair_order?>" 
+                                target="_blank" class="btn btn-outline-primary btn-sm fw-bold px-3">
+                                <i class="bx bx-file me-1"></i> ดูบันทึกข้อความ (ผู้แจ้ง)
+                            </a>
+                            <?php endif; ?>
                             <button type="button" class="btn btn-outline-danger btn-sm" id="BtnCleanupImages">
                                 <i class="bx bx-trash me-1"></i> ล้างรูปขยะ
                             </button>

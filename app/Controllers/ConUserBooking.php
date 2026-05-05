@@ -195,9 +195,21 @@ class ConUserBooking extends BaseController
     }
 
     function thaidate_to_mysql($dateStr) {
+        if (empty($dateStr)) return null;
+
+        // Check if it's already Y-m-d (Gregorian)
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateStr)) {
+            return $dateStr;
+        }
+
+        // Check if it's d/m/Y (Thai Buddhist)
         $parts = explode('/', $dateStr);
         if (count($parts) === 3) {
-            return ($parts[2] - 543) . '-' . str_pad($parts[1], 2, '0', STR_PAD_LEFT) . '-' . str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+            $year = (int)$parts[2];
+            if ($year > 2400) {
+                $year -= 543;
+            }
+            return $year . '-' . str_pad($parts[1], 2, '0', STR_PAD_LEFT) . '-' . str_pad($parts[0], 2, '0', STR_PAD_LEFT);
         }
         return null;
     }
@@ -265,7 +277,7 @@ class ConUserBooking extends BaseController
         }
 
         // Ensure uniqueness loop
-        while ($DBbooking->where('booking_order', $bookingOrder)->countAllResults() > 0) {
+        while ($database->table('tb_booking')->where('booking_order', $bookingOrder)->countAllResults() > 0) {
             $parts = explode('_', $bookingOrder);
             $bookingOrder = "BK_" . ((int)$parts[1] + 1);
         }
@@ -381,9 +393,10 @@ class ConUserBooking extends BaseController
                 ]);
             }
         } else {
+            $error = $database->error();
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูลการจอง'
+                'message' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูลการจอง: ' . ($error['message'] ?? 'ไม่ทราบสาเหตุ')
             ]);
         }
     }

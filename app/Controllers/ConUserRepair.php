@@ -497,6 +497,11 @@ class ConUserRepair extends BaseController
             ->where('repair_order', $IDorder)
             ->get()->getRow();
 
+        // ดึงข้อมูลบันทึกข้อความ (ถ้ามี)
+        $data['MemoData'] = $DBrepair->table('tb_repair_memo')
+            ->where('repair_order', $IDorder)
+            ->get()->getRow();
+
         //echo "<pre>"; print_r($data['Order']); exit();
         
         return view('User/UserRepair/UserRepairView', $data);
@@ -871,12 +876,30 @@ class ConUserRepair extends BaseController
     public function RepairBuildingMemoPrint()
     {
         require_once ROOTPATH . 'vendor/autoload.php';
-        
+        $db = \Config\Database::connect();
         $data['Datethai'] = new Datethai();
-        $data['memo_data'] = $this->request->getPost();
         
+        // Get POST data
+        $postData = $this->request->getPost();
+        $repair_order = $this->request->getVar('order') ?? $this->request->getPost('repair_order');
+
+        // If no POST data but we have an order ID, try to fetch from DB
+        if (empty($postData['memo_subject']) && !empty($repair_order)) {
+            $dbMemo = $db->table('tb_repair_memo')->where('repair_order', $repair_order)->get()->getRowArray();
+            if ($dbMemo) {
+                $data['memo_data'] = $dbMemo;
+                // For images, they are already in the correct field names in DB
+                $data['img1'] = $dbMemo['memo_img1'] ?? '';
+                $data['img2'] = $dbMemo['memo_img2'] ?? '';
+            } else {
+                $data['memo_data'] = $postData;
+            }
+        } else {
+            $data['memo_data'] = $postData;
+        }
+
         // Find position name based on position ID selected
-        if (!empty($data['memo_data']['memo_posi'])) {
+        if (!empty($data['memo_data']['memo_posi']) && is_numeric($data['memo_data']['memo_posi'])) {
             $DBskj = \Config\Database::connect('skj');
             $posiRecord = $DBskj->table('tb_position')->where('posi_id', $data['memo_data']['memo_posi'])->get()->getRow();
             if ($posiRecord) {
@@ -984,27 +1007,27 @@ class ConUserRepair extends BaseController
                     'constraint' => '255',
                     'null'       => true,
                 ],
-                'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
-                'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
             ]);
+            $forge->addField("created_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+            $forge->addField("updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
             $forge->addKey('memo_id', true);
-            $forge->createTable('tb_repair_memo');
+            $forge->createTable('tb_repair_memo', true);
         }
 
         // 2. Prepare data for DB
-        $repair_order = $this->request->getPost('repair_order');
-        if ($repair_order) {
+        $repair_order = trim($this->request->getPost('repair_order'));
+        if (!empty($repair_order)) {
             $dbData = [
-                'memo_agency' => $data['memo_data']['memo_agency'] ?? null,
-                'memo_no' => $data['memo_data']['memo_no'] ?? null,
-                'memo_date' => $data['memo_data']['memo_date'] ?? null,
-                'memo_subject' => $data['memo_data']['memo_subject'] ?? null,
-                'memo_to' => $data['memo_data']['memo_to'] ?? null,
-                'memo_location' => $data['memo_data']['memo_location'] ?? null,
-                'memo_reason' => $data['memo_data']['memo_reason'] ?? null,
-                'memo_budget' => $data['memo_data']['memo_budget'] ?? null,
-                'memo_fullname' => $data['memo_data']['memo_fullname'] ?? null,
-                'memo_posi' => $data['memo_data']['memo_posi'] ?? null,
+                'memo_agency'   => $this->request->getPost('memo_agency'),
+                'memo_no'       => $this->request->getPost('memo_no'),
+                'memo_date'     => $this->request->getPost('memo_date'),
+                'memo_subject'  => $this->request->getPost('memo_subject'),
+                'memo_to'       => $this->request->getPost('memo_to'),
+                'memo_location' => $this->request->getPost('memo_location'),
+                'memo_reason'   => $this->request->getPost('memo_reason'),
+                'memo_budget'   => $this->request->getPost('memo_budget'),
+                'memo_fullname' => $this->request->getPost('memo_fullname'),
+                'memo_posi'     => $data['memo_data']['memo_posi'] ?? $this->request->getPost('memo_posi'),
             ];
 
             $existing = $db->table('tb_repair_memo')->where('repair_order', $repair_order)->get()->getRow();
@@ -1023,14 +1046,31 @@ class ConUserRepair extends BaseController
             }
 
             if ($existing) {
-                // Update
                 $db->table('tb_repair_memo')->where('repair_order', $repair_order)->update($dbData);
             } else {
-                // Insert
                 $dbData['repair_order'] = $repair_order;
                 $db->table('tb_repair_memo')->insert($dbData);
             }
         }
+
+        // Fetch Official Names from Database
+        $DBAdminRloes = $db->table('tb_admin_rloes');
+        
+        $data['HeadBuildings'] = $DBAdminRloes->select('pers_prefix, pers_firstname, pers_lastname')
+            ->join('skjacth_personnel.tb_personnel', 'skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id', 'left')
+            ->where('admin_rloes_nanetype', 'งานอาคารสถานที่')
+            ->where('admin_rloes_level LIKE', '1/%')
+            ->get()->getRow();
+
+        $data['DeputyExecutive'] = $DBAdminRloes->select('pers_prefix, pers_firstname, pers_lastname')
+            ->join('skjacth_personnel.tb_personnel', 'skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id', 'left')
+            ->where('admin_rloes_nanetype', 'รองผู้อำนวยการบริหารทั่วไป')
+            ->get()->getRow();
+
+        $data['Director'] = $DBAdminRloes->select('pers_prefix, pers_firstname, pers_lastname')
+            ->join('skjacth_personnel.tb_personnel', 'skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id', 'left')
+            ->where('admin_rloes_nanetype', 'ผู้อำนวยการโรงเรียน')
+            ->get()->getRow();
 
         $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];

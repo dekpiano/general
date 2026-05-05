@@ -91,7 +91,7 @@
 </head>
 <body>
 
-    <img src="<?= FCPATH . 'uploads/krut/krut-1.5-cm.png' ?>" width="57" style="position: absolute; top: 0mm; left: -15mm;" alt="ตราครุฑ">
+    <img src="<?= ROOTPATH . 'uploads/krut/krut-1.5-cm.png' ?>" width="57" style="position: absolute; top: 0mm; left: -15mm;" alt="ตราครุฑ">
     
     <div class="memo-title">บันทึกข้อความ</div>
 
@@ -175,14 +175,14 @@
                     <p class="font-bold" style="text-decoration: underline;">ความเห็นของหัวหน้างานอาคารสถานที่</p>
                     <div style="height: 15mm;"></div>
                     <p>........................................................................</p>
-                    <p style="margin-top: 5px;">(ว่าที่ร้อยตรีทัพธนพล พิพัฒน์เดชาวัชญ์)</p>
-                    <p>หัวหน้างานอาคารสถานที่และระบบสาธารณูปโภค</p>
+                    <p style="margin-top: 5px;">(<?= $HeadBuildings ? $HeadBuildings->pers_prefix . $HeadBuildings->pers_firstname . ' ' . $HeadBuildings->pers_lastname : '........................................................' ?>)</p>
+                    <p>หัวหน้างานอาคารสถานที่</p>
                 </td>
                 <td style="width: 50%; padding: 5px;">
                     <p class="font-bold" style="text-decoration: underline;">ความเห็นของรองผู้อำนวยการ ฝ่ายบริหารทั่วไป</p>
                     <div style="height: 15mm;"></div>
                     <p>........................................................................</p>
-                    <p style="margin-top: 5px;">(นางเพ็ญประภา เพตรา)</p>
+                    <p style="margin-top: 5px;">(<?= $DeputyExecutive ? $DeputyExecutive->pers_prefix . $DeputyExecutive->pers_firstname . ' ' . $DeputyExecutive->pers_lastname : '........................................................' ?>)</p>
                     <p>รองผู้อำนวยการโรงเรียน ฝ่ายบริหารทั่วไป</p>
                 </td>
             </tr>
@@ -198,8 +198,8 @@
                     <p>[ &nbsp; ] อนุมัติ &nbsp; &nbsp; &nbsp; &nbsp; [ &nbsp; ] ไม่อนุมัติ ......................................</p>
                     <div style="height: 15mm;"></div>
                     <p>ลงชื่อ..............................................................</p>
-                    <p style="margin-top: 5px;">(นายอภิรักษ์ อุ่นใจ)</p>
-                    <p>ผู้อำนวยการโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ)</p>
+                    <p style="margin-top: 5px;">(<?= $Director ? $Director->pers_prefix . $Director->pers_firstname . ' ' . $Director->pers_lastname : '........................................................' ?>)</p>
+                    <p style="font-size: 14pt;">ผู้อำนวยการโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</p>
                 </td>
             </tr>
         </table>
@@ -211,14 +211,14 @@
         <div style="text-align: center;">
             <?php if(!empty($img1)): ?>
                 <div style="margin-bottom: 10mm;">
-                    <img src="<?= FCPATH . $img1 ?>" style="max-width: 140mm; max-height: 90mm; border: 1pt solid #000;">
+                    <img src="<?= ROOTPATH . $img1 ?>" style="max-width: 140mm; max-height: 90mm; border: 1pt solid #000;">
                     <p style="font-size: 16pt; margin-top: 2mm;">ภาพที่ 1: ก่อนการซ่อมแซม</p>
                 </div>
             <?php endif; ?>
             
             <?php if(!empty($img2)): ?>
                 <div>
-                    <img src="<?= FCPATH . $img2 ?>" style="max-width: 140mm; max-height: 90mm; border: 1pt solid #000;">
+                    <img src="<?= ROOTPATH . $img2 ?>" style="max-width: 140mm; max-height: 90mm; border: 1pt solid #000;">
                     <p style="font-size: 16pt; margin-top: 2mm;">ภาพที่ 2: ก่อนการซ่อมแซม</p>
                 </div>
             <?php endif; ?>

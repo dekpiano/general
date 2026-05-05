@@ -571,6 +571,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         Swal.fire({ icon: 'error', title: 'ไม่สามารถบันทึกได้', text: data.message });
                     }
+                })
+                .catch(err => {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ หรือไฟล์มีขนาดใหญ่เกินไป' });
                 });
             }
         });
