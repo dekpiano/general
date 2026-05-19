@@ -325,7 +325,15 @@
                     </ol>
                 </nav>
                 <h5>
-                    <?php if($CheckAll == 1){ echo 'ข้อมูลการจองทั้งหมด'; }else{ echo 'การจอง: '.@$Booking[0]->location_name; }?>
+                    <?php 
+                    if($CheckAll == 1){ 
+                        echo 'ข้อมูลการจองทั้งหมด'; 
+                    } else if(isset($All) && $All == 'My') { 
+                        echo 'รายการจองของฉัน'; 
+                    } else { 
+                        echo 'การจอง: '.(@$Booking[0]->location_name ?: 'ห้องประชุม/สถานที่'); 
+                    }
+                    ?>
                 </h5>
             </div>
             <i class='bx bx-history' style="font-size:2rem; opacity:0.4;"></i>
@@ -406,7 +414,7 @@
                         <i class='bx bx-download'></i>เอกสาร
                     </a>
 
-                    <?php if(isset($_SESSION['username']) && !isset($All)) : ?>
+                    <?php if(isset($_SESSION['username']) && (!isset($All) || $All == 'My')) : ?>
                     <a href="<?=base_url('Booking/Edit/'.$v_Booking->booking_id)?>"
                        class="btn-card-action btn-card-edit <?= ($isCancel || $isApproved) ? 'disabled' : '' ?>">
                         <i class='bx bx-edit'></i>แก้ไข
@@ -548,6 +556,48 @@ $(document).ready(function() {
             currentPage = 1;
             renderPage();
         }, 300);
+    });
+
+    // --- Cancel / Delete Booking ---
+    $(document).on('click', '.delete-btn', function () {
+        const keyId = $(this).attr('key-id');
+        Swal.fire({
+            title: 'ต้องการยกเลิกและลบการจองนี้หรือไม่?',
+            text: 'การดำเนินการนี้จะลบข้อมูลการจองและไฟล์แนบทั้งหมดโดยถาวร!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#15a362',
+            cancelButtonColor: '#8592a3',
+            confirmButtonText: 'ยืนยันลบ',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'กำลังลบข้อมูล...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                $.post('<?= base_url('Booking/DB/Cancel') ?>', { KeyID: keyId }, function (data) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ลบข้อมูลสำเร็จ!',
+                        text: 'ลบรายการจองและไฟล์แนบเรียบร้อยแล้ว',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                }).fail(function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง'
+                    });
+                });
+            }
+        });
     });
 });
 </script>

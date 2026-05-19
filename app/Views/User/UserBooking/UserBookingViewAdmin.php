@@ -5,8 +5,8 @@
 <style>
     /* Premium CSS Variables */
     :root {
-        --primary-gradient: linear-gradient(135deg, #696cff 0%, #3f42ef 100%);
-        --success-gradient: linear-gradient(135deg, #71dd37 0%, #56b328 100%);
+        --primary-gradient: linear-gradient(135deg, #15a362 0%, #0e854d 100%);
+        --success-gradient: linear-gradient(135deg, #15a362 0%, #0e854d 100%);
         --warning-gradient: linear-gradient(135deg, #ffab00 0%, #e09600 100%);
         --danger-gradient: linear-gradient(135deg, #ff3e1d 0%, #e6381a 100%);
         --info-gradient: linear-gradient(135deg, #03c3ec 0%, #0299ba 100%);
@@ -60,7 +60,7 @@
         align-items: center;
         justify-content: center;
         font-size: 2rem;
-        color: #696cff;
+        color: #15a362;
         border: 1px solid #eef2f7;
     }
 
@@ -100,7 +100,7 @@
         align-items: center;
     }
 
-    .stat-card-lux h6 i { color: #696cff; margin-right: 8px; }
+    .stat-card-lux h6 i { color: #15a362; margin-right: 8px; }
 
     /* Table Redesign: Compact & Clear */
     .table-container {
@@ -155,7 +155,7 @@
     }
 
     .status-pill.pending { background: #fff2e0; color: #ffab00; border: 1px solid #ffe5d0; }
-    .status-pill.approved { background: #e8fadf; color: #71dd37; border: 1px solid #d4f4cd; }
+    .status-pill.approved { background: #e8f5e9; color: #15a362; border: 1px solid #c8e6c9; }
     .status-pill.rejected { background: #ffeae7; color: #ff3e1d; border: 1px solid #ffdcd6; }
 
     /* Custom Scrollbar for Table */
@@ -182,6 +182,49 @@
         padding: 1rem 1.5rem;
     }
 
+    /* Custom Sneat Button & Element Overrides to Green (#15a362) */
+    .btn-primary {
+        background-color: #15a362 !important;
+        border-color: #15a362 !important;
+        box-shadow: 0 0.125rem 0.25rem 0 rgba(21, 163, 98, 0.4) !important;
+    }
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+        background-color: #0e854d !important;
+        border-color: #0e854d !important;
+    }
+    .btn-outline-primary {
+        color: #15a362 !important;
+        border-color: #15a362 !important;
+    }
+    .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+        background-color: #15a362 !important;
+        border-color: #15a362 !important;
+        color: #fff !important;
+    }
+    .bg-label-primary {
+        background-color: #e8f5e9 !important;
+        color: #15a362 !important;
+    }
+    .text-primary {
+        color: #15a362 !important;
+    }
+    .shadow-primary {
+        box-shadow: 0 0.125rem 0.25rem 0 rgba(21, 163, 98, 0.4) !important;
+    }
+    .page-item.active .page-link, .page-item.active .page-link:hover, .page-item.active .page-link:focus {
+        background-color: #15a362 !important;
+        border-color: #15a362 !important;
+        color: #fff !important;
+    }
+    .page-link {
+        color: #15a362;
+    }
+
+    /* SweetAlert2 Layering Override */
+    .swal2-container {
+        z-index: 99999 !important;
+    }
+
     /* Animation */
     @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(20px); }
@@ -189,6 +232,32 @@
     }
 
     .table-container { animation: fadeInUp 0.6s ease-out; }
+
+    /* Zoom Image View Modal styles */
+    .zoom-wrapper {
+        overflow: auto;
+        max-height: 70vh;
+        width: 100%;
+        background-color: #f8fafc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        position: relative;
+        cursor: grab;
+        user-select: none;
+    }
+    .zoom-wrapper img {
+        transition: transform 0.2s ease-in-out;
+        transform-origin: center center;
+        max-width: 100%;
+        height: auto;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+    .zoom-wrapper.dragging {
+        cursor: grabbing;
+    }
 </style>
 
 <div class="container-xxl flex-grow-1 container-p-y admin-view-content-lux">
@@ -261,6 +330,7 @@
                         <th>เลขที่/ผู้จอง</th>
                         <th>รายละเอียด/หัวข้อ</th>
                         <th>สถานที่</th>
+                        <th>ไฟล์แนบ</th>
                         <th>สถานะ</th>
                         <th>เหตุผล</th>
                         <th class="text-end">จัดการ</th>
@@ -307,9 +377,20 @@
 <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content modal-lux">
-      <div class="modal-header">
+      <div class="modal-header d-flex align-items-center">
         <h5 class="modal-title fw-bold">รายละเอียดแนบ</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="d-flex align-items-center gap-1 ms-auto me-2">
+            <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" id="btnZoomIn" title="ซูมเข้า">
+                <i class="bx bx-zoom-in"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" id="btnZoomOut" title="ซูมออก">
+                <i class="bx bx-zoom-out"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" id="btnZoomReset" title="รีเซ็ต">
+                <i class="bx bx-reset"></i>
+            </button>
+        </div>
+        <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body p-0" id="modalBody">
         <!-- Image content -->

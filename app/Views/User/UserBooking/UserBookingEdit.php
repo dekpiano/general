@@ -470,7 +470,7 @@ $(document).ready(function() {
     $('#rotateRightBtn').on('click', () => croppieInstance.rotate(90));
 
     $('#cropBtn').on('click', function() {
-        croppieInstance.result({ type: 'canvas', size: 'viewport' }).then(function(base64) {
+        croppieInstance.result({ type: 'canvas', size: 'original', format: 'png', quality: 1 }).then(function(base64) {
             $('#booking_imgWork').val(base64);
             const canvas = document.getElementById('croppedCanvas');
             const ctx = canvas.getContext('2d');

@@ -6,6 +6,7 @@ document.querySelectorAll('.CheckUserLogin').forEach(btn => {
             html: "คุณต้องเป็นบุคลากรเท่านั้นที่มี มีอีเมล @skj.ac.th <br> ถ้าไม่ใช่บุคลากรให้ติดต่อเจ้าหน้าที่ฝ่ายอาคารสถานที่",
             icon: 'question',
             showCancelButton: true,
+            confirmButtonColor: '#15a362',
             confirmButtonText: 'ตกลง',
             cancelButtonText: 'ยกเลิก'
         }).then(r => {
@@ -65,9 +66,6 @@ $('#TBShowDataBookingAdmin').DataTable({
                         <div class="fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.2;">${row.booking_title}</div>
                         <div class="d-flex align-items-center gap-2">
                              <div class="text-muted small"><i class='bx bx-phone me-1'></i>${row.booking_telephone}</div>
-                             ${row.booking_imgWork ? `<a href="${BASE_URL}uploads/User/Booking/${row.booking_imgWork}" class="open-popup text-info small" data-bs-toggle="modal" data-bs-target="#myModal">
-                                <i class='bx bx-paperclip me-1'></i>ผังงาน
-                             </a>` : ''}
                         </div>
                     </div>
                 `;
@@ -89,6 +87,20 @@ $('#TBShowDataBookingAdmin').DataTable({
                         </div>
                     </div>
                 `;
+            }
+        },
+        {
+            data: "booking_imgWork",
+            className: "align-middle text-center",
+            render: function (data, type, row) {
+                if (data && data.trim() !== "") {
+                    return `
+                        <a href="${BASE_URL}uploads/User/Booking/${data}" class="open-popup btn btn-sm btn-outline-primary rounded-pill px-2 py-1 text-nowrap" data-bs-toggle="modal" data-bs-target="#myModal">
+                            <i class='bx bx-paperclip me-1'></i>ดูไฟล์แนบ
+                        </a>
+                    `;
+                }
+                return `<span class="text-muted small">-</span>`;
             }
         },
         {
@@ -168,7 +180,7 @@ $(document).on('click', '#BtnApproveBooking', function () {
         text: "คุณต้องการอนุมัติการจองสถานที่นี้หรือไม่!",
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#696cff',
+        confirmButtonColor: '#15a362',
         confirmButtonText: 'ใช่, อนุมัติ',
         cancelButtonText: 'ยกเลิก'
     }).then((result) => {
@@ -357,7 +369,7 @@ $(document).on('click', '#BtnCancelBooking', function () {
         title: 'ต้องการยกเลิกการจองหรือไม่?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
+        confirmButtonColor: '#15a362',
         cancelButtonColor: '#d33',
         confirmButtonText: 'ตกลง'
     }).then((result) => {
@@ -414,14 +426,84 @@ function formatThaiDate(date) {
 }
 
 
+// --- Premium Zoom & Drag Pan Attachment Viewer ---
+let currentScale = 1;
+let isDragging = false;
+let startX, startY, scrollLeft, scrollTop;
+
 $(document).on('click', 'a.open-popup', function(e) {
     e.preventDefault();
     var url = $(this).attr('href');
-    $('#modalBody').html('<div class="text-center py-3">กำลังโหลด...</div>');
+    currentScale = 1;
+    $('#modalBody').html('<div class="text-center py-5"><span class="spinner-border text-primary"></span><div class="mt-2 text-muted">กำลังโหลดรูปภาพ...</div></div>');
     $('#myModal').modal('show');
-    //$.get(url, function(data) {
-        $('#modalBody').html('<img src="' + url + '" class="img-fluid" alt="Image">');
-    //});
+    
+    // Create new image object to load smoothly
+    const img = new Image();
+    img.src = url;
+    img.onload = function() {
+        $('#modalBody').html(`
+            <div class="zoom-wrapper" id="zoomWrapper">
+                <img src="${url}" id="zoomImage" alt="Attachment Image" style="transform: scale(1);">
+            </div>
+        `);
+    };
+    img.onerror = function() {
+        $('#modalBody').html('<div class="text-center py-5 text-danger"><i class="bx bx-error-circle" style="font-size: 3rem;"></i><div class="mt-2">ไม่สามารถโหลดรูปภาพได้</div></div>');
+    };
+});
+
+// Zoom In
+$(document).on('click', '#btnZoomIn', function() {
+    currentScale = Math.min(currentScale + 0.2, 3);
+    updateZoom();
+});
+
+// Zoom Out
+$(document).on('click', '#btnZoomOut', function() {
+    currentScale = Math.max(currentScale - 0.2, 0.5);
+    updateZoom();
+});
+
+// Reset Zoom
+$(document).on('click', '#btnZoomReset', function() {
+    currentScale = 1;
+    updateZoom();
+});
+
+function updateZoom() {
+    const $img = $('#zoomImage');
+    if ($img.length) {
+        $img.css('transform', `scale(${currentScale})`);
+    }
+}
+
+// Drag to pan
+$(document).on('mousedown', '#zoomWrapper', function(e) {
+    const $wrapper = $(this);
+    isDragging = true;
+    $wrapper.addClass('dragging');
+    startX = e.pageX - $wrapper.offset().left;
+    startY = e.pageY - $wrapper.offset().top;
+    scrollLeft = $wrapper.scrollLeft();
+    scrollTop = $wrapper.scrollTop();
+});
+
+$(document).on('mouseleave mouseup', '#zoomWrapper', function() {
+    isDragging = false;
+    $(this).removeClass('dragging');
+});
+
+$(document).on('mousemove', '#zoomWrapper', function(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const $wrapper = $(this);
+    const x = e.pageX - $wrapper.offset().left;
+    const y = e.pageY - $wrapper.offset().top;
+    const walkX = (x - startX) * 1.5;
+    const walkY = (y - startY) * 1.5;
+    $wrapper.scrollLeft(scrollLeft - walkX);
+    $wrapper.scrollTop(scrollTop - walkY);
 });
 
 var calendarEl = document.getElementById('CalendarBooking');
@@ -506,7 +588,7 @@ function initBookingCharts() {
                 series: data.pie.series,
                 chart: { type: 'donut', height: 250 },
                 labels: data.pie.labels,
-                colors: ['#696cff', '#03c3ec', '#71dd37', '#ffab00', '#ff3e1d', '#8592a3'],
+                colors: ['#15a362', '#03c3ec', '#2e7d32', '#ffab00', '#ff3e1d', '#8592a3'],
                 legend: { position: 'bottom', fontSize: '11px' },
                 dataLabels: { enabled: false },
                 plotOptions: { pie: { donut: { size: '70%', labels: { show: true, total: { show: true, label: 'ครั้ง', fontSize: '12px' } } } } }
@@ -521,7 +603,7 @@ function initBookingCharts() {
                 chart: { type: 'bar', height: 250, toolbar: { show: false } },
                 plotOptions: { bar: { borderRadius: 4, horizontal: true, columnWidth: '40%' } },
                 dataLabels: { enabled: false },
-                colors: ['#696cff'],
+                colors: ['#15a362'],
                 xaxis: { categories: data.bar.categories, labels: { style: { fontSize: '10px' } } },
                 grid: { borderColor: '#f1f1f1', padding: { top: -15, bottom: -10 } }
             };
@@ -534,7 +616,7 @@ function initBookingCharts() {
                 series: data.Approve.series,
                 chart: { type: 'pie', height: 250 },
                 labels: data.Approve.labels,
-                colors: ['#71dd37', '#ffab00', '#ff3e1d'],
+                colors: ['#15a362', '#ffab00', '#ff3e1d'],
                 legend: { position: 'bottom', fontSize: '11px' },
                 dataLabels: { enabled: true, style: { fontSize: '10px' } }
             };

@@ -368,18 +368,33 @@
                         </div>
                     </a>
 
-                    <!-- My Bookings -->
+                    <!-- All Bookings -->
                     <a href="<?=base_url('Booking/View/All')?>" class="action-card shadow-sm p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar bg-label-secondary p-2 rounded-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <i class='bx bx-calendar fs-3'></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block lh-1 mb-1">รายการจองทั้งหมด</small>
+                                <h5 class="mb-0 fw-bold text-dark"><?= $CountbookingAll ?> <small class="fw-normal fs-6">รายการ</small></h5>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- My Bookings -->
+                    <?php if(isset($_SESSION['id'])): ?>
+                    <a href="<?=base_url('Booking/View/My')?>" class="action-card shadow-sm p-3 border-start border-warning border-3">
                         <div class="d-flex align-items-center">
                             <div class="avatar bg-label-warning p-2 rounded-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                 <i class='bx bx-list-check fs-3'></i>
                             </div>
                             <div>
                                 <small class="text-muted d-block lh-1 mb-1">รายการจองของฉัน</small>
-                                <h5 class="mb-0 fw-bold text-dark"><?= $CountbookingAll ?> <small class="fw-normal fs-6">รายการ</small></h5>
+                                <h5 class="mb-0 fw-bold text-dark"><?= $CountbookingMy ?> <small class="fw-normal fs-6">รายการ</small></h5>
                             </div>
                         </div>
                     </a>
+                    <?php endif; ?>
 
 
 

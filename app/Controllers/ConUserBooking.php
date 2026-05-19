@@ -121,10 +121,15 @@ class ConUserBooking extends BaseController
         $data['LocationList'] = $builder->get()->getResult();
         $data['CountLocationRoomAll'] = count($data['LocationList']);
 
-        $DBbooking = $database->table('tb_booking');
-        $data['CountbookingAll'] = $DBbooking->countAll();
-        $data['NumRowsWaitApprove'] = $DBbooking->where('booking_admin_approve','ไม่อนุมัติ')->get()->getNumRows();
-        $data['NumRowsApprove'] = $DBbooking->where('booking_admin_approve','อนุมัติ')->get()->getNumRows();
+        $data['CountbookingAll'] = $database->table('tb_booking')->countAllResults();
+        
+        $data['CountbookingMy'] = 0;
+        if ($session->get('id')) {
+            $data['CountbookingMy'] = $database->table('tb_booking')->where('booking_Booker', $session->get('id'))->countAllResults();
+        }
+
+        $data['NumRowsWaitApprove'] = $database->table('tb_booking')->where('booking_admin_approve','รอตรวจสอบ')->get()->getNumRows();
+        $data['NumRowsApprove'] = $database->table('tb_booking')->where('booking_admin_approve','อนุมัติ')->get()->getNumRows();
 
         return view('User/UserBooking/UserBookingMain', $data);
     }
@@ -514,10 +519,14 @@ class ConUserBooking extends BaseController
 
         $DBpers = \Config\Database::connect('personnel');
 
-        if(isset($_SESSION['id']) == 1){
+        if(isset($_SESSION['id'])){
             if($Key == 'All'){
                 $data['All'] = $Key;
                 $data['CheckAll'] = 1;
+            }else if($Key == 'My'){
+                $data['All'] = $Key;
+                $data['CheckAll'] = 0;
+                $DBbooking->where('booking_Booker', $_SESSION['id']);
             }else{
                 $array =['booking_locationroom'=> $Key,'booking_Booker'=>$_SESSION['id']];
                 $DBbooking->where($array);
@@ -527,6 +536,8 @@ class ConUserBooking extends BaseController
             if($Key == 'All'){
                 $data['All'] = $Key;
                 $data['CheckAll'] = 1;
+            }else if($Key == 'My'){
+                return redirect()->to(base_url('Auth/login'))->with('error', 'กรุณาเข้าสู่ระบบก่อนเพื่อดูรายการจองของท่าน');
             }else{
                 $array =['booking_locationroom'=> $Key];
                 $DBbooking->where($array);
@@ -601,11 +612,20 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-        $data = [
-            'booking_admin_approve' => 'ยกเลิกโดยผู้จอง'
-        ];        
-        $DBbooking->where('booking_id', $this->request->getVar('KeyID'));
-        echo $DBbooking->update($data);
+        $bookingId = $this->request->getVar('KeyID');
+
+        // 1. Get the attached image if exists and delete it from filesystem
+        $booking = $DBbooking->select('booking_imgWork')->where('booking_id', $bookingId)->get()->getRow();
+        if ($booking && $booking->booking_imgWork) {
+            $imagePath = 'uploads/User/Booking/' . $booking->booking_imgWork;
+            if (file_exists($imagePath)) {
+                @unlink($imagePath);
+            }
+        }
+
+        // 2. Permanently delete the booking row from the database
+        $DBbooking->where('booking_id', $bookingId);
+        echo $DBbooking->delete();
     }
 
     public function ShowTimeBooking(){
@@ -877,7 +897,7 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-       $S_data = $DBbooking->select('tb_booking.booking_id, tb_booking.booking_order, tb_booking.booking_telephone, tb_booking.booking_Booker, tb_booking.booking_locationroom, tb_booking.booking_title, tb_booking.booking_dateStart, tb_booking.booking_dateEnd, tb_booking.booking_timeStart, tb_booking.booking_timeEnd, tb_booking.booking_admin_approve, tb_booking.booking_admin_reason, tb_booking.booking_executive_approve, tb_location.location_name,
+       $S_data = $DBbooking->select('tb_booking.booking_id, tb_booking.booking_order, tb_booking.booking_telephone, tb_booking.booking_Booker, tb_booking.booking_locationroom, tb_booking.booking_title, tb_booking.booking_dateStart, tb_booking.booking_dateEnd, tb_booking.booking_timeStart, tb_booking.booking_timeEnd, tb_booking.booking_admin_approve, tb_booking.booking_admin_reason, tb_booking.booking_executive_approve, tb_booking.booking_imgWork, tb_location.location_name,
         CONCAT(p1.pers_prefix, p1.pers_firstname, " ", p1.pers_lastname) AS booker_name,
         CONCAT(p2.pers_prefix, p2.pers_firstname, " ", p2.pers_lastname) AS admin_name,
         CONCAT(p3.pers_prefix, p3.pers_firstname, " ", p3.pers_lastname) AS executive_name')

@@ -46,7 +46,9 @@ $('#cropBtn').on('click', function () {
 
     croppieInstance.result({
       type: 'base64',
-      size: 'viewport'
+      size: 'original',
+      format: 'png',
+      quality: 1
     }).then(function (croppedImage) {
       croppedImageBase64 = croppedImage;
 
