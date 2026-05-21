@@ -147,6 +147,7 @@ $routes->match(['GET', 'POST'],'Admin/CarDriver/Delete', 'ConAdminCar::CarDriver
 $routes->get('FoodReport', 'ConUserFoodReport::index');
 $routes->get('FoodReport/getFoodReportsJson', 'ConUserFoodReport::getFoodReportsJson');
 $routes->get('FoodReport/print/(:num)', 'ConUserFoodReport::print/$1');
+$routes->get('FoodReport/word/(:num)', 'ConUserFoodReport::exportWord/$1');
 $routes->get('FoodReport/getReportById/(:num)', 'ConUserFoodReport::getReportById/$1');
 $routes->post('FoodReport/insert', 'ConUserFoodReport::foodReportInsert');
 $routes->post('FoodReport/update', 'ConUserFoodReport::foodReportUpdate');

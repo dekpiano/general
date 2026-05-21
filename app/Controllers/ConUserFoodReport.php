@@ -356,7 +356,95 @@ class ConUserFoodReport extends BaseController
         return view('User/UserFoodReport/PrintFoodReport', $data);
     }
 
+    public function exportWord($food_id = null)
+    {
+        $data = $this->DataMain();
 
+        $report = $this->FoodReportModel
+            ->select('tb_food_reports.*, p.pers_prefix, p.pers_firstname, p.pers_lastname')
+            ->join('skjacth_personnel.tb_personnel as p', 'p.pers_id = tb_food_reports.food_admin', 'left')
+            ->find($food_id);
+
+        if (empty($report)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Food report not found: ' . $food_id);
+        }
+
+        $data['food_report'] = $report;
+        $data['title'] = 'รายงานอาหาร';
+
+        // Fetch and encode Logo to Base64
+        $logoUrl = 'https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png';
+        $logoData = $this->getBase64Image($logoUrl);
+        $data['logo_base64'] = is_array($logoData) ? $logoData['base64'] : $logoData;
+
+        // Fetch and encode Food Images to Base64
+        $foodImages = [];
+        $images = json_decode($report['food_images'], true);
+        if (is_array($images) && !empty($images)) {
+            foreach ($images as $img) {
+                $imgUrl = env("upload.server.baseurl") . date('Y-m-d', strtotime($report['food_date'])) . "/" . $img;
+                $imgData = $this->getBase64Image($imgUrl);
+                if (is_array($imgData) && !empty($imgData['base64'])) {
+                    $foodImages[] = [
+                        'base64' => $imgData['base64'],
+                        'is_portrait' => $imgData['is_portrait']
+                    ];
+                } else {
+                    $foodImages[] = [
+                        'base64' => $imgUrl, // Fallback to URL
+                        'is_portrait' => false
+                    ];
+                }
+            }
+        }
+        $data['food_images_base64'] = $foodImages;
+
+        // Set response headers for Word document download
+        $filename = "FOOD-REPORT-" . str_pad($report['food_id'], 5, '0', STR_PAD_LEFT) . ".doc";
+        
+        $this->response->setHeader('Content-Type', 'application/vnd.ms-word');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        $this->response->setHeader('Cache-Control', 'max-age=0, no-cache, must-revalidate');
+        $this->response->setHeader('Pragma', 'public');
+
+        return view('User/UserFoodReport/WordFoodReport', $data);
+    }
+
+    private function getBase64Image($url)
+    {
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            $data = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($http_code === 200 && !empty($data)) {
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $mime_type = $finfo->buffer($data);
+                
+                $is_portrait = false;
+                try {
+                    $size = getimagesizefromstring($data);
+                    if ($size && $size[1] > $size[0]) {
+                        $is_portrait = true;
+                    }
+                } catch (\Throwable $ex) {}
+
+                return [
+                    'base64' => 'data:' . $mime_type . ';base64,' . base64_encode($data),
+                    'is_portrait' => $is_portrait
+                ];
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'Failed to fetch image for base64: ' . $url . ' - ' . $e->getMessage());
+        }
+        return '';
+    }
 
     public function getReportById($food_id = null)
     {

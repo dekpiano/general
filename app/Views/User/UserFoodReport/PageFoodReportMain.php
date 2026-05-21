@@ -568,6 +568,7 @@
                         <?php if ($isLoggedIn && in_array('งานรายงานอาหาร', array_map('trim', explode(',', (string)session()->get('rloes'))))): ?>
                         <th>ผู้บันทึก</th>
                         <th>พิมพ์</th>
+                        <th>Word</th>
                         <th>จัดการ</th>
                         <?php endif; ?>
                     </tr>
@@ -771,6 +772,7 @@ $(document).ready(function() {
     if (canManage) {
         columns.push({ "data": "recorder_full_name", "render": d => d ? `<div class="d-flex align-items-center"><div class="avatar avatar-xs me-2"><span class="avatar-initial rounded-circle bg-label-secondary" style="font-size:10px">${d.charAt(0)}</span></div><span class="small fw-medium">${d}</span></div>` : '<span class="text-muted">-</span>' });
         columns.push({ "data": "food_id", "render": d => `<a href="<?= base_url('FoodReport/print/') ?>${d}" target="_blank" class="btn btn-sm btn-icon btn-label-info rounded-pill" title="พิมพ์"><i class="bx bx-printer"></i></a>`, "orderable": false });
+        columns.push({ "data": "food_id", "render": d => `<a href="<?= base_url('FoodReport/word/') ?>${d}" class="btn btn-sm btn-icon btn-label-primary rounded-pill" title="ดาวน์โหลด Word"><i class="bx bxs-file-doc"></i></a>`, "orderable": false });
         columns.push({
             "data": "food_id",
             "render": (data, type, row) => row.food_admin == loggedInUserId 
