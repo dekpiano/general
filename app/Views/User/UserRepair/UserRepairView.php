@@ -78,11 +78,9 @@
                                 </ol>
                             </nav>
                         </div>
-                        <div class="d-flex gap-2">
-                            <?php // ลบส่วนประกาศตัวแปรซ้ำซ้อนออก ?>
-                            
+                        <div class="d-flex gap-2 align-items-center">
                             <?php if($Order[0]->repair_caselist === 'งานอาคารสถานที่' && session()->get('id') == $Order[0]->repair_userID): ?>
-                            <a href="<?=base_url('Repair/BuildingMemo?order=').$Order[0]->repair_order?>" 
+                            <a href="<?=base_url('Repair/BuildingMemo?order=').$Order[0]->repair_order?>"
                                 class="btn btn-outline-warning shadow-sm fw-bold btn-sm">
                                 <i class="bx bx-file me-1"></i> บันทึกข้อความ
                             </a>
@@ -92,6 +90,12 @@
                                 class="btn btn-primary shadow-sm fw-bold PrintOrder btn-sm">
                                 <i class="bx bx-printer me-1"></i> พิมพ์
                             </a>
+
+                            <?php if(!$isAdmin): ?>
+                            <button type="button" class="btn btn-dark shadow-sm fw-bold btn-sm" id="BtnStaffLogin">
+                                <i class="bx bx-shield-quarter me-1"></i> เจ้าหน้าที่รับงาน
+                            </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -338,6 +342,51 @@
 
 </div>
 
+<!-- Staff Login Modal -->
+<div class="modal fade" id="ModalStaffLogin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title text-white"><i class="bx bx-shield-quarter me-2"></i>เข้าสู่ระบบเจ้าหน้าที่</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-label-dark mb-3" style="width:64px;height:64px;">
+                        <i class="bx bx-user-check fs-2 text-dark"></i>
+                    </div>
+                    <p class="text-muted mb-0 small">กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบสำหรับเจ้าหน้าที่รับงาน</p>
+                </div>
+                <form id="FormStaffLogin">
+                    <input type="hidden" name="repair_order" value="<?=$Order[0]->repair_order?>">
+                    <div class="mb-3">
+                        <label for="staff_username" class="form-label fw-bold">ชื่อผู้ใช้</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-label-dark border-end-0"><i class="bx bx-user"></i></span>
+                            <input type="text" class="form-control border-start-0" id="staff_username" name="username" placeholder="กรอกชื่อผู้ใช้" required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="staff_password" class="form-label fw-bold">รหัสผ่าน</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-label-dark border-end-0"><i class="bx bx-lock-alt"></i></span>
+                            <input type="password" class="form-control border-start-0 border-end-0" id="staff_password" name="password" placeholder="กรอกรหัสผ่าน" required autocomplete="current-password">
+                            <button class="btn btn-outline-secondary border-start-0" type="button" id="toggleStaffPassword"><i class="bx bx-show"></i></button>
+                        </div>
+                    </div>
+                    <div id="staffLoginError" class="alert alert-danger py-2 px-3 mb-3" style="display:none;">
+                        <i class="bx bx-error-circle me-1"></i> <span id="staffLoginErrorMsg"></span>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 py-2 fw-bold" id="BtnStaffLoginSubmit">
+                        <span id="staffLoginBtnText"><i class="bx bx-log-in me-1"></i> เข้าสู่ระบบ</span>
+                        <span id="staffLoginSpinner" class="spinner-border spinner-border-sm ms-2" style="display:none;" role="status"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Admin Modal -->
 <div class="modal fade" id="ModalRepairSaveAdmin" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -530,4 +579,73 @@
         </div>
     </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+$(document).on('click', '#BtnStaffLogin', function() {
+    $('#ModalStaffLogin').modal('show');
+});
+
+// Toggle password visibility
+$(document).on('click', '#toggleStaffPassword', function() {
+    const $input = $('#staff_password');
+    const $icon = $(this).find('i');
+    if ($input.attr('type') === 'password') {
+        $input.attr('type', 'text');
+        $icon.removeClass('bx-show').addClass('bx-hide');
+    } else {
+        $input.attr('type', 'password');
+        $icon.removeClass('bx-hide').addClass('bx-show');
+    }
+});
+
+// Staff Login Form Submit
+$(document).on('submit', '#FormStaffLogin', function(e) {
+    e.preventDefault();
+    const $btn = $('#BtnStaffLoginSubmit');
+    const $btnText = $('#staffLoginBtnText');
+    const $spinner = $('#staffLoginSpinner');
+    const $error = $('#staffLoginError');
+
+    $error.hide();
+    $btn.prop('disabled', true);
+    $btnText.text('กำลังเข้าสู่ระบบ...');
+    $spinner.show();
+
+    $.ajax({
+        url: '<?= base_url("Repair/DB/StaffLogin") ?>',
+        method: 'POST',
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(res) {
+            if (res.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เข้าสู่ระบบสำเร็จ!',
+                    text: 'กำลังเปลี่ยนหน้า...',
+                    timer: 1200,
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                }).then(function() {
+                    window.location.href = res.redirect;
+                });
+            } else {
+                $('#staffLoginErrorMsg').text(res.message);
+                $error.show();
+                $btn.prop('disabled', false);
+                $btnText.html('<i class="bx bx-log-in me-1"></i> เข้าสู่ระบบ');
+                $spinner.hide();
+            }
+        },
+        error: function() {
+            $('#staffLoginErrorMsg').text('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+            $error.show();
+            $btn.prop('disabled', false);
+            $btnText.html('<i class="bx bx-log-in me-1"></i> เข้าสู่ระบบ');
+            $spinner.hide();
+        }
+    });
+});
+</script>
 <?= $this->endSection() ?>

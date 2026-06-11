@@ -370,7 +370,19 @@ class ConUserRepair extends BaseController
                     'url'            => base_url("/Repair/View/".$Repair->repair_order)
                 ];
                 $lineMsg = $notificationService->buildLineRepairNew($lineData);
-                $notificationService->sendLine('repair', $lineMsg);
+
+                // สร้าง image URL สำหรับ LINE (รูปแรกที่อัพโหลด หรือ og:image ของหน้า View)
+                $lineImageUrl = null;
+                if (!empty($imageNames)) {
+                    // มีรูปที่อัพโหลด → ส่งรูปแรก
+                    $lineImageUrl = base_url('uploads/user/Repair/' . $imageNames[0]);
+                }
+                // ถ้าไม่มีรูป ส่งเป็น og:image ของหน้า View (ดึงจาก banner)
+                if (!$lineImageUrl) {
+                    $lineImageUrl = base_url('uploads/banner/repair/bannerRepair.jpg');
+                }
+
+                $notificationService->sendLine('repair', $lineMsg, null, $lineImageUrl);
 
                 // 2. ส่ง OneSignal Push Notification หาเจ้าหน้าที่และหัวหน้างาน
                 $isBuilding = ($this->request->getVar('repair_caselist') == "งานอาคารสถานที่");
@@ -446,7 +458,7 @@ class ConUserRepair extends BaseController
        $year = $this->request->getVar('year') ?? date('Y');
 
        $S_data = $TBrepair->select('
-       repair_ID,repair_order,repair_datetime,repair_userID,repair_phone,repair_caselist,repair_status,pers_prefix,pers_firstname,pers_lastname
+       repair_ID,repair_order,repair_datetime,repair_userID,repair_phone,repair_caselist,repair_status,repair_detail,repair_building,repair_class,repair_room,repair_imguser,repair_imgwork,pers_prefix,pers_firstname,pers_lastname
        ')
        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
        ->where("YEAR(repair_datetime)", $year) // Filter by year
@@ -460,8 +472,15 @@ class ConUserRepair extends BaseController
               "repair_order"=>$row->repair_order,
               "repair_datetime"=>$Datethai->thai_date_fullmonth(strtotime($row->repair_datetime)),
               "repair_userID"=>$row->repair_userID,
+              "repair_phone"=>$row->repair_phone,
               "repair_caselist"=>$row->repair_caselist,
               "repair_status"=>$row->repair_status,
+              "repair_detail"=>isset($row->repair_detail) ? $row->repair_detail : '',
+              "repair_building"=>isset($row->repair_building) ? $row->repair_building : '',
+              "repair_class"=>isset($row->repair_class) ? $row->repair_class : '',
+              "repair_room"=>isset($row->repair_room) ? $row->repair_room : '',
+              "repair_imguser"=>isset($row->repair_imguser) ? $row->repair_imguser : '',
+              "repair_imgwork"=>isset($row->repair_imgwork) ? $row->repair_imgwork : '',
               'UserFullname'=>$row->pers_prefix.$row->pers_firstname.' '.$row->pers_lastname
            );
         }
@@ -682,7 +701,20 @@ class ConUserRepair extends BaseController
                                      'url'            => base_url('Repair/View/' . $RepairInfo->repair_order)
                                  ];
                                  $lineMsg = $notificationService->buildLineRepairUpdate($lineUpdateData);
-                                 $notificationService->sendLine('repair', $lineMsg);
+
+                                 // ส่งรูปภาพหลังซ่อม (รูปแรก) หรือรูปก่อนซ่อม หรือ banner
+                                 $updateImageUrl = null;
+                                 if (!empty($imageNames)) {
+                                     $updateImageUrl = base_url('uploads/admin/Repair/' . $imageNames[0]);
+                                 } elseif (!empty($RepairInfo->repair_imguser)) {
+                                     $firstUserImg = explode(',', $RepairInfo->repair_imguser)[0];
+                                     $updateImageUrl = base_url('uploads/user/Repair/' . trim($firstUserImg));
+                                 }
+                                 if (!$updateImageUrl) {
+                                     $updateImageUrl = base_url('uploads/banner/repair/bannerRepair.jpg');
+                                 }
+
+                                 $notificationService->sendLine('repair', $lineMsg, null, $updateImageUrl);
                              } catch (\Exception $e) {
                                  log_message('error', 'Repair Email Error: ' . $e->getMessage());
                              }
@@ -1430,5 +1462,102 @@ class ConUserRepair extends BaseController
                 'message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * เข้าสู่ระบบเจ้าหน้าที่รับงาน (Staff Login)
+     * ตรวจสอบ username/password กับ tb_personnel และสิทธิ์งานแจ้งซ่อม/งานอาคารสถานที่
+     */
+    public function StaffLogin()
+    {
+        try {
+            $username = $this->request->getPost('username');
+            $password = $this->request->getPost('password');
+            $repairOrder = $this->request->getPost('repair_order');
+
+            if (empty($username) || empty($password)) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'
+                ]);
+            }
+
+            // ตรวจสอบกับฐานข้อมูลบุคลากร
+            $dbPers = \Config\Database::connect('personnel');
+            $person = $dbPers->table('tb_personnel')
+                ->where('pers_username', $username)
+                ->get()->getRow();
+
+            if (!$person) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
+                ]);
+            }
+
+            // ตรวจสอบรหัสผ่าน (md5 ตามระบบเดิม หรือ password_verify ถ้าเป็น hash ใหม่)
+            $passwordValid = false;
+            if (!empty($person->pers_password)) {
+                if ($person->pers_password === md5($password)) {
+                    $passwordValid = true;
+                } elseif (password_verify($password, $person->pers_password)) {
+                    $passwordValid = true;
+                }
+            }
+
+            if (!$passwordValid) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
+                ]);
+            }
+
+            // ตรวจสอบสิทธิ์ — ต้องมี rloes ที่มี "งานแจ้งซ่อม" หรือ "งานอาคารสถานที่"
+            $rloes = !empty($person->pers_rloes) ? explode(',', $person->pers_rloes) : [];
+            $hasPermission = in_array('งานแจ้งซ่อม', $rloes) || in_array('งานอาคารสถานที่', $rloes);
+
+            if (!$hasPermission) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'คุณไม่มีสิทธิ์เข้าใช้งานส่วนนี้ ต้องมีสิทธิ์ "งานแจ้งซ่อม" หรือ "งานอาคารสถานที่"'
+                ]);
+            }
+
+            // Login สำเร็จ — สร้าง session
+            $session = session();
+            $session->set([
+                'id'         => $person->pers_id,
+                'username'   => $person->pers_username,
+                'fullname'   => $person->pers_prefix . $person->pers_firstname . ' ' . $person->pers_lastname,
+                'rloes'      => $person->pers_rloes,
+                'isLoggedIn' => true,
+                'staffLogin' => true, // ระบุว่า login ผ่านหน้าเจ้าหน้าที่
+            ]);
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => 'เข้าสู่ระบบสำเร็จ',
+                'redirect' => base_url('Repair/View/' . $repairOrder)
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * ออกจากระบบเจ้าหน้าที่
+     */
+    public function StaffLogout()
+    {
+        $session = session();
+        $session->destroy();
+        return $this->response->setJSON([
+            'status'  => 'success',
+            'message' => 'ออกจากระบบแล้ว'
+        ]);
     }
 }

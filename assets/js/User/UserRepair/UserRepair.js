@@ -191,115 +191,209 @@ function toThaiDateString(date) {
 
 // ShowDataLocationRoom(); // Removed immediate call
 
-function ShowDataLocationRoom() {
-  // Get year from URL parameter or default to current year/dropdown value
+function getStatusBadge(data) {
+  let icon = "";
+  let className = "";
+  let extraClass = "";
+  data = data ? data.trim() : "";
+
+  if (data === "รอดำเนินการ") {
+    icon = "bi-clock-history";
+    className = "badge bg-label-warning";
+  } else if (data === "กำลังดำเนินการ") {
+    icon = "bi-gear";
+    className = "badge bg-label-primary";
+    extraClass = "loading-text";
+  } else if (
+    data.includes("เรียบร้อย") ||
+    data.includes("เสร็จสิ้น") ||
+    data === "อนุมัติ"
+  ) {
+    icon = "bi-check-circle-fill";
+    className = "badge bg-success text-white";
+  } else if (data.includes("ยกเลิก") || data.includes("ไม่อนุมัติ")) {
+    icon = "bi-x-circle";
+    className = "badge bg-label-danger";
+  } else {
+    icon = "bi-question-circle";
+    className = "badge bg-label-secondary";
+  }
+  return `<span class="${className} ${extraClass}"><i class="bi ${icon} me-1"></i> ${data}</span>`;
+}
+
+function getRepairImagesHtml(row) {
+  const imgUser = row.repair_imguser ? row.repair_imguser.trim() : '';
+  const imgWork = row.repair_imgwork ? row.repair_imgwork.trim() : '';
+  const allImgs = [];
+  if (imgUser) imgUser.split(',').forEach(f => { if (f.trim()) allImgs.push({ url: '/uploads/user/Repair/' + f.trim(), type: 'user' }); });
+  if (imgWork) imgWork.split(',').forEach(f => { if (f.trim()) allImgs.push({ url: '/uploads/admin/Repair/' + f.trim(), type: 'work' }); });
+
+  if (!allImgs.length) {
+    const phSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='90' viewBox='0 0 120 90'%3E%3Crect width='120' height='90' fill='%23eef0ff' rx='10'/%3E%3Cpath d='M44 30H36V22a4 4 0 0 0-4-4h-8a4 4 0 0 0-4 4v8H12v20h32V30zM28 22h8v8h-8v-8z' fill='%23c7c9ff'/%3E%3Ccircle cx='36' cy='36' r='4' fill='%23a5a8f0'/%3E%3Ctext x='60' y='62' text-anchor='middle' font-size='7' fill='%23a5a8f0' font-family='sans-serif'%3Eไม่มีรูปภาพ%3C/text%3E%3C/svg%3E";
+    return `<div class="position-relative">
+      <img class="main-img" src="${phSvg}" alt="ไม่มีรูปภาพ" style="opacity:0.7;">
+    </div>`;
+  }
+
+  const firstImg = allImgs[0].url;
+  const extraCount = allImgs.length - 1;
+  return `<div class="position-relative">
+    <img class="main-img" src="${firstImg}" alt="รูปภาพ" onclick="repairShowImgPreview('${firstImg}')" loading="lazy">
+    ${extraCount > 0 ? `<span class="img-count-badge">+${extraCount}</span>` : ''}
+  </div>`;
+}
+
+function buildRepairListItem(row) {
+  let buttons = '<a href="Repair/View/' +
+    row.repair_order +
+    '" data-id="' +
+    row.repair_ID +
+    '" class="btn btn-sm btn-outline-primary">รายละเอียด</a>';
+
+  if (typeof SESSION_PERS_ID !== 'undefined' && SESSION_PERS_ID !== '' && String(row.repair_userID) === String(SESSION_PERS_ID)) {
+    if (row.repair_caselist === 'งานอาคารสถานที่') {
+      buttons += ' <a href="Repair/BuildingMemo" class="btn btn-sm btn-outline-warning ms-1" title="ออกบันทึกข้อความ"><i class="bi bi-file-earmark-text"></i> ย้อนหลัง</a>';
+    }
+  }
+
+  const location = [row.repair_building, row.repair_class ? 'ชั้น ' + row.repair_class : '', row.repair_room ? 'ห้อง ' + row.repair_room : ''].filter(Boolean).join(' ') || '-';
+
+  return `
+    <div class="repair-list-item">
+      <div class="list-main">
+        <div class="list-images">
+          ${getRepairImagesHtml(row)}
+        </div>
+        <div class="list-content">
+          <div class="list-header">
+            <span class="list-order"><i class="bi bi-file-earmark-text me-1"></i>${row.repair_order || '-'}</span>
+            ${getStatusBadge(row.repair_status)}
+          </div>
+          <div class="list-caselist"><i class="bi bi-list-check me-2"></i>${row.repair_caselist || '-'}</div>
+          <div class="list-detail">${row.repair_detail || '-'}</div>
+          <div class="list-meta">
+            <span class="list-meta-item"><i class="bi bi-person"></i> ${row.UserFullname || '-'}</span>
+            <span class="list-meta-item"><i class="bi bi-telephone"></i> ${row.repair_phone || '-'}</span>
+            <span class="list-meta-item"><i class="bi bi-geo-alt"></i> ${location}</span>
+          </div>
+          <div class="list-footer">
+            <span class="list-date"><i class="bi bi-calendar-check me-1"></i>${row.repair_datetime || '-'}</span>
+            <div class="list-actions">${buttons}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function repairShowImgPreview(src) {
+  $('#repairImgPreview').attr('src', src);
+  $('#repairImgPreviewModal').modal('show');
+}
+
+let repairAllRows = [];   // เก็บข้อมูลทั้งหมด
+let repairLoadedCount = 0; // จำนวนที่โหลดแล้ว
+const REPAIR_PAGE_SIZE = 10; // โหลดทีละ 10
+let repairIsLoading = false; // ป้องกัน scroll ซ้ำ
+
+function renderRepairRows(rows) {
+  let html = '';
+  rows.forEach(function (row) {
+    html += buildRepairListItem(row);
+  });
+  return html;
+}
+
+function appendRepairPage() {
+  if (repairIsLoading) return;
+  if (repairLoadedCount >= repairAllRows.length) return; // โหลดหมดแล้ว
+
+  repairIsLoading = true;
+
+  // แสดง spinner โหลดเพิ่ม
+  const $spinner = $('<div class="repair-loading-more py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">โหลดเพิ่ม...</span></div></div>');
+  $("#repairListContainer").append($spinner);
+
+  // จำลอง delay เล็กน้อยให้เห็น spinner
+  setTimeout(function () {
+    const nextRows = repairAllRows.slice(repairLoadedCount, repairLoadedCount + REPAIR_PAGE_SIZE);
+    repairLoadedCount += nextRows.length;
+    $spinner.remove();
+    $(".repair-scroll-hint").remove(); // ลบ hint เก่า
+    $("#repairListContainer").append(renderRepairRows(nextRows));
+
+    // ถ้ายังเหลือ แสดง hint ใหม่, ถ้าหมดแล้ว แสดง "โหลดครบทั้งหมดแล้ว"
+    if (repairLoadedCount < repairAllRows.length) {
+      $("#repairListContainer").append('<div class="repair-scroll-hint text-center py-3 text-muted" style="font-size:0.8rem;"><i class="bi bi-chevron-double-down me-1"></i> เลื่อนลงเพื่อดูเพิ่มเติม (แล้ว ' + repairLoadedCount + '/' + repairAllRows.length + ')</div>');
+    } else {
+      $("#repairListContainer").append('<div class="repair-loaded-all"><i class="bi bi-check-circle me-1"></i> แสดงข้อมูลครบทั้งหมดแล้ว (' + repairAllRows.length + ' รายการ)</div>');
+    }
+    repairIsLoading = false;
+  }, 300);
+}
+
+function loadRepairCards() {
   const urlParams = new URLSearchParams(window.location.search);
   let selectedYear = urlParams.get("year");
   if (!selectedYear) {
-    selectedYear = $("#yearFilter").val(); // Fallback to dropdown value
+    selectedYear = $("#yearFilter").val();
   }
 
-  $("#TbDataRepair").DataTable({
-    destroy: true, // Allow re-initialization
-    responsive: true,
-    processing: true,
-    serverMethod: "post",
-    ajax: {
-      url: "Repair/DataTable/ShowRepari",
-      data: function (d) {
-        d.year = selectedYear; // Send year to server
-      },
-    },
-    order: [
-      [3, "desc"], // เรียงตามใบแจ้งซ่อม (repair_order) ล่าสุด
-    ],
-    columns: [
-      {
-        data: "repair_status",
-        className: "all",
-        render: function (data, type, row) {
-          let icon = "";
-          let className = "";
-          let extraClass = "";
-          data = data ? data.trim() : ""; // Trim whitespace
-          data = data ? data.trim() : "";
-          console.log("Repair Status:", data); // Debug log
+  const $container = $("#repairListContainer");
+  $container.html('<div class="repair-loading"><div class="spinner-border" role="status"><span class="visually-hidden">กำลังโหลด...</span></div></div>');
 
-          if (data === "รอดำเนินการ") {
-            icon = "bi-clock-history";
-            className = "badge bg-label-warning";
-          } else if (data === "กำลังดำเนินการ") {
-            icon = "bi-gear";
-            className = "badge bg-label-primary";
-            extraClass = "loading-text";
-          } else if (
-            data.includes("เรียบร้อย") ||
-            data.includes("เสร็จสิ้น") ||
-            data === "อนุมัติ"
-          ) {
-            // Match "ดำเนินการเรียบร้อย", "เสร็จสิ้น", etc.
-            icon = "bi-check-circle-fill";
-            className = "badge bg-success text-white";
-          } else if (data.includes("ยกเลิก") || data.includes("ไม่อนุมัติ")) {
-            icon = "bi-x-circle";
-            className = "badge bg-label-danger";
-          } else {
-            icon = "bi-question-circle";
-            className = "badge bg-label-secondary";
-          }
-          return `<span class="${className} ${extraClass}"><i class="bi ${icon} me-1"></i> ${data}</span>`;
-        },
-      },
-      {
-        data: "repair_caselist",
-        className: "all",
-        render: function (data, type, row) {
-          return `<i class="bi bi-list-check text-muted me-2"></i>${data}`;
-        },
-      },
-      {
-        data: "repair_datetime",
-        render: function (data, type, row) {
-          if (type === "display" && data) {
-            return (
-              '<i class="bi bi-calendar-check text-muted me-2"></i>' + data
-            );
-          }
-          return data;
-        },
-      },
-      {
-        data: "repair_order",
-        render: function (data, type, row) {
-          return `<i class="bi bi-file-earmark-text text-muted me-2"></i>${data}`;
-        },
-      },
-      {
-        data: "UserFullname",
-        render: function (data, type, row) {
-          return `<i class="bi bi-person text-muted me-2"></i>${data}`;
-        },
-      },
-      {
-        data: "repair_ID",
-        render: function (data, type, row) {
-          let buttons = '<a href="Repair/View/' +
-            row.repair_order +
-            '" data-id="' +
-            row.repair_ID +
-            '" id="BtnRepairFullDetail" class="btn btn-sm btn-outline-primary" >รายละเอียด</a>';
-            
-          // If login and the current user is the owner of this repair
-          if (typeof SESSION_PERS_ID !== 'undefined' && SESSION_PERS_ID !== '' && String(row.repair_userID) === String(SESSION_PERS_ID)) {
-              if (row.repair_caselist === 'งานอาคารสถานที่') {
-                  buttons += ' <a href="Repair/BuildingMemo" class="btn btn-sm btn-outline-warning ms-1" title="ออกบันทึกข้อความ"><i class="bi bi-file-earmark-text"></i> ย้อนหลัง</a>';
-              }
-          }
-          return buttons;
-        },
-      },
-    ],
+  $.ajax({
+    url: "Repair/DataTable/ShowRepari",
+    method: "POST",
+    data: { year: selectedYear },
+    dataType: "json",
+    success: function (response) {
+      const rows = response.data || [];
+      if (!rows.length) {
+        $container.html('<div class="repair-empty"><i class="bi bi-inbox d-block"></i><h5>ไม่พบข้อมูลการแจ้งซ่อม</h5></div>');
+        return;
+      }
+      // Sort by repair_order descending
+      rows.sort((a, b) => {
+        const oa = parseInt(a.repair_order) || 0;
+        const ob = parseInt(b.repair_order) || 0;
+        return ob - oa;
+      });
+
+      // เก็บข้อมูลทั้งหมด & รีเซ็ตตัวนับ
+      repairAllRows = rows;
+      repairLoadedCount = 0;
+
+      // โหลดหน้าแรก 10 รายการ
+      const firstPage = rows.slice(0, REPAIR_PAGE_SIZE);
+      repairLoadedCount = firstPage.length;
+      $container.html(renderRepairRows(firstPage));
+
+      // ถ้ายังมีข้อมูลเหลือ แสดง hint "เลื่อนลงเพื่อดูเพิ่ม"
+      if (repairLoadedCount < repairAllRows.length) {
+        $container.append('<div class="repair-scroll-hint text-center py-3 text-muted" style="font-size:0.8rem;"><i class="bi bi-chevron-double-down me-1"></i> เลื่อนลงเพื่อดูเพิ่มเติม</div>');
+      }
+    },
+    error: function () {
+      $container.html('<div class="repair-empty"><i class="bi bi-exclamation-triangle d-block text-danger"></i><h5>เกิดข้อผิดพลาดในการโหลดข้อมูล</h5></div>');
+    }
   });
+}
+
+// Infinite scroll: เลื่อนลงถึงล่างสุด → โหลดเพิ่ม 10 รายการ
+$(window).on("scroll", function () {
+  if (repairLoadedCount === 0) return; // ยังไม่ได้โหลดข้อมูล
+  if (repairLoadedCount >= repairAllRows.length) return; // โหลดหมดแล้ว
+
+  const scrollBottom = $(window).scrollTop() + $(window).height();
+  const docHeight = $(document).height();
+  // เลื่อนมาถึง 100px ก่อนถึงล่างสุด
+  if (docHeight - scrollBottom < 150) {
+    appendRepairPage();
+  }
+});
+
+function ShowDataLocationRoom() {
+  loadRepairCards();
 }
 
 $(document).on("click", "#BtnRepairFullDetail1", function () {

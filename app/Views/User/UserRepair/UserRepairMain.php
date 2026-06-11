@@ -203,25 +203,247 @@
         outline: none;
     }
 
-    /* Table Styling */
-    #TbDataRepair thead th {
-        background: rgba(105, 108, 255, 0.03);
+    /* List View Styling */
+    .repair-list-item {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 1.25rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    }
+
+    .repair-list-item:hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        background: white;
+    }
+
+    .repair-list-item .list-main {
+        display: flex;
+        gap: 1.25rem;
+        align-items: flex-start;
+    }
+
+    .repair-list-item .list-images {
+        flex-shrink: 0;
+        width: 120px;
+    }
+
+    .repair-list-item .list-images .main-img {
+        width: 120px;
+        height: 90px;
+        border-radius: 0.75rem;
+        object-fit: cover;
+        border: 2px solid rgba(105, 108, 255, 0.15);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .repair-list-item .list-images .main-img:hover {
+        border-color: var(--repair-primary);
+        transform: scale(1.03);
+    }
+
+    .repair-list-item .list-images .img-count-badge {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        background: rgba(0, 0, 0, 0.65);
+        color: white;
+        font-size: 0.65rem;
+        padding: 0.15rem 0.45rem;
+        border-radius: 0.5rem;
+        line-height: 1.3;
+    }
+
+    .repair-list-item .list-images .no-image {
+        width: 120px;
+        height: 90px;
+        border-radius: 0.75rem;
+        background: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--glass-border);
+        border: 2px dashed var(--glass-border);
+    }
+
+    .repair-list-item .list-images .no-image i {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .repair-list-item .list-images .no-image span {
+        font-size: 0.65rem;
+    }
+
+    .repair-list-item .list-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .repair-list-item .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.4rem;
+        gap: 0.75rem;
+    }
+
+    .repair-list-item .list-order {
+        font-size: 0.8rem;
+        color: var(--repair-secondary);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .repair-list-item .list-order i {
         color: var(--repair-primary);
+    }
+
+    .repair-list-item .list-caselist {
+        font-size: 1rem;
         font-weight: 700;
-        text-transform: uppercase;
+        color: #32475c;
+        margin-bottom: 0.35rem;
+        line-height: 1.4;
+    }
+
+    .repair-list-item .list-caselist i {
+        color: var(--repair-primary);
+    }
+
+    .repair-list-item .list-detail {
+        font-size: 0.82rem;
+        color: var(--repair-secondary);
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.5;
+    }
+
+    .repair-list-item .list-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 1.25rem;
+        font-size: 0.78rem;
+        color: var(--repair-secondary);
+    }
+
+    .repair-list-item .list-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .repair-list-item .list-meta-item i {
+        color: var(--repair-primary);
+        font-size: 0.9rem;
+    }
+
+    .repair-list-item .list-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.6rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .repair-list-item .list-date {
         font-size: 0.75rem;
-        padding: 1.25rem 1rem;
-        border-bottom: 2px solid rgba(105, 108, 255, 0.1);
+        color: var(--repair-secondary);
     }
 
-    #TbDataRepair tbody td {
-        padding: 1.25rem 1rem;
-        vertical-align: middle;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    .repair-list-item .list-actions {
+        display: flex;
+        gap: 0.5rem;
     }
 
-    #TbDataRepair tbody tr:hover {
-        background-color: rgba(105, 108, 255, 0.02) !important;
+    /* Image Preview Modal */
+    .repair-img-preview-modal .modal-body {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .repair-img-preview-modal .modal-body img {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 0.75rem;
+    }
+
+    /* Loading Spinner */
+    .repair-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 4rem 0;
+    }
+
+    .repair-loading .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        color: var(--repair-primary);
+    }
+
+    /* Loading More Spinner */
+    .repair-loading-more {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Scroll Hint */
+    .repair-scroll-hint {
+        animation: bounce-down 1.5s infinite;
+    }
+
+    @keyframes bounce-down {
+        0%, 100% { transform: translateY(0); opacity: 0.6; }
+        50% { transform: translateY(6px); opacity: 1; }
+    }
+
+    /* Loaded All */
+    .repair-loaded-all {
+        text-align: center;
+        padding: 1.5rem 0;
+        color: var(--repair-secondary);
+        font-size: 0.8rem;
+    }
+
+    /* Empty State */
+    .repair-empty {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: var(--repair-secondary);
+    }
+
+    .repair-empty i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    @media (max-width: 768px) {
+        .repair-list-item .list-main {
+            flex-direction: column;
+        }
+        .repair-list-item .list-images {
+            width: 100%;
+        }
+        .repair-list-item .list-images .main-img,
+        .repair-list-item .list-images .no-image {
+            width: 100%;
+            height: 180px;
+        }
+        .repair-list-item .list-header {
+            flex-wrap: wrap;
+        }
     }
 
     @media (max-width: 768px) {
@@ -322,33 +544,31 @@
         </div>
     </div>
 
-    <!-- Table Section -->
-    <div class="table-glass-card">
-        <div class="card-header-premium">
+    <!-- List View Section -->
+    <div class="table-glass-card p-4">
+        <div class="card-header-premium border-0 p-0 mb-4">
             <h5 class="mb-0 fw-bold">
-                <i class="bx bx-list-check me-2 text-primary"></i> 
+                <i class="bx bx-list-check me-2 text-primary"></i>
                 ข้อมูลการแจ้งซ่อมประจำปี <?= $selectedYear + 543 ?>
             </h5>
-            <button type="button" class="btn btn-link text-secondary p-0" onclick="reloadTable()">
+            <button type="button" class="btn btn-link text-secondary p-0" onclick="reloadCards()">
                 <i class='bx bx-refresh fs-4'></i>
             </button>
         </div>
-        <div class="card-datatable table-responsive">
-            <table class="table table-hover" id="TbDataRepair">
-                <thead>
-                    <tr>
-                        <th width="12%">สถานะ</th>
-                        <th width="25%">รายการ/สเตตัส</th>
-                        <th width="15%">วันที่แจ้ง</th>
-                        <th width="15%">ใบแจ้งซ่อม</th>
-                        <th width="20%">ผู้แจ้ง / เบอร์โทร</th>
-                        <th width="13%">จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Loaded via AJAX -->
-                </tbody>
-            </table>
+        <div id="repairListContainer">
+            <!-- List items loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div class="modal fade repair-img-preview-modal" id="repairImgPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background: transparent; border: none;">
+            <div class="modal-body p-0 text-center">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close" style="z-index: 10;"></button>
+                <img id="repairImgPreview" src="" alt="Preview">
+            </div>
         </div>
     </div>
 </div>
@@ -358,11 +578,8 @@
 <script>
     const SESSION_PERS_ID = '<?= session()->get('id') ?? '' ?>';
 
-    function reloadTable() {
-        if ($.fn.DataTable.isDataTable('#TbDataRepair')) {
-            const table = $('#TbDataRepair').DataTable();
-            table.ajax.url("<?= base_url('Repair/DataTable/ShowRepari') ?>?year=<?= $selectedYear ?>").load(null, false);
-        }
+    function reloadCards() {
+        loadRepairCards();
     }
 
     $(document).ready(function() {

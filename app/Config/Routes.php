@@ -105,6 +105,8 @@ $routes->get('Repair/Api/getRepairDetail/(:any)', 'ConUserRepair::getRepairDetai
 $routes->get('Repair/BuildingMemo', 'ConUserRepair::RepairBuildingMemo');
 $routes->match(['GET', 'POST'], 'Repair/BuildingMemo/Print', 'ConUserRepair::RepairBuildingMemoPrint');
 $routes->post('Repair/DB/SaveEvaluation', 'ConUserRepair::RepairSaveEvaluation');
+$routes->post('Repair/DB/StaffLogin', 'ConUserRepair::StaffLogin');
+$routes->post('Repair/DB/StaffLogout', 'ConUserRepair::StaffLogout');
 
 
 

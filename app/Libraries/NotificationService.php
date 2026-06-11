@@ -62,13 +62,15 @@ class NotificationService
 
     /**
      * ส่งข้อความ LINE ไปยังกลุ่ม/บุคคล
-     * 
+     * รองรับทั้ง text เดี่ยว หรือ text + image พร้อมกัน
+     *
      * @param string $system ชื่อระบบ: 'repair', 'car', 'booking'
      * @param string $message ข้อความที่จะส่ง
-     * @param string|null $targetId User ID หรือ Group ID (ถ้าไม่ระบุจะใช้ groupId จาก config)
+     * @param string|null $targetId User ID หรือ Group ID
+     * @param string|null $imageUrl URL รูปภาพ (ถ้ามีจะส่งเป็น image message ด้วย)
      * @return mixed
      */
-    public function sendLine(string $system, string $message, ?string $targetId = null)
+    public function sendLine(string $system, string $message, ?string $targetId = null, ?string $imageUrl = null)
     {
         if (!$this->shouldSendNotification()) {
             return null;
@@ -81,13 +83,26 @@ class NotificationService
         }
 
         $to = $targetId ?? $config['groupId'];
+        $messages = [];
+
+        // ถ้ามีรูป ส่งรูปก่อน (จะเป็น preview ให้เห็นทันที)
+        if (!empty($imageUrl)) {
+            $messages[] = [
+                'type' => 'image',
+                'originalContentUrl' => $imageUrl,
+                'previewImageUrl' => $imageUrl
+            ];
+        }
+
+        // ส่งข้อความ text ตาม
+        $messages[] = [
+            'type' => 'text',
+            'text' => $message
+        ];
 
         $data = [
             'to' => $to,
-            'messages' => [[
-                'type' => 'text',
-                'text' => $message
-            ]]
+            'messages' => $messages
         ];
 
         $ch = curl_init('https://api.line.me/v2/bot/message/push');
@@ -116,26 +131,28 @@ class NotificationService
 
     /**
      * สร้างข้อความ LINE สำหรับงานแจ้งซ่อมใหม่
+     * รายละเอียดอยู่หน้าสุด อ่านรู้เรื่องทันที
      */
     public function buildLineRepairNew(array $d): string
     {
         $msg  = "━━━━━━━━━━━━━━\n";
         $msg .= "🛠️ แจ้งซ่อมใหม่\n";
         $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "👤 {$d['requester_name']}\n";
         $msg .= "📋 {$d['case_type']}\n";
         if (!empty($d['detail'])) {
             $msg .= "📝 {$d['detail']}\n";
         }
+        $msg .= "👤 {$d['requester_name']}\n";
         $msg .= "📍 {$d['location']}\n";
         $msg .= "📅 {$d['date']}\n";
         $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "👉 {$d['url']}";
+        $msg .= "🔗 ดูรายละเอียด:\n{$d['url']}";
         return $msg;
     }
 
     /**
      * สร้างข้อความ LINE สำหรับอัปเดตสถานะซ่อม
+     * รายละเอียดอยู่หน้าสุด อ่านรู้เรื่องทันที
      */
     public function buildLineRepairUpdate(array $d): string
     {
@@ -143,17 +160,17 @@ class NotificationService
         $msg  = "━━━━━━━━━━━━━━\n";
         $msg .= "{$icon} อัปเดตสถานะซ่อม\n";
         $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "👤 เรียน {$d['requester_name']}\n";
         $msg .= "📋 {$d['case_type']}\n";
         $msg .= "🔄 สถานะ: {$d['status']}\n";
-        if (!empty($d['repairman'])) {
-            $msg .= "👷 โดย: {$d['repairman']}\n";
-        }
         if (!empty($d['cause'])) {
             $msg .= "📝 {$d['cause']}\n";
         }
+        if (!empty($d['repairman'])) {
+            $msg .= "👷 โดย: {$d['repairman']}\n";
+        }
+        $msg .= "👤 เรียน {$d['requester_name']}\n";
         $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "👉 {$d['url']}";
+        $msg .= "🔗 ดูรายละเอียด:\n{$d['url']}";
         return $msg;
     }
 
