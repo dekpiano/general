@@ -3,6 +3,7 @@
 namespace App\Controllers;
 use App\Libraries\Datethai;
 use CodeIgniter\Files\File;
+use App\Libraries\NotificationService;
 
 // error_reporting(-1);
 // ini_set('display_errors', 1);
@@ -356,62 +357,68 @@ class ConUserRepair extends BaseController
                 $msg .= "📅 วันที่แจ้ง: {$Datethai->thai_date_fullmonth(strtotime(date('Y-m-d H:i:s')))}\n";
                 $msg .= "👉 รับงาน: " . base_url("/Repair/View/".$Repair->repair_order);
 
-                // ไม่ส่งแจ้งเตือนถ้าเป็น development environment หรือเป็น localhost (รองรับ port เช่น :8086)
-                $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-                if (ENVIRONMENT === 'production' && !$isLocal) {
-                    // 3. ส่งข้อความ Line (ใช้ userId หรือ groupId ของช่าง)
-                    $this->sendLineMessage('C17a681261a4c021435e323ffc81cedea', $msg);
+                // ส่งการแจ้งเตือนแบบใหม่
+                $notificationService = new NotificationService();
 
-                    // 5. ส่ง OneSignal Push Notification หาเจ้าหน้าที่และหัวหน้างาน
-                    $isBuilding = ($this->request->getVar('repair_caselist') == "งานอาคารสถานที่");
-                    $targetRoles = $isBuilding ? ['admin_building', 'head_building'] : ['admin_repair', 'head_repair'];
-                    
-                    $this->sendPushNotification(
-                        "🛠️ มีงานแจ้งซ่อมมาใหม่!",
-                        "โดย {$RequesterName} - {$this->request->getVar('repair_caselist')}",
-                        base_url("/Repair/View/".$Repair->repair_order),
-                        ['role' => $targetRoles]
-                    );
+                // 1. ส่งข้อความ Line (ใช้กลุ่มงานแจ้งซ่อม)
+                $lineData = [
+                    'requester_name' => $RequesterName,
+                    'case_type'      => $this->request->getVar('repair_caselist'),
+                    'detail'         => $this->request->getVar('repair_detail'),
+                    'location'       => 'อาคาร ' . $this->request->getVar('repair_building') . ' ชั้น ' . $this->request->getVar('repair_class') . ' ห้อง ' . $this->request->getVar('repair_room'),
+                    'date'           => $Datethai->thai_date_fullmonth(strtotime(date('Y-m-d H:i:s'))),
+                    'url'            => base_url("/Repair/View/".$Repair->repair_order)
+                ];
+                $lineMsg = $notificationService->buildLineRepairNew($lineData);
+                $notificationService->sendLine('repair', $lineMsg);
 
-                    // 4. ส่ง Email - ดึงรายชื่อจากตาราง tb_admin_rloes
-                    if($this->request->getVar('repair_caselist') == "งานอาคารสถานที่"){
-                        // ส่งไปที่หัวหน้าและเจ้าหน้าที่งานอาคารสถานที่
-                        $MailAdmin = $this->getStaffEmailsByDepartment('งานอาคารสถานที่');
-                    }else{
-                        // ส่งไปที่หัวหน้าและเจ้าหน้าที่งานแจ้งซ่อม
-                        $MailAdmin = $this->getStaffEmailsByDepartment('งานแจ้งซ่อม');
-                    }
-                    
-                    // ถ้าไม่พบ Email จาก roles ให้ใช้ fallback
-                    if (empty($MailAdmin)) {
-                        $MailAdmin = ['dekpiano@skj.ac.th'];
-                    }
-                    
-                    $email = \Config\Services::email();
-                    // ผู้ส่งคือผู้แจ้งซ่อม
-                    $email->setFrom($RequesterEmail, $RequesterName . ' (แจ้งซ่อมผ่านระบบ)');
-                    $email->setTo($MailAdmin);
-                    $email->setSubject('[แจ้งซ่อม] ' . $this->request->getVar('repair_caselist') . ' - ' . $RequesterName);
+                // 2. ส่ง OneSignal Push Notification หาเจ้าหน้าที่และหัวหน้างาน
+                $isBuilding = ($this->request->getVar('repair_caselist') == "งานอาคารสถานที่");
+                $targetRoles = $isBuilding ? ['admin_building', 'head_building'] : ['admin_repair', 'head_repair'];
+                $notificationService->sendPush(
+                    "🛠️ มีงานแจ้งซ่อมมาใหม่!",
+                    "โดย {$RequesterName} - {$this->request->getVar('repair_caselist')}",
+                    base_url("/Repair/View/".$Repair->repair_order),
+                    ['role' => $targetRoles]
+                );
 
-                    // กำหนดข้อความในรูปแบบ HTML
-                    $htmlMessage = '<h4>📧 แจ้งซ่อมใหม่จากระบบ</h4>';
-                    $htmlMessage .= '<hr>';
-                    $htmlMessage .= '<p><strong>ใบแจ้งซ่อม:</strong> '.$OrderNumber.'</p>';
-                    $htmlMessage .= '<p><strong>วันที่แจ้งซ่อม:</strong> '.$Datethai->thai_date_and_time(strtotime($DateTimeToday)).'</p>';
-                    $htmlMessage .= '<p><strong>ผู้แจ้งซ่อม:</strong> '.$RequesterName.'</p>';
-                    $htmlMessage .= '<p><strong>เบอร์โทรติดต่อ:</strong> '.$this->request->getVar('repair_phone').'</p>';
-                    $htmlMessage .= '<hr>';
-                    $htmlMessage .= '<p><strong>รายการแจ้งซ่อม:</strong> '.$this->request->getVar('repair_caselist').'</p>';
-                    $htmlMessage .= '<p><strong>รายละเอียด:</strong> '.$this->request->getVar('repair_detail').'</p>';
-                    $htmlMessage .= '<p><strong>สถานที่:</strong> อาคาร '.$this->request->getVar('repair_building').' ชั้น '.$this->request->getVar('repair_class').' ห้อง '.$this->request->getVar('repair_room').'</p>';
-                    $htmlMessage .= '<hr>';
-                    $htmlMessage .= '<p><a href="'.base_url('Repair/View/'.$OrderNumber).'" style="background: #696cff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">👉 ดูรายละเอียดและรับงาน</a></p>';
-
-                    $email->setMessage($htmlMessage);
-                    $email->setMailType('html');
-
-                    $email->send();
+                // 3. ส่ง Email ด้วย template กลางที่สวยงาม
+                $MailAdmin = $notificationService->getStaffEmailsByDepartment($isBuilding ? 'งานอาคารสถานที่' : 'งานแจ้งซ่อม');
+                if (empty($MailAdmin)) {
+                    $MailAdmin = ['dekpiano@skj.ac.th'];
                 }
+
+                $emailData = [
+                    'header_title' => 'มีงานแจ้งซ่อมมาใหม่',
+                    'header_sub'   => 'ระบบแจ้งซ่อมออนไลน์ (Repair Service)',
+                    'fields' => [
+                        ['label' => 'ผู้แจ้งซ่อม', 'value' => $RequesterName],
+                        ['label' => 'ประเภทงานซ่อม', 'value' => $this->request->getVar('repair_caselist')],
+                        ['label' => 'ใบแจ้งซ่อมเลขที่', 'value' => $OrderNumber],
+                    ],
+                    'columns' => [
+                        ['label' => 'เบอร์โทรติดต่อ', 'value' => $this->request->getVar('repair_phone')],
+                        ['label' => 'วันที่แจ้ง', 'value' => $Datethai->thai_date_and_time(strtotime($DateTimeToday))]
+                    ],
+                    'detail_label' => 'รายละเอียดและสถานที่',
+                    'detail_text'  => 'สถานที่: อาคาร ' . $this->request->getVar('repair_building') . ' ชั้น ' . $this->request->getVar('repair_class') . ' ห้อง ' . $this->request->getVar('repair_room') . "\nรายละเอียด: " . $this->request->getVar('repair_detail'),
+                    'status' => [
+                        'text' => '⏳ รอดำเนินการ',
+                        'bg' => '#ffe5d9',
+                        'color' => '#ff6b35'
+                    ],
+                    'cta_text' => '👉 ดูรายละเอียดและรับงาน',
+                    'cta_url'  => base_url('Repair/View/'.$OrderNumber)
+                ];
+
+                $notificationService->sendEmail(
+                    $MailAdmin,
+                    '[แจ้งซ่อม] ' . $this->request->getVar('repair_caselist') . ' - ' . $RequesterName,
+                    'repair',
+                    $emailData,
+                    $RequesterEmail,
+                    $RequesterName . ' (แจ้งซ่อมผ่านระบบ)'
+                );
 
                 return $this->response->setJSON([
                     'status' => 'success', 
@@ -619,43 +626,63 @@ class ConUserRepair extends BaseController
                              $RepairmanEmail = ($Repairman && !empty($Repairman->pers_username)) ? $Repairman->pers_username : 'noreply@skj.ac.th';
                              
                              try {
-                                 $email = \Config\Services::email();
-                                 // ผู้ส่งคือเจ้าหน้าที่รับงาน
-                                 $email->setFrom($RepairmanEmail, $RepairmanName . ' (งานแจ้งซ่อม)');
-                                 $email->setTo($Requester->pers_username);
-                                 $email->setSubject('[อัปเดตสถานะ] ' . $RepairInfo->repair_caselist . ' - ' . $currentStatus);
+                                 $notificationService = new NotificationService();
+                                 $statusColors = ($currentStatus === 'ดำเนินการเรียบร้อย') 
+                                     ? ['bg' => '#e8f5e9', 'color' => '#2e7d32'] 
+                                     : ['bg' => '#ffe5d9', 'color' => '#ff6b35'];
 
-                                 $htmlMessage = '<h4>📧 แจ้งอัปเดตสถานะการซ่อม</h4>';
-                                 $htmlMessage .= '<p>เรียน ' . $RequesterName . '</p>';
-                                 $htmlMessage .= '<p>รายการแจ้งซ่อมของท่านมีการอัปเดตสถานะเป็น: <strong style="color: #696cff;">' . $currentStatus . '</strong></p>';
-                                 $htmlMessage .= '<hr>';
-                                 $htmlMessage .= '<p><strong>เลขที่ใบแจ้งซ่อม:</strong> ' . $RepairInfo->repair_order . '</p>';
-                                 $htmlMessage .= '<p><strong>รายการ:</strong> ' . $RepairInfo->repair_caselist . '</p>';
-                                 $htmlMessage .= '<p><strong>รายละเอียดปัญหา:</strong> ' . $RepairInfo->repair_detail . '</p>';
-                                 $htmlMessage .= '<p><strong>สถานที่:</strong> ' . $RepairInfo->repair_building . ' ชั้น ' . $RepairInfo->repair_class . ' ห้อง ' . $RepairInfo->repair_room . '</p>';
-                                 
-                                 if(!empty($this->request->getPost('repair_cause'))) {
-                                    $htmlMessage .= '<p><strong>บันทึกจากเจ้าหน้าที่:</strong> ' . $this->request->getPost('repair_cause') . '</p>';
-                                 }
-                                 
-                                 $htmlMessage .= '<hr>';
-                                 $htmlMessage .= '<p><strong>ผู้ดำเนินการ:</strong> ' . $RepairmanName . '</p>';
-                                 $htmlMessage .= '<p><strong>วันที่อัปเดต:</strong> ' . $Datethai->thai_date_and_time(strtotime(date('Y-m-d H:i:s'))) . '</p>';
-                                 $htmlMessage .= '<hr>';
-                                 $htmlMessage .= '<p><a href="' . base_url('Repair/View/' . $RepairInfo->repair_order) . '" style="background: #696cff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">👉 ดูรายละเอียด</a></p>';
+                                 $emailData = [
+                                     'header_title' => 'อัปเดตสถานะการซ่อม',
+                                     'header_sub'   => 'ระบบแจ้งซ่อมออนไลน์ (Repair Service)',
+                                     'fields' => [
+                                         ['label' => 'เรียน', 'value' => $RequesterName],
+                                         ['label' => 'รายการแจ้งซ่อม', 'value' => $RepairInfo->repair_caselist],
+                                         ['label' => 'ใบแจ้งซ่อมเลขที่', 'value' => $RepairInfo->repair_order],
+                                     ],
+                                     'columns' => [
+                                         ['label' => 'ผู้ดำเนินการ', 'value' => $RepairmanName],
+                                         ['label' => 'วันที่อัปเดต', 'value' => $Datethai->thai_date_and_time(strtotime(date('Y-m-d H:i:s')))]
+                                     ],
+                                     'detail_label' => 'รายละเอียดและบันทึกจากเจ้าหน้าที่',
+                                     'detail_text'  => 'สถานที่: อาคาร ' . $RepairInfo->repair_building . ' ชั้น ' . $RepairInfo->repair_class . ' ห้อง ' . $RepairInfo->repair_room 
+                                         . "\nรายละเอียดปัญหา: " . $RepairInfo->repair_detail 
+                                         . (!empty($this->request->getPost('repair_cause')) ? "\nบันทึกจากเจ้าหน้าที่: " . $this->request->getPost('repair_cause') : ""),
+                                     'status' => [
+                                         'text' => $currentStatus,
+                                         'bg' => $statusColors['bg'],
+                                         'color' => $statusColors['color']
+                                     ],
+                                     'cta_text' => '👉 ดูรายละเอียด',
+                                     'cta_url'  => base_url('Repair/View/' . $RepairInfo->repair_order)
+                                 ];
 
-                                 $email->setMessage($htmlMessage);
-                                 $email->setMailType('html');
-                                 $email->send();
+                                 $notificationService->sendEmail(
+                                     $Requester->pers_username,
+                                     '[อัปเดตสถานะ] ' . $RepairInfo->repair_caselist . ' - ' . $currentStatus,
+                                     ($currentStatus === 'ดำเนินการเรียบร้อย' ? 'approved' : 'update'),
+                                     $emailData,
+                                     $RepairmanEmail,
+                                     $RepairmanName . ' (งานแจ้งซ่อม)'
+                                 );
 
-                                 // 6. ส่ง OneSignal Push Notification หาผู้แจ้งซ่อม
-                                 $this->sendPushNotification(
+                                 $notificationService->sendPush(
                                      "🛠️ อัปเดตสถานะการซ่อม",
                                      "รายการ: {$RepairInfo->repair_caselist} สถานะ: {$currentStatus}",
                                      base_url('Repair/View/' . $RepairInfo->repair_order),
                                      null,
                                      $RepairInfo->repair_userID
                                  );
+
+                                 $lineUpdateData = [
+                                     'requester_name' => $RequesterName,
+                                     'case_type'      => $RepairInfo->repair_caselist,
+                                     'status'         => $currentStatus,
+                                     'repairman'      => $RepairmanName,
+                                     'cause'          => $this->request->getPost('repair_cause'),
+                                     'url'            => base_url('Repair/View/' . $RepairInfo->repair_order)
+                                 ];
+                                 $lineMsg = $notificationService->buildLineRepairUpdate($lineUpdateData);
+                                 $notificationService->sendLine('repair', $lineMsg);
                              } catch (\Exception $e) {
                                  log_message('error', 'Repair Email Error: ' . $e->getMessage());
                              }

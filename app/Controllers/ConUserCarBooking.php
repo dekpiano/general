@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use CodeIgniter\I18n\Time;
 use App\Libraries\Datethai; // Import library
+use App\Libraries\NotificationService;
 
 class ConUserCarBooking extends BaseController
 {
@@ -324,38 +325,56 @@ class ConUserCarBooking extends BaseController
                     $msg .= "🎯 วัตถุประสงค์: {$Car['car_reserv_detail']}\n";
                     $msg .= "👉 รับงาน: " . base_url("/CarBooking/Approve/Admin");
 
-                    // 3. Send Notification (ส่งเฉพาะบน Server จริงเท่านั้น)
-                    $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-                    if (ENVIRONMENT === 'production' && !$isLocal) {
-                        $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
+                    // ส่งแจ้งเตือนแบบใหม่ผ่าน NotificationService
+                    $notificationService = new NotificationService();
+                    $requesterName = $Car['pers_prefix'] . $Car['pers_firstname'] . ' ' . $Car['pers_lastname'];
+                    $dateRange = $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']));
 
-                        // Send Email to Booker
-                        $userEmail = $session->get('email') ?: $Car['pers_username'];
-                        if ($userEmail) {
-                            $email = \Config\Services::email();
-                            $email->setFrom($userEmail, "ระบบจองยานพาหนะ SKJ");
-                            $email->setTo($Car['pers_username']);
-                            $email->setSubject("แจ้งการจองยานพาหนะ: รอการตรวจสอบ");
+                    // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
+                    $lineData = [
+                        'icon'           => '🚗',
+                        'system_label'   => 'แจ้งเตือนการขอใช้รถราชการ',
+                        'requester_name' => $requesterName,
+                        'purpose'        => $Car['car_reserv_detail'],
+                        'vehicle'        => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province'],
+                        'date_range'     => $dateRange,
+                        'url'            => base_url("/CarBooking/Approve/Admin")
+                    ];
+                    $lineMsg = $notificationService->buildLineBookingNew($lineData);
+                    $notificationService->sendLine('car', $lineMsg);
 
-                            $html = "
-                            <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px;'>
-                                <h2 style='color: #ffab00;'>⏳ ได้รับคำขอจองยานพาหนะแล้ว</h2>
-                                <p>เรียน {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}</p>
-                                <p>ระบบได้รับข้อมูลการจองของท่านแล้ว อยู่ระหว่างรอการตรวจสอบจากเจ้าหน้าที่</p>
-                                <hr>
-                                <p><strong>รายละเอียด:</strong></p>
-                                <ul>
-                                    <li><strong>เลขที่:</strong> {$Car['car_reserv_order']}</li>
-                                    <li><strong>รถ:</strong> {$Car['car_category']} {$Car['car_registration']}</li>
-                                    <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate']))} - {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']))}</li>
-                                    <li><strong>วัตถุประสงค์:</strong> {$Car['car_reserv_detail']}</li>
-                                </ul>
-                                <p><a href='" . base_url("CarBooking/View") . "'>ตรวจสอบสถานะการจอง</a></p>
-                            </div>";
+                    // 2. ส่ง Email หาผู้จองด้วย template กลาง
+                    $userEmail = $session->get('email') ?: $Car['pers_username'];
+                    if (!empty($Car['pers_username'])) {
+                        $emailData = [
+                            'header_title' => 'ได้รับคำขอจองยานพาหนะแล้ว',
+                            'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                            'fields' => [
+                                ['label' => 'เรียน', 'value' => $requesterName],
+                                ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
+                                ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']],
+                            ],
+                            'columns' => [
+                                ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
+                                ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
+                            ],
+                            'status' => [
+                                'text' => '⏳ รอการตรวจสอบ',
+                                'bg' => '#fff3e0',
+                                'color' => '#e65100'
+                            ],
+                            'cta_text' => '👉 ตรวจสอบสถานะการจอง',
+                            'cta_url'  => base_url("CarBooking/View")
+                        ];
 
-                            $email->setMessage($html);
-                            $email->send();
-                        }
+                        $notificationService->sendEmail(
+                            $Car['pers_username'],
+                            "แจ้งการจองยานพาหนะ: รอการตรวจสอบ",
+                            'car',
+                            $emailData,
+                            $userEmail,
+                            "ระบบจองยานพาหนะ SKJ"
+                        );
                     }
                 }
             }
@@ -635,43 +654,56 @@ class ConUserCarBooking extends BaseController
             if ($Car) {
                 try {
                     $Datethai = new Datethai();
-                    $msg = "✅ การจองยานพาหนะได้รับการอนุมัติแล้ว!\n";
-                    $msg .= "เลขที่จอง: {$Car['car_reserv_order']}\n";
-                    $msg .= "ผู้ขอ: {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}\n";
-                    $msg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
-                    $msg .= "📅 วันที่: {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate']))} - {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']))}\n";
-                    $msg .= "อนุมัติโดย: " . ($session->get('username') ?: 'เจ้าหน้าที่') . "\n";
-                    $msg .= "ตรวจสอบสถานะ: " . base_url("CarBooking/View");
+                    $notificationService = new NotificationService();
+                    $requesterName = $Car['pers_prefix'] . $Car['pers_firstname'] . ' ' . $Car['pers_lastname'];
+                    $dateRange = $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']));
+                    $approverName = $session->get('username') ?: 'เจ้าหน้าที่';
 
-                    $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-                    if (ENVIRONMENT === 'production' && !$isLocal) {
-                        $this->sendLineMessage('C8d6e31d23796ce4a9d17c9ee7b419ec8', $msg);
+                    // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
+                    $lineData = [
+                        'is_approved'    => true,
+                        'requester_name' => $requesterName,
+                        'order_number'   => $Car['car_reserv_order'],
+                        'detail'         => 'จองรถ: ' . $Car['car_category'] . ' ' . $Car['car_registration'] . "\nวัตถุประสงค์: " . $Car['car_reserv_detail'],
+                        'location'       => $Car['car_reserv_location'],
+                        'date_range'     => $dateRange,
+                        'approver'       => $approverName,
+                        'url'            => base_url("CarBooking/View")
+                    ];
+                    $lineMsg = $notificationService->buildLineApprovalResult($lineData);
+                    $notificationService->sendLine('car', $lineMsg);
 
-                        // Send Email to Booker (Approved)
-                        $userEmail = $session->get('email');
-                        if ($userEmail) {
-                            $email = \Config\Services::email();
-                            $email->setFrom($userEmail, "ระบบจองยานพาหนะ SKJ");
-                            $email->setTo($Car['pers_username']);
-                            $email->setSubject("ผลการจองยานพาหนะ: อนุมัติ");
+                    // 2. ส่ง Email ด้วย template กลาง (Approved)
+                    $userEmail = $session->get('email');
+                    if ($userEmail && !empty($Car['pers_username'])) {
+                        $emailData = [
+                            'header_title' => 'การจองยานพาหนะได้รับการอนุมัติแล้ว',
+                            'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                            'fields' => [
+                                ['label' => 'เรียน', 'value' => $requesterName],
+                                ['label' => 'รถที่ได้รับอนุมัติ', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
+                            ],
+                            'columns' => [
+                                ['label' => 'เลขที่จอง', 'value' => $Car['car_reserv_order']],
+                                ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
+                            ],
+                            'status' => [
+                                'text' => '✅ อนุมัติแล้ว',
+                                'bg' => '#e8f5e9',
+                                'color' => '#2e7d32'
+                            ],
+                            'cta_text' => '👉 ตรวจสอบสถานะการจอง',
+                            'cta_url'  => base_url("CarBooking/View")
+                        ];
 
-                            $html = "
-                            <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px; border-top: 5px solid #71dd37;'>
-                                <h2 style='color: #71dd37;'>✅ การจองของคุณได้รับการอนุมัติ</h2>
-                                <p>เรียน {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}</p>
-                                <p>เจ้าหน้าที่ได้ทำการอนุมัติรายการจองยานพาหนะของท่านเรียบร้อยแล้ว</p>
-                                <hr>
-                                <p><strong>รายละเอียด:</strong></p>
-                                <ul>
-                                    <li><strong>เลขที่:</strong> {$Car['car_reserv_order']}</li>
-                                    <li><strong>รถ:</strong> {$Car['car_category']} {$Car['car_registration']}</li>
-                                    <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate']))} - {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']))}</li>
-                                </ul>
-                            </div>";
-
-                            $email->setMessage($html);
-                            $email->send();
-                        }
+                        $notificationService->sendEmail(
+                            $Car['pers_username'],
+                            "ผลการจองยานพาหนะ: อนุมัติ",
+                            'approved',
+                            $emailData,
+                            $userEmail,
+                            "ระบบจองยานพาหนะ SKJ"
+                        );
                     }
                 }
                 catch (\Exception $e) {
@@ -727,33 +759,59 @@ class ConUserCarBooking extends BaseController
 
             if ($Car) {
                 try {
-                    $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-                    if (ENVIRONMENT === 'production' && !$isLocal) {
-                        $userEmail = $session->get('email');
-                        if ($userEmail) {
-                            $email = \Config\Services::email();
-                            $email->setFrom($userEmail, "ระบบจองยานพาหนะ SKJ");
-                            $email->setTo($Car['pers_username']);
-                            $email->setSubject("ผลการจองยานพาหนะ: ไม่อนุมัติ");
+                    $notificationService = new NotificationService();
+                    $requesterName = $Car['pers_prefix'] . $Car['pers_firstname'] . ' ' . $Car['pers_lastname'];
+                    $dateRange = $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']));
 
-                            $html = "
-                            <div style='font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px; border-top: 5px solid #ff3e1d;'>
-                                <h2 style='color: #ff3e1d;'>❌ การจองของคุณไม่ผ่านการอนุมัติ</h2>
-                                <p>เรียน {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}</p>
-                                <p>รายการจองยานพาหนะของท่านไม่ได้รับการอนุมัติ</p>
-                                <hr>
-                                <p><strong>รายละเอียด:</strong></p>
-                                <ul>
-                                    <li><strong>เลขที่:</strong> {$Car['car_reserv_order']}</li>
-                                    <li><strong>รถ:</strong> {$Car['car_category']} {$Car['car_registration']}</li>
-                                    <li><strong>วันที่:</strong> {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate']))} - {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']))}</li>
-                                </ul>
-                                <p>กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม</p>
-                            </div>";
+                    // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
+                    $lineData = [
+                        'is_approved'    => false,
+                        'requester_name' => $requesterName,
+                        'order_number'   => $Car['car_reserv_order'],
+                        'detail'         => 'จองรถ: ' . $Car['car_category'] . ' ' . $Car['car_registration'] . "\nวัตถุประสงค์: " . $Car['car_reserv_detail'],
+                        'location'       => $Car['car_reserv_location'],
+                        'date_range'     => $dateRange,
+                        'reason'         => 'กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม',
+                        'url'            => base_url("CarBooking/View")
+                    ];
+                    $lineMsg = $notificationService->buildLineApprovalResult($lineData);
+                    $notificationService->sendLine('car', $lineMsg);
 
-                            $email->setMessage($html);
-                            $email->send();
-                        }
+                    // 2. ส่ง Email ด้วย template กลาง (Rejected)
+                    $userEmail = $session->get('email');
+                    if ($userEmail && !empty($Car['pers_username'])) {
+                        $emailData = [
+                            'header_title' => 'การจองยานพาหนะไม่ได้รับการอนุมัติ',
+                            'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                            'fields' => [
+                                ['label' => 'เรียน', 'value' => $requesterName],
+                                ['label' => 'รถที่จอง', 'value' => $Car['car_category'] . ' ' . $Car['car_registration']],
+                            ],
+                            'columns' => [
+                                ['label' => 'เลขที่จอง', 'value' => $Car['car_reserv_order']],
+                                ['label' => 'ช่วงเวลาที่ขอ', 'value' => $dateRange]
+                            ],
+                            'reason' => [
+                                'label' => 'บันทึกจากระบบ',
+                                'text' => 'กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม'
+                            ],
+                            'status' => [
+                                'text' => '❌ ไม่อนุมัติ',
+                                'bg' => '#ffeacc',
+                                'color' => '#ff3e1d'
+                            ],
+                            'cta_text' => '👉 ตรวจสอบสถานะการจอง',
+                            'cta_url'  => base_url("CarBooking/View")
+                        ];
+
+                        $notificationService->sendEmail(
+                            $Car['pers_username'],
+                            "ผลการจองยานพาหนะ: ไม่อนุมัติ",
+                            'rejected',
+                            $emailData,
+                            $userEmail,
+                            "ระบบจองยานพาหนะ SKJ"
+                        );
                     }
                 }
                 catch (\Exception $e) {
