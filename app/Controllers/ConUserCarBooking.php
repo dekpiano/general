@@ -730,9 +730,11 @@ class ConUserCarBooking extends BaseController
         $DBCarReservation = $database->table('tb_car_reservation');
         $Datethai = new Datethai();
 
+        $status = $this->request->getVar('status') ?: 'ไม่อนุมัติ';
+
         $data = array(
             'car_reserv_driver' => "",
-            'car_reserv_status' => 'ไม่อนุมัติ',
+            'car_reserv_status' => $status,
             'car_reserv_approver' => $session->get('id')
         );
         $DBCarReservation->where('car_reserv_id', $this->request->getVar('carbookingID'));
@@ -762,6 +764,9 @@ class ConUserCarBooking extends BaseController
                     $notificationService = new NotificationService();
                     $requesterName = $Car['pers_prefix'] . $Car['pers_firstname'] . ' ' . $Car['pers_lastname'];
                     $dateRange = $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']));
+                    
+                    $statusText = ($status === 'ยกเลิก') ? 'ยกเลิกการจอง' : 'ไม่อนุมัติ';
+                    $reasonText = ($status === 'ยกเลิก') ? 'การจองนี้ถูกยกเลิกโดยผู้ดูแลระบบ' : 'กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม';
 
                     // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
                     $lineData = [
@@ -771,7 +776,7 @@ class ConUserCarBooking extends BaseController
                         'detail'         => 'จองรถ: ' . $Car['car_category'] . ' ' . $Car['car_registration'] . "\nวัตถุประสงค์: " . $Car['car_reserv_detail'],
                         'location'       => $Car['car_reserv_location'],
                         'date_range'     => $dateRange,
-                        'reason'         => 'กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม',
+                        'reason'         => $reasonText,
                         'url'            => base_url("CarBooking/View")
                     ];
                     $lineMsg = $notificationService->buildLineApprovalResult($lineData);
@@ -781,7 +786,7 @@ class ConUserCarBooking extends BaseController
                     $userEmail = $session->get('email');
                     if ($userEmail && !empty($Car['pers_username'])) {
                         $emailData = [
-                            'header_title' => 'การจองยานพาหนะไม่ได้รับการอนุมัติ',
+                            'header_title' => ($status === 'ยกเลิก') ? 'การจองยานพาหนะถูกยกเลิก' : 'การจองยานพาหนะไม่ได้รับการอนุมัติ',
                             'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
                             'fields' => [
                                 ['label' => 'เรียน', 'value' => $requesterName],
@@ -793,10 +798,10 @@ class ConUserCarBooking extends BaseController
                             ],
                             'reason' => [
                                 'label' => 'บันทึกจากระบบ',
-                                'text' => 'กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม'
+                                'text' => $reasonText
                             ],
                             'status' => [
-                                'text' => '❌ ไม่อนุมัติ',
+                                'text' => ($status === 'ยกเลิก') ? '❌ ยกเลิกการจอง' : '❌ ไม่อนุมัติ',
                                 'bg' => '#ffeacc',
                                 'color' => '#ff3e1d'
                             ],
@@ -806,7 +811,7 @@ class ConUserCarBooking extends BaseController
 
                         $notificationService->sendEmail(
                             $Car['pers_username'],
-                            "ผลการจองยานพาหนะ: ไม่อนุมัติ",
+                            "ผลการจองยานพาหนะ: " . $statusText,
                             'rejected',
                             $emailData,
                             $userEmail,
@@ -819,7 +824,7 @@ class ConUserCarBooking extends BaseController
                 }
             }
 
-            return $this->response->setJSON(['status' => 'success', 'message' => 'ไม่อนุมัติการจองเรียบร้อยแล้ว']);
+            return $this->response->setJSON(['status' => 'success', 'message' => $statusText . 'เรียบร้อยแล้ว']);
         }
         else {
             return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่สามารถดำเนินการได้']);
@@ -843,6 +848,9 @@ class ConUserCarBooking extends BaseController
             'car_reserv_approver' => ""
         );
 
+        $carbookingID = $this->request->getVar('carbookingID');
+        $DBCarReservation->where('car_reserv_id', $carbookingID);
+
         if ($DBCarReservation->update($data)) {
             return $this->response->setJSON(['status' => 'success', 'message' => 'รีเซ็ตสถานะเรียบร้อยแล้ว']);
         }
@@ -863,7 +871,7 @@ class ConUserCarBooking extends BaseController
         }
 
         $data = [
-            'car_reserv_status' => 'ไม่อนุมัติ' // หรือใช้สถานะ 'ยกเลิก' ถ้ามี
+            'car_reserv_status' => 'ยกเลิก'
         ];
         $DBCarReservation->where('car_reserv_id', $id);
         if ($DBCarReservation->update($data)) {
@@ -891,7 +899,7 @@ class ConUserCarBooking extends BaseController
        ')
             ->join('skjacth_general.tb_school_car as car', 'car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
             ->join('skjacth_personnel.tb_personnel as p', 'p.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID', 'left')
-            ->where('car_reserv_status !=', 'ไม่อนุมัติ')
+            ->whereNotIn('car_reserv_status', ['ไม่อนุมัติ', 'ยกเลิก'])
             ->get()->getResult();
 
         $data = array();

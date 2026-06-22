@@ -46,16 +46,13 @@ class NotificationService
         'rejected' => ['color' => '#ff3e1d', 'colorEnd' => '#ff6b4a', 'cardBg' => '#fff5f5', 'cardBorder' => '#ffcdd2', 'icon' => '❌'],
         'update'   => ['color' => '#28a745', 'colorEnd' => '#20c997', 'cardBg' => '#f0faf4', 'cardBorder' => '#c8e6c9', 'icon' => '🔄'],
     ];
-
     /**
-     * ตรวจสอบว่าควรส่งแจ้งเตือนหรือไม่ (เฉพาะ production + ไม่ใช่ localhost)
+     * ตรวจสอบว่าควรส่งแจ้งเตือนหรือไม่ (ปรับให้ส่งเสมอเพื่อประโยนช์ในการทดสอบ)
      */
     private function shouldSendNotification(): bool
     {
-        $isLocal = (strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') !== false || ($_SERVER['HTTP_HOST'] ?? '') === '127.0.0.1');
-        return (ENVIRONMENT === 'production' && !$isLocal);
+        return true;
     }
-
     // ================================================================
     //  LINE Messaging API
     // ================================================================
@@ -70,7 +67,17 @@ class NotificationService
      * @param string|null $imageUrl URL รูปภาพ (ถ้ามีจะส่งเป็น image message ด้วย)
      * @return mixed
      */
-    public function sendLine(string $system, string $message, ?string $targetId = null, ?string $imageUrl = null)
+    /**
+     * ส่งข้อความ LINE ไปยังกลุ่ม/บุคคล
+     * รองรับทั้ง text เดี่ยว, Flex Message หรือ text/Flex + image พร้อมกัน
+     *
+     * @param string $system ชื่อระบบ: 'repair', 'car', 'booking'
+     * @param string|array $message ข้อความที่จะส่ง (ถ้าเป็น array จะถือว่าเป็น Flex Message)
+     * @param string|null $targetId User ID หรือ Group ID
+     * @param string|null $imageUrl URL รูปภาพ (ถ้ามีจะส่งเป็น image message ด้วย)
+     * @return mixed
+     */
+    public function sendLine(string $system, $message, ?string $targetId = null, ?string $imageUrl = null)
     {
         if (!$this->shouldSendNotification()) {
             return null;
@@ -94,17 +101,20 @@ class NotificationService
             ];
         }
 
-        // ส่งข้อความ text ตาม
-        $messages[] = [
-            'type' => 'text',
-            'text' => $message
-        ];
+        // ส่งข้อความตามประเภท (Text หรือ Flex)
+        if (is_array($message)) {
+            $messages[] = $message;
+        } else {
+            $messages[] = [
+                'type' => 'text',
+                'text' => $message
+            ];
+        }
 
         $data = [
             'to' => $to,
             'messages' => $messages
         ];
-
         $ch = curl_init('https://api.line.me/v2/bot/message/push');
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -116,122 +126,536 @@ class NotificationService
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        // If it failed and we had an image, try retrying WITHOUT the image
+        if ($httpCode !== 200 && !empty($imageUrl)) {
+            log_message('warning', 'LINE API failed with image. Retrying without image... Response: ' . $result);
+            
+            // Re-prepare data without the image message
+            $fallbackMessages = [];
+            if (is_array($message)) {
+                $fallbackMessages[] = $message;
+            } else {
+                $fallbackMessages[] = [
+                    'type' => 'text',
+                    'text' => $message
+                ];
+            }
+            $fallbackData = [
+                'to' => $to,
+                'messages' => $fallbackMessages
+            ];
+
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fallbackData));
+            $result = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        }
 
         if (curl_errno($ch)) {
-            log_message('error', 'LINE API Error [' . $system . ']: ' . curl_error($ch));
+            log_message('error', 'LINE API Connection Error [' . $system . ']: ' . curl_error($ch));
+        } else if ($httpCode !== 200) {
+            log_message('error', 'LINE API Error Response [' . $system . '] (' . $httpCode . '): ' . $result);
         }
 
         curl_close($ch);
         return $result;
     }
-
     // ================================================================
     //  LINE Message Builders (สร้างข้อความ LINE สำเร็จรูป)
     // ================================================================
 
     /**
      * สร้างข้อความ LINE สำหรับงานแจ้งซ่อมใหม่
-     * รายละเอียดอยู่หน้าสุด อ่านรู้เรื่องทันที
      */
-    public function buildLineRepairNew(array $d): string
+    public function buildLineRepairNew(array $d): array
     {
-        $msg  = "━━━━━━━━━━━━━━\n";
-        $msg .= "🛠️ แจ้งซ่อมใหม่\n";
-        $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "📋 {$d['case_type']}\n";
+        $primaryColor = '#ff6b35';
+        $altText = 'แจ้งซ่อมใหม่';
+
+        $contents = [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => 'MAINTENANCE SERVICE',
+                    'weight' => 'bold',
+                    'color' => $primaryColor,
+                    'size' => 'xs',
+                    'letterSpacing' => '0.05em'
+                ],
+                [
+                    'type' => 'text',
+                    'text' => '🛠️ มีงานแจ้งซ่อมใหม่เข้ามา',
+                    'weight' => 'bold',
+                    'size' => 'lg',
+                    'margin' => 'sm'
+                ],
+                [
+                    'type' => 'separator',
+                    'margin' => 'md'
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '📋 ประเภท', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                                ['type' => 'text', 'text' => $d['case_type'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true, 'weight' => 'bold']
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
         if (!empty($d['detail'])) {
-            $msg .= "📝 {$d['detail']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '📝 รายละเอียด', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['detail'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
-        $msg .= "👤 {$d['requester_name']}\n";
-        $msg .= "📍 {$d['location']}\n";
-        $msg .= "📅 {$d['date']}\n";
-        $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "🔗 ดูรายละเอียด:\n{$d['url']}";
-        return $msg;
+
+        $contents['contents'][3]['contents'][] = [
+            'type' => 'box',
+            'layout' => 'horizontal',
+            'contents' => [
+                ['type' => 'text', 'text' => '👤 ผู้แจ้งซ่อม', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                ['type' => 'text', 'text' => $d['requester_name'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+            ]
+        ];
+
+        $contents['contents'][3]['contents'][] = [
+            'type' => 'box',
+            'layout' => 'horizontal',
+            'contents' => [
+                ['type' => 'text', 'text' => '📍 สถานที่', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                ['type' => 'text', 'text' => $d['location'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+            ]
+        ];
+
+        $contents['contents'][3]['contents'][] = [
+            'type' => 'box',
+            'layout' => 'horizontal',
+            'contents' => [
+                ['type' => 'text', 'text' => '📅 วันเวลาแจ้ง', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                ['type' => 'text', 'text' => $d['date'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+            ]
+        ];
+
+        return [
+            'type' => 'flex',
+            'altText' => '🛠️ แจ้งซ่อมใหม่: ' . $d['case_type'],
+            'contents' => [
+                'type' => 'bubble',
+                'body' => $contents,
+                'footer' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'style' => 'primary',
+                            'height' => 'sm',
+                            'color' => $primaryColor,
+                            'action' => [
+                                'type' => 'uri',
+                                'label' => 'ดูรายละเอียดการแจ้งซ่อม',
+                                'uri' => $d['url']
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
     }
 
     /**
      * สร้างข้อความ LINE สำหรับอัปเดตสถานะซ่อม
-     * รายละเอียดอยู่หน้าสุด อ่านรู้เรื่องทันที
      */
-    public function buildLineRepairUpdate(array $d): string
+    public function buildLineRepairUpdate(array $d): array
     {
-        $icon = ($d['status'] === 'ดำเนินการเรียบร้อย') ? '✅' : '🔄';
-        $msg  = "━━━━━━━━━━━━━━\n";
-        $msg .= "{$icon} อัปเดตสถานะซ่อม\n";
-        $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "📋 {$d['case_type']}\n";
-        $msg .= "🔄 สถานะ: {$d['status']}\n";
+        $isDone = ($d['status'] === 'ดำเนินการเรียบร้อย');
+        $primaryColor = $isDone ? '#28a745' : '#ff6b35';
+        $statusIcon = $isDone ? '✅' : '🔄';
+        $altText = 'อัปเดตสถานะซ่อม';
+
+        $contents = [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => 'MAINTENANCE STATUS UPDATE',
+                    'weight' => 'bold',
+                    'color' => $primaryColor,
+                    'size' => 'xs',
+                    'letterSpacing' => '0.05em'
+                ],
+                [
+                    'type' => 'text',
+                    'text' => $statusIcon . ' ' . $d['status'],
+                    'weight' => 'bold',
+                    'size' => 'lg',
+                    'margin' => 'sm',
+                    'color' => $primaryColor
+                ],
+                [
+                    'type' => 'separator',
+                    'margin' => 'md'
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '📋 งานซ่อม', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                                ['type' => 'text', 'text' => $d['case_type'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
         if (!empty($d['cause'])) {
-            $msg .= "📝 {$d['cause']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '📝 รายละเอียด', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['cause'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
+
         if (!empty($d['repairman'])) {
-            $msg .= "👷 โดย: {$d['repairman']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '👷 ช่างผู้ดูแล', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['repairman'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
-        $msg .= "👤 เรียน {$d['requester_name']}\n";
-        $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "🔗 ดูรายละเอียด:\n{$d['url']}";
-        return $msg;
+
+        $contents['contents'][3]['contents'][] = [
+            'type' => 'box',
+            'layout' => 'horizontal',
+            'contents' => [
+                ['type' => 'text', 'text' => '👤 ผู้รับบริการ', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                ['type' => 'text', 'text' => 'เรียนคุณ ' . $d['requester_name'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+            ]
+        ];
+
+        return [
+            'type' => 'flex',
+            'altText' => $statusIcon . ' อัปเดตสถานะซ่อม: ' . $d['status'],
+            'contents' => [
+                'type' => 'bubble',
+                'body' => $contents,
+                'footer' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'style' => 'primary',
+                            'height' => 'sm',
+                            'color' => $primaryColor,
+                            'action' => [
+                                'type' => 'uri',
+                                'label' => 'ดูรายละเอียดงานซ่อม',
+                                'uri' => $d['url']
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
     }
 
     /**
      * สร้างข้อความ LINE สำหรับจองใหม่ (รถ/อาคาร)
      */
-    public function buildLineBookingNew(array $d): string
+    public function buildLineBookingNew(array $d): array
     {
-        $icon = $d['icon'] ?? '📣';
-        $systemLabel = $d['system_label'] ?? 'คำขอจองใหม่';
-        $msg  = "━━━━━━━━━━━━━━\n";
-        $msg .= "{$icon} {$systemLabel}\n";
-        $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "👤 {$d['requester_name']}\n";
-        $msg .= "🎯 {$d['purpose']}\n";
+        $isCar = (!empty($d['vehicle']) || strpos($d['system_label'] ?? '', 'รถ') !== false);
+        $primaryColor = $isCar ? '#2196f3' : '#15a362';
+        $altText = $d['system_label'] ?? 'แจ้งเตือนการจองใหม่';
+
+        $contents = [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => mb_strtoupper($d['system_label'] ?? 'BOOKING SYSTEM', 'UTF-8'),
+                    'weight' => 'bold',
+                    'color' => $primaryColor,
+                    'size' => 'xs',
+                    'letterSpacing' => '0.05em'
+                ],
+                [
+                    'type' => 'text',
+                    'text' => '⏳ มีการขอจองใหม่เข้ามา',
+                    'weight' => 'bold',
+                    'size' => 'lg',
+                    'margin' => 'sm'
+                ],
+                [
+                    'type' => 'separator',
+                    'margin' => 'md'
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '👤 ผู้ขอใช้', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                                ['type' => 'text', 'text' => $d['requester_name'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '🎯 วัตถุประสงค์', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                                ['type' => 'text', 'text' => $d['purpose'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
         if (!empty($d['vehicle'])) {
-            $msg .= "🚙 {$d['vehicle']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '🚙 ยานพาหนะ', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['vehicle'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
+
         if (!empty($d['location'])) {
-            $msg .= "📍 {$d['location']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '📍 สถานที่', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['location'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
-        $msg .= "📅 {$d['date_range']}\n";
-        $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "👉 {$d['url']}";
-        return $msg;
+
+        // Add date_range row
+        $contents['contents'][3]['contents'][] = [
+            'type' => 'box',
+            'layout' => 'horizontal',
+            'contents' => [
+                ['type' => 'text', 'text' => '📅 วัน/เวลา', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                ['type' => 'text', 'text' => $d['date_range'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+            ]
+        ];
+
+        return [
+            'type' => 'flex',
+            'altText' => '🔔 ' . $altText . ': ' . $d['purpose'],
+            'contents' => [
+                'type' => 'bubble',
+                'body' => $contents,
+                'footer' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'style' => 'primary',
+                            'height' => 'sm',
+                            'color' => $primaryColor,
+                            'action' => [
+                                'type' => 'uri',
+                                'label' => 'ตรวจสอบและดำเนินการ',
+                                'uri' => $d['url']
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
     }
 
     /**
      * สร้างข้อความ LINE สำหรับผลการอนุมัติ/ไม่อนุมัติ
      */
-    public function buildLineApprovalResult(array $d): string
+    public function buildLineApprovalResult(array $d): array
     {
         $isApproved = $d['is_approved'] ?? true;
-        $icon = $isApproved ? '✅' : '❌';
-        $title = $isApproved ? 'อนุมัติแล้ว' : 'ไม่ผ่านการอนุมัติ';
+        $primaryColor = $isApproved ? '#15a362' : '#ff3e1d';
+        $statusText = $isApproved ? '✅ อนุมัติแล้ว' : '❌ ไม่ผ่านการอนุมัติ';
+        $altText = 'ผลการอนุมัติคำขอจอง';
 
-        $msg  = "━━━━━━━━━━━━━━\n";
-        $msg .= "{$icon} {$title}\n";
-        $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "👤 เรียน {$d['requester_name']}\n";
+        $contents = [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => 'BOOKING STATUS UPDATE',
+                    'weight' => 'bold',
+                    'color' => $primaryColor,
+                    'size' => 'xs',
+                    'letterSpacing' => '0.05em'
+                ],
+                [
+                    'type' => 'text',
+                    'text' => $statusText,
+                    'weight' => 'bold',
+                    'size' => 'lg',
+                    'margin' => 'sm'
+                ],
+                [
+                    'type' => 'separator',
+                    'margin' => 'md'
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '👤 เรียน', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                                ['type' => 'text', 'text' => $d['requester_name'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
         if (!empty($d['order_number'])) {
-            $msg .= "📄 เลขที่: {$d['order_number']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '📄 เลขที่คำขอ', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['order_number'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
+
         if (!empty($d['detail'])) {
-            $msg .= "🎯 {$d['detail']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '🎯 รายละเอียด', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['detail'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
+
         if (!empty($d['location'])) {
-            $msg .= "📍 {$d['location']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '📍 สถานที่/รถ', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['location'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
+
         if (!empty($d['date_range'])) {
-            $msg .= "📅 {$d['date_range']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '📅 วัน/เวลา', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['date_range'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
+
         if ($isApproved && !empty($d['approver'])) {
-            $msg .= "👤 อนุมัติโดย: {$d['approver']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '👤 อนุมัติโดย', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['approver'], 'size' => 'sm', 'color' => '#333333', 'flex' => 7, 'wrap' => true]
+                ]
+            ];
         }
+
         if (!$isApproved && !empty($d['reason'])) {
-            $msg .= "📝 เหตุผล: {$d['reason']}\n";
+            $contents['contents'][3]['contents'][] = [
+                'type' => 'box',
+                'layout' => 'horizontal',
+                'contents' => [
+                    ['type' => 'text', 'text' => '📝 เหตุผล', 'size' => 'sm', 'color' => '#8c8c8c', 'flex' => 3],
+                    ['type' => 'text', 'text' => $d['reason'], 'size' => 'sm', 'color' => '#ff3e1d', 'flex' => 7, 'wrap' => true, 'weight' => 'bold']
+                ]
+            ];
         }
-        $msg .= "━━━━━━━━━━━━━━\n";
-        $msg .= "👉 {$d['url']}";
-        return $msg;
+
+        return [
+            'type' => 'flex',
+            'altText' => '🔔 ' . $statusText . ': ' . ($d['detail'] ?? 'แจ้งสถานะการจอง'),
+            'contents' => [
+                'type' => 'bubble',
+                'body' => $contents,
+                'footer' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'style' => 'primary',
+                            'height' => 'sm',
+                            'color' => $primaryColor,
+                            'action' => [
+                                'type' => 'uri',
+                                'label' => 'ดูรายละเอียด',
+                                'uri' => $d['url']
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
     }
 
     // ================================================================

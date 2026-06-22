@@ -426,7 +426,7 @@
                 </div>
                 <div class="modal-footer d-flex gap-2">
                     <button type="button" id="BtnNoAppoveCarBooking" class="btn btn-outline-danger btn-lg rounded-pill flex-fill">
-                        <i class='bx bx-x-circle me-1'></i> ไม่อนุมัติ
+                        <i class='bx bx-x-circle me-1'></i> ยกเลิก
                     </button>
                     <button type="submit" class="btn btn-primary btn-lg rounded-pill flex-fill shadow-primary">
                         <i class='bx bx-check-circle me-1'></i> ยอมรับการจอง
