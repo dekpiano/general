@@ -30,6 +30,29 @@ class NotificationService
     ];
 
     // ========================================
+    // Telegram Bot API Config (per system)
+    // ========================================
+    private $telegramConfig = [
+        'repair' => [
+            'token'   => '8901085783:AAHHcCKmTAr6sgsCpDd1XcsZw44oTIzqsP0',
+            'chatId'  => '-5040182261'
+        ],
+        'car' => [
+            'token'   => '8901085783:AAHHcCKmTAr6sgsCpDd1XcsZw44oTIzqsP0',
+            'chatId'  => '-5309376982'
+        ],
+        'booking' => [
+            'token'   => '8901085783:AAHHcCKmTAr6sgsCpDd1XcsZw44oTIzqsP0',
+            'chatId'  => '-5587836326'
+        ]
+    ];
+
+    // ========================================
+    // Notification Toggle (เปิด/ปิด ช่องทางส่ง)
+    // ========================================
+    private $enableLine = false; // ตั้งค่าเป็น false เพื่อปิดการแจ้งเตือนทาง LINE (โค้ดยังคงอยู่)
+
+    // ========================================
     // OneSignal Config
     // ========================================
     private $oneSignalAppId  = 'be488231-0e72-4fe0-962d-fcb32cb761e7';
@@ -83,82 +106,94 @@ class NotificationService
             return null;
         }
 
-        $config = $this->lineConfig[$system] ?? null;
-        if (!$config) {
-            log_message('error', "LINE Config not found for system: {$system}");
-            return false;
-        }
+        $result = false;
 
-        $to = $targetId ?? $config['groupId'];
-        $messages = [];
+        if ($this->enableLine) {
+            $config = $this->lineConfig[$system] ?? null;
+            if (!$config) {
+                log_message('error', "LINE Config not found for system: {$system}");
+                return false;
+            }
 
-        // ถ้ามีรูป ส่งรูปก่อน (จะเป็น preview ให้เห็นทันที)
-        if (!empty($imageUrl)) {
-            $messages[] = [
-                'type' => 'image',
-                'originalContentUrl' => $imageUrl,
-                'previewImageUrl' => $imageUrl
-            ];
-        }
+            $to = $targetId ?? $config['groupId'];
+            $messages = [];
 
-        // ส่งข้อความตามประเภท (Text หรือ Flex)
-        if (is_array($message)) {
-            $messages[] = $message;
-        } else {
-            $messages[] = [
-                'type' => 'text',
-                'text' => $message
-            ];
-        }
+            // ถ้ามีรูป ส่งรูปก่อน (จะเป็น preview ให้เห็นทันที)
+            if (!empty($imageUrl)) {
+                $messages[] = [
+                    'type' => 'image',
+                    'originalContentUrl' => $imageUrl,
+                    'previewImageUrl' => $imageUrl
+                ];
+            }
 
-        $data = [
-            'to' => $to,
-            'messages' => $messages
-        ];
-        $ch = curl_init('https://api.line.me/v2/bot/message/push');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $config['token']
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        $result = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        // If it failed and we had an image, try retrying WITHOUT the image
-        if ($httpCode !== 200 && !empty($imageUrl)) {
-            log_message('warning', 'LINE API failed with image. Retrying without image... Response: ' . $result);
-            
-            // Re-prepare data without the image message
-            $fallbackMessages = [];
+            // ส่งข้อความตามประเภท (Text หรือ Flex)
             if (is_array($message)) {
-                $fallbackMessages[] = $message;
+                $messages[] = $message;
             } else {
-                $fallbackMessages[] = [
+                $messages[] = [
                     'type' => 'text',
                     'text' => $message
                 ];
             }
-            $fallbackData = [
-                'to' => $to,
-                'messages' => $fallbackMessages
-            ];
 
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fallbackData));
+            $data = [
+                'to' => $to,
+                'messages' => $messages
+            ];
+            $ch = curl_init('https://api.line.me/v2/bot/message/push');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $config['token']
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             $result = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            // If it failed and we had an image, try retrying WITHOUT the image
+            if ($httpCode !== 200 && !empty($imageUrl)) {
+                log_message('warning', 'LINE API failed with image. Retrying without image... Response: ' . $result);
+                
+                // Re-prepare data without the image message
+                $fallbackMessages = [];
+                if (is_array($message)) {
+                    $fallbackMessages[] = $message;
+                } else {
+                    $fallbackMessages[] = [
+                        'type' => 'text',
+                        'text' => $message
+                    ];
+                }
+                $fallbackData = [
+                    'to' => $to,
+                    'messages' => $fallbackMessages
+                ];
+
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fallbackData));
+                $result = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            }
+
+            if (curl_errno($ch)) {
+                log_message('error', 'LINE API Connection Error [' . $system . ']: ' . curl_error($ch));
+            } else if ($httpCode !== 200) {
+                log_message('error', 'LINE API Error Response [' . $system . '] (' . $httpCode . '): ' . $result);
+            }
+
+            curl_close($ch);
         }
 
-        if (curl_errno($ch)) {
-            log_message('error', 'LINE API Connection Error [' . $system . ']: ' . curl_error($ch));
-        } else if ($httpCode !== 200) {
-            log_message('error', 'LINE API Error Response [' . $system . '] (' . $httpCode . '): ' . $result);
+        // Auto-forward notification to Telegram in parallel
+        try {
+            $this->sendTelegram($system, $message, $imageUrl);
+        } catch (\Exception $te) {
+            log_message('error', 'Failed to auto-forward Telegram notification: ' . $te->getMessage());
         }
 
-        curl_close($ch);
         return $result;
     }
     // ================================================================
@@ -841,5 +876,171 @@ class NotificationService
     {
         if (!$person) return 'ไม่ระบุ';
         return ($person->pers_prefix ?? '') . ($person->pers_firstname ?? '') . ' ' . ($person->pers_lastname ?? '');
+    }
+
+    // ================================================================
+    //  Telegram Bot API Integration
+    // ================================================================
+
+    /**
+     * ส่งข้อความแจ้งเตือนผ่าน Telegram Bot API
+     *
+     * @param string $system ชื่อระบบ: 'repair', 'car', 'booking'
+     * @param string|array $message ข้อความ หรือ Flex Message structure
+     * @param string|null $imageUrl URL รูปภาพ (ถ้ามี จะส่งเป็น Photo message)
+     * @return mixed
+     */
+    public function sendTelegram(string $system, $message, ?string $imageUrl = null)
+    {
+        if (!$this->shouldSendNotification()) {
+            return null;
+        }
+
+        $config = $this->telegramConfig[$system] ?? null;
+        if (!$config || empty($config['token']) || empty($config['chatId'])) {
+            // ไม่ส่งถ้าไม่ได้ระบุ Token หรือ Chat ID (ข้ามเงียบๆ)
+            return false;
+        }
+
+        $token = $config['token'];
+        $chatId = $config['chatId'];
+
+        // ถ้า Token/Chat ID ยังเป็นค่าเริ่มต้น/Placeholder ก็ให้ข้าม
+        if (strpos($token, 'YOUR_TELEGRAM') !== false || strpos($chatId, 'YOUR_TELEGRAM') !== false) {
+            return false;
+        }
+
+        $textMessage = $this->getPlainTextFromFlex($message);
+
+        // ใช้ curl ส่งข้อความไป Telegram
+        if (!empty($imageUrl)) {
+            $url = "https://api.telegram.org/bot{$token}/sendPhoto";
+            $data = [
+                'chat_id'    => $chatId,
+                'photo'      => $imageUrl,
+                'caption'    => $textMessage,
+                'parse_mode' => 'HTML'
+            ];
+        } else {
+            $url = "https://api.telegram.org/bot{$token}/sendMessage";
+            $data = [
+                'chat_id'    => $chatId,
+                'text'       => $textMessage,
+                'parse_mode' => 'HTML'
+            ];
+        }
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        // กรณีส่งรูปภาพล้มเหลว (เช่น ขนาดรูปใหญ่เกินไป) ให้ลองส่งเฉพาะข้อความตัวหนังสือแบบ fallback
+        if ($httpCode !== 200 && !empty($imageUrl)) {
+            log_message('warning', 'Telegram sendPhoto failed. Retrying as sendMessage... Response: ' . $result);
+            $url = "https://api.telegram.org/bot{$token}/sendMessage";
+            $fallbackData = [
+                'chat_id'    => $chatId,
+                'text'       => $textMessage . "\n\n<a href=\"" . htmlspecialchars($imageUrl) . "\">รูปภาพแนบ</a>",
+                'parse_mode' => 'HTML'
+            ];
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fallbackData));
+            $result = curl_exec($ch);
+        }
+
+        if (curl_errno($ch)) {
+            log_message('error', 'Telegram Connection Error [' . $system . ']: ' . curl_error($ch));
+        } else if ($httpCode !== 200) {
+            log_message('error', 'Telegram API Error Response [' . $system . '] (' . $httpCode . '): ' . $result);
+        }
+
+        curl_close($ch);
+        return $result;
+    }
+
+    /**
+     * แปลง LINE Flex Message ให้เป็นข้อความแบบ Plain Text + HTML format สำหรับ Telegram
+     */
+    private function getPlainTextFromFlex($message): string
+    {
+        if (!is_array($message)) {
+            return (string)$message;
+        }
+
+        $title = $message['altText'] ?? 'แจ้งเตือนจากระบบ';
+        $text = "<b>" . $title . "</b>\n\n";
+
+        $texts = [];
+        $this->collectTexts($message, $texts);
+
+        foreach ($texts as $item) {
+            if (is_array($item) && isset($item['type']) && $item['type'] === 'pair') {
+                $text .= "• " . $item['label'] . ": " . $item['value'] . "\n";
+            } else {
+                $current = trim((string)$item);
+                if ($current === '' || in_array(strtoupper($current), ['MAINTENANCE SERVICE', 'MAINTENANCE STATUS UPDATE', 'BOOKING SYSTEM', 'BOOKING STATUS UPDATE'])) {
+                    continue;
+                }
+                
+                // ตกแต่งหัวข้อหลัก (มีสัญลักษณ์พิเศษ)
+                if (preg_match('/[🛠️✅❌⏳🔄📣🔔🚙📍👤📅👉]/u', $current)) {
+                    $text .= "<b>" . $current . "</b>\n";
+                } else {
+                    $text .= $current . "\n";
+                }
+            }
+        }
+
+        return $text;
+    }
+
+    /**
+     * ค้นหาข้อความในโครงสร้าง Flex Message แบบ recursive
+     */
+    private function collectTexts($array, &$texts)
+    {
+        if (!is_array($array)) {
+            return;
+        }
+        
+        // ถ้าเป็นกล่องแนวนอนและมีสมาชิก 2 ชิ้นที่เป็น Text (มักจะเป็น Label: Value)
+        if (isset($array['layout']) && $array['layout'] === 'horizontal' && isset($array['contents'])) {
+            $subTexts = [];
+            foreach ($array['contents'] as $item) {
+                if (isset($item['type']) && $item['type'] === 'text' && isset($item['text'])) {
+                    $subTexts[] = $item['text'];
+                }
+            }
+            if (count($subTexts) === 2) {
+                $texts[] = [
+                    'type'  => 'pair',
+                    'label' => $subTexts[0],
+                    'value' => $subTexts[1]
+                ];
+                return;
+            }
+        }
+
+        if (isset($array['type']) && $array['type'] === 'text' && isset($array['text'])) {
+            $texts[] = $array['text'];
+        } else {
+            foreach ($array as $key => $value) {
+                // ข้าม altText เพื่อไม่ให้ดึงข้อมูลซ้ำซ้อน
+                if ($key !== 'altText') {
+                    $this->collectTexts($value, $texts);
+                }
+            }
+        }
     }
 }
