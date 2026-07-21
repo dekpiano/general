@@ -273,7 +273,7 @@
                         <h5 class="section-title"><i class='bx bx-phone'></i> ข้อมูลการติดต่อ</h5>
                         <div class="row g-3 mb-5">
                             <div class="col-md-6">
-                                <?php if(!in_array('งานอาคารสถานที่', explode(",", @$_SESSION['rloes']))) : ?>
+                                <?php if(!in_array('งานอาคารสถานที่', explode(",", @$_SESSION['rloes'])) && @$_SESSION['status'] != "AdminGeneral" && @$_SESSION['status'] != "superadmin") : ?>
                                     <div class="form-floating">
                                         <input type="text" class="form-control bg-light" value="<?=$Booking[0]->pers_prefix.$Booking[0]->pers_firstname.' '.$Booking[0]->pers_lastname?>" readonly disabled>
                                         <label>ชื่อผู้จอง</label>

@@ -25,6 +25,11 @@ class ConUserBooking extends BaseController
 
     private function sendPushNotification($title, $message, $url = null, $tags = null, $userIds = null)
     {
+        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+        if (ENVIRONMENT !== 'production' || $isLocal) {
+            return null;
+        }
+
         $content = array(
             "en" => $message,
             "th" => $message
@@ -78,35 +83,6 @@ class ConUserBooking extends BaseController
         return $response;
     }
 
-    private function sendLineMessage($userId, $messageText)
-    {
-        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-        if (ENVIRONMENT !== 'production' || $isLocal) {
-            return null;
-        }
-        $accessToken = '6uPLX8E6wzICMzMr16kab9Qrf1gorrrbHBJHJ4rK7HFCsP/258uqhgqbf8i9VoopJX4o/4T9Go4gfKzQmxQryJG+LvnYfD3tHtrKXJ24SfsFEKXcW6xFBepKWOGRsoito2pr5neKVHNmSfjfDdwNowdB04t89/1O/w1cDnyilFU=';
-
-        $data = [
-            'to' => $userId,
-            'messages' => [[
-                'type' => 'text',
-                'text' => $messageText
-            ]]
-        ];
-
-        $ch = curl_init('https://api.line.me/v2/bot/message/push');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $accessToken
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return $result;
-    }
 
     public function BookingMain()
     {
@@ -331,19 +307,6 @@ class ConUserBooking extends BaseController
                 $notificationService = new NotificationService();
                 $requesterName = $Booking['pers_prefix'] . $Booking['pers_firstname'] . ' ' . $Booking['pers_lastname'];
                 $dateRange = $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']));
-
-                // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
-                $lineData = [
-                    'icon'           => '⛪',
-                    'system_label'   => 'แจ้งเตือนการขอใช้อาคารสถานที่ SKJ',
-                    'requester_name' => $requesterName,
-                    'purpose'        => $Booking['booking_title'],
-                    'location'       => $Booking['location_name'],
-                    'date_range'     => $dateRange,
-                    'url'            => base_url("/Booking/Approve/Admin")
-                ];
-                $lineMsg = $notificationService->buildLineBookingNew($lineData);
-                $notificationService->sendLine('booking', $lineMsg);
 
                 // 2. ส่ง OneSignal Push Notification หาผู้ดูแลระบบ
                 $notificationService->sendPush(
@@ -1026,7 +989,7 @@ class ConUserBooking extends BaseController
 
         if($_SESSION['status'] === "ExecutiveGeneral"){
             $Approve = ['booking_executive_approve'=>'อนุมัติ','booking_executive_reason'=>'','booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
-        }else if($_SESSION['status'] === "AdminGeneral"){
+        }else if($_SESSION['status'] === "AdminGeneral" || $_SESSION['status'] === "superadmin"){
              $Approve = ['booking_admin_approve'=>'อนุมัติ','booking_admin_reason'=>'','booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];             
         }
 
@@ -1053,20 +1016,6 @@ class ConUserBooking extends BaseController
             $requesterName = $CheckUserForEmail->pers_prefix . $CheckUserForEmail->pers_firstname . ' ' . $CheckUserForEmail->pers_lastname;
             $dateRange = $Datethai->thai_date_and_time_short(strtotime($CheckUserForEmail->booking_dateStart)) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($CheckUserForEmail->booking_dateEnd));
             $approverName = $_SESSION['username'] ?: 'เจ้าหน้าที่';
-
-            // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
-            $lineData = [
-                'is_approved'    => true,
-                'requester_name' => $requesterName,
-                'order_number'   => $CheckUserForEmail->booking_order,
-                'detail'         => $CheckUserForEmail->booking_title,
-                'location'       => $CheckUserForEmail->location_name,
-                'date_range'     => $dateRange,
-                'approver'       => $approverName,
-                'url'            => base_url("Booking/View/All")
-            ];
-            $lineMsg = $notificationService->buildLineApprovalResult($lineData);
-            $notificationService->sendLine('booking', $lineMsg);
 
             // 2. ส่ง OneSignal Push Notification หาผู้ขอจอง
             $bookerId = $DBbooking->select('booking_Booker')->where('booking_id', $this->request->getPost('BookingID'))->get()->getRow()->booking_Booker;
@@ -1163,20 +1112,6 @@ class ConUserBooking extends BaseController
                      $requesterName = $Booking['pers_prefix'] . $Booking['pers_firstname'] . ' ' . $Booking['pers_lastname'];
                      $dateRange = $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']));
                      $reasonText = $this->request->getPost('booking_admin_reason') ?: 'ไม่ได้ระบุเหตุผล';
-
-                     // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
-                     $lineData = [
-                         'is_approved'    => false,
-                         'requester_name' => $requesterName,
-                         'order_number'   => $Booking['booking_order'],
-                         'detail'         => $Booking['booking_title'],
-                         'location'       => $Booking['location_name'],
-                         'date_range'     => $dateRange,
-                         'reason'         => $reasonText,
-                         'url'            => base_url("Booking/View/All")
-                     ];
-                     $lineMsg = $notificationService->buildLineApprovalResult($lineData);
-                     $notificationService->sendLine('booking', $lineMsg);
 
                      // 2. ส่ง Email ด้วย template กลาง (Rejected)
                      if (!empty($Booking['pers_username'])) {

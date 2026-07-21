@@ -96,6 +96,7 @@ class ConAdminCar extends BaseController
                 'car_model' => $this->request->getPost('CarD_Model'),
                 'car_seats' => $this->request->getPost('CarD_NumberSeats'),
                 'car_detail' => $this->request->getPost('CarD_Details'),
+                'car_status' => $this->request->getPost('CarD_Status') ?: 'ใช้งานได้',
                 'car_img'  => $newName,
                 'car_AdminID' => $_SESSION['id']
 
@@ -107,6 +108,58 @@ class ConAdminCar extends BaseController
                 'msg' => "บันทึกข้อมูลเรียบร้อย"
             ];
         }
+        return $this->response->setJSON($response);
+    }
+
+    public function CarUpdate()
+    {
+        helper(['form', 'url']);
+         
+        $database = \Config\Database::connect();
+        $builder = $database->table('tb_school_car');
+        
+        $carId = $this->request->getPost('CarD_ID');
+        if (empty($carId)) {
+            return $this->response->setJSON(['success' => false, 'msg' => 'ไม่พบข้อมูลรถยนต์']);
+        }
+
+        $data = [
+            'car_registration' => $this->request->getPost('CarD_Register'),
+            'car_province' => $this->request->getPost('CarD_Province'),
+            'car_category' => $this->request->getPost('CarD_Category'),
+            'car_brand' => $this->request->getPost('CarD_Brand'),
+            'car_model' => $this->request->getPost('CarD_Model'),
+            'car_seats' => $this->request->getPost('CarD_NumberSeats'),
+            'car_detail' => $this->request->getPost('CarD_Details'),
+            'car_status' => $this->request->getPost('CarD_Status') ?: 'ใช้งานได้',
+            'car_AdminID' => $_SESSION['id']
+        ];
+
+        $imageFile = $this->request->getFile('CarD_Img');
+        
+        if (!empty($imageFile) && $imageFile->isValid() && !$imageFile->hasMoved()) {
+            
+            // ลบรูปเก่า (ถ้ามี)
+            $oldImgData = $builder->select('car_img')->where('car_ID', $carId)->get()->getRow();
+            if ($oldImgData && $oldImgData->car_img && file_exists('./uploads/admin/Car/' . $oldImgData->car_img)) {
+                unlink('./uploads/admin/Car/' . $oldImgData->car_img);
+            }
+
+            $type = $imageFile->getMimeType();
+            $newName = $imageFile->getRandomName();
+            $imageFile->move(ROOTPATH . 'uploads/admin/Car/',$newName);
+            $this->resizeImage('uploads/admin/Car/' . $newName, 2048, 1024);
+
+            $data['car_img'] = $newName;
+        }
+
+        $builder->where('car_ID', $carId)->update($data);
+        
+        $response = [
+            'success' => true,
+            'msg' => "อัปเดตข้อมูลเรียบร้อย"
+        ];
+        
         return $this->response->setJSON($response);
     }
 
@@ -127,6 +180,7 @@ class ConAdminCar extends BaseController
                "car_model"=>$row->car_model,
                "car_seats"=>$row->car_seats,
                "car_detail"=>$row->car_detail,
+               "car_status"=>$row->car_status,
                "car_img"=>$row->car_img,
             );
          }

@@ -399,7 +399,7 @@
 
 
                     <!-- Admin Section -->
-                    <?php if(isset($_SESSION['username']) && (in_array("งานอาคารสถานที่", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral")):?>
+                    <?php if(isset($_SESSION['username']) && (in_array("งานอาคารสถานที่", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral" || @$_SESSION['status'] =="AdminGeneral" || @$_SESSION['status'] =="superadmin")):?>
                         <div class="mt-2 mb-1 ps-2">
                             <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">ส่วนงานเจ้าหน้าที่</small>
                         </div>

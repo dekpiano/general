@@ -1,10 +1,20 @@
 <?= $this->extend('Admin/AdminLeyout/admin_layout') ?>
 <?= $this->section('content') ?>
 
+<?php if(isset($_GET['modal']) && $_GET['modal'] == 1): ?>
+<style>
+    #layout-menu, .layout-navbar, .layout-footer { display: none !important; }
+    .layout-page { padding-left: 0 !important; }
+    .content-wrapper { padding: 0 !important; }
+    .container-xxl { padding: 10px !important; max-width: 100% !important; }
+    html, body { overflow-x: hidden; }
+</style>
+<?php endif; ?>
+
 <style>
 /* Page Header */
 .page-header {
-    background: linear-gradient(135deg, #03c3ec 0%, #00a5ce 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 16px;
     padding: 2rem;
     margin-bottom: 1.5rem;

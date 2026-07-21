@@ -83,37 +83,6 @@ class ConUserCarBooking extends BaseController
         return view('User/UserCarBooking/UserCarBookingMain', $data);
     }
 
-    private function sendLineMessage($userId, $messageText)
-    {
-        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-        if (ENVIRONMENT !== 'production' || $isLocal) {
-            return null;
-        }
-        $accessToken = 'sNlR5f0V6R5ymIr7KPd5Xp8orbv7moKfar4WUYQF2uOwLvIVJrl0QYkd6vdNArphKzH9Uu0kIeOyjIXOjYkAnXcLmdCR0zJeAOakv8LrwTjlqXi9i0nJrYe/9aBFQsSuvybozfMDE6Ao/C1kmaqDgAdB04t89/1O/w1cDnyilFU=';
-
-        $data = [
-            'to' => $userId,
-            'messages' => [[
-                    'type' => 'text',
-                    'text' => $messageText
-                ]]
-        ];
-
-        $ch = curl_init('https://api.line.me/v2/bot/message/push');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $accessToken
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return $result;
-    }
 
 
     public function CarBookingCheckCar()
@@ -330,19 +299,6 @@ class ConUserCarBooking extends BaseController
                     $requesterName = $Car['pers_prefix'] . $Car['pers_firstname'] . ' ' . $Car['pers_lastname'];
                     $dateRange = $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']));
 
-                    // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
-                    $lineData = [
-                        'icon'           => '🚗',
-                        'system_label'   => 'แจ้งเตือนการขอใช้รถราชการ',
-                        'requester_name' => $requesterName,
-                        'purpose'        => $Car['car_reserv_detail'],
-                        'vehicle'        => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province'],
-                        'date_range'     => $dateRange,
-                        'url'            => base_url("/CarBooking/Approve/Admin")
-                    ];
-                    $lineMsg = $notificationService->buildLineBookingNew($lineData);
-                    $notificationService->sendLine('car', $lineMsg);
-
                     // 2. ส่ง Email หาผู้จองด้วย template กลาง
                     $userEmail = $session->get('email') ?: $Car['pers_username'];
                     if (!empty($Car['pers_username'])) {
@@ -411,7 +367,7 @@ class ConUserCarBooking extends BaseController
         $userStatus = $session->get('status');
         $userRoles = $session->get('rloes') ? explode(',', $session->get('rloes')) : [];
 
-        $isPrivileged = in_array($userStatus, ['admin', 'manager', 'ExecutiveGeneral', 'AdminGeneral'])
+        $isPrivileged = in_array($userStatus, ['superadmin', 'admin', 'manager', 'ExecutiveGeneral', 'AdminGeneral'])
             || in_array('งานยานพาหนะ', $userRoles);
 
         if ($booking->car_reserv_memberID != $currentUserId && !$isPrivileged) {
@@ -659,20 +615,6 @@ class ConUserCarBooking extends BaseController
                     $dateRange = $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']));
                     $approverName = $session->get('username') ?: 'เจ้าหน้าที่';
 
-                    // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
-                    $lineData = [
-                        'is_approved'    => true,
-                        'requester_name' => $requesterName,
-                        'order_number'   => $Car['car_reserv_order'],
-                        'detail'         => 'จองรถ: ' . $Car['car_category'] . ' ' . $Car['car_registration'] . "\nวัตถุประสงค์: " . $Car['car_reserv_detail'],
-                        'location'       => $Car['car_reserv_location'],
-                        'date_range'     => $dateRange,
-                        'approver'       => $approverName,
-                        'url'            => base_url("CarBooking/View")
-                    ];
-                    $lineMsg = $notificationService->buildLineApprovalResult($lineData);
-                    $notificationService->sendLine('car', $lineMsg);
-
                     // 2. ส่ง Email ด้วย template กลาง (Approved)
                     $userEmail = $session->get('email');
                     if ($userEmail && !empty($Car['pers_username'])) {
@@ -767,20 +709,6 @@ class ConUserCarBooking extends BaseController
                     
                     $statusText = ($status === 'ยกเลิก') ? 'ยกเลิกการจอง' : 'ไม่อนุมัติ';
                     $reasonText = ($status === 'ยกเลิก') ? 'การจองนี้ถูกยกเลิกโดยผู้ดูแลระบบ' : 'กรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามรายละเอียดเพิ่มเติม';
-
-                    // 1. ส่ง LINE แจ้งเตือนไปยังกลุ่ม
-                    $lineData = [
-                        'is_approved'    => false,
-                        'requester_name' => $requesterName,
-                        'order_number'   => $Car['car_reserv_order'],
-                        'detail'         => 'จองรถ: ' . $Car['car_category'] . ' ' . $Car['car_registration'] . "\nวัตถุประสงค์: " . $Car['car_reserv_detail'],
-                        'location'       => $Car['car_reserv_location'],
-                        'date_range'     => $dateRange,
-                        'reason'         => $reasonText,
-                        'url'            => base_url("CarBooking/View")
-                    ];
-                    $lineMsg = $notificationService->buildLineApprovalResult($lineData);
-                    $notificationService->sendLine('car', $lineMsg);
 
                     // 2. ส่ง Email ด้วย template กลาง (Rejected)
                     $userEmail = $session->get('email');
@@ -1273,7 +1201,7 @@ class ConUserCarBooking extends BaseController
         if ($_SESSION['status'] === "ExecutiveGeneral") {
             $Approve = ['booking_executive_approve' => 'อนุมัติ', 'booking_executive_reason' => '', 'booking_executive_datecheck' => date("Y-m-d H:i:s"), 'booking_executive_check' => $_SESSION['id']];
         }
-        elseif ($_SESSION['status'] === "AdminGeneral") {
+        elseif ($_SESSION['status'] === "AdminGeneral" || $_SESSION['status'] === "superadmin") {
             $Approve = ['booking_admin_approve' => 'อนุมัติ', 'booking_admin_reason' => '', 'booking_admin_datecheck' => date("Y-m-d H:i:s"), 'booking_admin_check' => $_SESSION['id']];
         }
 

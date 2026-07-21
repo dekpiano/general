@@ -26,10 +26,9 @@ class Model_login extends Model
     public function fetch_teacher_login($email)
     {
         $builder = $this->db_personnel->table('tb_personnel');
-        $builder->select('tb_personnel.*, MAX(tb_admin_rloes.admin_rloes_status) AS admin_rloes_status, GROUP_CONCAT(tb_admin_rloes.admin_rloes_nanetype) AS rloesAll, GROUP_CONCAT(tb_admin_rloes.admin_rloes_level) AS rloesLevelAll');
+        $builder->select('tb_personnel.*, tb_admin_rloes.admin_rloes_status, tb_admin_rloes.admin_rloes_nanetype AS rloesAll, tb_admin_rloes.admin_rloes_level AS rloesLevelAll');
         $builder->join('skjacth_general.tb_admin_rloes', 'skjacth_general.tb_admin_rloes.admin_rloes_userid = tb_personnel.pers_id', 'left');
         $builder->where('tb_personnel.pers_username', $email);
-        $builder->groupBy('tb_personnel.pers_id');
         return $builder->get()->getRow();
     }
 

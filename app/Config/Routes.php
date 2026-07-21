@@ -119,6 +119,7 @@ $routes->match(['GET', 'POST'],'Admin/LocationRoom/Delete', 'ConAdminLocationRoo
 $routes->match(['GET', 'POST'],'Admin/LocationRoom/ShowData', 'ConAdminLocationRoom::LocationRoomShowData');
 
 $routes->get('Admin/Rloes/Setting', 'ConAdminRoles::index');
+$routes->post('Admin/Rloes/SaveUserRoles', 'ConAdminRoles::SaveUserRoles');
 $routes->match(['GET', 'POST'],'Admin/Rloes/RloesSettingManager', 'ConAdminRoles::RloesSettingManager');
 $routes->post('Admin/Rloes/AddRole', 'ConAdminRoles::AddRole');
 $routes->post('Admin/Rloes/DeleteRole', 'ConAdminRoles::DeleteRole');
@@ -139,6 +140,7 @@ $routes->get('Admin/Car/CarMain', 'ConAdminCar::CarMain');
 $routes->get('Admin/Car/CarDriver', 'ConAdminCar::CarDriver');
 $routes->match(['GET', 'POST'],'Admin/Car/ShowData', 'ConAdminCar::CarShowData');
 $routes->match(['GET', 'POST'],'Admin/Car/Insert', 'ConAdminCar::CarInsert');
+$routes->match(['GET', 'POST'],'Admin/Car/Update', 'ConAdminCar::CarUpdate');
 $routes->match(['GET', 'POST'],'Admin/Car/Delete', 'ConAdminCar::CarDelete');
 $routes->match(['GET', 'POST'],'Admin/CarDriver/ShowData', 'ConAdminCar::CarDriverShowData');
 $routes->match(['GET', 'POST'],'Admin/CarDriver/Insert', 'ConAdminCar::CarDriverInsert');

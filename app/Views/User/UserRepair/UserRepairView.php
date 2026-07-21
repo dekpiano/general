@@ -4,7 +4,7 @@
 <?php 
     // ประกาศตัวแปรสิทธิ์การใช้งานไว้ด้านบนสุดเพื่อให้เรียกใช้ได้ทั้งหน้า
     $checkRloes = explode(",",@$_SESSION['rloes']);
-    $isAdmin = (!empty($_SESSION['username']) && (in_array("งานแจ้งซ่อม",$checkRloes) || in_array("งานอาคารสถานที่",$checkRloes)));
+    $isAdmin = (!empty($_SESSION['username']) && (in_array("งานแจ้งซ่อม",$checkRloes) || in_array("งานอาคารสถานที่",$checkRloes) || @$_SESSION['status'] == 'AdminGeneral' || @$_SESSION['status'] == 'superadmin'));
 ?>
 
 <style>

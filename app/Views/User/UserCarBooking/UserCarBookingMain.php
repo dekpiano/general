@@ -243,7 +243,16 @@
                                     <h5 class="car-info-title text-primary">
                                         <?= $car->car_registration ?> <?= $car->car_province ?>
                                     </h5>
-                                    <p class="text-muted small mb-3"><?= $car->car_category ?></p>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <p class="text-muted small mb-0"><?= $car->car_category ?></p>
+                                        <?php if(isset($car->car_status) && $car->car_status === 'ซ่อมบำรุง'): ?>
+                                            <span class="badge bg-warning"><i class='bx bx-wrench'></i> ซ่อมบำรุง</span>
+                                        <?php elseif(isset($car->car_status) && $car->car_status === 'งดใช้งาน'): ?>
+                                            <span class="badge bg-danger"><i class='bx bx-block'></i> งดใช้งาน</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-success"><i class='bx bx-check-circle'></i> ใช้งานได้</span>
+                                        <?php endif; ?>
+                                    </div>
 
                                     <!-- Mini Calendar Header Controls -->
                                     <div class="row g-2">
@@ -268,7 +277,7 @@
                                     </div>
 
                                     <div class="mini-calendar-container">
-                                        <div id="miniCalendar_<?= $car->car_ID ?>" class="mini-calendar"></div>
+                                        <div id="miniCalendar_<?= $car->car_ID ?>" class="mini-calendar" data-status="<?= $car->car_status ?? 'ใช้งานได้' ?>"></div>
                                     </div>
                                 </div>
                             </div>
@@ -329,7 +338,7 @@
 
 
                     <!-- Admin Section -->
-                    <?php if(isset($_SESSION['username']) && (in_array("งานยานพาหนะ", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral" || @$_SESSION['status'] =="AdminGeneral")):?>
+                    <?php if(isset($_SESSION['username']) && (in_array("งานยานพาหนะ", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral" || @$_SESSION['status'] =="AdminGeneral" || @$_SESSION['status'] =="superadmin")):?>
                         <div class="mt-2 mb-1 ps-2">
                             <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">ส่วนงานเจ้าหน้าที่</small>
                         </div>
@@ -360,7 +369,7 @@
 <?= $this->section('customScripts') ?>
 <script>
     var CURRENT_USER_ID = '<?= session()->get('id') ?? '' ?>';
-    var IS_ADMIN = <?= (session()->get('status') == "AdminGeneral") || (in_array("งานยานพาหนะ", explode(',', session()->get('rloes') ?? ''))) ? 'true' : 'false' ?>;
+    var IS_ADMIN = <?= (session()->get('status') == "AdminGeneral") || (session()->get('status') == "superadmin") || (in_array("งานยานพาหนะ", explode(',', session()->get('rloes') ?? ''))) ? 'true' : 'false' ?>;
 </script>
 <script src="<?= base_url('assets/js/User/UserCarBooking/UserCarBookingMiniCalendar.js?v=' . time()) ?>"></script>
 <?= $this->endSection() ?>

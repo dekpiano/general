@@ -22,7 +22,7 @@ class ConAdminNotification extends BaseController
             $targetSystem = $this->request->getVar('system'); // 'car', 'room', 'repair'
             
             // Check for Supervisory/Admin roles (See everything)
-            $isSuperAdmin = ($userStatus === 'admin' || $userStatus === 'ExecutiveGeneral' || $userStatus === 'AdminGeneral' || 
+            $isSuperAdmin = ($userStatus === 'superadmin' || $userStatus === 'admin' || $userStatus === 'ExecutiveGeneral' || $userStatus === 'AdminGeneral' || 
                              strpos($userRoles, 'หัวหน้าบริหารทั่วไป') !== false || 
                              strpos($userRoles, 'รองผู้อำนวยการบริหารทั่วไป') !== false || 
                              strpos($userRoles, 'ผู้อำนวยการโรงเรียน') !== false);

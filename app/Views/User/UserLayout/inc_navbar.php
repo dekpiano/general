@@ -18,7 +18,7 @@
             <!-- /Title -->
 
             <ul class="navbar-nav flex-row align-items-center ms-auto">
-                <?php if(session()->has('username') && (session('rloes') != '' || in_array(session('status'), ['AdminGeneral', 'ManagerGeneral', 'ExecutiveGeneral', 'admin']))): ?>
+                <?php if(session()->has('username') && (session('rloes') != '' || in_array(session('status'), ['AdminGeneral', 'ManagerGeneral', 'ExecutiveGeneral', 'admin', 'superadmin']))): ?>
                 <!-- Notifications -->
                 <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
                     <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown"

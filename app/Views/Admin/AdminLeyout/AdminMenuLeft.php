@@ -29,9 +29,15 @@
                 </li>
 
                 <!-- Layouts -->
-                <?php $SubRloes = explode(',',$_SESSION['rloes']); ?>
+                <?php 
+                $session = session();
+                $rloesData = $session->get('rloes') ?: '[]';
+                $decodedRloes = json_decode($rloesData, true);
+                $SubRloes = is_array($decodedRloes) ? $decodedRloes : [];
+                $isSuperAdmin = ($session->get('status') === 'superadmin');
+                ?>
 
-                <?php if(in_array("งานอาคารสถานที่",$SubRloes)) :?>
+                <?php if($isSuperAdmin || in_array("งานอาคารสถานที่",$SubRloes)) :?>
                 <li class="menu-item <?php echo $uri->getSegment(2) == "LocationRoom"?"active open":""?>">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -49,7 +55,7 @@
                 </li>
                 <?php endif; ?>
                 <!-- Layouts -->
-                <?php if(in_array("งานยานพาหนะ",$SubRloes)) :?>
+                <?php if($isSuperAdmin || in_array("งานยานพาหนะ",$SubRloes)) :?>
                 <li class="menu-item <?php echo $uri->getSegment(2) == "Car"?"active open":""?>">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -73,17 +79,17 @@
 
             </ul>
 
-            <?php if($_SESSION['id'] == "pers_021") : ?>
-            <div>
-                <ul class="menu-inner py-1">
-                    <li class="menu-item <?php echo $uri->getSegment(2) == "Rloes"?"active":""?>">
-                        <a href="<?=base_url('Admin/Rloes/Setting');?>" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-spreadsheet"></i>
-                            <div data-i18n="Analytics">กำหนดสิทธิ์ใช้งาน</div>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <?php if($session->get('status') === 'superadmin') : ?>
+            <li class="menu-header small text-uppercase">
+                <span class="menu-header-text text-danger fw-bold"><i class='bx bxs-crown me-1'></i> สำหรับผู้ดูแลระบบสูงสุด</span>
+            </li>
+            <li class="menu-item <?php echo $uri->getSegment(2) == "Rloes"?"active":""?>">
+                <a href="<?=base_url('Admin/Rloes/Setting');?>" class="menu-link" style="background: rgba(255, 62, 29, 0.05); border-radius: 0 20px 20px 0; border-left: 4px solid #ff3e1d;">
+                    <i class="menu-icon tf-icons bx bx-fingerprint text-danger"></i>
+                    <div data-i18n="Analytics" class="text-danger fw-bold">จัดการสิทธิ์ผู้ใช้งาน</div>
+                    <div class="badge bg-label-danger rounded-pill ms-auto">Superadmin</div>
+                </a>
+            </li>
             <?php endif; ?>
         </aside>
         <!-- / Menu -->

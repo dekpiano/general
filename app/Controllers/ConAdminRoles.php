@@ -6,8 +6,8 @@ class ConAdminRoles extends BaseController
 {
     public function __construct(){
         $session = session();
-        if(!$session->get('username') && $session->get('status') != "AdminGeneral" && $session->get('status') != "ManagerGeneral"){
-            header("Location:".base_url()); exit();
+        if(!$session->get('username') || $session->get('status') !== 'superadmin'){
+            header("Location:".base_url('Admin/Home')); exit();
         } 
     }
 
@@ -43,124 +43,80 @@ class ConAdminRoles extends BaseController
         return view('Admin/AdminRoles/AdminRolesMain', $data);
     }
 
-    public function RloesSettingManager() {      
-        $database = \Config\Database::connect();
-        $DBrloes = $database->table('tb_admin_rloes');
-        $data = array('admin_rloes_userid' => $this->request->getVar('TeachID'));
-
-        $DBrloes->where('admin_rloes_level',$this->request->getVar('RloesLevel'));
-        $DBrloes->where('admin_rloes_nanetype',$this->request->getVar('Keytype'));
-        $DBrloes->where('admin_rloes_id',$this->request->getVar('RloesID'));
-        $result = $DBrloes->update($data);
-        echo $result;
-    }
-
-    public function AddRole()
+    public function SaveUserRoles()
     {
         $response = [
             'success' => false,
-            'msg' => "An error occurred."
+            'msg' => "เกิดข้อผิดพลาด"
         ];
 
         if ($this->request->is('post')) {
-            $database = \Config\Database::connect();
-            $builder = $database->table('tb_admin_rloes');
+            $user_id = $this->request->getPost('user_id');
+            $systems = $this->request->getPost('systems') ?: [];
+            $level = $this->request->getPost('level');
+            $status = $this->request->getPost('status');
 
-            $data = [
-                'admin_rloes_userid' => $this->request->getPost('user_id'),
-                'admin_rloes_nanetype' => $this->request->getPost('role_group'),
-                'admin_rloes_level' => $this->request->getPost('role_level'),
-                'admin_rloes_status' => 'AdminGeneral'
-            ];
-
-            // Basic validation
-            if (empty($data['admin_rloes_userid']) || empty($data['admin_rloes_nanetype']) || empty($data['admin_rloes_level'])) {
-                $response['msg'] = "กรุณากรอกข้อมูลให้ครบถ้วน";
+            if (empty($user_id)) {
+                $response['msg'] = "ไม่พบรหัสบุคลากร";
                 return $this->response->setJSON($response);
             }
 
-            if ($builder->insert($data)) {
-                $response = [
-                    'success' => true,
-                    'msg' => "บันทึกข้อมูลเรียบร้อย"
-                ];
+            $database = \Config\Database::connect();
+            $builder = $database->table('tb_admin_rloes');
+
+            // Check if user already exists
+            $existing = $builder->where('admin_rloes_userid', $user_id)->get()->getRow();
+
+            // If empty systems array and status is not superadmin, maybe delete? 
+            // Or just save empty array.
+            $data = [
+                'admin_rloes_userid' => $user_id,
+                'admin_rloes_nanetype' => json_encode($systems, JSON_UNESCAPED_UNICODE),
+                'admin_rloes_level' => $level ?: '2/เจ้าหน้าที่',
+                'admin_rloes_status' => $status ?: 'AdminGeneral'
+            ];
+
+            if ($existing) {
+                // Update
+                $builder->where('admin_rloes_userid', $user_id)->update($data);
             } else {
-                $response['msg'] = "ไม่สามารถบันทึกข้อมูลได้";
+                // Insert
+                $builder->insert($data);
             }
-        } else {
-            $response['msg'] = "Invalid request method.";
+
+            $response = [
+                'success' => true,
+                'msg' => "บันทึกข้อมูลเรียบร้อย"
+            ];
         }
 
         return $this->response->setJSON($response);
     }
-
     public function DeleteRole()
     {
         $response = [
             'success' => false,
-            'msg' => "An error occurred."
+            'msg' => "เกิดข้อผิดพลาด"
         ];
 
         if ($this->request->is('post')) {
-            $rloes_id = $this->request->getPost('rloes_id');
+            $user_id = $this->request->getPost('user_id');
 
-            if (empty($rloes_id)) {
-                $response['msg'] = "Role ID is missing.";
+            if (empty($user_id)) {
+                $response['msg'] = "ไม่พบรหัสบุคลากร";
                 return $this->response->setJSON($response);
             }
 
             $database = \Config\Database::connect();
             $builder = $database->table('tb_admin_rloes');
-            
-            $builder->where('admin_rloes_id', $rloes_id);
-            if ($builder->delete()) {
-                $response = [
-                    'success' => true,
-                    'msg' => "ลบข้อมูลตำแหน่งเรียบร้อยแล้ว"
-                ];
-            } else {
-                $response['msg'] = "ไม่สามารถลบข้อมูลได้";
-            }
-        } else {
-            $response['msg'] = "Invalid request method.";
+            $builder->where('admin_rloes_userid', $user_id)->delete();
+
+            $response = [
+                'success' => true,
+                'msg' => "ลบสิทธิ์เรียบร้อยแล้ว"
+            ];
         }
 
         return $this->response->setJSON($response);
     }
-     public function AddDepartment()
-    {
-        if ($this->request->is('post')) {
-            $departmentName = $this->request->getPost('department_name');
-
-            if (empty($departmentName)) {
-                return $this->response->setJSON(['success' => false, 'msg' => 'กรุณากรอกชื่องาน']);
-            }
-
-            $database = \Config\Database::connect();
-            $builder = $database->table('tb_admin_rloes');
-
-            // Check if a role with this department name already exists
-            $existing = $builder->where('admin_rloes_nanetype', $departmentName)->get()->getRow();
-            if ($existing) {
-                return $this->response->setJSON(['success' => false, 'msg' => 'มีงานชื่อนี้อยู่ในระบบแล้ว']);
-            }
-
-            // Create a placeholder role for the new department.
-            $data = [
-                'admin_rloes_userid'   => '',
-                'admin_rloes_nanetype' => $departmentName,
-                'admin_rloes_level'    => '1/หัวหน้างาน',
-                'admin_rloes_status'   => 'AdminGeneral'
-            ];
-
-            if ($builder->insert($data)) {
-                return $this->response->setJSON(['success' => true, 'msg' => 'เพิ่มงานใหม่สำเร็จ']);
-            } else {
-                return $this->response->setJSON(['success' => false, 'msg' => 'ไม่สามารถบันทึกข้อมูลลงฐานข้อมูลได้']);
-            }
-        }
-        return redirect()->back();
-    }
- 
-
 }

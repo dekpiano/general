@@ -286,8 +286,14 @@
                     <i class='bx bx-calendar-star me-1'></i> วันนี้: <?= date('d F Y') ?>
                 </div>
                 <div>
-                    <button class="btn btn-primary btn-lg rounded-pill shadow-primary px-4" onclick="location.reload()">
+                    <button class="btn btn-primary btn-lg rounded-pill shadow-primary px-4 mb-2" onclick="location.reload()">
                         <i class='bx bx-refresh me-1'></i> อัปเดตข้อมูล
+                    </button>
+                    <button class="btn btn-primary btn-lg rounded-pill px-4 mb-2 ms-2" data-bs-toggle="modal" data-bs-target="#CarManageModal" style="background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                        <i class='bx bx-car me-1'></i> จัดการข้อมูลรถ
+                    </button>
+                    <button class="btn btn-primary btn-lg rounded-pill px-4 mb-2 ms-2" data-bs-toggle="modal" data-bs-target="#CarDriverManageModal" style="background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                        <i class='bx bx-user me-1'></i> จัดการคนขับรถ
                     </button>
                 </div>
             </div>
@@ -460,6 +466,52 @@
                     <p class="mt-2 text-muted">กำลังโหลดข้อมูล...</p>
                  </div>
                  <div id="detailContentBody"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Car Manage Iframe -->
+<div class="modal fade" id="CarManageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content modal-lux" style="height: 90vh;">
+            <div class="modal-header border-bottom pb-3">
+                <div class="d-flex align-items-center">
+                    <div class="avatar p-2 rounded-3 me-3" style="background: var(--primary-gradient); color: white;">
+                        <i class='bx bx-car fs-3'></i>
+                    </div>
+                    <div>
+                        <h4 class="modal-title fw-bold mb-1">จัดการข้อมูลรถ</h4>
+                        <p class="text-muted small mb-0">เพิ่ม ลบ แก้ไข ข้อมูลรถในระบบ</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe src="<?= base_url('Admin/Car/CarMain?modal=1') ?>" frameborder="0" style="width: 100%; height: 100%; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Car Driver Manage Iframe -->
+<div class="modal fade" id="CarDriverManageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content modal-lux" style="height: 90vh;">
+            <div class="modal-header border-bottom pb-3">
+                <div class="d-flex align-items-center">
+                    <div class="avatar p-2 rounded-3 me-3" style="background: var(--primary-gradient); color: white;">
+                        <i class='bx bx-user fs-3'></i>
+                    </div>
+                    <div>
+                        <h4 class="modal-title fw-bold mb-1">จัดการคนขับรถ</h4>
+                        <p class="text-muted small mb-0">เพิ่ม ลบ ผู้รับหน้าที่ขับรถยนต์</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe src="<?= base_url('Admin/Car/CarDriver?modal=1') ?>" frameborder="0" style="width: 100%; height: 100%; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;"></iframe>
             </div>
         </div>
     </div>

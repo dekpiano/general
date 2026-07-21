@@ -1,10 +1,20 @@
 <?= $this->extend('Admin/AdminLeyout/admin_layout') ?>
 <?= $this->section('content') ?>
 
+<?php if(isset($_GET['modal']) && $_GET['modal'] == 1): ?>
+<style>
+    #layout-menu, .layout-navbar, .layout-footer { display: none !important; }
+    .layout-page { padding-left: 0 !important; }
+    .content-wrapper { padding: 0 !important; }
+    .container-xxl { padding: 10px !important; max-width: 100% !important; }
+    html, body { overflow-x: hidden; }
+</style>
+<?php endif; ?>
+
 <style>
 /* Page Header */
 .page-header {
-    background: linear-gradient(135deg, #ffab00 0%, #ff8f00 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 16px;
     padding: 2rem;
     margin-bottom: 1.5rem;
@@ -507,6 +517,7 @@
                         <th>รายละเอียดรถ</th>
                         <th>ประเภทรถ</th>
                         <th>จำนวนที่นั่ง</th>
+                        <th>สถานะ</th>
                         <th>คำสั่ง</th>
                     </tr>
                 </thead>
@@ -527,6 +538,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="FromCarInsert" novalidate>
+                <input type="hidden" id="CarD_ID" name="CarD_ID">
+                <input type="hidden" id="CarFormAction" value="Insert">
                 <div class="modal-body">
                     <div class="row">
                         <!-- Image Preview -->
@@ -600,9 +613,23 @@
                                 </div>
                             </div>
                             
-                            <div class="form-floating-custom">
-                                <label for="CarD_Details"><i class='bx bx-detail me-1'></i> รายละเอียดเพิ่มเติม</label>
-                                <textarea class="form-control" id="CarD_Details" name="CarD_Details" rows="3" placeholder="รายละเอียดอื่นๆ เช่น สี, ปีที่ซื้อ, หมายเลขตัวถัง..."></textarea>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <label for="CarD_Status"><i class='bx bx-check-shield me-1'></i> สถานะ</label>
+                                        <select id="CarD_Status" name="CarD_Status" class="form-select" required>
+                                            <option value="ใช้งานได้" selected>✅ ใช้งานได้</option>
+                                            <option value="ซ่อมบำรุง">🔧 ซ่อมบำรุง</option>
+                                            <option value="งดใช้งาน">🚫 งดใช้งาน</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <label for="CarD_Details"><i class='bx bx-detail me-1'></i> รายละเอียดเพิ่มเติม</label>
+                                        <textarea class="form-control" id="CarD_Details" name="CarD_Details" rows="3" placeholder="รายละเอียดอื่นๆ เช่น สี, ปีที่ซื้อ, หมายเลขตัวถัง..."></textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -702,6 +729,15 @@ $(document).ready(function() {
                 ? `<img src="${imgSrc}" alt="${car.car_registration}" onerror="this.parentElement.innerHTML='<div class=\\'no-image-placeholder\\'><i class=\\'bx bxs-car\\'></i><span>ไม่มีรูปภาพ</span></div>'">`
                 : `<div class="no-image-placeholder"><i class='bx bxs-car'></i><span>ไม่มีรูปภาพ</span></div>`;
             
+            let statusBadge = '';
+            if (car.car_status === 'ซ่อมบำรุง') {
+                statusBadge = `<span class="badge bg-warning ms-2"><i class='bx bx-wrench'></i> ${car.car_status}</span>`;
+            } else if (car.car_status === 'งดใช้งาน') {
+                statusBadge = `<span class="badge bg-danger ms-2"><i class='bx bx-block'></i> ${car.car_status}</span>`;
+            } else {
+                statusBadge = `<span class="badge bg-success ms-2"><i class='bx bx-check-circle'></i> ${car.car_status || 'ใช้งานได้'}</span>`;
+            }
+            
             const cardHtml = `
                 <div class="col-sm-6 col-xl-4 col-xxl-3 mb-4 car-card-col" data-category="${car.car_category}">
                     <div class="card car-card h-100">
@@ -710,7 +746,7 @@ $(document).ready(function() {
                             <span class="car-category-badge ${badgeClass}">${car.car_category}</span>
                         </div>
                         <div class="card-body">
-                            <div class="car-registration">${car.car_registration}</div>
+                            <div class="car-registration">${car.car_registration} ${statusBadge}</div>
                             <div class="car-brand">${car.car_brand} ${car.car_model} • ${car.car_province}</div>
                             <div class="car-info">
                                 <span class="car-info-item">
@@ -720,6 +756,9 @@ $(document).ready(function() {
                             <div class="action-buttons">
                                 <button class="btn btn-outline-primary btn-view" data-id="${car.car_ID}">
                                     <i class='bx bx-show'></i> ดู
+                                </button>
+                                <button class="btn btn-outline-warning btn-edit" data-id="${car.car_ID}">
+                                    <i class='bx bx-edit'></i> แก้ไข
                                 </button>
                                 <button class="btn btn-outline-danger btn-delete" data-id="${car.car_ID}">
                                     <i class='bx bx-trash'></i> ลบ
@@ -781,6 +820,55 @@ $(document).ready(function() {
             reader.readAsDataURL(file);
         }
     });
+    // Setup Add Modal
+    $('[data-bs-target="#addCarModal"]').on('click', function() {
+        $('#addCarModalLabel').html("<i class='bx bx-plus-circle me-2'></i>เพิ่มข้อมูลรถยนต์ใหม่");
+        $('#CarFormAction').val('Insert');
+        $('#CarD_ID').val('');
+        $('#FromCarInsert')[0].reset();
+        $('#imgPreviewWrapper').html(`
+            <div class="placeholder-text">
+                <i class='bx bxs-car-garage'></i>
+                <span>เลือกรูปภาพรถ</span>
+            </div>
+        `);
+    });
+
+    // Edit car
+    $(document).on('click', '.btn-edit', function() {
+        const carId = $(this).data('id');
+        const car = carData.find(c => c.car_ID == carId);
+        
+        if (car) {
+            $('#addCarModalLabel').html("<i class='bx bx-edit me-2'></i>แก้ไขข้อมูลรถยนต์");
+            $('#CarFormAction').val('Update');
+            $('#CarD_ID').val(car.car_ID);
+            
+            $('#CarD_Register').val(car.car_registration);
+            $('#CarD_Province').val(car.car_province);
+            $('#CarD_Category').val(car.car_category);
+            $('#CarD_Brand').val(car.car_brand);
+            $('#CarD_Model').val(car.car_model);
+            $('#CarD_NumberSeats').val(car.car_seats);
+            $('#CarD_Details').val(car.car_detail);
+            $('#CarD_Status').val(car.car_status);
+            
+            const hasImage = car.car_img && car.car_img !== '';
+            if (hasImage) {
+                const imgSrc = `<?=base_url('uploads/admin/Car/')?>/${car.car_img}`;
+                $('#imgPreviewWrapper').html(`<img src="${imgSrc}" alt="Preview">`);
+            } else {
+                $('#imgPreviewWrapper').html(`
+                    <div class="placeholder-text">
+                        <i class='bx bxs-car-garage'></i>
+                        <span>ไม่มีรูปภาพ</span>
+                    </div>
+                `);
+            }
+            
+            $('#addCarModal').modal('show');
+        }
+    });
     
     // Form submit
     $('#FromCarInsert').on('submit', function(e) {
@@ -788,6 +876,8 @@ $(document).ready(function() {
         
         const formData = new FormData(this);
         const $btn = $('#btnSaveCar');
+        const action = $('#CarFormAction').val(); // Insert or Update
+        const targetUrl = action === 'Update' ? '<?=base_url("Admin/Car/Update")?>' : '<?=base_url("Admin/Car/Insert")?>';
         
         // Show button loading
         $btn.prop('disabled', true);
@@ -795,7 +885,7 @@ $(document).ready(function() {
         $btn.find('.btn-loading').removeClass('d-none');
         
         $.ajax({
-            url: '<?=base_url("Admin/Car/Insert")?>',
+            url: targetUrl,
             type: 'POST',
             data: formData,
             processData: false,
@@ -914,6 +1004,10 @@ $(document).ready(function() {
                                 <td class="text-muted"><i class='bx bx-detail me-2'></i>รายละเอียด</td>
                                 <td class="fw-semibold">${car.car_detail || '-'}</td>
                             </tr>
+                            <tr>
+                                <td class="text-muted"><i class='bx bx-check-shield me-2'></i>สถานะ</td>
+                                <td class="fw-semibold">${car.car_status === 'ซ่อมบำรุง' ? '<span class="text-warning"><i class="bx bx-wrench"></i> ซ่อมบำรุง</span>' : (car.car_status === 'งดใช้งาน' ? '<span class="text-danger"><i class="bx bx-block"></i> งดใช้งาน</span>' : '<span class="text-success"><i class="bx bx-check-circle"></i> ใช้งานได้</span>')}</td>
+                            </tr>
                         </table>
                     </div>
                 </div>
@@ -957,10 +1051,19 @@ $(document).ready(function() {
                     }
                 },
                 {
+                    data: 'car_status',
+                    render: function(data) {
+                        if (data === 'ซ่อมบำรุง') return `<span class="badge bg-warning"><i class='bx bx-wrench'></i> ${data}</span>`;
+                        if (data === 'งดใช้งาน') return `<span class="badge bg-danger"><i class='bx bx-block'></i> ${data}</span>`;
+                        return `<span class="badge bg-success"><i class='bx bx-check-circle'></i> ${data || 'ใช้งานได้'}</span>`;
+                    }
+                },
+                {
                     data: 'car_ID',
                     render: function(data) {
                         return `
                             <button class="btn btn-sm btn-outline-primary btn-view" data-id="${data}"><i class='bx bx-show'></i></button>
+                            <button class="btn btn-sm btn-outline-warning btn-edit" data-id="${data}"><i class='bx bx-edit'></i></button>
                             <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${data}"><i class='bx bx-trash'></i></button>
                         `;
                     }

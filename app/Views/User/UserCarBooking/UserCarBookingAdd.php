@@ -117,7 +117,7 @@
 
     <?php  
     $Type = isset($_SESSION['rloes']) ? explode(',', $_SESSION['rloes']) : [];
-    $CheckWho = (in_array('งานยานพาหนะ', $Type) || @$_SESSION['status'] == "AdminGeneral") ? 1 : 0;
+    $CheckWho = (in_array('งานยานพาหนะ', $Type) || @$_SESSION['status'] == "AdminGeneral" || @$_SESSION['status'] == "superadmin") ? 1 : 0;
     ?>
 
     <div class="row g-4">

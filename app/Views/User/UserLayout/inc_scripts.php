@@ -23,7 +23,7 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.15/index.global.min.js"></script>
     
-    <?php if(isset($_SESSION['username']) && (isset($_SESSION['rloes']) && $_SESSION['rloes'] != '' || in_array(@$_SESSION['status'], ['AdminGeneral', 'ManagerGeneral', 'ExecutiveGeneral', 'admin']))): ?>
+    <?php if(isset($_SESSION['username']) && (isset($_SESSION['rloes']) && $_SESSION['rloes'] != '' || in_array(@$_SESSION['status'], ['AdminGeneral', 'ManagerGeneral', 'ExecutiveGeneral', 'admin', 'superadmin']))): ?>
     <!-- Admin Notifications Logic -->
     <script src="<?=base_url('assets/js/Admin/AdminNotification.js')?>?v=1.3"></script>
     <?php endif; ?>

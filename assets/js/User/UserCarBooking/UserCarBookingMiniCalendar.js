@@ -214,6 +214,19 @@ class MiniCalendar {
   }
 
   onDayClick(dateStr) {
+    // Check car status first
+    const carStatus = this.containerEl.getAttribute("data-status");
+    if (carStatus === "ซ่อมบำรุง" || carStatus === "งดใช้งาน") {
+      Swal.fire({
+        icon: 'error',
+        title: 'ไม่สามารถจองได้',
+        text: `รถยนต์คันนี้อยู่ในสถานะ "${carStatus}" ไม่สามารถทำการจองได้`,
+        confirmButtonColor: '#ff3e1d',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
     // Find bookings for this day (Safer Date Parsing)
     const [cy, cm, cd] = dateStr.split("-").map(Number);
     const clickDate = new Date(cy, cm - 1, cd);

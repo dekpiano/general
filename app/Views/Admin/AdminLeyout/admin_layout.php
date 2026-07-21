@@ -57,8 +57,16 @@
                         <span class="app-brand-logo demo">
                             <img src="https://skj.ac.th/uploads/logoSchool/LogoSKJ_4.png" alt="" width="40">
                         </span>
-                        <span class="app-brand-text menu-text fw-bolder ms-2">สกจ.ทั่วไป
-                            <small>(เจ้าหน้าที่)</small></span>
+                        <?php 
+                            $session = session();
+                            $sidebarRole = "เจ้าหน้าที่";
+                            if($session->get('status') === 'superadmin') $sidebarRole = "Superadmin";
+                            else if($session->get('status') === 'AdminGeneral') $sidebarRole = "Admin";
+                            else if($session->get('status') === 'ManagerGeneral') $sidebarRole = "ผู้บริหาร";
+                        ?>
+                        <span class="app-brand-text menu-text fw-bolder ms-2" style="line-height: 1.2;">สกจ.ทั่วไป
+                            <br><small class="text-primary" style="font-size: 0.8rem;">(<?=$sidebarRole?>)</small>
+                        </span>
                     </a>
 
                     <a href="javascript:void(0);"
@@ -79,9 +87,15 @@
                     </li>
 
                     <!-- Layouts -->
-                    <?php $SubRloes = explode(',',$_SESSION['rloes']); ?>
+                    <?php 
+                    $session = session();
+                    $rloesData = $session->get('rloes') ?: '[]';
+                    $decodedRloes = json_decode($rloesData, true);
+                    $SubRloes = is_array($decodedRloes) ? $decodedRloes : [];
+                    $isSuperAdmin = ($session->get('status') === 'superadmin');
+                    ?>
 
-                    <?php if(in_array("งานอาคารสถานที่",$SubRloes)) :?>
+                    <?php if($isSuperAdmin || in_array("งานอาคารสถานที่",$SubRloes)) :?>
                     <li class="menu-item <?php echo $uri->getSegment(2) == "LocationRoom"?"active open":""?>">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -98,7 +112,7 @@
                     </li>
                     <?php endif; ?>
                     <!-- Layouts -->
-                    <?php if(in_array("งานยานพาหนะ",$SubRloes)) :?>
+                    <?php if($isSuperAdmin || in_array("งานยานพาหนะ",$SubRloes)) :?>
                     <li class="menu-item <?php echo $uri->getSegment(2) == "Car"?"active open":""?>">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -122,13 +136,17 @@
 
                 </ul>
 
-                <?php if($_SESSION['id'] == "pers_021") : ?>
+                <?php if($isSuperAdmin) : ?>
                 <div>
                     <ul class="menu-inner py-1">
+                        <li class="menu-header small text-uppercase">
+                            <span class="menu-header-text text-danger fw-bold"><i class='bx bxs-crown me-1'></i> สำหรับผู้ดูแลระบบสูงสุด</span>
+                        </li>
                         <li class="menu-item <?php echo $uri->getSegment(2) == "Rloes"?"active":""?>">
-                            <a href="<?=base_url('Admin/Rloes/Setting');?>" class="menu-link">
-                                <i class="menu-icon tf-icons bx bx-spreadsheet"></i>
-                                <div data-i18n="Analytics">กำหนดสิทธิ์ใช้งาน</div>
+                            <a href="<?=base_url('Admin/Rloes/Setting');?>" class="menu-link" style="background: rgba(255, 62, 29, 0.05); border-radius: 0 20px 20px 0; border-left: 4px solid #ff3e1d;">
+                                <i class="menu-icon tf-icons bx bx-fingerprint text-danger"></i>
+                                <div data-i18n="Analytics" class="text-danger fw-bold">จัดการสิทธิ์ผู้ใช้งาน</div>
+                                <div class="badge bg-label-danger rounded-pill ms-auto">Superadmin</div>
                             </a>
                         </li>
                     </ul>
@@ -156,9 +174,17 @@
                             </div>
                         </div>
                         <ul class="navbar-nav flex-row align-items-center ms-auto">
-                            <li class="nav-item lh-1 me-3">
-                                <?=$_SESSION['username'];?> <br>
-                                <small class="text-muted">Admin</small>
+                            <li class="nav-item lh-1 me-3 text-end">
+                                <span class="fw-bold"><?=$_SESSION['username'];?></span> <br>
+                                <?php
+                                    $navRole = "เจ้าหน้าที่";
+                                    if(isset($_SESSION['status'])) {
+                                        if($_SESSION['status'] === 'superadmin') $navRole = "Superadmin";
+                                        else if($_SESSION['status'] === 'AdminGeneral') $navRole = "Admin";
+                                        else if($_SESSION['status'] === 'ManagerGeneral') $navRole = "ผู้บริหาร";
+                                    }
+                                ?>
+                                <small class="text-primary fw-bold"><?=$navRole;?></small>
                             </li>
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"

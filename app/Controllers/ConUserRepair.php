@@ -20,6 +20,11 @@ class ConUserRepair extends BaseController
 
     private function sendPushNotification($title, $message, $url = null, $tags = null, $userIds = null)
     {
+        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+        if (ENVIRONMENT !== 'production' || $isLocal) {
+            return null;
+        }
+
         $content = array(
             "en" => $message,
             "th" => $message
@@ -223,37 +228,6 @@ class ConUserRepair extends BaseController
         echo json_encode($data);
     }
 
-    private function sendLineMessage($userId, $messageText)
-    {
-        // ไม่ส่งถ้าไม่ใช่ production หรือเป็น localhost (รองรับ port เช่น :8086)
-        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-        if (ENVIRONMENT !== 'production' || $isLocal) {
-            return null;
-        }
-        $accessToken = '7gfC9gYjR4S/xRSGeqlOuXo9ZVR5TSvyAUSdgDRMDn4los6yawPmupV+iq47du3cwHjMYzG9SeWz97kGTGsNm+tVww6pHgHQNk7xA3HNHUatjywK/0Pfq98hW5EmM0Xg9PpGHcRZ3zpnQ7evs8yYWwdB04t89/1O/w1cDnyilFU=';
-
-        $data = [
-            'to' => $userId,
-            'messages' => [[
-                'type' => 'text',
-                'text' => $messageText
-            ]]
-        ];
-
-        $ch = curl_init('https://api.line.me/v2/bot/message/push');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $accessToken
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return $result;
-    }
-
 
     public function RepairInsert(){
 
@@ -359,30 +333,6 @@ class ConUserRepair extends BaseController
 
                 // ส่งการแจ้งเตือนแบบใหม่
                 $notificationService = new NotificationService();
-
-                // 1. ส่งข้อความ Line (ใช้กลุ่มงานแจ้งซ่อม)
-                $lineData = [
-                    'requester_name' => $RequesterName,
-                    'case_type'      => $this->request->getVar('repair_caselist'),
-                    'detail'         => $this->request->getVar('repair_detail'),
-                    'location'       => 'อาคาร ' . $this->request->getVar('repair_building') . ' ชั้น ' . $this->request->getVar('repair_class') . ' ห้อง ' . $this->request->getVar('repair_room'),
-                    'date'           => $Datethai->thai_date_fullmonth(strtotime(date('Y-m-d H:i:s'))),
-                    'url'            => base_url("/Repair/View/".$Repair->repair_order)
-                ];
-                $lineMsg = $notificationService->buildLineRepairNew($lineData);
-
-                // สร้าง image URL สำหรับ LINE (รูปแรกที่อัพโหลด หรือ og:image ของหน้า View)
-                $lineImageUrl = null;
-                if (!empty($imageNames)) {
-                    // มีรูปที่อัพโหลด → ส่งรูปแรก
-                    $lineImageUrl = base_url('uploads/user/Repair/' . $imageNames[0]);
-                }
-                // ถ้าไม่มีรูป ส่งเป็น og:image ของหน้า View (ดึงจาก banner)
-                if (!$lineImageUrl) {
-                    $lineImageUrl = base_url('uploads/banner/repair/bannerRepair.jpg');
-                }
-
-                $notificationService->sendLine('repair', $lineMsg, null, $lineImageUrl);
 
                 // 2. ส่ง OneSignal Push Notification หาเจ้าหน้าที่และหัวหน้างาน
                 $isBuilding = ($this->request->getVar('repair_caselist') == "งานอาคารสถานที่");
@@ -692,29 +642,6 @@ class ConUserRepair extends BaseController
                                      $RepairInfo->repair_userID
                                  );
 
-                                 $lineUpdateData = [
-                                     'requester_name' => $RequesterName,
-                                     'case_type'      => $RepairInfo->repair_caselist,
-                                     'status'         => $currentStatus,
-                                     'repairman'      => $RepairmanName,
-                                     'cause'          => $this->request->getPost('repair_cause'),
-                                     'url'            => base_url('Repair/View/' . $RepairInfo->repair_order)
-                                 ];
-                                 $lineMsg = $notificationService->buildLineRepairUpdate($lineUpdateData);
-
-                                 // ส่งรูปภาพหลังซ่อม (รูปแรก) หรือรูปก่อนซ่อม หรือ banner
-                                 $updateImageUrl = null;
-                                 if (!empty($imageNames)) {
-                                     $updateImageUrl = base_url('uploads/admin/Repair/' . $imageNames[0]);
-                                 } elseif (!empty($RepairInfo->repair_imguser)) {
-                                     $firstUserImg = explode(',', $RepairInfo->repair_imguser)[0];
-                                     $updateImageUrl = base_url('uploads/user/Repair/' . trim($firstUserImg));
-                                 }
-                                 if (!$updateImageUrl) {
-                                     $updateImageUrl = base_url('uploads/banner/repair/bannerRepair.jpg');
-                                 }
-
-                                 $notificationService->sendLine('repair', $lineMsg, null, $updateImageUrl);
                              } catch (\Exception $e) {
                                  log_message('error', 'Repair Email Error: ' . $e->getMessage());
                              }
