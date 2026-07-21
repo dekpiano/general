@@ -842,7 +842,7 @@ class ConUserBooking extends BaseController
 
     public function BookingViewApproveAdmin(){
         $session = session();
-        if(!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager"){
+        if(!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager" && $session->get('status') != "superadmin"){
             header("Location:".base_url('LoginOfficerGeneral?return_to='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])); exit();
         } 
         $data = $this->DataMain();
@@ -1083,9 +1083,9 @@ class ConUserBooking extends BaseController
         if($_SESSION['status'] === "ExecutiveGeneral"){
             $NoApprove = ['booking_executive_approve'=>'ไม่อนุมัติ','booking_executive_reason'=>$this->request->getPost('booking_admin_reason'),'booking_executive_datecheck'=>date("Y-m-d H:i:s"),'booking_executive_check'=>$_SESSION['id']];
         }
-        //elseif($_SESSION['status'] === "AdminGeneral"){
+        elseif($_SESSION['status'] === "AdminGeneral" || $_SESSION['status'] === "superadmin"){
             $NoApprove = ['booking_admin_approve'=>'ไม่อนุมัติ','booking_admin_reason'=>$this->request->getPost('booking_admin_reason'),'booking_admin_datecheck'=>date("Y-m-d H:i:s"),'booking_admin_check'=>$_SESSION['id']];
-        //}
+        }
 
         if($DBbooking->where('booking_id',$this->request->getPost('BookingID'))->update($NoApprove)){
             

@@ -672,7 +672,7 @@ class ConUserRepair extends BaseController
         // Check permissions (Admin only)
         $session = session();
         $checkRloes = explode(",", @$_SESSION['rloes']);
-        if (empty($_SESSION['username']) || (!in_array("งานแจ้งซ่อม", $checkRloes) && !in_array("งานอาคารสถานที่", $checkRloes))) {
+        if (empty($_SESSION['username']) || (!in_array("งานแจ้งซ่อม", $checkRloes) && !in_array("งานอาคารสถานที่", $checkRloes) && @$_SESSION['status'] != 'AdminGeneral' && @$_SESSION['status'] != 'superadmin')) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้']);
         }
 
@@ -1280,7 +1280,7 @@ class ConUserRepair extends BaseController
         // Check permissions (Admin only)
         $session = session();
         $checkRloes = explode(",", @$_SESSION['rloes']);
-        if (empty($_SESSION['username']) || (!in_array("งานแจ้งซ่อม", $checkRloes) && !in_array("งานอาคารสถานที่", $checkRloes))) {
+        if (empty($_SESSION['username']) || (!in_array("งานแจ้งซ่อม", $checkRloes) && !in_array("งานอาคารสถานที่", $checkRloes) && @$_SESSION['status'] != 'AdminGeneral' && @$_SESSION['status'] != 'superadmin')) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้']);
         }
 

@@ -244,7 +244,7 @@ function getRepairImagesHtml(row) {
 }
 
 function buildRepairListItem(row) {
-  let buttons = '<a href="Repair/View/' +
+  let buttons = '<a href="' + BASE_URL + 'Repair/View/' +
     row.repair_order +
     '" data-id="' +
     row.repair_ID +
@@ -252,7 +252,7 @@ function buildRepairListItem(row) {
 
   if (typeof SESSION_PERS_ID !== 'undefined' && SESSION_PERS_ID !== '' && String(row.repair_userID) === String(SESSION_PERS_ID)) {
     if (row.repair_caselist === 'งานอาคารสถานที่') {
-      buttons += ' <a href="Repair/BuildingMemo" class="btn btn-sm btn-outline-warning ms-1" title="ออกบันทึกข้อความ"><i class="bi bi-file-earmark-text"></i> ย้อนหลัง</a>';
+      buttons += ' <a href="' + BASE_URL + 'Repair/BuildingMemo" class="btn btn-sm btn-outline-warning ms-1" title="ออกบันทึกข้อความ"><i class="bi bi-file-earmark-text"></i> ย้อนหลัง</a>';
     }
   }
 
@@ -342,7 +342,7 @@ function loadRepairCards() {
   $container.html('<div class="repair-loading"><div class="spinner-border" role="status"><span class="visually-hidden">กำลังโหลด...</span></div></div>');
 
   $.ajax({
-    url: "Repair/DataTable/ShowRepari",
+    url: BASE_URL + "Repair/DataTable/ShowRepari",
     method: "POST",
     data: { year: selectedYear },
     dataType: "json",
@@ -399,7 +399,7 @@ function ShowDataLocationRoom() {
 $(document).on("click", "#BtnRepairFullDetail1", function () {
   $("#ModalShowRepair").modal("show");
   $.post(
-    "Repair/DB/CheckRepairFullDetail",
+    BASE_URL + "Repair/DB/CheckRepairFullDetail",
     {
       RepairId: $(this).attr("data-id"),
     },
@@ -487,7 +487,7 @@ $(document).on("click", "#BtnRepairFullDetail1", function () {
 
       $(".PrintOrder").attr(
         "href",
-        "Repair/PrintOrder/" + data[0][0].repair_order,
+        BASE_URL + "Repair/PrintOrder/" + data[0][0].repair_order,
       );
     },
     "json",
@@ -509,7 +509,7 @@ $(document).on("change", "#repair_posi", function () {
   $("#repair_phone").val("");
 
   $.post(
-    "../Repair/DB/CheckPosiUser",
+    BASE_URL + "Repair/DB/CheckPosiUser",
     {
       repair_posi: posiId,
     },
@@ -652,7 +652,7 @@ document.addEventListener("submit", async function (e) {
         btn.classList.add("disabled");
 
         try {
-          const res = await fetch("../Repair/DB/Insert", {
+          const res = await fetch(BASE_URL + "Repair/DB/Insert", {
             method: "POST",
             body: formData,
           });
@@ -678,9 +678,9 @@ document.addEventListener("submit", async function (e) {
                   cancelButtonText: "กลับหน้าแรก"
                 }).then((result) => {
                   if (result.isConfirmed) {
-                    window.location.href = "../Repair/BuildingMemo?order=" + responseData.repair_order;
+                    window.location.href = BASE_URL + "Repair/BuildingMemo?order=" + responseData.repair_order;
                   } else {
-                    window.location.href = "../Repair";
+                    window.location.href = BASE_URL + "Repair";
                   }
                 });
             } else {
@@ -692,7 +692,7 @@ document.addEventListener("submit", async function (e) {
                   confirmButtonText: "ตกลง!",
                 }).then((result) => {
                   if (result.isConfirmed) {
-                    window.location.href = "../Repair";
+                    window.location.href = BASE_URL + "Repair";
                   }
                 });
             }
@@ -885,7 +885,7 @@ $(document).on("submit", "#FormSaveRepairAdmin", function (e) {
   });
 
   $.ajax({
-    url: "../../Repair/DB/UpdateWork",
+    url: BASE_URL + "Repair/DB/UpdateWork",
     method: "POST",
     data: formData,
     processData: false,
@@ -950,7 +950,7 @@ $(document).on("submit", "#FormEvaluation", function(e) {
     
     const formData = $(this).serialize();
     
-    $.post("../../Repair/DB/SaveEvaluation", formData, function(res) {
+    $.post(BASE_URL + "Repair/DB/SaveEvaluation", formData, function(res) {
         if (res.status === "success") {
             $("#ModalEvaluation").modal("hide");
             Swal.fire({
@@ -993,7 +993,7 @@ $(document).on("click", "#BtnCleanupImages", function () {
       });
 
       $.ajax({
-        url: "../../Repair/DB/CleanupImages",
+        url: BASE_URL + "Repair/DB/CleanupImages",
         method: "POST",
         dataType: "json",
         success: function (response) {
@@ -1040,7 +1040,7 @@ $(document).on("click", "#BtnMigrateImages", function () {
       });
 
       $.ajax({
-        url: "../../Repair/DB/MigrateImages",
+        url: BASE_URL + "Repair/DB/MigrateImages",
         method: "POST",
         dataType: "json",
         success: function (response) {

@@ -122,9 +122,9 @@
                 
                 // ตรวจสอบ Role เพื่อติดแท็กสำหรับ Admin
                 <?php if (isset($_SESSION['rloes']) || isset($_SESSION['status'])): ?>
-                    const roles = "<?= $_SESSION['rloes'] ?? '' ?>";
-                    const levels = "<?= $_SESSION['rloes_level'] ?? '' ?>";
-                    const status = "<?= $_SESSION['status'] ?? '' ?>";
+                    const roles = '<?= addslashes($_SESSION['rloes'] ?? '') ?>';
+                    const levels = '<?= addslashes($_SESSION['rloes_level'] ?? '') ?>';
+                    const status = '<?= addslashes($_SESSION['status'] ?? '') ?>';
                     
                     if (roles.includes("งานอาคารสถานที่") || status === "ExecutiveGeneral") {
                         OneSignal.User.addTag("role", "admin_building");

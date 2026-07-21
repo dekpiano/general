@@ -1,6 +1,6 @@
 
 // Fetch Chart Data
-fetch('../Repair/DB/StatisticsCaselist')
+fetch(BASE_URL + 'Repair/DB/StatisticsCaselist')
 .then(response => response.json())
 .then(data => {
     // Bar Chart (By Case List)

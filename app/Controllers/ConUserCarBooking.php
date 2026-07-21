@@ -1023,7 +1023,7 @@ class ConUserCarBooking extends BaseController
     public function CarBookingViewApproveAdmin()
     {
         $session = session();
-        if (!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager") {
+        if (!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager" && $session->get('status') != "superadmin") {
             header("Location:" . base_url('LoginOfficerGeneral?return_to=' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']));
             exit();
         }

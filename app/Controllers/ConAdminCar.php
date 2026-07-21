@@ -6,7 +6,8 @@ class ConAdminCar extends BaseController
 {
     public function __construct(){
         $session = session();
-        if(!$session->get('username') && $session->get('status') != "admin" && $session->get('status') != "manager"){
+        $status = $session->get('status');
+        if(!$session->get('username') && $status != "admin" && $status != "manager" && $status != "superadmin"){
             header("Location:".base_url()); exit();
         } 
     }
