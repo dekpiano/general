@@ -35,6 +35,16 @@ $routes->get('manual/car-booking', 'ConUserManual::carBookingSystemManual');
 $routes->get('manual/repair', 'ConUserManual::repairSystemManual');
 $routes->get('manual/food-report', 'ConUserManual::foodReportManual');
 
+// User รายงานอาหาร
+$routes->get('FoodReport', 'ConUserFoodReport::index');
+$routes->get('FoodReport/Print/(:any)', 'ConUserFoodReport::print/$1');
+$routes->get('FoodReport/ExportWord/(:any)', 'ConUserFoodReport::exportWord/$1');
+$routes->get('FoodReport/word/(:any)', 'ConUserFoodReport::exportWord/$1');
+$routes->get('FoodReport/getFoodReportsJson', 'ConUserFoodReport::getFoodReportsJson');
+$routes->match(['GET', 'POST'], 'FoodReport/insert', 'ConUserFoodReport::foodReportInsert');
+$routes->match(['GET', 'POST'], 'FoodReport/update', 'ConUserFoodReport::foodReportUpdate');
+$routes->match(['GET', 'POST'], 'FoodReport/delete', 'ConUserFoodReport::foodReportDelete');
+
 //User งานจองห้อง
 $routes->get('Booking', 'ConUserBooking::BookingMain');
 

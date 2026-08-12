@@ -20,8 +20,9 @@ class ConUserRepair extends BaseController
 
     private function sendPushNotification($title, $message, $url = null, $tags = null, $userIds = null)
     {
-        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-        if (ENVIRONMENT !== 'production' || $isLocal) {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isLocal = (strpos($host, 'localhost') !== false || $host === '127.0.0.1');
+        if ($isLocal) {
             return null;
         }
 
@@ -161,27 +162,106 @@ class ConUserRepair extends BaseController
         $builder = $database->table('tb_location');
 
         $data = $this->DataMain();
-        $data['title']="ระบบงานแจ้งซ่อมออนไลน์";
-        $data['description']="หน้าแรกระบบงานแจ้งซ่อมออนไลน์";
+        $data['title']="แดชบอร์ดระบบงานแจ้งซ่อมออนไลน์";
+        $data['description']="หน้าแรกและแดชบอร์ดภาพรวมระบบงานแจ้งซ่อมออนไลน์";
         $data['UrlMenuMain'] = 'Repair';
         $data['UrlMenuSub'] = '';
         $data['Datethai'] = new Datethai();
 
         $data['DictationAll'] = $builder->countAll();
         
-        // Year Filter
-        $year = $this->request->getVar('year') ?? date('Y');
-        $data['selectedYear'] = $year;
-        // Generate year range (current - 2 to current + 1)
-        $currentYear = date('Y');
-        $data['years'] = range($currentYear - 2, $currentYear + 1);
+        // Extract available years from tb_repair
+        $yearsResult = $database->query("
+            SELECT DISTINCT YEAR(repair_datetime) as yr 
+            FROM tb_repair 
+            WHERE repair_datetime IS NOT NULL AND repair_datetime != '0000-00-00 00:00:00'
+            ORDER BY yr DESC
+        ")->getResultArray();
+
+        $availableYears = [];
+        foreach ($yearsResult as $yRow) {
+            if (!empty($yRow['yr'])) {
+                $availableYears[] = (int)$yRow['yr'];
+            }
+        }
+
+        $currentYear = (int)date('Y');
+        if (!in_array($currentYear, $availableYears)) {
+            array_unshift($availableYears, $currentYear);
+        }
+        rsort($availableYears);
+
+        // Get selected year filter from GET query
+        $selectedYear = $this->request->getGet('year');
+        if ($selectedYear === null || $selectedYear === '') {
+            $selectedYear = $currentYear;
+        }
+
+        $data['availableYears'] = $availableYears;
+        $data['selectedYear'] = $selectedYear;
 
         $TBrepair = $database->table('tb_repair');
-        $data['TotalRepair'] = $TBrepair->where("YEAR(repair_datetime)", $year)->countAllResults();
-        $data['StatusPending'] = $TBrepair->where('repair_status', 'รอดำเนินการ')->where("YEAR(repair_datetime)", $year)->countAllResults();
-        $data['StatusProcess'] = $TBrepair->where('repair_status', 'กำลังดำเนินการ')->where("YEAR(repair_datetime)", $year)->countAllResults();
-        $data['StatusSuccess'] = $TBrepair->where('repair_status', 'ดำเนินการเรียบร้อย')->where("YEAR(repair_datetime)", $year)->countAllResults();    
-        $data['StatusCancel'] = $TBrepair->where('repair_status', 'ยกเลิก')->where("YEAR(repair_datetime)", $year)->countAllResults();
+        if ($selectedYear !== 'all' && is_numeric($selectedYear)) {
+            $TBrepair->where("YEAR(repair_datetime)", (int)$selectedYear);
+        }
+
+        $repairs = $TBrepair->get()->getResult();
+
+        $totalCount = count($repairs);
+        $pendingCount = 0;
+        $processCount = 0;
+        $successCount = 0;
+        $cancelCount = 0;
+
+        $monthlyCounts = array_fill(1, 12, 0);
+        $caselistCounts = [];
+
+        foreach ($repairs as $r) {
+            $st = $r->repair_status;
+            if ($st == 'รอดำเนินการ') {
+                $pendingCount++;
+            } else if ($st == 'กำลังดำเนินการ') {
+                $processCount++;
+            } else if (strpos($st, 'เรียบร้อย') !== false || strpos($st, 'เสร็จสิ้น') !== false) {
+                $successCount++;
+            } else {
+                $cancelCount++;
+            }
+
+            if (!empty($r->repair_datetime)) {
+                $m = (int)date('n', strtotime($r->repair_datetime));
+                if ($m >= 1 && $m <= 12) {
+                    $monthlyCounts[$m]++;
+                }
+            }
+
+            $case = $r->repair_caselist ?: 'อื่นๆ';
+            if (!isset($caselistCounts[$case])) {
+                $caselistCounts[$case] = 0;
+            }
+            $caselistCounts[$case]++;
+        }
+
+        arsort($caselistCounts);
+        $topCaselists = array_slice($caselistCounts, 0, 5, true);
+
+        $data['TotalRepair'] = $totalCount;
+        $data['StatusPending'] = $pendingCount;
+        $data['StatusProcess'] = $processCount;
+        $data['StatusSuccess'] = $successCount;
+        $data['StatusCancel'] = $cancelCount;
+        $data['stats'] = [
+            'total' => $totalCount,
+            'pending' => $pendingCount,
+            'process' => $processCount,
+            'success' => $successCount,
+            'cancel' => $cancelCount,
+            'monthly' => array_values($monthlyCounts),
+            'topCaselists' => [
+                'labels' => array_keys($topCaselists),
+                'series' => array_values($topCaselists)
+            ]
+        ];
 
         return view('User/UserRepair/UserRepairMain', $data);
     }
@@ -334,9 +414,16 @@ class ConUserRepair extends BaseController
                 // ส่งการแจ้งเตือนแบบใหม่
                 $notificationService = new NotificationService();
 
-                // 2. ส่ง OneSignal Push Notification หาเจ้าหน้าที่และหัวหน้างาน
+                // เช็คว่าเป็นงานซ่อมเกี่ยวกับอาคารสถานที่หรือไม่
                 $isBuilding = ($this->request->getVar('repair_caselist') == "งานอาคารสถานที่");
-                $targetRoles = $isBuilding ? ['admin_building', 'head_building'] : ['admin_repair', 'head_repair'];
+
+                // 2. ส่ง OneSignal Push Notification หาเจ้าหน้าที่และหัวหน้างาน
+                $targetRoles = ['admin_repair', 'head_repair'];
+                if ($isBuilding) {
+                    $targetRoles[] = 'admin_building';
+                    $targetRoles[] = 'head_building';
+                }
+
                 $notificationService->sendPush(
                     "🛠️ มีงานแจ้งซ่อมมาใหม่!",
                     "โดย {$RequesterName} - {$this->request->getVar('repair_caselist')}",
@@ -344,8 +431,21 @@ class ConUserRepair extends BaseController
                     ['role' => $targetRoles]
                 );
 
-                // 3. ส่ง Email ด้วย template กลางที่สวยงาม
-                $MailAdmin = $notificationService->getStaffEmailsByDepartment($isBuilding ? 'งานอาคารสถานที่' : 'งานแจ้งซ่อม');
+                // ส่ง Telegram แจ้งเตือนกลุ่มงานแจ้งซ่อม
+                $notificationService->sendTelegram('repair', $msg);
+                // ถ้าเป็นงานอาคารสถานที่ ให้แจ้งเข้า Telegram กลุ่มอาคารสถานที่ด้วย
+                if ($isBuilding) {
+                    $notificationService->sendTelegram('booking', $msg);
+                }
+
+                // 3. ดึงรายชื่อ Email เจ้าหน้าที่และหัวหน้างาน
+                $MailAdmin = $notificationService->getStaffEmailsByDepartment('งานแจ้งซ่อม');
+                if ($isBuilding) {
+                    // รวม Email ของงานอาคารสถานที่เข้าไปด้วย
+                    $buildingEmails = $notificationService->getStaffEmailsByDepartment('งานอาคารสถานที่');
+                    $MailAdmin = array_unique(array_merge($MailAdmin, $buildingEmails));
+                }
+
                 if (empty($MailAdmin)) {
                     $MailAdmin = ['dekpiano@skj.ac.th'];
                 }
@@ -565,9 +665,10 @@ class ConUserRepair extends BaseController
             }
 
             if ($TBrepair->where('repair_order', $this->request->getPost('repair_order'))->update($data)) {
-                 // ไม่ส่งแจ้งเตือนถ้าไม่ใช่ production หรือเป็น localhost (รองรับ port เช่น :8086)
-                 $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-                 if (ENVIRONMENT === 'production' && !$isLocal) {
+                 // บล็อกเฉพาะ localhost เท่านั้น
+                 $host = $_SERVER['HTTP_HOST'] ?? '';
+                 $isLocal = (strpos($host, 'localhost') !== false || $host === '127.0.0.1');
+                 if (!$isLocal) {
                     $DBpers = \Config\Database::connect('personnel');
                     $TBpers = $DBpers->table('tb_personnel');
                     
@@ -634,13 +735,23 @@ class ConUserRepair extends BaseController
                                      $RepairmanName . ' (งานแจ้งซ่อม)'
                                  );
 
-                                 $notificationService->sendPush(
-                                     "🛠️ อัปเดตสถานะการซ่อม",
-                                     "รายการ: {$RepairInfo->repair_caselist} สถานะ: {$currentStatus}",
-                                     base_url('Repair/View/' . $RepairInfo->repair_order),
-                                     null,
-                                     $RepairInfo->repair_userID
-                                 );
+                                  $notificationService->sendPush(
+                                      "🛠️ อัปเดตสถานะการซ่อม",
+                                      "รายการ: {$RepairInfo->repair_caselist} สถานะ: {$currentStatus}",
+                                      base_url('Repair/View/' . $RepairInfo->repair_order),
+                                      null,
+                                      $RepairInfo->repair_userID
+                                  );
+
+                                  // ส่ง Telegram แจ้งอัปเดตสถานะ
+                                  $telegramMsg = "🔄 อัปเดตสถานะการซ่อม\n";
+                                  $telegramMsg .= "📌 รายการ: {$RepairInfo->repair_caselist}\n";
+                                  $telegramMsg .= "📍 สถานที่: อาคาร {$RepairInfo->repair_building} ชั้น {$RepairInfo->repair_class} ห้อง {$RepairInfo->repair_room}\n";
+                                  $telegramMsg .= "👤 ผู้แจ้ง: {$RequesterName}\n";
+                                  $telegramMsg .= "🔧 ผู้ดำเนินการ: {$RepairmanName}\n";
+                                  $telegramMsg .= "📊 สถานะ: {$currentStatus}\n";
+                                  $telegramMsg .= "👉 ดูรายละเอียด: " . base_url('Repair/View/' . $RepairInfo->repair_order);
+                                  $notificationService->sendTelegram('repair', $telegramMsg);
 
                              } catch (\Exception $e) {
                                  log_message('error', 'Repair Email Error: ' . $e->getMessage());

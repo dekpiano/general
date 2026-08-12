@@ -430,30 +430,79 @@
     }
 
     @media (max-width: 768px) {
-        .repair-list-item .list-main {
-            flex-direction: column;
+        .repair-container {
+            padding-top: 1rem;
+            padding-bottom: 2rem;
         }
-        .repair-list-item .list-images {
-            width: 100%;
-        }
-        .repair-list-item .list-images .main-img,
-        .repair-list-item .list-images .no-image {
-            width: 100%;
-            height: 180px;
-        }
-        .repair-list-item .list-header {
-            flex-wrap: wrap;
-        }
-    }
-
-    @media (max-width: 768px) {
         .glass-header {
-            padding: 1.5rem;
-            text-align: center;
+            padding: 1.25rem 1rem;
+            border-radius: 1.25rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .glass-header h2 {
+            font-size: 1.2rem;
         }
         .header-actions {
             margin-top: 1rem;
-            justify-content: center !important;
+            justify-content: flex-start !important;
+        }
+        .btn-add-repair {
+            width: 100%;
+            text-align: center;
+            padding: 0.75rem 1rem;
+        }
+        .year-select {
+            width: 100%;
+            font-size: 0.8rem;
+        }
+        .glass-stat-card {
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 1.35rem;
+            border-radius: 0.75rem;
+            margin-right: 0.85rem;
+        }
+        .stat-info h3 {
+            font-size: 1.35rem;
+        }
+        .stat-info h6 {
+            font-size: 0.72rem;
+        }
+        .repair-list-item {
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+        .repair-list-item .list-main {
+            flex-direction: row;
+            gap: 0.85rem;
+        }
+        .repair-list-item .list-images {
+            width: 85px;
+        }
+        .repair-list-item .list-images .main-img,
+        .repair-list-item .list-images .no-image {
+            width: 85px;
+            height: 80px;
+            border-radius: 0.65rem;
+        }
+        .repair-list-item .list-caselist {
+            font-size: 0.9rem;
+        }
+        .repair-list-item .list-detail {
+            font-size: 0.78rem;
+        }
+        .repair-list-item .list-meta {
+            font-size: 0.72rem;
+            gap: 0.25rem 0.75rem;
+        }
+        .table-glass-card {
+            padding: 1rem !important;
+            border-radius: 1.25rem;
         }
     }
 </style>
@@ -466,13 +515,13 @@
     <div class="glass-header">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h2 class="display-6"><i class='bx bxs-wrench me-3'></i>ระบบแจ้งซ่อมออนไลน์</h2>
+                <h2 class="display-6"><i class='bx bxs-wrench me-3'></i>แดชบอร์ด & ระบบแจ้งซ่อมออนไลน์</h2>
                 <div class="d-flex align-items-center mt-2">
-                    <span class="badge bg-white text-primary rounded-pill px-3 me-2">Repair Management</span>
+                    <span class="badge bg-white text-primary rounded-pill px-3 me-2">Repair Dashboard</span>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="<?=base_url('Repair')?>" class="text-white-50">หน้าแรก</a></li>
-                            <li class="breadcrumb-item active text-white" aria-current="page">รายการแจ้งซ่อม</li>
+                            <li class="breadcrumb-item active text-white" aria-current="page">แดชบอร์ด & รายการแจ้งซ่อม</li>
                         </ol>
                     </nav>
                 </div>
@@ -482,8 +531,9 @@
                         <i class='bx bx-book-content me-1'></i> คู่มือการใช้งาน
                     </a>
                     <select class="year-select shadow-sm" id="yearFilter" onchange="window.location.href='<?=base_url('Repair')?>?year='+this.value">
-                        <?php foreach($years as $y): ?>
-                        <option value="<?=$y?>" <?=$y == $selectedYear ? 'selected' : ''?>>ปีงบประมาณ <?=$y+543?></option>
+                        <option value="all" <?= $selectedYear === 'all' ? 'selected' : '' ?>>ทุกปี (ทั้งหมด)</option>
+                        <?php foreach($availableYears as $y): ?>
+                        <option value="<?=$y?>" <?=(string)$y === (string)$selectedYear ? 'selected' : ''?>>ปี พ.ศ. <?=$y+543?> (<?=$y?>)</option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -497,49 +547,76 @@
     </div>
 
     <!-- Stats Section -->
-    <div class="row g-4 mb-5">
-        <div class="col-sm-6 col-xl-3">
-            <div class="glass-stat-card">
-                <div class="stat-icon bg-label-primary">
+    <div class="row g-2 g-md-3 mb-3">
+        <div class="col-6 col-xl-3">
+            <div class="glass-stat-card py-2 px-3">
+                <div class="stat-icon bg-label-primary" style="width: 44px; height: 44px; font-size: 1.3rem; margin-right: 0.85rem; border-radius: 0.75rem;">
                     <i class='bx bxs-briefcase-alt-2'></i>
                 </div>
                 <div class="stat-info">
-                    <h6>งานทั้งหมด</h6>
-                    <h3><?= number_format($TotalRepair ?? 0) ?></h3>
+                    <h6 class="mb-0 text-muted" style="font-size: 0.72rem; font-weight: 700;">งานทั้งหมด</h6>
+                    <h3 class="mb-0" style="font-size: 1.4rem; font-weight: 700;"><?= number_format($TotalRepair ?? 0) ?></h3>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="glass-stat-card">
-                <div class="stat-icon bg-label-warning">
+        <div class="col-6 col-xl-3">
+            <div class="glass-stat-card py-2 px-3">
+                <div class="stat-icon bg-label-warning" style="width: 44px; height: 44px; font-size: 1.3rem; margin-right: 0.85rem; border-radius: 0.75rem;">
                     <i class='bx bxs-time-five'></i>
                 </div>
                 <div class="stat-info">
-                    <h6>รอดำเนินการ</h6>
-                    <h3><?= number_format($StatusPending ?? 0) ?></h3>
+                    <h6 class="mb-0 text-muted" style="font-size: 0.72rem; font-weight: 700;">รอดำเนินการ</h6>
+                    <h3 class="mb-0" style="font-size: 1.4rem; font-weight: 700;"><?= number_format($StatusPending ?? 0) ?></h3>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="glass-stat-card">
-                <div class="stat-icon bg-label-info">
+        <div class="col-6 col-xl-3">
+            <div class="glass-stat-card py-2 px-3">
+                <div class="stat-icon bg-label-info" style="width: 44px; height: 44px; font-size: 1.3rem; margin-right: 0.85rem; border-radius: 0.75rem;">
                     <i class='bx bxs-cog bxs-spin'></i>
                 </div>
                 <div class="stat-info">
-                    <h6>กำลังดำเนินการ</h6>
-                    <h3><?= number_format($StatusProcess ?? 0) ?></h3>
+                    <h6 class="mb-0 text-muted" style="font-size: 0.72rem; font-weight: 700;">กำลังดำเนินการ</h6>
+                    <h3 class="mb-0" style="font-size: 1.4rem; font-weight: 700;"><?= number_format($StatusProcess ?? 0) ?></h3>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="glass-stat-card">
-                <div class="stat-icon bg-label-success">
+        <div class="col-6 col-xl-3">
+            <div class="glass-stat-card py-2 px-3">
+                <div class="stat-icon bg-label-success" style="width: 44px; height: 44px; font-size: 1.3rem; margin-right: 0.85rem; border-radius: 0.75rem;">
                     <i class='bx bxs-check-circle'></i>
                 </div>
                 <div class="stat-info">
-                    <h6>เสร็จสิ้นแล้ว</h6>
-                    <h3><?= number_format($StatusSuccess ?? 0) ?></h3>
+                    <h6 class="mb-0 text-muted" style="font-size: 0.72rem; font-weight: 700;">เสร็จสิ้นแล้ว</h6>
+                    <h3 class="mb-0" style="font-size: 1.4rem; font-weight: 700;"><?= number_format($StatusSuccess ?? 0) ?></h3>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row (Compact) -->
+    <div class="row g-2 g-md-3 mb-3">
+        <!-- Monthly Trend Chart -->
+        <div class="col-lg-7 col-xl-8">
+            <div class="card border-0 shadow-sm rounded-3 p-2.5 p-md-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">
+                        <i class='bx bx-bar-chart-alt-2 text-primary me-1'></i> สถิติงานซ่อมรายเดือน (<?= $selectedYear === 'all' ? 'ทุกปี' : ($selectedYear + 543) ?>)
+                    </h6>
+                </div>
+                <div id="repairMonthlyChart" style="min-height: 180px;"></div>
+            </div>
+        </div>
+
+        <!-- Category Breakdown Chart -->
+        <div class="col-lg-5 col-xl-4">
+            <div class="card border-0 shadow-sm rounded-3 p-2.5 p-md-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">
+                        <i class='bx bx-pie-chart-alt-2 text-primary me-1'></i> ประเภทงานซ่อมยอดนิยม
+                    </h6>
+                </div>
+                <div id="repairCategoryChart" style="min-height: 180px;"></div>
             </div>
         </div>
     </div>
@@ -549,7 +626,7 @@
         <div class="card-header-premium border-0 p-0 mb-4">
             <h5 class="mb-0 fw-bold">
                 <i class="bx bx-list-check me-2 text-primary"></i>
-                ข้อมูลการแจ้งซ่อมประจำปี <?= $selectedYear + 543 ?>
+                รายการแจ้งซ่อม (ประจำปี <?= $selectedYear === 'all' ? 'ทุกปี' : ($selectedYear + 543) ?>)
             </h5>
             <button type="button" class="btn btn-link text-secondary p-0" onclick="reloadCards()">
                 <i class='bx bx-refresh fs-4'></i>
@@ -587,10 +664,66 @@
             $(this).html('<span class="spinner-border spinner-border-sm me-2"></span> กำลังไป...');
             $(this).addClass('disabled');
         });
+
+        // Render Monthly ApexChart
+        const monthlyData = <?= json_encode($stats['monthly']) ?>;
+        const monthlyOptions = {
+            series: [{
+                name: 'จำนวนงานแจ้งซ่อม',
+                data: monthlyData
+            }],
+            chart: {
+                type: 'bar',
+                height: 190,
+                toolbar: { show: false }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 6,
+                    columnWidth: '45%',
+                    distributed: true
+                }
+            },
+            colors: ['#696cff', '#03c3ec', '#71dd37', '#ffab00', '#ff3e1d', '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8', '#28a745'],
+            dataLabels: { enabled: false },
+            legend: { show: false },
+            xaxis: {
+                categories: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
+                axisBorder: { show: false }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (val) { return Math.floor(val); }
+                }
+            }
+        };
+        const monthlyChart = new ApexCharts(document.querySelector("#repairMonthlyChart"), monthlyOptions);
+        monthlyChart.render();
+
+        // Render Category Donut ApexChart
+        const caselistLabels = <?= json_encode($stats['topCaselists']['labels']) ?>;
+        const caselistSeries = <?= json_encode($stats['topCaselists']['series']) ?>;
+        const caselistOptions = {
+            series: caselistSeries.length > 0 ? caselistSeries : [1],
+            labels: caselistLabels.length > 0 ? caselistLabels : ['ไม่มีข้อมูล'],
+            chart: {
+                type: 'donut',
+                height: 190
+            },
+            colors: ['#696cff', '#71dd37', '#ffab00', '#03c3ec', '#ff3e1d'],
+            legend: {
+                position: 'bottom',
+                fontSize: '12px'
+            },
+            dataLabels: { enabled: true }
+        };
+        const categoryChart = new ApexCharts(document.querySelector("#repairCategoryChart"), caselistOptions);
+        categoryChart.render();
     });
 </script>
 <?php if(file_exists(FCPATH . 'assets/js/User/UserRepair/UserRepairMain.js')): ?>
 <script src="<?=base_url('assets/js/User/UserRepair/UserRepairMain.js?v='.time())?>"></script>
 <?php endif; ?>
 <?= $this->endSection() ?>
+
 

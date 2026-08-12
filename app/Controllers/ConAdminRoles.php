@@ -33,9 +33,10 @@ class ConAdminRoles extends BaseController
         ->orderBy('admin_rloes_level','ASC')
         ->get()->getResult();
 
-        $data['NameTeacher'] = $DBPers->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_position,pers_learning')
-        ->where('pers_status','กำลังใช้งาน')
-        ->orderBy('pers_position','ASC')
+        $data['NameTeacher'] = $DBPers->select('pers_id, pers_prefix, pers_firstname, pers_lastname, pers_position, pers_img, pers_learning, skjacth_skj.tb_position.posi_name')
+        ->join('skjacth_skj.tb_position', 'skjacth_personnel.tb_personnel.pers_position = skjacth_skj.tb_position.posi_id', 'left')
+        ->where('pers_status', 'กำลังใช้งาน')
+        ->orderBy('pers_position', 'ASC')
         ->get()->getResult();
 
         //echo '<pre>'; print_r($data['Manager']); exit();

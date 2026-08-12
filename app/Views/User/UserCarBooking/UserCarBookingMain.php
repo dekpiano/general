@@ -233,7 +233,7 @@
                                 <div class="car-img-wrapper">
                                     <img src="<?= base_url('uploads/admin/Car/'.$car->car_img) ?>" 
                                          alt="<?= $car->car_category ?>" 
-                                         onerror="this.src='<?= base_url('assets/img/elements/1.jpg') ?>'">
+                                         onerror="this.onerror=null; this.src='<?= base_url('assets/img/no-image.svg') ?>';">
                                     <div class="car-badge">
                                         <i class='bx bxs-car-garage me-1'></i> <?= $car->car_category ?>
                                     </div>
@@ -307,15 +307,15 @@
                     </div>
 
                     <!-- My Bookings -->
-                    <!-- All Bookings (Public) -->
-                    <a href="<?=base_url('CarBooking/View')?>" class="action-card shadow-sm p-3">
+                    <!-- All Bookings (Public Dashboard) -->
+                    <a href="<?=base_url('CarBooking/View')?>" class="action-card shadow-sm p-3 border-start border-success border-3">
                         <div class="d-flex align-items-center">
                             <div class="avatar bg-label-success p-2 rounded-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                <i class='bx bx-calendar-event fs-3'></i>
+                                <i class='bx bx-pie-chart-alt-2 fs-3'></i>
                             </div>
                             <div>
-                                <small class="text-muted d-block lh-1 mb-1">ตารางการใช้รถทั้งหมด</small>
-                                <h5 class="mb-0 fw-bold text-dark">ตรวจสอบ <small class="fw-normal fs-6">ตารางเวลา</small></h5>
+                                <small class="text-muted d-block lh-1 mb-1">แดชบอร์ด & ตารางการใช้รถทั้งหมด</small>
+                                <h5 class="mb-0 fw-bold text-dark">ภาพรวม <small class="fw-normal fs-6">& สถิติ</small></h5>
                             </div>
                         </div>
                     </a>

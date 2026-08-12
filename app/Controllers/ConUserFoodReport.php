@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\AdminModels;
 use App\Models\FoodReportModel;
+use App\Libraries\Datethai;
 
 class ConUserFoodReport extends BaseController
 {
@@ -27,29 +28,88 @@ class ConUserFoodReport extends BaseController
         $data['UrlMenuMain'] = 'FoodReport';
         $data['UrlMenuSub'] = 'FoodReportMain';
         
-        $data['title'] = 'รายงานอาหาร';
-        $data['description'] = 'รายงานอาหารมื้ออาหาร';
+        $data['title'] = 'แดชบอร์ดรายงานอาหารโรงเรียน';
+        $data['description'] = 'สรุปภาพรวม สถิติ และรายงานอาหารประจำวันสำหรับบุคคลทั่วไป';
 
-        // Year Filter
-        $year = $this->request->getVar('year') ?? date('Y');
-        $data['selectedYear'] = $year;
-        $currentYear = date('Y');
-        $data['years'] = range($currentYear - 2, $currentYear + 1);
+        // Dynamic Year Filter
+        $db = \Config\Database::connect();
+        $yearsResult = $db->query("
+            SELECT DISTINCT YEAR(food_date) as yr 
+            FROM tb_food_reports 
+            WHERE food_date IS NOT NULL AND food_date != '0000-00-00'
+            ORDER BY yr DESC
+        ")->getResultArray();
 
-        // Add Statistics (Filtered by Year)
-        $foodReports = $this->FoodReportModel->where('YEAR(food_date)', $year)->findAll();
-        $data['TotalReports'] = count($foodReports);
-        $data['BreakfastCount'] = 0;
-        $data['LunchCount'] = 0;
-        $data['DinnerCount'] = 0;
-
-        foreach ($foodReports as $report) {
-            if ($report['food_meal'] == 'มื้อเช้า') $data['BreakfastCount']++;
-            else if ($report['food_meal'] == 'มื้อกลางวัน') $data['LunchCount']++;
-            else if ($report['food_meal'] == 'มื้อเย็น') $data['DinnerCount']++;
+        $availableYears = [];
+        foreach ($yearsResult as $yRow) {
+            if (!empty($yRow['yr'])) {
+                $availableYears[] = (int)$yRow['yr'];
+            }
         }
-        
-        echo view('User/UserFoodReport/PageFoodReportMain', $data);
+        $currentYear = (int)date('Y');
+        if (!in_array($currentYear, $availableYears)) {
+            array_unshift($availableYears, $currentYear);
+        }
+        rsort($availableYears);
+
+        $selectedYear = $this->request->getGet('year');
+        if ($selectedYear === null || $selectedYear === '') {
+            $selectedYear = $currentYear;
+        }
+
+        $data['availableYears'] = $availableYears;
+        $data['years'] = $availableYears;
+        $data['selectedYear'] = $selectedYear;
+
+        // Statistics (Filtered by Year)
+        $reports = $this->FoodReportModel->getFoodReportsWithRecorderDetails($selectedYear);
+
+        $totalCount = count($reports);
+        $breakfastCount = 0;
+        $lunchCount = 0;
+        $dinnerCount = 0;
+
+        $monthlyCounts = array_fill(1, 12, 0);
+
+        foreach ($reports as $report) {
+            $meal = $report['food_meal'] ?? '';
+            if ($meal == 'มื้อเช้า') {
+                $breakfastCount++;
+            } else if ($meal == 'มื้อกลางวัน') {
+                $lunchCount++;
+            } else if ($meal == 'มื้อเย็น') {
+                $dinnerCount++;
+            }
+
+            if (!empty($report['food_date'])) {
+                $m = (int)date('n', strtotime($report['food_date']));
+                if ($m >= 1 && $m <= 12) {
+                    $monthlyCounts[$m]++;
+                }
+            }
+        }
+
+        $data['TotalReports'] = $totalCount;
+        $data['BreakfastCount'] = $breakfastCount;
+        $data['LunchCount'] = $lunchCount;
+        $data['DinnerCount'] = $dinnerCount;
+        $data['reports'] = $reports;
+
+        $data['stats'] = [
+            'total' => $totalCount,
+            'breakfast' => $breakfastCount,
+            'lunch' => $lunchCount,
+            'dinner' => $dinnerCount,
+            'monthly' => array_values($monthlyCounts),
+            'meals' => [
+                'labels' => ['มื้อเช้า', 'มื้อกลางวัน', 'มื้อเย็น'],
+                'series' => [$breakfastCount, $lunchCount, $dinnerCount]
+            ]
+        ];
+
+        $data['Datethai'] = new Datethai();
+
+        return view('User/UserFoodReport/PageFoodReportMain', $data);
     }
 
 // ... 
@@ -150,9 +210,13 @@ class ConUserFoodReport extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบ ID รายงานที่ต้องการแก้ไข']);
         }
 
-        // Authorization check: Ensure the logged-in user owns this report
+        // Authorization check: Ensure the logged-in user owns this report or is superadmin/admin/food staff
         $report = $this->FoodReportModel->find($food_id);
-        if (!$report || $report['food_admin'] != session()->get('id')) {
+        $userStatus = session()->get('status');
+        $userRoles = array_map('trim', explode(',', (string)session()->get('rloes')));
+        $isSuperAdmin = ($userStatus === 'superadmin' || $userStatus === 'admin' || in_array('งานรายงานอาหาร', $userRoles));
+
+        if (!$report || (!$isSuperAdmin && $report['food_admin'] != session()->get('id'))) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์แก้ไขรายงานนี้']);
         }
 
@@ -293,8 +357,12 @@ class ConUserFoodReport extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบรายงานที่ต้องการลบ']);
         }
 
-        // Authorization check: Ensure the logged-in user owns this report
-        if ($report['food_admin'] != session()->get('id')) {
+        // Authorization check: Ensure the logged-in user owns this report or is superadmin/admin/food staff
+        $userStatus = session()->get('status');
+        $userRoles = array_map('trim', explode(',', (string)session()->get('rloes')));
+        $isSuperAdmin = ($userStatus === 'superadmin' || $userStatus === 'admin' || in_array('งานรายงานอาหาร', $userRoles));
+
+        if (!$isSuperAdmin && $report['food_admin'] != session()->get('id')) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์ลบรายงานนี้']);
         }
 

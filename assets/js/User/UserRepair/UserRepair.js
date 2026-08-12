@@ -228,17 +228,18 @@ function getRepairImagesHtml(row) {
   if (imgUser) imgUser.split(',').forEach(f => { if (f.trim()) allImgs.push({ url: '/uploads/user/Repair/' + f.trim(), type: 'user' }); });
   if (imgWork) imgWork.split(',').forEach(f => { if (f.trim()) allImgs.push({ url: '/uploads/admin/Repair/' + f.trim(), type: 'work' }); });
 
+  const defaultSvg = BASE_URL + 'assets/img/no-image.svg';
+
   if (!allImgs.length) {
-    const phSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='90' viewBox='0 0 120 90'%3E%3Crect width='120' height='90' fill='%23eef0ff' rx='10'/%3E%3Cpath d='M44 30H36V22a4 4 0 0 0-4-4h-8a4 4 0 0 0-4 4v8H12v20h32V30zM28 22h8v8h-8v-8z' fill='%23c7c9ff'/%3E%3Ccircle cx='36' cy='36' r='4' fill='%23a5a8f0'/%3E%3Ctext x='60' y='62' text-anchor='middle' font-size='7' fill='%23a5a8f0' font-family='sans-serif'%3Eไม่มีรูปภาพ%3C/text%3E%3C/svg%3E";
     return `<div class="position-relative">
-      <img class="main-img" src="${phSvg}" alt="ไม่มีรูปภาพ" style="opacity:0.7;">
+      <img class="main-img" src="${defaultSvg}" alt="ไม่มีรูปภาพ" style="object-fit: cover;">
     </div>`;
   }
 
   const firstImg = allImgs[0].url;
   const extraCount = allImgs.length - 1;
   return `<div class="position-relative">
-    <img class="main-img" src="${firstImg}" alt="รูปภาพ" onclick="repairShowImgPreview('${firstImg}')" loading="lazy">
+    <img class="main-img" src="${firstImg}" alt="รูปภาพ" onerror="this.onerror=null; this.src='${defaultSvg}';" onclick="repairShowImgPreview(this.src)" loading="lazy">
     ${extraCount > 0 ? `<span class="img-count-badge">+${extraCount}</span>` : ''}
   </div>`;
 }
@@ -442,6 +443,8 @@ $(document).on("click", "#BtnRepairFullDetail1", function () {
       $("#show_repair_cause").text(data[0][0].repair_cause);
       $("#show_repair_status").text(data[0][0].repair_status);
 
+      const modalNoImgSvg = BASE_URL + 'assets/img/no-image.svg';
+
       if (data[0][0].repair_imguser) {
           const imgs = data[0][0].repair_imguser.split(',');
           let imgsHtml = '<div class="row g-2">';
@@ -449,14 +452,14 @@ $(document).on("click", "#BtnRepairFullDetail1", function () {
               if (img) {
                   imgsHtml += `
                       <div class="col-12 mb-2">
-                          <img src="/uploads/user/Repair/${img}" class="img-fluid rounded border shadow-sm w-100" alt="รูปที่ผู้ใช้งานส่งมา">
+                          <img src="/uploads/user/Repair/${img}" class="img-fluid rounded border shadow-sm w-100" alt="รูปภาพ" onerror="this.onerror=null; this.src='${modalNoImgSvg}';">
                       </div>`;
               }
           });
           imgsHtml += '</div>';
           $("#show_repair_imguser").html(imgsHtml);
       } else {
-          $("#show_repair_imguser").html('<span class="text-muted">ไม่มีรูปภาพ</span>');
+          $("#show_repair_imguser").html(`<img src="${modalNoImgSvg}" class="img-fluid rounded border shadow-sm w-100" style="max-height: 160px; object-fit: contain;" alt="ไม่ได้แนบรูปมา">`);
       }
 
       if (data[0][0].repair_imgwork) {
@@ -466,14 +469,14 @@ $(document).on("click", "#BtnRepairFullDetail1", function () {
               if (img) {
                   imgsWorkHtml += `
                       <div class="col-12 mb-2">
-                          <img src="/uploads/admin/Repair/${img}" class="img-fluid rounded border shadow-sm w-100" alt="รูปการดำเนินการของช่าง">
+                          <img src="/uploads/admin/Repair/${img}" class="img-fluid rounded border shadow-sm w-100" alt="รูปภาพ" onerror="this.onerror=null; this.src='${modalNoImgSvg}';">
                       </div>`;
               }
           });
           imgsWorkHtml += '</div>';
           $("#show_repair_imgwork").html(imgsWorkHtml);
       } else {
-          $("#show_repair_imgwork").html('<span class="text-muted">ไม่มีรูปภาพ</span>');
+          $("#show_repair_imgwork").html(`<img src="${modalNoImgSvg}" class="img-fluid rounded border shadow-sm w-100" style="max-height: 160px; object-fit: contain;" alt="ไม่ได้แนบรูปมา">`);
       }
       $("#show_repair_usersignature").html(
         '<img src="' +

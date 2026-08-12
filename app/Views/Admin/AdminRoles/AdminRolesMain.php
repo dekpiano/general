@@ -182,8 +182,8 @@ $roleStatuses = [
 
     /* User Avatar */
     .user-avatar {
-        width: 45px;
-        height: 45px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         background: var(--primary-gradient);
         display: flex;
@@ -193,6 +193,15 @@ $roleStatuses = [
         font-weight: bold;
         font-size: 1.2rem;
         margin-right: 15px;
+        flex-shrink: 0;
+        overflow: hidden;
+        border: 2px solid #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     /* Buttons */
@@ -282,6 +291,7 @@ $roleStatuses = [
 <?php
 // เตรียมข้อมูลจัดกลุ่ม
 $executives = [];
+$superadmins = [];
 $departments = [];
 foreach ($systemList as $sys) {
     $departments[$sys] = [];
@@ -299,7 +309,9 @@ foreach ($NameTeacher as $user) {
     
     $userData = ['user' => $user, 'role' => $role, 'systems' => $systems];
     
-    if (in_array($role->admin_rloes_status, ['ExecutiveGeneral', 'ManagerGeneral', 'superadmin'])) {
+    if ($role->admin_rloes_status === 'superadmin') {
+        $superadmins[] = $userData;
+    } elseif (in_array($role->admin_rloes_status, ['ExecutiveGeneral', 'ManagerGeneral'])) {
         $executives[] = $userData;
     } else {
         foreach ($systems as $sys) {
@@ -337,10 +349,16 @@ $renderTable = function($usersList) use ($roleStatuses) {
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <div class="user-avatar"><?=$initial?></div>
+                            <div class="user-avatar">
+                                <?php if (!empty($user->pers_img)): ?>
+                                    <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?=$user->pers_img?>" alt="<?=$user->pers_firstname?>" onerror="this.onerror=null; this.parentNode.innerText='<?=$initial?>';">
+                                <?php else: ?>
+                                    <?=$initial?>
+                                <?php endif; ?>
+                            </div>
                             <div>
                                 <h6 class="mb-0 text-dark fw-bold"><?=$user->pers_prefix.$user->pers_firstname." ".$user->pers_lastname?></h6>
-                                <small class="text-muted"><?=$user->pers_position?></small>
+                                <small class="text-muted"><?= $user->posi_name ?? $user->pers_position ?></small>
                             </div>
                         </div>
                     </td>
@@ -402,7 +420,7 @@ $renderTable = function($usersList) use ($roleStatuses) {
     <!-- ผู้บริหาร Section -->
     <div class="glass-card mb-4 border-primary" style="border-left: 5px solid #667eea;">
         <div class="d-flex align-items-center mb-3">
-            <h4 class="mb-0 fw-bold" style="color: var(--text-dark);"><i class='bx bxs-crown text-warning me-2 fs-3'></i> ผู้บริหารและผู้ดูแลระบบ</h4>
+            <h4 class="mb-0 fw-bold" style="color: var(--text-dark);"><i class='bx bxs-user-badge text-primary me-2 fs-3'></i> ผู้บริหาร</h4>
         </div>
         <?php 
         if (!empty($executives)) {
@@ -433,6 +451,20 @@ $renderTable = function($usersList) use ($roleStatuses) {
         </div>
         <?php endforeach; ?>
     </div>
+
+    <!-- Superadmin Section (ล่างสุด) -->
+    <div class="glass-card mt-5 mb-4" style="border-left: 5px solid #fda085; background: rgba(254, 249, 231, 0.85);">
+        <div class="d-flex align-items-center mb-3">
+            <h4 class="mb-0 fw-bold" style="color: var(--text-dark);"><i class='bx bxs-crown text-warning me-2 fs-3'></i> ผู้ดูแลระบบสูงสุด (Superadmin)</h4>
+        </div>
+        <?php 
+        if (!empty($superadmins)) {
+            $renderTable($superadmins); 
+        } else {
+            echo '<div class="text-muted">ไม่มีข้อมูล Superadmin</div>';
+        }
+        ?>
+    </div>
 </div>
 
 <!-- Add Role Modal (Glassmorphism) -->
@@ -455,7 +487,7 @@ $renderTable = function($usersList) use ($roleStatuses) {
                                 <option value="">-- เลือกบุคลากร --</option>
                                 <?php foreach ($NameTeacher as $user): ?>
                                     <option value="<?=$user->pers_id?>">
-                                        <?=$user->pers_prefix.$user->pers_firstname." ".$user->pers_lastname?> (<?=$user->pers_position?>)
+                                        <?=$user->pers_prefix.$user->pers_firstname." ".$user->pers_lastname?> (<?=$user->posi_name ?? $user->pers_position?>)
                                     </option>
                                 <?php endforeach; ?>
                             </select>

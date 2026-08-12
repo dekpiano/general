@@ -302,7 +302,7 @@
                                 <div class="location-img-wrapper">
                                     <img src="<?= base_url('uploads/admin/LocationRoom/'.$location->location_img) ?>" 
                                          alt="<?= $location->location_name ?>" 
-                                         onerror="this.src='<?= base_url('assets/img/elements/1.jpg') ?>'">
+                                         onerror="this.onerror=null; this.src='<?= base_url('assets/img/no-image.svg') ?>';">
                                     <div class="location-badge">
                                         <i class='bx bx-user me-1'></i> <?= $location->location_category ?>
                                     </div>
@@ -369,13 +369,13 @@
                     </a>
 
                     <!-- All Bookings -->
-                    <a href="<?=base_url('Booking/View/All')?>" class="action-card shadow-sm p-3">
+                    <a href="<?=base_url('Booking/View/All')?>" class="action-card shadow-sm p-3 border-start border-primary border-3">
                         <div class="d-flex align-items-center">
-                            <div class="avatar bg-label-secondary p-2 rounded-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                <i class='bx bx-calendar fs-3'></i>
+                            <div class="avatar bg-label-primary p-2 rounded-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <i class='bx bx-pie-chart-alt-2 fs-3'></i>
                             </div>
                             <div>
-                                <small class="text-muted d-block lh-1 mb-1">รายการจองทั้งหมด</small>
+                                <small class="text-muted d-block lh-1 mb-1">แดชบอร์ด & รายการจองทั้งหมด</small>
                                 <h5 class="mb-0 fw-bold text-dark"><?= $CountbookingAll ?> <small class="fw-normal fs-6">รายการ</small></h5>
                             </div>
                         </div>

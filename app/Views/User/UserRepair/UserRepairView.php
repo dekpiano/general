@@ -190,12 +190,12 @@
                                     if(empty($img)) continue;
                             ?>
                                 <div class="col-12 mb-3">
-                                    <img src="<?=base_url('uploads/user/Repair/').$img?>" class="img-fluid rounded shadow-sm border" style="width: 100%;" alt="ภาพประกอบการแจ้งซ่อม">
+                                    <img src="<?=base_url('uploads/user/Repair/').$img?>" class="img-fluid rounded shadow-sm border" style="width: 100%;" alt="ภาพประกอบการแจ้งซ่อม" onerror="this.onerror=null; this.src='<?=base_url('assets/img/no-image.svg')?>';">
                                 </div>
                             <?php endforeach; ?>
                             </div>
                         <?php else: ?>
-                        <div class="text-muted my-3"><i class="bx bx-image-alt fs-1"></i><br>ไม่ได้แนบภาพมาด้วย</div>
+                        <div class="text-center p-2"><img src="<?=base_url('assets/img/no-image.svg')?>" class="img-fluid rounded border shadow-sm" style="max-height: 180px;" alt="ไม่ได้แนบรูปมา"></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -313,12 +313,12 @@
                                     if(empty($img_w)) continue;
                             ?>
                                 <div class="col-12 mb-3">
-                                    <img src="<?=base_url('uploads/admin/Repair/').$img_w?>" class="img-fluid rounded shadow-sm border" style="width: 100%;" alt="ภาพการดำเนินงาน">
+                                    <img src="<?=base_url('uploads/admin/Repair/').$img_w?>" class="img-fluid rounded shadow-sm border" style="width: 100%;" alt="ภาพการดำเนินงาน" onerror="this.onerror=null; this.src='<?=base_url('assets/img/no-image.svg')?>';">
                                 </div>
                             <?php endforeach; ?>
                             </div>
                         <?php else: ?>
-                         <div class="text-muted my-3"><i class="bx bx-image-alt fs-1"></i><br>ไม่มีรูปภาพ</div>
+                         <div class="text-center p-2"><img src="<?=base_url('assets/img/no-image.svg')?>" class="img-fluid rounded border shadow-sm" style="max-height: 180px;" alt="ไม่ได้แนบรูปมา"></div>
                         <?php endif; ?>
                     </div>
 

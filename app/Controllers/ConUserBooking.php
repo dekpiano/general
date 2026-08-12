@@ -25,8 +25,9 @@ class ConUserBooking extends BaseController
 
     private function sendPushNotification($title, $message, $url = null, $tags = null, $userIds = null)
     {
-        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-        if (ENVIRONMENT !== 'production' || $isLocal) {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isLocal = (strpos($host, 'localhost') !== false || $host === '127.0.0.1');
+        if ($isLocal) {
             return null;
         }
 
@@ -316,6 +317,15 @@ class ConUserBooking extends BaseController
                     ['role' => 'admin_booking']
                 );
 
+                // ส่ง Telegram แจ้งเตือนกลุ่มงานอาคารสถานที่
+                $telegramMsg = "⛪ มีคำขอใช้อาคารสถานที่ใหม่\n";
+                $telegramMsg .= "👤 ผู้ขอใช้: {$requesterName}\n";
+                $telegramMsg .= "🏢 สถานที่: {$Booking['location_name']}\n";
+                $telegramMsg .= "📝 วัตถุประสงค์: {$Booking['booking_title']}\n";
+                $telegramMsg .= "📅 ช่วงเวลา: {$dateRange}\n";
+                $telegramMsg .= "👉 อนุมัติ: " . base_url("/Booking/Approve/Admin");
+                $notificationService->sendTelegram('booking', $telegramMsg);
+
                 // 3. ส่ง Email หาผู้จองด้วย template กลาง
                 if (!empty($Booking['pers_username'])) {
                     $emailData = [
@@ -370,8 +380,13 @@ class ConUserBooking extends BaseController
                     'cta_url'  => base_url('Booking/Approve/Admin')
                 ];
 
+                $staffEmails = $notificationService->getStaffEmailsByDepartment('งานอาคารสถานที่');
+                if (empty($staffEmails)) {
+                    $staffEmails = ['dekpiano@skj.ac.th'];
+                }
+
                 $notificationService->sendEmail(
-                    "dekpiano@skj.ac.th",
+                    $staffEmails,
                     "แจ้งการจองใหม่: " . $Booking['booking_title'],
                     'booking',
                     $adminEmailData,
@@ -498,8 +513,8 @@ class ConUserBooking extends BaseController
 
         $session = session();
         $data = $this->DataMain();
-        $data['title']="ดูข้อมูลจองห้องประชุมและสถานที่";
-        $data['description']="ดูข้อมูลจองห้องประชุมและสถานที่";
+        $data['title']="แดชบอร์ดรายการจองห้องประชุมและสถานที่";
+        $data['description']="ดูภาพรวม สถิติ และรายละเอียดการจองห้องประชุมและสถานที่ประจำปี";
         $data['UrlMenuMain'] = 'Booking';
         $data['UrlMenuSub'] = 'BookingView';     
         $data['Datethai'] = new Datethai();   
@@ -507,11 +522,35 @@ class ConUserBooking extends BaseController
         $database = \Config\Database::connect();
         $DBbooking = $database->table('tb_booking');
 
-        $DBpersonnel = $database->table('personnel');
+        // Extract available years from tb_booking
+        $yearsResult = $database->query("
+            SELECT DISTINCT YEAR(booking_dateStart) as yr 
+            FROM tb_booking 
+            WHERE booking_dateStart IS NOT NULL AND booking_dateStart != '0000-00-00'
+            ORDER BY yr DESC
+        ")->getResultArray();
 
-        //echo '<pre>';print_r($DBpersonnel); exit();
+        $availableYears = [];
+        foreach ($yearsResult as $yRow) {
+            if (!empty($yRow['yr'])) {
+                $availableYears[] = (int)$yRow['yr'];
+            }
+        }
 
-        $DBpers = \Config\Database::connect('personnel');
+        $currentYear = (int)date('Y');
+        if (!in_array($currentYear, $availableYears)) {
+            array_unshift($availableYears, $currentYear);
+        }
+        rsort($availableYears);
+
+        // Get selected year filter from GET query
+        $selectedYear = $this->request->getGet('year');
+        if ($selectedYear === null || $selectedYear === '') {
+            $selectedYear = $currentYear;
+        }
+
+        $data['availableYears'] = $availableYears;
+        $data['selectedYear'] = $selectedYear;
 
         if(isset($_SESSION['id'])){
             if($Key == 'All'){
@@ -537,15 +576,65 @@ class ConUserBooking extends BaseController
                 $DBbooking->where($array);
                 $data['CheckAll'] = 0;
             }
-           
+        }
+
+        // Apply Year Filter if not 'all'
+        if ($selectedYear !== 'all' && is_numeric($selectedYear)) {
+            $DBbooking->where('YEAR(booking_dateStart)', (int)$selectedYear);
         }
       
         $DBbooking->select('booking_order,booking_telephone,booking_title,booking_locationroom,booking_Booker,booking_admin_approve,booking_admin_reason,booking_id,location_name,location_img,booking_dateStart,booking_timeStart,booking_dateEnd,booking_timeEnd,booking_typeuse,pers_prefix,pers_firstname,pers_lastname');
         $DBbooking->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID');
         $DBbooking->join('skjacth_personnel.tb_personnel',"skjacth_general.tb_booking.booking_Booker = skjacth_personnel.tb_personnel.pers_id");
         $data['Booking'] =  $DBbooking->orderBy('booking_id','DESC')->get()->getResult();
-      
-        //echo '<pre>';print_r($data['Booking']); exit();
+
+        // Calculate statistics for dashboard
+        $totalBookings = count($data['Booking']);
+        $approvedCount = 0;
+        $pendingCount = 0;
+        $rejectedCount = 0;
+
+        $monthlyCounts = array_fill(1, 12, 0);
+        $locationCounts = [];
+
+        foreach ($data['Booking'] as $b) {
+            $status = $b->booking_admin_approve;
+            if ($status == 'อนุมัติ') {
+                $approvedCount++;
+            } else if ($status == 'รอตรวจสอบ') {
+                $pendingCount++;
+            } else {
+                $rejectedCount++;
+            }
+
+            if (!empty($b->booking_dateStart)) {
+                $m = (int)date('n', strtotime($b->booking_dateStart));
+                if ($m >= 1 && $m <= 12) {
+                    $monthlyCounts[$m]++;
+                }
+            }
+
+            $locName = $b->location_name ?: 'อื่นๆ';
+            if (!isset($locationCounts[$locName])) {
+                $locationCounts[$locName] = 0;
+            }
+            $locationCounts[$locName]++;
+        }
+
+        arsort($locationCounts);
+        $topLocations = array_slice($locationCounts, 0, 5, true);
+
+        $data['stats'] = [
+            'total' => $totalBookings,
+            'approved' => $approvedCount,
+            'pending' => $pendingCount,
+            'rejected' => $rejectedCount,
+            'monthly' => array_values($monthlyCounts),
+            'topLocations' => [
+                'labels' => array_keys($topLocations),
+                'series' => array_values($topLocations)
+            ]
+        ];
         
         return view('User/UserBooking/UserBookingView', $data);
     }
@@ -1059,6 +1148,15 @@ class ConUserBooking extends BaseController
                     "ระบบจองอาคารสถานที่ SKJ"
                 );
             }
+
+            // ส่ง Telegram แจ้งอนุมัติการจอง
+            $telegramMsg = "✅ อนุมัติการจองอาคารสถานที่\n";
+            $telegramMsg .= "👤 ผู้ขอ: {$requesterName}\n";
+            $telegramMsg .= "🏢 สถานที่: {$CheckUserForEmail->location_name}\n";
+            $telegramMsg .= "📝 วัตถุประสงค์: {$CheckUserForEmail->booking_title}\n";
+            $telegramMsg .= "📅 ช่วงเวลา: {$dateRange}\n";
+            $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("Booking/View/All");
+            $notificationService->sendTelegram('booking', $telegramMsg);
             
         }
             
@@ -1148,6 +1246,14 @@ class ConUserBooking extends BaseController
                              "ระบบจองอาคารสถานที่ SKJ"
                          );
                      }
+
+                     // ส่ง Telegram แจ้งไม่อนุมัติ
+                     $telegramMsg = "❌ ไม่อนุมัติการจองอาคารสถานที่\n";
+                     $telegramMsg .= "👤 ผู้ขอ: {$requesterName}\n";
+                     $telegramMsg .= "🏢 สถานที่: {$Booking['location_name']}\n";
+                     $telegramMsg .= "📝 เหตุผล: {$reasonText}\n";
+                     $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("Booking/View/All");
+                     $notificationService->sendTelegram('booking', $telegramMsg);
                  } catch (\Exception $e) {
                      log_message('error', 'Booking Reject Notification Error: ' . $e->getMessage());
                  }

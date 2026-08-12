@@ -1,4 +1,10 @@
-<?php $isLoggedIn = session()->get('logged_in'); ?>
+<?php 
+$isLoggedIn = session()->get('logged_in'); 
+$userStatus = session()->get('status');
+$userRoles = array_map('trim', explode(',', (string)session()->get('rloes')));
+$isSuperAdmin = ($userStatus === 'superadmin' || $userStatus === 'admin');
+$canManageFood = $isLoggedIn && ($isSuperAdmin || in_array('งานรายงานอาหาร', $userRoles));
+?>
 <?= $this->extend('User/UserLayout/user_layout') ?>
 <?= $this->section('content') ?>
 
@@ -481,7 +487,7 @@
                     <i class='bx bx-chevron-down position-absolute top-50 end-0 translate-middle-y me-3 text-white-50 pointer-events-none'></i>
                 </div>
                 
-                <?php if ($isLoggedIn && in_array('งานรายงานอาหาร', array_map('trim', explode(',', (string)session()->get('rloes'))))): ?>
+                <?php if ($canManageFood): ?>
                 <button type="button" class="btn btn-premium-add rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalAddFoodReport">
                     <i class="bx bx-plus-circle me-1"></i> เพิ่มรายงาน
                 </button>
@@ -495,52 +501,79 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="row mb-5 g-3 stats-row-container">
+    <div class="row mb-3 g-2 g-md-3 stats-row-container">
         <div class="col-6 col-sm-6 col-xl-3 stats-col-mobile">
-            <div class="stats-card p-total premium-animate" style="animation-delay: 0.1s">
-                <div class="icon-circle">
+            <div class="stats-card p-total premium-animate py-3 px-3" style="animation-delay: 0.1s">
+                <div class="icon-circle mb-2" style="width: 44px; height: 44px; font-size: 1.3rem;">
                     <i class='bx bxs-file-find'></i>
                 </div>
                 <div class="stats-info">
-                    <h6 class="stats-title">รายงานทั้งหมด</h6>
-                    <h3 class="stats-value"><?= number_format($TotalReports ?? 0) ?> <small class="fw-normal">ฉบับ</small></h3>
+                    <h6 class="stats-title" style="font-size: 0.72rem;">รายงานทั้งหมด</h6>
+                    <h3 class="stats-value" style="font-size: 1.4rem;"><?= number_format($TotalReports ?? 0) ?> <small class="fw-normal fs-6">ฉบับ</small></h3>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-sm-6 col-xl-3 stats-col-mobile">
-            <div class="stats-card p-morning premium-animate" style="animation-delay: 0.2s">
-                <div class="icon-circle">
+            <div class="stats-card p-morning premium-animate py-3 px-3" style="animation-delay: 0.2s">
+                <div class="icon-circle mb-2" style="width: 44px; height: 44px; font-size: 1.3rem;">
                     <i class='bx bxs-coffee-togo'></i>
                 </div>
                 <div class="stats-info">
-                    <h6 class="stats-title">มื้อเช้า</h6>
-                    <h3 class="stats-value"><?= number_format($BreakfastCount ?? 0) ?> <small class="fw-normal">วัน</small></h3>
+                    <h6 class="stats-title" style="font-size: 0.72rem;">มื้อเช้า</h6>
+                    <h3 class="stats-value" style="font-size: 1.4rem;"><?= number_format($BreakfastCount ?? 0) ?> <small class="fw-normal fs-6">วัน</small></h3>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-sm-6 col-xl-3 stats-col-mobile">
-            <div class="stats-card p-lunch premium-animate" style="animation-delay: 0.3s">
-                <div class="icon-circle">
+            <div class="stats-card p-lunch premium-animate py-3 px-3" style="animation-delay: 0.3s">
+                <div class="icon-circle mb-2" style="width: 44px; height: 44px; font-size: 1.3rem;">
                     <i class='bx bxs-bowl-hot'></i>
                 </div>
                 <div class="stats-info">
-                    <h6 class="stats-title">มื้อกลางวัน</h6>
-                    <h3 class="stats-value"><?= number_format($LunchCount ?? 0) ?> <small class="fw-normal">วัน</small></h3>
+                    <h6 class="stats-title" style="font-size: 0.72rem;">มื้อกลางวัน</h6>
+                    <h3 class="stats-value" style="font-size: 1.4rem;"><?= number_format($LunchCount ?? 0) ?> <small class="fw-normal fs-6">วัน</small></h3>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-sm-6 col-xl-3 stats-col-mobile">
-            <div class="stats-card p-dinner premium-animate" style="animation-delay: 0.4s">
-                <div class="icon-circle">
+            <div class="stats-card p-dinner premium-animate py-3 px-3" style="animation-delay: 0.4s">
+                <div class="icon-circle mb-2" style="width: 44px; height: 44px; font-size: 1.3rem;">
                     <i class='bx bxs-moon'></i>
                 </div>
                 <div class="stats-info">
-                    <h6 class="stats-title">มื้อเย็น</h6>
-                    <h3 class="stats-value"><?= number_format($DinnerCount ?? 0) ?> <small class="fw-normal">วัน</small></h3>
+                    <h6 class="stats-title" style="font-size: 0.72rem;">มื้อเย็น</h6>
+                    <h3 class="stats-value" style="font-size: 1.4rem;"><?= number_format($DinnerCount ?? 0) ?> <small class="fw-normal fs-6">วัน</small></h3>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row (Compact ApexCharts) -->
+    <div class="row g-2 g-md-3 mb-4">
+        <!-- Monthly Trend Chart -->
+        <div class="col-lg-7 col-xl-8">
+            <div class="card border-0 shadow-sm rounded-3 p-2.5 p-md-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">
+                        <i class='bx bx-bar-chart-alt-2 text-primary me-1'></i> สถิติรายงานอาหารรายเดือน (<?= $selectedYear === 'all' ? 'ทุกปี' : ($selectedYear + 543) ?>)
+                    </h6>
+                </div>
+                <div id="foodMonthlyChart" style="min-height: 190px;"></div>
+            </div>
+        </div>
+
+        <!-- Meal Distribution Chart -->
+        <div class="col-lg-5 col-xl-4">
+            <div class="card border-0 shadow-sm rounded-3 p-2.5 p-md-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">
+                        <i class='bx bx-pie-chart-alt-2 text-primary me-1'></i> สัดส่วนมื้ออาหาร (เช้า, กลางวัน, เย็น)
+                    </h6>
+                </div>
+                <div id="foodMealChart" style="min-height: 190px;"></div>
             </div>
         </div>
     </div>
@@ -549,7 +582,7 @@
     <div class="table-card premium-animate" style="animation-delay: 0.5s">
         <div class="card-header d-flex align-items-center justify-content-between">
             <h5 class="card-title mb-0">
-                <i class="bx bx-list-ul me-2 text-primary fs-4"></i> รายการอาหารล่าสุด
+                <i class="bx bx-list-ul me-2 text-primary fs-4"></i> รายการอาหารล่าสุด (ประจำปี <?= $selectedYear === 'all' ? 'ทุกปี' : ($selectedYear + 543) ?>)
             </h5>
             <div class="card-actions">
                 <button type="button" class="btn btn-sm btn-label-secondary rounded-pill px-3" onclick="$('#food-reports-table').DataTable().ajax.url('<?= base_url('FoodReport/getFoodReportsJson') ?>?year=<?= $selectedYear ?>').load(null, false)">
@@ -565,7 +598,7 @@
                         <th>มื้ออาหาร</th>
                         <th>รายการเมนูอาหาร</th>
                         <th>รูปภาพประกอบ</th>
-                        <?php if ($isLoggedIn && in_array('งานรายงานอาหาร', array_map('trim', explode(',', (string)session()->get('rloes'))))): ?>
+                        <?php if ($canManageFood): ?>
                         <th>ผู้บันทึก</th>
                         <th>พิมพ์</th>
                         <th>Word</th>
@@ -692,8 +725,68 @@
 
 <script>
 $(document).ready(function() {
+    // Render Monthly ApexChart
+    const monthlyData = <?= json_encode($stats['monthly'] ?? array_fill(0, 12, 0)) ?>;
+    const monthlyOptions = {
+        series: [{
+            name: 'จำนวนรายงานอาหาร',
+            data: monthlyData
+        }],
+        chart: {
+            type: 'bar',
+            height: 190,
+            toolbar: { show: false }
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 6,
+                columnWidth: '45%',
+                distributed: true
+            }
+        },
+        colors: ['#696cff', '#03c3ec', '#71dd37', '#ffab00', '#ff3e1d', '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8', '#28a745'],
+        dataLabels: { enabled: false },
+        legend: { show: false },
+        xaxis: {
+            categories: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
+            axisBorder: { show: false }
+        },
+        yaxis: {
+            labels: {
+                formatter: function (val) { return Math.floor(val); }
+            }
+        }
+    };
+    if (document.querySelector("#foodMonthlyChart")) {
+        const monthlyChart = new ApexCharts(document.querySelector("#foodMonthlyChart"), monthlyOptions);
+        monthlyChart.render();
+    }
+
+    // Render Meal Distribution Donut ApexChart
+    const mealLabels = <?= json_encode($stats['meals']['labels'] ?? ['มื้อเช้า', 'มื้อกลางวัน', 'มื้อเย็น']) ?>;
+    const mealSeries = <?= json_encode($stats['meals']['series'] ?? [0, 0, 0]) ?>;
+    const mealOptions = {
+        series: mealSeries.some(v => v > 0) ? mealSeries : [1, 1, 1],
+        labels: mealLabels,
+        chart: {
+            type: 'donut',
+            height: 190
+        },
+        colors: ['#ffab00', '#696cff', '#ff3e1d'],
+        legend: {
+            position: 'bottom',
+            fontSize: '12px'
+        },
+        dataLabels: { enabled: true }
+    };
+    if (document.querySelector("#foodMealChart")) {
+        const mealChart = new ApexCharts(document.querySelector("#foodMealChart"), mealOptions);
+        mealChart.render();
+    }
+
     const isLoggedIn = <?= $isLoggedIn ? 'true' : 'false' ?>;
-    const canManage = <?= ($isLoggedIn && in_array('งานรายงานอาหาร', array_map('trim', explode(',', session()->get('rloes') ?? '')))) ? 'true' : 'false' ?>;
+    const isSuperAdmin = <?= $isSuperAdmin ? 'true' : 'false' ?>;
+    const canManage = <?= $canManageFood ? 'true' : 'false' ?>;
     const loggedInUserId = '<?= session()->get('id') ?? '' ?>';
 
     function formatThaiDate(dateString) {
@@ -753,12 +846,12 @@ $(document).ready(function() {
             "render": function(data, type, row) {
                 let images = [];
                 try { images = JSON.parse(data) || []; } catch (e) {}
-                if (images.length === 0) return '<span class="text-muted small italic">ไม่มีรูปภาพ</span>';
+                if (images.length === 0) return '<span class="badge bg-light text-secondary border px-2 py-1"><i class="bx bx-image me-1"></i>ไม่ได้แนบรูปมา</span>';
                 
                 let stackHtml = '<div class="img-stack">';
                 images.slice(0, 3).forEach((img, idx) => {
                     const url = `<?= base_url('image_proxy.php') ?>?url=${encodeURIComponent(`<?=env('upload.server.baseurl')?>${row.food_date}/${img}`)}`;
-                    stackHtml += `<img src="${url}" class="img-mini shadow-sm" style="z-index: ${5-idx}" loading="lazy">`;
+                    stackHtml += `<img src="${url}" class="img-mini shadow-sm" style="z-index: ${5-idx}" onerror="this.onerror=null; this.src='<?= base_url('assets/img/no-image.svg') ?>';" loading="lazy">`;
                 });
                 if (images.length > 3) stackHtml += `<div class="img-mini bg-dark text-white d-flex align-items-center justify-content-center fw-bold" style="z-index: 1; font-size: 10px;">+${images.length - 3}</div>`;
                 stackHtml += '</div>';
@@ -775,7 +868,7 @@ $(document).ready(function() {
         columns.push({ "data": "food_id", "render": d => `<a href="<?= base_url('FoodReport/word/') ?>${d}" class="btn btn-sm btn-icon btn-label-primary rounded-pill" title="ดาวน์โหลด Word"><i class="bx bxs-file-doc"></i></a>`, "orderable": false });
         columns.push({
             "data": "food_id",
-            "render": (data, type, row) => row.food_admin == loggedInUserId 
+            "render": (data, type, row) => (isSuperAdmin || canManage || row.food_admin == loggedInUserId) 
                 ? `<div class="d-inline-flex gap-1"><a href="javascript:void(0)" class="btn btn-sm btn-icon btn-label-warning rounded-pill item-edit" data-bs-toggle="modal" data-bs-target="#modalAddFoodReport" data-id="${data}"><i class="bx bx-edit-alt"></i></a><button class="btn btn-sm btn-icon btn-label-danger rounded-pill delete-btn" data-id="${data}"><i class="bx bx-trash"></i></button></div>` 
                 : `<i class='bx bx-lock-alt text-muted' title="ไม่มีสิทธิ์จัดการ"></i>`,
             "orderable": false

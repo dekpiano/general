@@ -49,12 +49,14 @@ class NotificationService
         'update'   => ['color' => '#28a745', 'colorEnd' => '#20c997', 'cardBg' => '#f0faf4', 'cardBorder' => '#c8e6c9', 'icon' => '🔄'],
     ];
     /**
-     * ตรวจสอบว่าควรส่งแจ้งเตือนหรือไม่ (ปรับให้ส่งเสมอเพื่อประโยนช์ในการทดสอบ)
+     * ตรวจสอบว่าควรส่งแจ้งเตือนหรือไม่
+     * บล็อกเฉพาะ localhost เท่านั้น เพื่อให้ส่งแจ้งเตือนได้บน server จริง
      */
     private function shouldSendNotification(): bool
     {
-        $isLocal = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1');
-        if (ENVIRONMENT !== 'production' || $isLocal) {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isLocal = (strpos($host, 'localhost') !== false || $host === '127.0.0.1');
+        if ($isLocal) {
             return false;
         }
         return true;

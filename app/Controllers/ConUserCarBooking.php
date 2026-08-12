@@ -332,6 +332,43 @@ class ConUserCarBooking extends BaseController
                             "ระบบจองยานพาหนะ SKJ"
                         );
                     }
+
+                    // ส่ง Email หาเจ้าหน้าที่และหัวหน้างานยานพาหนะ
+                    $staffEmailsCar = $notificationService->getStaffEmailsByDepartment('งานยานพาหนะ');
+                    if (!empty($staffEmailsCar)) {
+                        $adminEmailDataCar = [
+                            'header_title' => 'มีคำขอจองยานพาหนะใหม่',
+                            'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                            'fields' => [
+                                ['label' => 'ผู้ขอจอง', 'value' => $requesterName],
+                                ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
+                                ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']],
+                            ],
+                            'columns' => [
+                                ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
+                                ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
+                            ],
+                            'status' => [
+                                'text' => '⏳ รออนุมัติ',
+                                'bg' => '#ffe5d9',
+                                'color' => '#ff6b35'
+                            ],
+                            'cta_text' => '👉 ไปหน้าอนุมัติการจองรถ',
+                            'cta_url'  => base_url('CarBooking/Approve/Admin')
+                        ];
+
+                        $notificationService->sendEmail(
+                            $staffEmailsCar,
+                            "แจ้งการจองยานพาหนะใหม่: " . $Car['car_category'] . " (" . $requesterName . ")",
+                            'car',
+                            $adminEmailDataCar,
+                            'noreply@skj.ac.th',
+                            "ระบบจองยานพาหนะ SKJ"
+                        );
+                    }
+
+                    // ส่ง Telegram แจ้งเตือนกลุ่มงานยานพาหนะ
+                    $notificationService->sendTelegram('car', $msg);
                 }
             }
             catch (\Exception $e) {
@@ -543,11 +580,10 @@ class ConUserCarBooking extends BaseController
 
     public function CarBookingView()
     {
-
         $session = session();
         $data = $this->DataMain();
-        $data['title'] = "ตารางการจองยานพาหนะ";
-        $data['description'] = "ดูตารางการจองยานพาหนะ";
+        $data['title'] = "แดชบอร์ดการจองยานพาหนะ";
+        $data['description'] = "ดูภาพรวม สถิติ และตารางการจองยานพาหนะประจำปี";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingView';
         $data['Datethai'] = new Datethai();
@@ -555,16 +591,104 @@ class ConUserCarBooking extends BaseController
         $database = \Config\Database::connect();
         $DBCarReservation = $database->table('tb_car_reservation');
 
-        $DBpersonnel = $database->table('personnel');
+        // Extract available years from tb_car_reservation
+        $yearsResult = $database->query("
+            SELECT DISTINCT YEAR(car_reserv_StartDate) as yr 
+            FROM tb_car_reservation 
+            WHERE car_reserv_StartDate IS NOT NULL AND car_reserv_StartDate != '0000-00-00'
+            ORDER BY yr DESC
+        ")->getResultArray();
 
-        //echo '<pre>';print_r($DBpersonnel); exit();
+        $availableYears = [];
+        foreach ($yearsResult as $yRow) {
+            if (!empty($yRow['yr'])) {
+                $availableYears[] = (int)$yRow['yr'];
+            }
+        }
 
-        $DBpers = \Config\Database::connect('personnel');
+        $currentYear = (int)date('Y');
+        if (!in_array($currentYear, $availableYears)) {
+            array_unshift($availableYears, $currentYear);
+        }
+        rsort($availableYears);
 
+        // Get selected year filter from GET query
+        $selectedYear = $this->request->getGet('year');
+        if ($selectedYear === null || $selectedYear === '') {
+            $selectedYear = $currentYear;
+        }
 
-        $data['CarBooking'] = $DBCarReservation->orderBy('car_reserv_id', 'DESC')->get()->getResult();
+        $data['availableYears'] = $availableYears;
+        $data['selectedYear'] = $selectedYear;
 
-        //echo '<pre>';print_r($data['CarBooking']); exit();
+        // Query reservations with car and member details
+        $builder = $database->table('tb_car_reservation')
+            ->select('
+                skjacth_general.tb_car_reservation.*,
+                skjacth_general.tb_school_car.car_img,
+                skjacth_general.tb_school_car.car_registration,
+                skjacth_general.tb_school_car.car_province,
+                skjacth_general.tb_school_car.car_category,
+                skjacth_personnel.tb_personnel.pers_prefix,
+                skjacth_personnel.tb_personnel.pers_firstname,
+                skjacth_personnel.tb_personnel.pers_lastname
+            ')
+            ->join('skjacth_general.tb_school_car', 'skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID', 'left')
+            ->join('skjacth_personnel.tb_personnel', 'skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID', 'left');
+
+        if ($selectedYear !== 'all' && is_numeric($selectedYear)) {
+            $builder->where('YEAR(car_reserv_StartDate)', (int)$selectedYear);
+        }
+
+        $data['CarBooking'] = $builder->orderBy('car_reserv_id', 'DESC')->get()->getResult();
+
+        // Calculate statistics
+        $totalBookings = count($data['CarBooking']);
+        $approvedCount = 0;
+        $pendingCount = 0;
+        $rejectedCount = 0;
+
+        $monthlyCounts = array_fill(1, 12, 0);
+        $vehicleCounts = [];
+
+        foreach ($data['CarBooking'] as $b) {
+            $status = $b->car_reserv_status;
+            if ($status == 'อนุมัติ') {
+                $approvedCount++;
+            } else if ($status == 'รอตรวจสอบ') {
+                $pendingCount++;
+            } else {
+                $rejectedCount++;
+            }
+
+            if (!empty($b->car_reserv_StartDate)) {
+                $m = (int)date('n', strtotime($b->car_reserv_StartDate));
+                if ($m >= 1 && $m <= 12) {
+                    $monthlyCounts[$m]++;
+                }
+            }
+
+            $carLabel = ($b->car_category ? $b->car_category . ' ' : '') . ($b->car_registration ?: 'อื่นๆ');
+            if (!isset($vehicleCounts[$carLabel])) {
+                $vehicleCounts[$carLabel] = 0;
+            }
+            $vehicleCounts[$carLabel]++;
+        }
+
+        arsort($vehicleCounts);
+        $topVehicles = array_slice($vehicleCounts, 0, 5, true);
+
+        $data['stats'] = [
+            'total' => $totalBookings,
+            'approved' => $approvedCount,
+            'pending' => $pendingCount,
+            'rejected' => $rejectedCount,
+            'monthly' => array_values($monthlyCounts),
+            'topVehicles' => [
+                'labels' => array_keys($topVehicles),
+                'series' => array_values($topVehicles)
+            ]
+        ];
 
         return view('User/UserCarBooking/UserCarBookingView', $data);
     }
@@ -650,6 +774,18 @@ class ConUserCarBooking extends BaseController
                 }
                 catch (\Exception $e) {
                     log_message('error', 'Approve Notification Error: ' . $e->getMessage());
+                }
+
+                // ส่ง Telegram แจ้งอนุมัติการจองยานพาหนะ
+                try {
+                    $telegramMsg = "✅ อนุมัติการจองยานพาหนะ\n";
+                    $telegramMsg .= "👤 ผู้ขอ: {$requesterName}\n";
+                    $telegramMsg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
+                    $telegramMsg .= "📅 ช่วงเวลา: {$dateRange}\n";
+                    $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("CarBooking/View");
+                    $notificationService->sendTelegram('car', $telegramMsg);
+                } catch (\Exception $e) {
+                    log_message('error', 'Approve Telegram Error: ' . $e->getMessage());
                 }
             }
             return $this->response->setJSON(['status' => 'success', 'message' => 'อนุมัติการจองเรียบร้อยแล้ว']);
@@ -749,6 +885,18 @@ class ConUserCarBooking extends BaseController
                 }
                 catch (\Exception $e) {
                     log_message('error', 'No-Approve Email Error: ' . $e->getMessage());
+                }
+
+                // ส่ง Telegram แจ้งไม่อนุมัติ/ยกเลิกการจองยานพาหนะ
+                try {
+                    $telegramMsg = "❌ {$statusText}การจองยานพาหนะ\n";
+                    $telegramMsg .= "👤 ผู้ขอ: {$requesterName}\n";
+                    $telegramMsg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']}\n";
+                    $telegramMsg .= "📝 เหตุผล: {$reasonText}\n";
+                    $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("CarBooking/View");
+                    $notificationService->sendTelegram('car', $telegramMsg);
+                } catch (\Exception $e) {
+                    log_message('error', 'No-Approve Telegram Error: ' . $e->getMessage());
                 }
             }
 
