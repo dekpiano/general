@@ -166,6 +166,67 @@
         .menu-inner::-webkit-scrollbar-track {
             background: transparent;
         }
+
+        /* --- Loopika AI Inspired Ambient Glowing Mesh & Grid Background --- */
+        html, body, .layout-wrapper, .layout-container, .layout-page, .content-wrapper {
+            background-color: transparent !important;
+        }
+
+        body {
+            background-color: #f4f5fb !important;
+            background-image: 
+                linear-gradient(to right, rgba(105, 108, 255, 0.045) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(105, 108, 255, 0.045) 1px, transparent 1px),
+                radial-gradient(circle at 50% 30%, rgba(105, 108, 255, 0.10) 0%, transparent 65%),
+                radial-gradient(circle at 90% 80%, rgba(238, 9, 121, 0.06) 0%, transparent 60%) !important;
+            background-size: 64px 64px, 64px 64px, 100% 100%, 100% 100% !important;
+            background-attachment: fixed !important;
+            position: relative;
+        }
+
+        /* Animated Ambient Glowing Orbs */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%;
+            left: 10%;
+            width: 650px;
+            height: 650px;
+            background: radial-gradient(circle, rgba(105, 108, 255, 0.18) 0%, rgba(105, 108, 255, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            filter: blur(50px);
+            animation: loopikaGlow 14s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -10%;
+            right: 5%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(238, 9, 121, 0.14) 0%, rgba(238, 9, 121, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            filter: blur(60px);
+            animation: loopikaGlow 18s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes loopikaGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, 30px) scale(1.08); }
+            100% { transform: translate(-30px, -20px) scale(0.95); }
+        }
+
+        /* Glassmorphism Elevating Cards */
+        .card, .glass-stat-card, .table-card, .service-card, .welcome-card, .glass-header {
+            border: 1px solid rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            box-shadow: 0 10px 30px -5px rgba(105, 108, 255, 0.09), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+        }
     </style>
     <?= $this->renderSection('customCSS') ?>
 </head>

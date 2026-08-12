@@ -8,11 +8,31 @@
         </div>
 
         <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-            <!-- Title -->
+            <?php
+            $currentSegment = strtolower($uri->getSegment(1) ?? '');
+            $navIcon = 'bxs-home-circle';
+            
+            if (strpos($currentSegment, 'booking') !== false && strpos($currentSegment, 'car') === false) {
+                $navIcon = 'bxs-building-house';
+            } else if (strpos($currentSegment, 'car') !== false) {
+                $navIcon = 'bxs-car';
+            } else if (strpos($currentSegment, 'repair') !== false) {
+                $navIcon = 'bxs-wrench';
+            } else if (strpos($currentSegment, 'food') !== false) {
+                $navIcon = 'bxs-dish';
+            } else if (strpos($currentSegment, 'manual') !== false) {
+                $navIcon = 'bxs-book-open';
+            } else if (strpos($currentSegment, 'admin') !== false) {
+                $navIcon = 'bxs-cog';
+            }
+            ?>
+            <!-- Title with System Icon -->
             <div class="navbar-nav align-items-center">
                 <div class="nav-item d-flex align-items-center">
-                    <i class="bx bx-chevron-right text-muted me-2 d-none d-md-block"></i>
-                    <span class="fw-bold text-dark fs-5" style="letter-spacing: -0.5px;"><?= $title ?></span>
+                    <div class="p-2 rounded-3 bg-label-primary d-flex align-items-center justify-content-center me-2 shadow-sm" style="width: 36px; height: 36px;">
+                        <i class="bx <?= $navIcon ?> fs-4 text-primary"></i>
+                    </div>
+                    <span class="fw-bold text-dark fs-5" style="letter-spacing: -0.3px;"><?= $title ?></span>
                 </div>
             </div>
             <!-- /Title -->
