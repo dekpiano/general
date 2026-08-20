@@ -64,6 +64,54 @@
             </a>
         </li>
 
+        <?php 
+        $userRoles = json_decode($_SESSION['rloes'] ?? '[]', true) ?: [];
+        $isEquipmentStaff = (isset($_SESSION['username']) && (
+            in_array(@$_SESSION['status'], ['superadmin', 'admin', 'AdminGeneral']) ||
+            in_array('งานพัสดุและอุปกรณ์', $userRoles)
+        ));
+        ?>
+        <li class="menu-item <?= ($UrlMenuMain ?? '') == "Equipment" ? "active open" : "" ?>">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-box text-primary"></i>
+                <div>ยืม-คืนพัสดุอุปกรณ์</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "EquipmentMain" ? "active" : "" ?>">
+                    <a href="<?= base_url('Equipment'); ?>" class="menu-link">
+                        <div>รายการพัสดุ / บริการยืม</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "EquipmentAdd" ? "active" : "" ?>">
+                    <a href="<?= base_url('Equipment/Add'); ?>" class="menu-link">
+                        <div>ยื่นคำขอยืมพัสดุ</div>
+                    </a>
+                </li>
+                <?php if (isset($_SESSION['username'])): ?>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "EquipmentHistory" ? "active" : "" ?>">
+                    <a href="<?= base_url('Equipment/History'); ?>" class="menu-link">
+                        <div>ประวัติการยืมของฉัน</div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <!-- เมนูสำหรับเจ้าหน้าที่พัสดุ (แสดงในหน้าบ้าน ไม่ต้องเด้งไปหลังบ้าน) -->
+                <?php if ($isEquipmentStaff): ?>
+                <li class="menu-header small text-uppercase py-1 ps-3">
+                    <span class="badge bg-label-warning text-dark fw-bold" style="font-size: 0.7rem;">
+                        <i class="bx bx-shield-quarter me-1"></i> สำหรับเจ้าหน้าที่
+                    </span>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "EquipmentApprove" ? "active" : "" ?>">
+                    <a href="<?= base_url('Equipment/Approve'); ?>" class="menu-link fw-bold text-primary">
+                        <i class="bx bx-check-shield me-2"></i>
+                        <div>รายการอนุมัติ & รับ-ส่งคืน</div>
+                    </a>
+                </li>
+                <?php endif; ?>
+            </ul>
+        </li>
+
         <!-- Documents Header -->
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">โหลดเอกสาร</span>
@@ -117,14 +165,23 @@
         </li>
 
         <!-- Admin Section -->
-        <?php if (isset($_SESSION['username']) && (@$_SESSION['status'] == 'superadmin')): ?>
+        <?php 
+        $userRoles = json_decode($_SESSION['rloes'] ?? '[]', true) ?: [];
+        $isAdminRole = (isset($_SESSION['username']) && (
+            in_array(@$_SESSION['status'], ['superadmin', 'admin', 'AdminGeneral']) ||
+            in_array('งานพัสดุและอุปกรณ์', $userRoles) ||
+            in_array('งานอาคารสถานที่', $userRoles) ||
+            in_array('งานยานพาหนะ', $userRoles)
+        ));
+        if ($isAdminRole): 
+        ?>
             <li class="menu-header small text-uppercase">
-                <span class="menu-header-text">ผู้ดูแลระบบ</span>
+                <span class="menu-header-text">เจ้าหน้าที่ / ผู้ดูแลระบบ</span>
             </li>
-            <li class="menu-item <?= $UrlMenuMain == "AdminHome" ? "active" : "" ?>">
-                <a href="<?= base_url('Admin/Home'); ?>" class="menu-link text-danger fw-bold">
-                    <i class="menu-icon tf-icons bx bx-cog text-danger"></i>
-                    <div>จัดการข้อมูลระบบ</div>
+            <li class="menu-item <?= ($UrlMenuMain ?? '') == "AdminHome" ? "active" : "" ?>">
+                <a href="<?= base_url('Admin/Equipment/Approve'); ?>" class="menu-link text-primary fw-bold" style="background: rgba(105, 108, 255, 0.08); border-radius: 0 20px 20px 0;">
+                    <i class="menu-icon tf-icons bx bx-shield-quarter text-primary"></i>
+                    <div>ระบบจัดการหลังบ้าน (Admin)</div>
                 </a>
             </li>
         <?php endif; ?>

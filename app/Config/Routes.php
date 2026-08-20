@@ -171,6 +171,41 @@ $routes->post('FoodReport/delete', 'ConUserFoodReport::foodReportDelete');
 
 $routes->get('check-vendor', 'ConUserFoodReport::checkVendor');
 
+// User ยืม-คืนพัสดุอุปกรณ์ (รวมหน้ารายการอนุมัติและจัดการสต็อกในหน้าบ้าน)
+$routes->get('Equipment', 'ConUserEquipment::index');
+$routes->get('Equipment/Add', 'ConUserEquipment::add');
+$routes->get('Equipment/History', 'ConUserEquipment::history');
+$routes->get('Equipment/Detail/(:num)', 'ConUserEquipment::detail/$1');
+$routes->get('Equipment/Print/(:num)', 'ConUserEquipment::printOrder/$1');
+$routes->get('Equipment/Approve', 'ConUserEquipment::approveList');
+$routes->get('Equipment/Manage', 'ConUserEquipment::manageStock');
+$routes->get('Equipment/StaffDetail/(:num)', 'ConUserEquipment::staffDetail/$1');
+$routes->post('Equipment/insert', 'ConUserEquipment::insertBorrow');
+$routes->post('Equipment/cancel', 'ConUserEquipment::cancelBorrow');
+$routes->match(['GET', 'POST'], 'Equipment/cleanupOrphanImages', 'ConUserEquipment::cleanupOrphanImages');
+$routes->get('Equipment/getAvailableItems', 'ConUserEquipment::getAvailableItems');
+$routes->get('Equipment/getBorrowHistoryJson', 'ConUserEquipment::getBorrowHistoryJson');
+
+// Admin งานพัสดุและอุปกรณ์
+$routes->get('Admin/Equipment/Approve', 'ConAdminEquipment::approveList');
+$routes->get('Admin/Equipment/Manage', 'ConAdminEquipment::manageStock');
+$routes->get('Admin/Equipment/Detail/(:num)', 'ConAdminEquipment::detail/$1');
+$routes->get('Admin/Equipment/getBorrowListJson', 'ConAdminEquipment::getBorrowListJson');
+$routes->get('Admin/Equipment/getStockJson', 'ConAdminEquipment::getStockJson');
+$routes->post('Admin/Equipment/approveBorrow', 'ConAdminEquipment::approveBorrow');
+$routes->post('Admin/Equipment/rejectBorrow', 'ConAdminEquipment::rejectBorrow');
+$routes->post('Admin/Equipment/savePickup', 'ConAdminEquipment::savePickup');
+$routes->post('Admin/Equipment/saveReturn', 'ConAdminEquipment::saveReturn');
+$routes->post('Admin/Equipment/deleteBorrow', 'ConAdminEquipment::deleteBorrow');
+$routes->post('Equipment/deleteBorrow', 'ConAdminEquipment::deleteBorrow');
+$routes->post('Admin/Equipment/insertEquipment', 'ConAdminEquipment::insertEquipment');
+$routes->post('Admin/Equipment/updateEquipment', 'ConAdminEquipment::updateEquipment');
+$routes->post('Admin/Equipment/deleteEquipment', 'ConAdminEquipment::deleteEquipment');
+$routes->post('Admin/Equipment/saveCategory', 'ConAdminEquipment::saveCategory');
+$routes->post('Admin/Equipment/deleteCategory', 'ConAdminEquipment::deleteCategory');
+$routes->match(['GET', 'POST'], 'Admin/Equipment/cleanupOrphanImages', 'ConAdminEquipment::cleanupOrphanImages');
+$routes->match(['GET', 'POST'], 'Equipment/cleanupOrphanImages', 'ConAdminEquipment::cleanupOrphanImages');
+
 $routes->get('Admin/Notifications/getPending', 'ConAdminNotification::getPendingNotifications');
 
 $routes->post('Webhook', 'Webhook::index');

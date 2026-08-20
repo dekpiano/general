@@ -48,17 +48,8 @@ class NotificationService
         'rejected' => ['color' => '#ff3e1d', 'colorEnd' => '#ff6b4a', 'cardBg' => '#fff5f5', 'cardBorder' => '#ffcdd2', 'icon' => '❌'],
         'update'   => ['color' => '#28a745', 'colorEnd' => '#20c997', 'cardBg' => '#f0faf4', 'cardBorder' => '#c8e6c9', 'icon' => '🔄'],
     ];
-    /**
-     * ตรวจสอบว่าควรส่งแจ้งเตือนหรือไม่
-     * บล็อกเฉพาะ localhost เท่านั้น เพื่อให้ส่งแจ้งเตือนได้บน server จริง
-     */
     private function shouldSendNotification(): bool
     {
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $isLocal = (strpos($host, 'localhost') !== false || $host === '127.0.0.1');
-        if ($isLocal) {
-            return false;
-        }
         return true;
     }
 
@@ -229,8 +220,11 @@ class NotificationService
     /**
      * ดึงข้อมูลบุคลากรจาก pers_id
      */
-    public function getPersonnelInfo(string $persId): ?object
+    public function getPersonnelInfo(?string $persId): ?object
     {
+        if (empty($persId)) {
+            return null;
+        }
         $DBpers = \Config\Database::connect('personnel');
         return $DBpers->table('tb_personnel')
             ->select('pers_prefix, pers_firstname, pers_lastname, pers_username')

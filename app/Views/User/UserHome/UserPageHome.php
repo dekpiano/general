@@ -277,6 +277,21 @@
                 </div>
             </a>
         </div>
+
+        <!-- ยืม-คืนพัสดุอุปกรณ์ -->
+        <div class="col-6 col-lg-3">
+            <a href="<?=base_url('Equipment');?>" class="text-decoration-none h-100 d-block">
+                <div class="service-card">
+                    <div class="icon-wrapper" style="background: #f0f2ff;">
+                        <img src="https://cdn-icons-png.flaticon.com/128/2897/2897785.png"
+                            class="icon-img" alt="ยืม-คืนพัสดุอุปกรณ์">
+                    </div>
+                    <h5 class="mb-2 fw-bold text-dark">ยืม-คืนพัสดุอุปกรณ์</h5>
+                    <p class="text-muted mb-3 px-1">โสตทัศน์ เครื่องมือช่าง โต๊ะเก้าอี้ พัสดุ</p>
+                    <button class="btn btn-premium">เข้าใช้งาน</button>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 

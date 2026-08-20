@@ -7,9 +7,9 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title><?=$title;?> | SKJ บริหารทั่วไป</title>
+    <title><?= $title ?? 'ระบบบริหารทั่วไป' ?> | SKJ บริหารทั่วไป</title>
 
-    <meta name="description" content="<?= $description ?>" />
+    <meta name="description" content="<?= $description ?? 'ระบบบริหารทั่วไป โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์' ?>" />
     <meta
         content="ระบบงาน,E-Office,โรงเรียนสวนกุหลาบวิทยาลัย,โรงเรียน,สวนกุหลาบ,จิรประวัติ,นครสวรรค์,สวนกุหลาบจิรประวัติ,โรงเรียนสวนกุหลาบ"
         name="keywords">
@@ -17,9 +17,9 @@
     <meta name="robots" content="index, follow" />
     <meta name="revisit-after" content="1 day" />
     <meta name="author" content="Dekpiano" />
-    <meta property="og:url" content="<?= $full_url ?>" />
-    <meta property="og:title" content="<?=$title;?>" />
-    <meta property="og:description" content="<?= $description ?>" />
+    <meta property="og:url" content="<?= $full_url ?? base_url() ?>" />
+    <meta property="og:title" content="<?= $title ?? 'ระบบบริหารทั่วไป' ?>" />
+    <meta property="og:description" content="<?= $description ?? 'ระบบบริหารทั่วไป โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์' ?>" />
     <meta property="og:type" content="website" />
     <?php if($uri->getSegment(1) == 'Booking') : ?>
     <meta property="og:image" content="<?=base_url();?>uploads/banner/booking/bannerBooking.png" />
@@ -43,7 +43,8 @@
     <link href="https://fonts.googleapis.com/css2?family=K2D:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Icons -->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="<?=base_url('assets/vendor/fonts/boxicons.css')?>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Core CSS -->
@@ -71,6 +72,20 @@
     <style>
         body, .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
             font-family: 'K2D', sans-serif !important;
+        }
+
+        /* Protect icon fonts from being overridden by text font-family */
+        .bx, i.bx, [class^="bx-"], [class*=" bx-"] {
+            font-family: 'boxicons' !important;
+            font-style: normal;
+        }
+        .bi, i.bi, [class^="bi-"], [class*=" bi-"] {
+            font-family: 'bootstrap-icons' !important;
+            font-style: normal;
+        }
+        .fa, .fas, .far, .fal, .fad, .fab, i.fa, i.fas {
+            font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+            font-style: normal;
         }
 
         /* --- Premium Sidebar --- */

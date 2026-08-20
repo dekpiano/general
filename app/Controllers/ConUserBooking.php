@@ -294,8 +294,12 @@ class ConUserBooking extends BaseController
             tb_location.location_name,
             tb_booking.booking_title,
             tb_booking.booking_order,
+            tb_booking.booking_number,
             tb_booking.booking_dateStart,
             tb_booking.booking_dateEnd,
+            tb_booking.booking_timeStart,
+            tb_booking.booking_timeEnd,
+            tb_booking.booking_Booker,
             tb_booking.booking_typeuse'
             )
             ->join('tb_location','tb_booking.booking_locationroom = tb_location.location_ID')
@@ -307,35 +311,55 @@ class ConUserBooking extends BaseController
                 // ส่งการแจ้งเตือนแบบใหม่ผ่าน NotificationService
                 $notificationService = new NotificationService();
                 $requesterName = $Booking['pers_prefix'] . $Booking['pers_firstname'] . ' ' . $Booking['pers_lastname'];
+                $requesterEmail = $Booking['pers_username'] ?? '';
                 $dateRange = $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateStart'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Booking['booking_dateEnd']));
 
-                // 2. ส่ง OneSignal Push Notification หาผู้ดูแลระบบ
+                // Check if recorded by someone else (e.g. Officer / Admin booking for a teacher)
+                $recorderId = $session->get('id');
+                $isBookedByOther = ($recorderId && $recorderId != $Booking['booking_Booker']);
+                $recorderPerson = $recorderId ? $notificationService->getPersonnelInfo($recorderId) : null;
+                $recorderName = $recorderPerson ? $notificationService->getFullName($recorderPerson) : ($session->get('username') ?: 'เจ้าหน้าที่');
+                $recorderEmail = $session->get('email') ?: ($recorderPerson ? $recorderPerson->pers_username : '');
+
+                // 1. ส่ง OneSignal Push Notification หาผู้ดูแลระบบ
                 $notificationService->sendPush(
                     "มีการจองสถานที่ใหม่!",
-                    "โดย {$Booking['pers_prefix']}{$Booking['pers_firstname']} - {$Booking['location_name']}",
+                    "โดย {$requesterName} - {$Booking['location_name']}",
                     base_url("/Booking/Approve/Admin"),
                     ['role' => 'admin_booking']
                 );
 
-                // ส่ง Telegram แจ้งเตือนกลุ่มงานอาคารสถานที่
-                $telegramMsg = "⛪ มีคำขอใช้อาคารสถานที่ใหม่\n";
+                // 2. ส่ง Telegram แจ้งเตือนกลุ่มงานอาคารสถานที่
+                $telegramMsg = "⛪ <b>มีคำขอใช้อาคารสถานที่ใหม่</b>\n";
                 $telegramMsg .= "👤 ผู้ขอใช้: {$requesterName}\n";
+                if ($isBookedByOther) {
+                    $telegramMsg .= "✍️ ผู้บันทึกข้อมูล: {$recorderName} (จองแทน)\n";
+                }
                 $telegramMsg .= "🏢 สถานที่: {$Booking['location_name']}\n";
                 $telegramMsg .= "📝 วัตถุประสงค์: {$Booking['booking_title']}\n";
+                $telegramMsg .= "👥 จำนวนผู้เข้าร่วม: {$Booking['booking_number']} คน\n";
                 $telegramMsg .= "📅 ช่วงเวลา: {$dateRange}\n";
-                $telegramMsg .= "👉 อนุมัติ: " . base_url("/Booking/Approve/Admin");
+                $telegramMsg .= "📊 สถานะ: ⏳ รอการอนุมัติ\n";
+                $telegramMsg .= "👉 ตรวจสอบ/อนุมัติ: " . base_url("/Booking/Approve/Admin");
                 $notificationService->sendTelegram('booking', $telegramMsg);
 
-                // 3. ส่ง Email หาผู้จองด้วย template กลาง
-                if (!empty($Booking['pers_username'])) {
+                // 3. ส่ง Email หาผู้ขอใช้ (ครู/บุคลากรที่ขอใช้สถานที่)
+                if (!empty($requesterEmail)) {
+                    $userEmailFields = [
+                        ['label' => 'เรียน', 'value' => $requesterName],
+                        ['label' => 'สถานที่ขอใช้', 'value' => $Booking['location_name']],
+                        ['label' => 'วัตถุประสงค์', 'value' => $Booking['booking_title']],
+                    ];
+                    if ($isBookedByOther) {
+                        $userEmailFields[] = ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (จองแทน)'];
+                    }
+
                     $emailData = [
                         'header_title' => 'ได้รับคำขอใช้อาคารสถานที่แล้ว',
-                        'header_sub'   => 'ระบบจองอาคารสถานที่ออนไลน์ (Facility Booking Service)',
-                        'fields' => [
-                            ['label' => 'เรียน', 'value' => $requesterName],
-                            ['label' => 'สถานที่ขอใช้', 'value' => $Booking['location_name']],
-                            ['label' => 'วัตถุประสงค์', 'value' => $Booking['booking_title']],
-                        ],
+                        'header_sub'   => $isBookedByOther 
+                            ? "ระบบจองอาคารสถานที่ออนไลน์ (เจ้าหน้าที่ {$recorderName} ได้ทำการบันทึกข้อมูลการจองให้ท่าน)" 
+                            : 'ระบบจองอาคารสถานที่ออนไลน์ (Facility Booking Service)',
+                        'fields' => $userEmailFields,
                         'columns' => [
                             ['label' => 'เลขที่คำขอ', 'value' => $Booking['booking_order']],
                             ['label' => 'ช่วงเวลาที่จอง', 'value' => $dateRange]
@@ -350,8 +374,8 @@ class ConUserBooking extends BaseController
                     ];
 
                     $notificationService->sendEmail(
-                        $Booking['pers_username'],
-                        "แจ้งการขอใช้อาคารสถานที่: รอการตรวจสอบ",
+                        $requesterEmail,
+                        "แจ้งการขอใช้อาคารสถานที่: รอการตรวจสอบ (" . $Booking['location_name'] . ")",
                         'booking',
                         $emailData,
                         'admin_booking@skj.ac.th',
@@ -359,15 +383,59 @@ class ConUserBooking extends BaseController
                     );
                 }
 
-                // 4. ส่ง Email หาผู้ดูแลระบบด้วย template กลาง
+                // 4. ส่ง Email แจ้งผู้บันทึกข้อมูล (กรณีเจ้าหน้าที่/แอดมินบันทึกจองแทนผู้อื่น)
+                if ($isBookedByOther && !empty($recorderEmail) && $recorderEmail !== $requesterEmail) {
+                    $recorderEmailData = [
+                        'header_title' => 'บันทึกการขอใช้อาคารสถานที่สำเร็จ',
+                        'header_sub'   => "ระบบจองอาคารสถานที่ออนไลน์ (ท่านได้ทำรายการจองแทน {$requesterName})",
+                        'fields' => [
+                            ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (ท่าน)'],
+                            ['label' => 'ผู้ขอใช้บริการ', 'value' => $requesterName],
+                            ['label' => 'สถานที่ขอใช้', 'value' => $Booking['location_name']],
+                            ['label' => 'วัตถุประสงค์', 'value' => $Booking['booking_title']],
+                        ],
+                        'columns' => [
+                            ['label' => 'เลขที่คำขอ', 'value' => $Booking['booking_order']],
+                            ['label' => 'ช่วงเวลาที่จอง', 'value' => $dateRange]
+                        ],
+                        'status' => [
+                            'text' => '⏳ รอการตรวจสอบ',
+                            'bg' => '#fff3e0',
+                            'color' => '#e65100'
+                        ],
+                        'cta_text' => '👉 ดูรายการจองทั้งหมด',
+                        'cta_url'  => base_url("Booking/View/All")
+                    ];
+
+                    $notificationService->sendEmail(
+                        $recorderEmail,
+                        "บันทึกการขอใช้อาคารสถานที่สำเร็จ (จองแทน: {$requesterName})",
+                        'booking',
+                        $recorderEmailData,
+                        'admin_booking@skj.ac.th',
+                        "ระบบจองอาคารสถานที่ SKJ"
+                    );
+                }
+
+                // 5. ส่ง Email หาเจ้าหน้าที่และหัวหน้างานอาคารสถานที่
+                $staffEmails = $notificationService->getStaffEmailsByDepartment('งานอาคารสถานที่');
+                if (empty($staffEmails)) {
+                    $staffEmails = ['dekpiano@skj.ac.th'];
+                }
+
+                $adminEmailFields = [
+                    ['label' => 'ผู้ขอใช้', 'value' => $requesterName],
+                ];
+                if ($isBookedByOther) {
+                    $adminEmailFields[] = ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (จองแทน)'];
+                }
+                $adminEmailFields[] = ['label' => 'สถานที่ขอใช้', 'value' => $Booking['location_name']];
+                $adminEmailFields[] = ['label' => 'วัตถุประสงค์', 'value' => $Booking['booking_title']];
+
                 $adminEmailData = [
                     'header_title' => 'มีคำขอใช้อาคารสถานที่ใหม่',
                     'header_sub'   => 'ระบบจองอาคารสถานที่ออนไลน์ (Facility Booking Service)',
-                    'fields' => [
-                        ['label' => 'ผู้ขอใช้', 'value' => $requesterName],
-                        ['label' => 'สถานที่ขอใช้', 'value' => $Booking['location_name']],
-                        ['label' => 'วัตถุประสงค์', 'value' => $Booking['booking_title']],
-                    ],
+                    'fields' => $adminEmailFields,
                     'columns' => [
                         ['label' => 'ช่วงเวลาที่จอง', 'value' => $dateRange]
                     ],
@@ -380,14 +448,9 @@ class ConUserBooking extends BaseController
                     'cta_url'  => base_url('Booking/Approve/Admin')
                 ];
 
-                $staffEmails = $notificationService->getStaffEmailsByDepartment('งานอาคารสถานที่');
-                if (empty($staffEmails)) {
-                    $staffEmails = ['dekpiano@skj.ac.th'];
-                }
-
                 $notificationService->sendEmail(
                     $staffEmails,
-                    "แจ้งการจองใหม่: " . $Booking['booking_title'],
+                    "แจ้งการจองใหม่: " . $Booking['booking_title'] . " (" . $requesterName . ")",
                     'booking',
                     $adminEmailData,
                     'admin_booking@skj.ac.th',
@@ -821,7 +884,7 @@ class ConUserBooking extends BaseController
         ->where('booking_locationroom', $locationroom)
         ->where("TIMESTAMP(booking_dateStart, booking_timeStart) < '$proposedEnd'", null, false)
         ->where("TIMESTAMP(booking_dateEnd, booking_timeEnd) > '$proposedStart'", null, false)
-        ->where('booking_admin_approve !=', 'ไม่อนุมัติ');
+        ->whereNotIn('booking_admin_approve', ['ไม่อนุมัติ', 'ยกเลิก', 'ยกเลิกโดยผู้จอง']);
 
         if ($excludeBookingId) {
             $CheckDateBookign->where('booking_id !=', $excludeBookingId);
@@ -1150,13 +1213,22 @@ class ConUserBooking extends BaseController
             }
 
             // ส่ง Telegram แจ้งอนุมัติการจอง
-            $telegramMsg = "✅ อนุมัติการจองอาคารสถานที่\n";
-            $telegramMsg .= "👤 ผู้ขอ: {$requesterName}\n";
-            $telegramMsg .= "🏢 สถานที่: {$CheckUserForEmail->location_name}\n";
-            $telegramMsg .= "📝 วัตถุประสงค์: {$CheckUserForEmail->booking_title}\n";
-            $telegramMsg .= "📅 ช่วงเวลา: {$dateRange}\n";
-            $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("Booking/View/All");
-            $notificationService->sendTelegram('booking', $telegramMsg);
+            try {
+                $approverPerson = $notificationService->getPersonnelInfo($_SESSION['id'] ?? '');
+                $approverFullName = $approverPerson ? $notificationService->getFullName($approverPerson) : ($_SESSION['username'] ?? 'เจ้าหน้าที่');
+
+                $telegramMsg = "✅ <b>อนุมัติการจองอาคารสถานที่เรียบร้อย</b>\n";
+                $telegramMsg .= "👤 ผู้ขอใช้: {$requesterName}\n";
+                $telegramMsg .= "🏢 สถานที่: {$CheckUserForEmail->location_name}\n";
+                $telegramMsg .= "📝 วัตถุประสงค์: {$CheckUserForEmail->booking_title}\n";
+                $telegramMsg .= "📅 ช่วงเวลา: {$dateRange}\n";
+                $telegramMsg .= "👨‍💼 ผู้อนุมัติ: {$approverFullName}\n";
+                $telegramMsg .= "📊 สถานะ: ✅ อนุมัติแล้ว\n";
+                $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("Booking/View/All");
+                $notificationService->sendTelegram('booking', $telegramMsg);
+            } catch (\Exception $e) {
+                log_message('error', 'Booking Approve Telegram Error: ' . $e->getMessage());
+            }
             
         }
             
@@ -1248,10 +1320,14 @@ class ConUserBooking extends BaseController
                      }
 
                      // ส่ง Telegram แจ้งไม่อนุมัติ
-                     $telegramMsg = "❌ ไม่อนุมัติการจองอาคารสถานที่\n";
-                     $telegramMsg .= "👤 ผู้ขอ: {$requesterName}\n";
+                     $processorPerson = $notificationService->getPersonnelInfo($_SESSION['id'] ?? '');
+                     $processorFullName = $processorPerson ? $notificationService->getFullName($processorPerson) : ($_SESSION['username'] ?? 'เจ้าหน้าที่');
+
+                     $telegramMsg = "❌ <b>ไม่อนุมัติการจองอาคารสถานที่</b>\n";
+                     $telegramMsg .= "👤 ผู้ขอใช้: {$requesterName}\n";
                      $telegramMsg .= "🏢 สถานที่: {$Booking['location_name']}\n";
                      $telegramMsg .= "📝 เหตุผล: {$reasonText}\n";
+                     $telegramMsg .= "👨‍💼 ผู้ดำเนินการ: {$processorFullName}\n";
                      $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("Booking/View/All");
                      $notificationService->sendTelegram('booking', $telegramMsg);
                  } catch (\Exception $e) {

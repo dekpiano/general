@@ -233,7 +233,7 @@ class ConUserCarBooking extends BaseController
             ->where('car_reserv_carID', $carID)
             ->where("TIMESTAMP(car_reserv_StartDate, car_reserv_StartTime) < '$proposedEnd'", null, false)
             ->where("TIMESTAMP(car_reserv_EndDate, car_reserv_EndTime) > '$proposedStart'", null, false)
-            ->where('car_reserv_status !=', 'ไม่อนุมัติ')
+            ->whereNotIn('car_reserv_status', ['ไม่อนุมัติ', 'ยกเลิก'])
             ->countAllResults();
 
         if ($isOverlap > 0) {
@@ -285,31 +285,49 @@ class ConUserCarBooking extends BaseController
                     ->get()->getRowArray();
 
                 if ($Car) {
-                    // 2. Build Message
-                    $msg = "📣 แจ้งเตือนการขอใช้รถราชการ\n";
-                    $msg .= "👤 ผู้ขอ: {$Car['pers_prefix']}{$Car['pers_firstname']} {$Car['pers_lastname']}\n";
-                    $msg .= "📅 วันที่ใช้: {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate']))} - {$Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']))}\n";
-
-                    $msg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
-                    $msg .= "🎯 วัตถุประสงค์: {$Car['car_reserv_detail']}\n";
-                    $msg .= "👉 รับงาน: " . base_url("/CarBooking/Approve/Admin");
-
-                    // ส่งแจ้งเตือนแบบใหม่ผ่าน NotificationService
                     $notificationService = new NotificationService();
                     $requesterName = $Car['pers_prefix'] . $Car['pers_firstname'] . ' ' . $Car['pers_lastname'];
+                    $requesterEmail = $Car['pers_username'] ?? '';
                     $dateRange = $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_StartDate'])) . ' - ' . $Datethai->thai_date_and_time_short(strtotime($Car['car_reserv_EndDate']));
 
-                    // 2. ส่ง Email หาผู้จองด้วย template กลาง
-                    $userEmail = $session->get('email') ?: $Car['pers_username'];
-                    if (!empty($Car['pers_username'])) {
+                    // Check if recorded by someone else (e.g. Officer / Admin booking for a teacher)
+                    $recorderId = $session->get('id');
+                    $isBookedByOther = ($recorderId && $recorderId != $Car['car_reserv_memberID']);
+                    $recorderPerson = $recorderId ? $notificationService->getPersonnelInfo($recorderId) : null;
+                    $recorderName = $recorderPerson ? $notificationService->getFullName($recorderPerson) : ($session->get('username') ?: 'เจ้าหน้าที่');
+                    $recorderEmail = $session->get('email') ?: ($recorderPerson ? $recorderPerson->pers_username : '');
+
+                    // 1. ข้อความแจ้งเตือน Telegram เมื่อมีคำขอจองใหม่
+                    $msg = "🚗 <b>มีคำขอจองยานพาหนะใหม่</b>\n";
+                    $msg .= "👤 ผู้ขอจอง: {$requesterName}\n";
+                    if ($isBookedByOther) {
+                        $msg .= "✍️ ผู้บันทึกข้อมูล: {$recorderName} (จองแทน)\n";
+                    }
+                    $msg .= "🚘 ยานพาหนะ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
+                    $msg .= "📍 สถานที่ไป: {$Car['car_reserv_location']}\n";
+                    $msg .= "📝 วัตถุประสงค์: {$Car['car_reserv_detail']}\n";
+                    $msg .= "👥 จำนวนผู้ร่วมเดินทาง: {$Car['car_reserv_number']} คน\n";
+                    $msg .= "📅 วันที่ใช้: {$dateRange}\n";
+                    $msg .= "📊 สถานะ: ⏳ รอการอนุมัติ\n";
+                    $msg .= "👉 ตรวจสอบ/อนุมัติ: " . base_url("/CarBooking/Approve/Admin");
+
+                    // 2. ส่ง Email หาผู้ขอจอง (ครู/บุคลากรที่ขอใช้รถ)
+                    if (!empty($requesterEmail)) {
+                        $userEmailFields = [
+                            ['label' => 'เรียน', 'value' => $requesterName],
+                            ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
+                            ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']],
+                        ];
+                        if ($isBookedByOther) {
+                            $userEmailFields[] = ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (จองแทน)'];
+                        }
+
                         $emailData = [
                             'header_title' => 'ได้รับคำขอจองยานพาหนะแล้ว',
-                            'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
-                            'fields' => [
-                                ['label' => 'เรียน', 'value' => $requesterName],
-                                ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
-                                ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']],
-                            ],
+                            'header_sub'   => $isBookedByOther 
+                                ? "ระบบจองยานพาหนะออนไลน์ (เจ้าหน้าที่ {$recorderName} ได้ทำการบันทึกข้อมูลการจองให้ท่าน)" 
+                                : 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                            'fields' => $userEmailFields,
                             'columns' => [
                                 ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
                                 ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
@@ -324,26 +342,65 @@ class ConUserCarBooking extends BaseController
                         ];
 
                         $notificationService->sendEmail(
-                            $Car['pers_username'],
-                            "แจ้งการจองยานพาหนะ: รอการตรวจสอบ",
+                            $requesterEmail,
+                            "แจ้งการจองยานพาหนะ: รอการตรวจสอบ (" . $Car['car_category'] . ")",
                             'car',
                             $emailData,
-                            $userEmail,
+                            'noreply@skj.ac.th',
                             "ระบบจองยานพาหนะ SKJ"
                         );
                     }
 
-                    // ส่ง Email หาเจ้าหน้าที่และหัวหน้างานยานพาหนะ
-                    $staffEmailsCar = $notificationService->getStaffEmailsByDepartment('งานยานพาหนะ');
-                    if (!empty($staffEmailsCar)) {
-                        $adminEmailDataCar = [
-                            'header_title' => 'มีคำขอจองยานพาหนะใหม่',
-                            'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                    // 3. ส่ง Email แจ้งผู้บันทึกข้อมูล (กรณีเจ้าหน้าที่/แอดมินบันทึกจองแทนผู้อื่น)
+                    if ($isBookedByOther && !empty($recorderEmail) && $recorderEmail !== $requesterEmail) {
+                        $recorderEmailData = [
+                            'header_title' => 'บันทึกการจองยานพาหนะสำเร็จ',
+                            'header_sub'   => "ระบบจองยานพาหนะออนไลน์ (ท่านได้ทำรายการจองแทน {$requesterName})",
                             'fields' => [
-                                ['label' => 'ผู้ขอจอง', 'value' => $requesterName],
+                                ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (ท่าน)'],
+                                ['label' => 'ผู้ขอใช้บริการ', 'value' => $requesterName],
                                 ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
                                 ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']],
                             ],
+                            'columns' => [
+                                ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
+                                ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
+                            ],
+                            'status' => [
+                                'text' => '⏳ รอการตรวจสอบ',
+                                'bg' => '#fff3e0',
+                                'color' => '#e65100'
+                            ],
+                            'cta_text' => '👉 ดูรายการจองทั้งหมด',
+                            'cta_url'  => base_url("CarBooking/View")
+                        ];
+
+                        $notificationService->sendEmail(
+                            $recorderEmail,
+                            "บันทึกการจองยานพาหนะสำเร็จ (จองแทน: {$requesterName})",
+                            'car',
+                            $recorderEmailData,
+                            'noreply@skj.ac.th',
+                            "ระบบจองยานพาหนะ SKJ"
+                        );
+                    }
+
+                    // 4. ส่ง Email หาเจ้าหน้าที่และหัวหน้างานยานพาหนะ
+                    $staffEmailsCar = $notificationService->getStaffEmailsByDepartment('งานยานพาหนะ');
+                    if (!empty($staffEmailsCar)) {
+                        $adminEmailFields = [
+                            ['label' => 'ผู้ขอจอง', 'value' => $requesterName],
+                        ];
+                        if ($isBookedByOther) {
+                            $adminEmailFields[] = ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (จองแทน)'];
+                        }
+                        $adminEmailFields[] = ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']];
+                        $adminEmailFields[] = ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']];
+
+                        $adminEmailDataCar = [
+                            'header_title' => 'มีคำขอจองยานพาหนะใหม่',
+                            'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                            'fields' => $adminEmailFields,
                             'columns' => [
                                 ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
                                 ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
@@ -367,7 +424,7 @@ class ConUserCarBooking extends BaseController
                         );
                     }
 
-                    // ส่ง Telegram แจ้งเตือนกลุ่มงานยานพาหนะ
+                    // 5. ส่ง Telegram แจ้งเตือนกลุ่มงานยานพาหนะ
                     $notificationService->sendTelegram('car', $msg);
                 }
             }
@@ -467,9 +524,26 @@ class ConUserCarBooking extends BaseController
 
         $Car_dateStart = $this->thaidate_to_mysql($this->request->getVar('car_reserv_StartDate'));
         $Car_dateEnd = $this->thaidate_to_mysql($this->request->getVar('car_reserv_EndDate'));
+        $carID = $this->request->getVar('car_reserv_carID');
+
+        // Check Overlap (excluding this booking)
+        $proposedStart = date('Y-m-d H:i:s', strtotime($Car_dateStart . ' ' . $this->request->getVar('car_reserv_StartTime')));
+        $proposedEnd = date('Y-m-d H:i:s', strtotime($Car_dateEnd . ' ' . $this->request->getVar('car_reserv_EndTime')));
+
+        $isOverlap = $DBCarReservation
+            ->where('car_reserv_carID', $carID)
+            ->where('car_reserv_id !=', $id)
+            ->where("TIMESTAMP(car_reserv_StartDate, car_reserv_StartTime) < '$proposedEnd'", null, false)
+            ->where("TIMESTAMP(car_reserv_EndDate, car_reserv_EndTime) > '$proposedStart'", null, false)
+            ->whereNotIn('car_reserv_status', ['ไม่อนุมัติ', 'ยกเลิก'])
+            ->countAllResults();
+
+        if ($isOverlap > 0) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'มีการจองในช่วงเวลานี้แล้ว']);
+        }
 
         $data = [
-            'car_reserv_carID' => $this->request->getVar('car_reserv_carID'),
+            'car_reserv_carID' => $carID,
             // 'car_reserv_order' => $this->request->getVar('car_reserv_order'), // Don't update order
             'car_reserv_memberID' => $this->request->getVar('car_reserv_memberID'),
             'car_reserv_location' => $this->request->getVar('car_reserv_location'),
@@ -778,10 +852,15 @@ class ConUserCarBooking extends BaseController
 
                 // ส่ง Telegram แจ้งอนุมัติการจองยานพาหนะ
                 try {
-                    $telegramMsg = "✅ อนุมัติการจองยานพาหนะ\n";
-                    $telegramMsg .= "👤 ผู้ขอ: {$requesterName}\n";
-                    $telegramMsg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
+                    $approverPerson = $notificationService->getPersonnelInfo($session->get('id') ?? '');
+                    $approverFullName = $approverPerson ? $notificationService->getFullName($approverPerson) : ($session->get('username') ?: 'เจ้าหน้าที่');
+
+                    $telegramMsg = "✅ <b>อนุมัติการจองยานพาหนะเรียบร้อย</b>\n";
+                    $telegramMsg .= "👤 ผู้ขอจอง: {$requesterName}\n";
+                    $telegramMsg .= "🚘 ยานพาหนะ: {$Car['car_category']} {$Car['car_registration']} {$Car['car_province']}\n";
                     $telegramMsg .= "📅 ช่วงเวลา: {$dateRange}\n";
+                    $telegramMsg .= "👨‍💼 ผู้อนุมัติ: {$approverFullName}\n";
+                    $telegramMsg .= "📊 สถานะ: ✅ อนุมัติแล้ว\n";
                     $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("CarBooking/View");
                     $notificationService->sendTelegram('car', $telegramMsg);
                 } catch (\Exception $e) {
@@ -889,10 +968,14 @@ class ConUserCarBooking extends BaseController
 
                 // ส่ง Telegram แจ้งไม่อนุมัติ/ยกเลิกการจองยานพาหนะ
                 try {
-                    $telegramMsg = "❌ {$statusText}การจองยานพาหนะ\n";
-                    $telegramMsg .= "👤 ผู้ขอ: {$requesterName}\n";
-                    $telegramMsg .= "🚗 รถ: {$Car['car_category']} {$Car['car_registration']}\n";
+                    $processorPerson = $notificationService->getPersonnelInfo($session->get('id') ?? '');
+                    $processorFullName = $processorPerson ? $notificationService->getFullName($processorPerson) : ($session->get('username') ?: 'เจ้าหน้าที่');
+
+                    $telegramMsg = "❌ <b>{$statusText}การจองยานพาหนะ</b>\n";
+                    $telegramMsg .= "👤 ผู้ขอจอง: {$requesterName}\n";
+                    $telegramMsg .= "🚘 ยานพาหนะ: {$Car['car_category']} {$Car['car_registration']}\n";
                     $telegramMsg .= "📝 เหตุผล: {$reasonText}\n";
+                    $telegramMsg .= "👨‍💼 ผู้ดำเนินการ: {$processorFullName}\n";
                     $telegramMsg .= "👉 ดูรายละเอียด: " . base_url("CarBooking/View");
                     $notificationService->sendTelegram('car', $telegramMsg);
                 } catch (\Exception $e) {
@@ -1077,7 +1160,7 @@ class ConUserCarBooking extends BaseController
             ->where('car_reserv_carID', $CarID)
             ->where("TIMESTAMP(car_reserv_StartDate, car_reserv_StartTime) < '$proposedEnd'", null, false)
             ->where("TIMESTAMP(car_reserv_EndDate, car_reserv_EndTime) > '$proposedStart'", null, false)
-            ->where('car_reserv_status !=', 'ไม่อนุมัติ');
+            ->whereNotIn('car_reserv_status', ['ไม่อนุมัติ', 'ยกเลิก']);
 
         if ($excludeBookingId) {
             $CheckDateCarBookign->where('car_reserv_id !=', $excludeBookingId);

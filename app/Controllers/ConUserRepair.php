@@ -431,11 +431,17 @@ class ConUserRepair extends BaseController
                     ['role' => $targetRoles]
                 );
 
+                // ดึงรูปภาพแรก (ถ้ามี) เพื่อส่งรูปภาพไปยัง Telegram
+                $telegramImageUrl = null;
+                if (!empty($imageNames)) {
+                    $telegramImageUrl = base_url('uploads/user/Repair/' . $imageNames[0]);
+                }
+
                 // ส่ง Telegram แจ้งเตือนกลุ่มงานแจ้งซ่อม
-                $notificationService->sendTelegram('repair', $msg);
+                $notificationService->sendTelegram('repair', $msg, $telegramImageUrl);
                 // ถ้าเป็นงานอาคารสถานที่ ให้แจ้งเข้า Telegram กลุ่มอาคารสถานที่ด้วย
                 if ($isBuilding) {
-                    $notificationService->sendTelegram('booking', $msg);
+                    $notificationService->sendTelegram('booking', $msg, $telegramImageUrl);
                 }
 
                 // 3. ดึงรายชื่อ Email เจ้าหน้าที่และหัวหน้างาน

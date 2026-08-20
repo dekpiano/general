@@ -33,5 +33,7 @@
     <!-- /layout-container -->
 
     <?= $this->include('User/UserLayout/inc_scripts') ?>
+    <?= $this->renderSection('customJS') ?>
+    <?= $this->renderSection('scripts') ?>
 </body>
 </html>

@@ -99,22 +99,25 @@
     <script>
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(async function(OneSignal) {
-            if (window.location.hostname !== "general.skj.ac.th" && window.location.hostname !== "localhost" && !window.location.hostname.includes("127.0.0.1")) {
-                console.log("OneSignal disabled on this domain");
-                return;
+            try {
+                if (window.location.hostname !== "general.skj.ac.th") {
+                    return;
+                }
+                await OneSignal.init({
+                    appId: "be488231-0e72-4fe0-962d-fcb32cb761e7",
+                    safari_web_id: "YOUR-SAFARI-WEB-ID",
+                    notifyButton: {
+                        enable: true,
+                    },
+                    allowLocalhostAsSecureOrigin: true,
+                });
+            } catch (err) {
+                console.warn("OneSignal init skipped:", err.message);
             }
-            await OneSignal.init({
-                appId: "be488231-0e72-4fe0-962d-fcb32cb761e7", // ใส่ ID ที่คุณให้มาเรียบร้อยครับ
-                safari_web_id: "YOUR-SAFARI-WEB-ID", // ถ้ามี
-                notifyButton: {
-                    enable: true,
-                },
-                allowLocalhostAsSecureOrigin: true,
-            });
 
             // Tag User (ถ้ามีการ Login)
-            const userId = "<?= $_SESSION['id'] ?? '' ?>";
-            const userRoles = "<?= $_SESSION['rloes'] ?? '' ?>";
+            const userId = <?= json_encode((string)($_SESSION['id'] ?? '')) ?>;
+            const userRoles = <?= json_encode((string)($_SESSION['rloes'] ?? '')) ?>;
             
             if (userId) {
                 OneSignal.login(userId);
@@ -122,9 +125,9 @@
                 
                 // ตรวจสอบ Role เพื่อติดแท็กสำหรับ Admin
                 <?php if (isset($_SESSION['rloes']) || isset($_SESSION['status'])): ?>
-                    const roles = '<?= addslashes($_SESSION['rloes'] ?? '') ?>';
-                    const levels = '<?= addslashes($_SESSION['rloes_level'] ?? '') ?>';
-                    const status = '<?= addslashes($_SESSION['status'] ?? '') ?>';
+                    const roles = <?= json_encode((string)($_SESSION['rloes'] ?? '')) ?>;
+                    const levels = <?= json_encode((string)($_SESSION['rloes_level'] ?? '')) ?>;
+                    const status = <?= json_encode((string)($_SESSION['status'] ?? '')) ?>;
                     
                     if (roles.includes("งานอาคารสถานที่") || status === "ExecutiveGeneral") {
                         OneSignal.User.addTag("role", "admin_building");

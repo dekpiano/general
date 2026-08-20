@@ -58,7 +58,7 @@
                 <?php if($isSuperAdmin || in_array("งานยานพาหนะ",$SubRloes)) :?>
                 <li class="menu-item <?php echo $uri->getSegment(2) == "Car"?"active open":""?>">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
-                        <i class="menu-icon tf-icons bx bx-layout"></i>
+                        <i class="menu-icon tf-icons bx bx-car"></i>
                         <div data-i18n="Layouts">งานยานพาหนะ</div>
                     </a>
 
@@ -71,6 +71,24 @@
                         <li class="menu-item <?php echo $uri->getSegment(3) == "CarDriver"?"active":""?>">
                             <a href="<?=base_url('Admin/Car/CarDriver')?>" class="menu-link">
                                 <div data-i18n="Without menu">คนขับรถ</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <?php endif; ?>
+
+                <!-- งานพัสดุและอุปกรณ์ -->
+                <?php if($isSuperAdmin || in_array("งานพัสดุและอุปกรณ์",$SubRloes)) :?>
+                <li class="menu-item <?php echo $uri->getSegment(2) == "Equipment"?"active open":""?>">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-box"></i>
+                        <div data-i18n="Layouts">งานพัสดุและอุปกรณ์</div>
+                    </a>
+
+                    <ul class="menu-sub">
+                        <li class="menu-item <?php echo ($uri->getSegment(2) == "Equipment" && $uri->getSegment(3) == "Approve")?"active":""?>">
+                            <a href="<?=base_url('Admin/Equipment/Approve')?>" class="menu-link">
+                                <div data-i18n="Without menu">รายการยืม-คืนพัสดุ</div>
                             </a>
                         </li>
                     </ul>
