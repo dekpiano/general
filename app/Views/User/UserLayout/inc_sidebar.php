@@ -131,37 +131,44 @@
             </a>
         </li>
 
-        <!-- Manual Header -->
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">คู่มือการใช้งาน</span>
-        </li>
-
-        <li class="menu-item <?= $UrlMenuMain == "ManualBooking" ? "active" : "" ?>">
-            <a href="<?= base_url('manual/booking'); ?>" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-book-open"></i>
-                <div>คู่มือจองสถานที่</div>
-            </a>
-        </li>
-
-        <li class="menu-item <?= $UrlMenuMain == "ManualCarBooking" ? "active" : "" ?>">
-            <a href="<?= base_url('manual/car-booking'); ?>" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-book-reader"></i>
-                <div>คู่มือจองยานพาหนะ</div>
-            </a>
-        </li>
-
-        <li class="menu-item <?= $UrlMenuMain == "ManualRepair" ? "active" : "" ?>">
-            <a href="<?= base_url('manual/repair'); ?>" class="menu-link">
+        <!-- Manual Menu Dropdown (Collapsible Submenu) -->
+        <li class="menu-item <?= in_array($UrlMenuMain ?? '', ['Manual', 'ManualBooking', 'ManualCarBooking', 'ManualRepair', 'ManualFoodReport', 'ManualEquipment']) ? "active open" : "" ?>">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-book-content"></i>
-                <div>คู่มือแจ้งซ่อม</div>
+                <div>คู่มือการใช้งาน</div>
             </a>
-        </li>
-
-        <li class="menu-item <?= $UrlMenuMain == "ManualFoodReport" ? "active" : "" ?>">
-            <a href="<?= base_url('manual/food-report'); ?>" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-book-bookmark"></i>
-                <div>คู่มือรายงานอาหาร</div>
-            </a>
+            <ul class="menu-sub">
+                <li class="menu-item <?= ($UrlMenuMain ?? '') == "Manual" ? "active" : "" ?>">
+                    <a href="<?= base_url('manual'); ?>" class="menu-link">
+                        <div>ศูนย์รวมคู่มือทั้งหมด</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuMain ?? '') == "ManualBooking" ? "active" : "" ?>">
+                    <a href="<?= base_url('manual/booking'); ?>" class="menu-link">
+                        <div>คู่มือจองสถานที่</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuMain ?? '') == "ManualCarBooking" ? "active" : "" ?>">
+                    <a href="<?= base_url('manual/car-booking'); ?>" class="menu-link">
+                        <div>คู่มือจองยานพาหนะ</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuMain ?? '') == "ManualRepair" ? "active" : "" ?>">
+                    <a href="<?= base_url('manual/repair'); ?>" class="menu-link">
+                        <div>คู่มือแจ้งซ่อม</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuMain ?? '') == "ManualFoodReport" ? "active" : "" ?>">
+                    <a href="<?= base_url('manual/food-report'); ?>" class="menu-link">
+                        <div>คู่มือรายงานอาหาร</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuMain ?? '') == "ManualEquipment" ? "active" : "" ?>">
+                    <a href="<?= base_url('manual/equipment'); ?>" class="menu-link">
+                        <div>คู่มือยืม-คืนพัสดุ</div>
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <!-- Admin Section -->

@@ -74,4 +74,16 @@ class ConUserManual extends BaseController
         // Load the view for the food report manual
         return view('User/UserManual/FoodReportManual', $data);
     }
+
+    public function equipmentSystemManual()
+    {
+        $data['full_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $data['uri'] = service('uri');
+        $data['title'] = "คู่มือการใช้งานระบบยืม-คืนพัสดุอุปกรณ์";
+        $data['description'] = "ขั้นตอนและวิธีการใช้งานระบบยืม-คืนพัสดุอุปกรณ์ออนไลน์";
+        $data['UrlMenuMain'] = 'ManualEquipment';
+        $data['UrlMenuSub'] = '';
+
+        return view('User/UserManual/EquipmentManual', $data);
+    }
 }

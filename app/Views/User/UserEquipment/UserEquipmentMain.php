@@ -106,6 +106,9 @@
                     <a href="<?= base_url('Equipment/History') ?>" class="btn btn-outline-light rounded-pill px-4 hero-btn">
                         <i class="bx bx-list-ul me-1 fs-5"></i> ติดตามคำขอทั้งหมด
                     </a>
+                    <a href="<?= base_url('manual/equipment') ?>" class="btn btn-outline-light rounded-pill px-4 hero-btn">
+                        <i class="bx bx-book-open me-1 fs-5"></i> คู่มือการใช้งาน
+                    </a>
                     <?php 
                         $session = session();
                         $rawRoles = $session->get('rloes') ?? '';

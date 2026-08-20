@@ -311,121 +311,149 @@ class ConUserCarBooking extends BaseController
                     $msg .= "📊 สถานะ: ⏳ รอการอนุมัติ\n";
                     $msg .= "👉 ตรวจสอบ/อนุมัติ: " . base_url("/CarBooking/Approve/Admin");
 
-                    // 2. ส่ง Email หาผู้ขอจอง (ครู/บุคลากรที่ขอใช้รถ)
-                    if (!empty($requesterEmail)) {
-                        $userEmailFields = [
-                            ['label' => 'เรียน', 'value' => $requesterName],
-                            ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
-                            ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']],
-                        ];
-                        if ($isBookedByOther) {
-                            $userEmailFields[] = ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (จองแทน)'];
-                        }
-
-                        $emailData = [
-                            'header_title' => 'ได้รับคำขอจองยานพาหนะแล้ว',
-                            'header_sub'   => $isBookedByOther 
-                                ? "ระบบจองยานพาหนะออนไลน์ (เจ้าหน้าที่ {$recorderName} ได้ทำการบันทึกข้อมูลการจองให้ท่าน)" 
-                                : 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
-                            'fields' => $userEmailFields,
-                            'columns' => [
-                                ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
-                                ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
-                            ],
-                            'status' => [
-                                'text' => '⏳ รอการตรวจสอบ',
-                                'bg' => '#fff3e0',
-                                'color' => '#e65100'
-                            ],
-                            'cta_text' => '👉 ตรวจสอบสถานะการจอง',
-                            'cta_url'  => base_url("CarBooking/View")
-                        ];
-
-                        $notificationService->sendEmail(
-                            $requesterEmail,
-                            "แจ้งการจองยานพาหนะ: รอการตรวจสอบ (" . $Car['car_category'] . ")",
-                            'car',
-                            $emailData,
-                            'noreply@skj.ac.th',
-                            "ระบบจองยานพาหนะ SKJ"
-                        );
+                    // 2. ส่ง Telegram แจ้งเตือนกลุ่มงานยานพาหนะทันที
+                    try {
+                        $notificationService->sendTelegram('car', $msg);
+                    } catch (\Exception $e) {
+                        log_message('error', 'Car Booking Telegram Error: ' . $e->getMessage());
                     }
 
-                    // 3. ส่ง Email แจ้งผู้บันทึกข้อมูล (กรณีเจ้าหน้าที่/แอดมินบันทึกจองแทนผู้อื่น)
-                    if ($isBookedByOther && !empty($recorderEmail) && $recorderEmail !== $requesterEmail) {
-                        $recorderEmailData = [
-                            'header_title' => 'บันทึกการจองยานพาหนะสำเร็จ',
-                            'header_sub'   => "ระบบจองยานพาหนะออนไลน์ (ท่านได้ทำรายการจองแทน {$requesterName})",
-                            'fields' => [
-                                ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (ท่าน)'],
-                                ['label' => 'ผู้ขอใช้บริการ', 'value' => $requesterName],
+                    // 3. ส่ง OneSignal Push Notification หาผู้ดูแลระบบยานพาหนะ
+                    try {
+                        $notificationService->sendPush(
+                            "มีคำขอจองยานพาหนะใหม่!",
+                            "โดย {$requesterName} ({$Car['car_category']} {$Car['car_registration']})",
+                            base_url("/CarBooking/Approve/Admin"),
+                            ['role' => 'admin_car']
+                        );
+                    } catch (\Exception $e) {
+                        log_message('error', 'Car Booking Push Error: ' . $e->getMessage());
+                    }
+
+                    // 4. ส่ง Email หาผู้ขอจอง (ครู/บุคลากรที่ขอใช้รถ)
+                    try {
+                        if (!empty($requesterEmail)) {
+                            $userEmailFields = [
+                                ['label' => 'เรียน', 'value' => $requesterName],
                                 ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
                                 ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']],
-                            ],
-                            'columns' => [
-                                ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
-                                ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
-                            ],
-                            'status' => [
-                                'text' => '⏳ รอการตรวจสอบ',
-                                'bg' => '#fff3e0',
-                                'color' => '#e65100'
-                            ],
-                            'cta_text' => '👉 ดูรายการจองทั้งหมด',
-                            'cta_url'  => base_url("CarBooking/View")
-                        ];
+                            ];
+                            if ($isBookedByOther) {
+                                $userEmailFields[] = ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (จองแทน)'];
+                            }
 
-                        $notificationService->sendEmail(
-                            $recorderEmail,
-                            "บันทึกการจองยานพาหนะสำเร็จ (จองแทน: {$requesterName})",
-                            'car',
-                            $recorderEmailData,
-                            'noreply@skj.ac.th',
-                            "ระบบจองยานพาหนะ SKJ"
-                        );
-                    }
+                            $emailData = [
+                                'header_title' => 'ได้รับคำขอจองยานพาหนะแล้ว',
+                                'header_sub'   => $isBookedByOther 
+                                    ? "ระบบจองยานพาหนะออนไลน์ (เจ้าหน้าที่ {$recorderName} ได้ทำการบันทึกข้อมูลการจองให้ท่าน)" 
+                                    : 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                                'fields' => $userEmailFields,
+                                'columns' => [
+                                    ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
+                                    ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
+                                ],
+                                'status' => [
+                                    'text' => '⏳ รอการตรวจสอบ',
+                                    'bg' => '#fff3e0',
+                                    'color' => '#e65100'
+                                ],
+                                'cta_text' => '👉 ตรวจสอบสถานะการจอง',
+                                'cta_url'  => base_url("CarBooking/View")
+                            ];
 
-                    // 4. ส่ง Email หาเจ้าหน้าที่และหัวหน้างานยานพาหนะ
-                    $staffEmailsCar = $notificationService->getStaffEmailsByDepartment('งานยานพาหนะ');
-                    if (!empty($staffEmailsCar)) {
-                        $adminEmailFields = [
-                            ['label' => 'ผู้ขอจอง', 'value' => $requesterName],
-                        ];
-                        if ($isBookedByOther) {
-                            $adminEmailFields[] = ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (จองแทน)'];
+                            $notificationService->sendEmail(
+                                $requesterEmail,
+                                "แจ้งการจองยานพาหนะ: รอการตรวจสอบ (" . $Car['car_category'] . ")",
+                                'car',
+                                $emailData,
+                                'noreply@skj.ac.th',
+                                "ระบบจองยานพาหนะ SKJ"
+                            );
                         }
-                        $adminEmailFields[] = ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']];
-                        $adminEmailFields[] = ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']];
-
-                        $adminEmailDataCar = [
-                            'header_title' => 'มีคำขอจองยานพาหนะใหม่',
-                            'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
-                            'fields' => $adminEmailFields,
-                            'columns' => [
-                                ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
-                                ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
-                            ],
-                            'status' => [
-                                'text' => '⏳ รออนุมัติ',
-                                'bg' => '#ffe5d9',
-                                'color' => '#ff6b35'
-                            ],
-                            'cta_text' => '👉 ไปหน้าอนุมัติการจองรถ',
-                            'cta_url'  => base_url('CarBooking/Approve/Admin')
-                        ];
-
-                        $notificationService->sendEmail(
-                            $staffEmailsCar,
-                            "แจ้งการจองยานพาหนะใหม่: " . $Car['car_category'] . " (" . $requesterName . ")",
-                            'car',
-                            $adminEmailDataCar,
-                            'noreply@skj.ac.th',
-                            "ระบบจองยานพาหนะ SKJ"
-                        );
+                    } catch (\Exception $e) {
+                        log_message('error', 'Car Booking Requester Email Error: ' . $e->getMessage());
                     }
 
-                    // 5. ส่ง Telegram แจ้งเตือนกลุ่มงานยานพาหนะ
-                    $notificationService->sendTelegram('car', $msg);
+                    // 5. ส่ง Email แจ้งผู้บันทึกข้อมูล (กรณีเจ้าหน้าที่/แอดมินบันทึกจองแทนผู้อื่น)
+                    try {
+                        if ($isBookedByOther && !empty($recorderEmail) && $recorderEmail !== $requesterEmail) {
+                            $recorderEmailData = [
+                                'header_title' => 'บันทึกการจองยานพาหนะสำเร็จ',
+                                'header_sub'   => "ระบบจองยานพาหนะออนไลน์ (ท่านได้ทำรายการจองแทน {$requesterName})",
+                                'fields' => [
+                                    ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (ท่าน)'],
+                                    ['label' => 'ผู้ขอใช้บริการ', 'value' => $requesterName],
+                                    ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']],
+                                    ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']],
+                                ],
+                                'columns' => [
+                                    ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
+                                    ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
+                                ],
+                                'status' => [
+                                    'text' => '⏳ รอการตรวจสอบ',
+                                    'bg' => '#fff3e0',
+                                    'color' => '#e65100'
+                                ],
+                                'cta_text' => '👉 ดูรายการจองทั้งหมด',
+                                'cta_url'  => base_url("CarBooking/View")
+                            ];
+
+                            $notificationService->sendEmail(
+                                $recorderEmail,
+                                "บันทึกการจองยานพาหนะสำเร็จ (จองแทน: {$requesterName})",
+                                'car',
+                                $recorderEmailData,
+                                'noreply@skj.ac.th',
+                                "ระบบจองยานพาหนะ SKJ"
+                            );
+                        }
+                    } catch (\Exception $e) {
+                        log_message('error', 'Car Booking Recorder Email Error: ' . $e->getMessage());
+                    }
+
+                    // 6. ส่ง Email หาเจ้าหน้าที่และหัวหน้างานยานพาหนะ
+                    try {
+                        $staffEmailsCar = $notificationService->getStaffEmailsByDepartment('งานยานพาหนะ');
+                        if (!empty($staffEmailsCar)) {
+                            $adminEmailFields = [
+                                ['label' => 'ผู้ขอจอง', 'value' => $requesterName],
+                            ];
+                            if ($isBookedByOther) {
+                                $adminEmailFields[] = ['label' => 'ผู้บันทึกข้อมูล', 'value' => $recorderName . ' (จองแทน)'];
+                            }
+                            $adminEmailFields[] = ['label' => 'รถที่ขอใช้', 'value' => $Car['car_category'] . ' ' . $Car['car_registration'] . ' ' . $Car['car_province']];
+                            $adminEmailFields[] = ['label' => 'วัตถุประสงค์', 'value' => $Car['car_reserv_detail']];
+
+                            $adminEmailDataCar = [
+                                'header_title' => 'มีคำขอจองยานพาหนะใหม่',
+                                'header_sub'   => 'ระบบจองยานพาหนะออนไลน์ (Vehicle Booking Service)',
+                                'fields' => $adminEmailFields,
+                                'columns' => [
+                                    ['label' => 'เลขที่คำขอ', 'value' => $Car['car_reserv_order']],
+                                    ['label' => 'ช่วงเวลาที่ใช้', 'value' => $dateRange]
+                                ],
+                                'status' => [
+                                    'text' => '⏳ รออนุมัติ',
+                                    'bg' => '#ffe5d9',
+                                    'color' => '#ff6b35'
+                                ],
+                                'cta_text' => '👉 ไปหน้าอนุมัติการจองรถ',
+                                'cta_url'  => base_url('CarBooking/Approve/Admin')
+                            ];
+
+                            $notificationService->sendEmail(
+                                $staffEmailsCar,
+                                "แจ้งการจองยานพาหนะใหม่: " . $Car['car_category'] . " (" . $requesterName . ")",
+                                'car',
+                                $adminEmailDataCar,
+                                'noreply@skj.ac.th',
+                                "ระบบจองยานพาหนะ SKJ"
+                            );
+                        }
+                    } catch (\Exception $e) {
+                        log_message('error', 'Car Booking Staff Email Error: ' . $e->getMessage());
+                    }
                 }
             }
             catch (\Exception $e) {

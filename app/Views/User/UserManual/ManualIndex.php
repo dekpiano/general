@@ -342,6 +342,28 @@
             </div>
         </div>
 
+        <!-- Equipment Manual -->
+        <div class="col-md-6 col-xl-3 animate-card manual-item" data-keywords="ยืมคืน พัสดุ อุปกรณ์ equipment borrow return โสต เครื่องมือ">
+            <div class="manual-card theme-blue h-100">
+                <div class="card-icon-wrapper" style="background: linear-gradient(135deg, rgba(105, 108, 255, 0.1) 0%, rgba(63, 65, 145, 0.15) 100%);">
+                    <div class="card-icon text-primary">
+                        <i class="bx bxs-box"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">ระบบยืม-คืนพัสดุอุปกรณ์</h5>
+                    <p class="card-text">
+                        เรียนรู้วิธีการยืมพัสดุ ตรวจสอบสต็อก การอนุมัติ ส่งมอบถ่ายภาพ และตรวจรับคืนเข้าสต็อก
+                    </p>
+                    <div class="mt-auto pt-3">
+                        <a href="<?= base_url('manual/equipment') ?>" class="btn btn-view-manual w-100">
+                            <i class="bx bx-book-open me-1"></i> อ่านคู่มือ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- No Results Message -->

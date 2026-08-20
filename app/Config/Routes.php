@@ -34,6 +34,7 @@ $routes->get('manual/booking', 'ConUserManual::bookingSystemManual');
 $routes->get('manual/car-booking', 'ConUserManual::carBookingSystemManual');
 $routes->get('manual/repair', 'ConUserManual::repairSystemManual');
 $routes->get('manual/food-report', 'ConUserManual::foodReportManual');
+$routes->get('manual/equipment', 'ConUserManual::equipmentSystemManual');
 
 // User รายงานอาหาร
 $routes->get('FoodReport', 'ConUserFoodReport::index');
