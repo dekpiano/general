@@ -35,11 +35,17 @@ $(document).ready(function() {
             if (data == "รอตรวจสอบ") {
               return `<span class="status-pill pending"><i class='bx bx-time-five'></i> ${data}</span>`;
             } else if (data == "ไม่อนุมัติ") {
-              return `<span class="status-pill rejected"><i class='bx bx-x-circle'></i> ${data}</span>`;
+              let approverHtml = row.car_reserv_approver 
+                ? `<div class="mt-1 small text-muted" style="font-size: 0.72rem;"><i class='bx bx-user-x me-1 text-danger'></i>โดย: ${row.car_reserv_approver}</div>` 
+                : '';
+              return `<div><span class="status-pill rejected"><i class='bx bx-x-circle'></i> ${data}</span>${approverHtml}</div>`;
             } else if (data == "ยกเลิก" || data == "ยกเลิกการจอง") {
               return `<span class="status-pill text-secondary bg-label-secondary"><i class='bx bx-minus-circle'></i> ${data}</span>`;
             } else {
-              return `<span class="status-pill approved"><i class='bx bx-check-circle'></i> ${data}</span>`;
+              let approverHtml = row.car_reserv_approver 
+                ? `<div class="mt-1 small text-muted" style="font-size: 0.72rem;"><i class='bx bx-user-check me-1 text-success'></i>โดย: <span class="fw-semibold text-dark">${row.car_reserv_approver}</span></div>` 
+                : '';
+              return `<div><span class="status-pill approved"><i class='bx bx-check-circle'></i> ${data}</span>${approverHtml}</div>`;
             }
           },
         },

@@ -289,6 +289,9 @@
                     <button class="btn btn-primary btn-lg rounded-pill shadow-primary px-4 mb-2" onclick="location.reload()">
                         <i class='bx bx-refresh me-1'></i> อัปเดตข้อมูล
                     </button>
+                    <a href="<?= base_url('CarBooking/Driver') ?>" class="btn btn-primary btn-lg rounded-pill px-4 mb-2 ms-2" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);">
+                        <i class='bx bx-id-card me-1'></i> สำหรับคนขับรถ
+                    </a>
                     <button class="btn btn-primary btn-lg rounded-pill px-4 mb-2 ms-2" data-bs-toggle="modal" data-bs-target="#CarManageModal" style="background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
                         <i class='bx bx-car me-1'></i> จัดการข้อมูลรถ
                     </button>

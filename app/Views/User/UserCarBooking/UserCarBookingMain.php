@@ -320,6 +320,19 @@
                         </div>
                     </a>
 
+                    <!-- Driver Portal -->
+                    <a href="<?=base_url('CarBooking/Driver')?>" class="action-card shadow-sm p-3 border-start border-primary border-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar bg-label-primary p-2 rounded-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <i class='bx bx-id-card fs-3'></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block lh-1 mb-1">สำหรับพนักงานขับรถ & บันทึกไมล์</small>
+                                <h5 class="mb-0 fw-bold text-dark">สำหรับคนขับรถ <small class="fw-normal fs-6">Driver</small></h5>
+                            </div>
+                        </div>
+                    </a>
+
                     <!-- My Bookings -->
                     <?php if(isset($_SESSION['id'])): ?>
                     <a href="<?=base_url('CarBooking/View')?>" class="action-card shadow-sm p-3">
@@ -337,28 +350,26 @@
 
 
 
-                    <!-- Admin Section -->
-                    <?php if(isset($_SESSION['username']) && (in_array("งานยานพาหนะ", explode(',',@$_SESSION['rloes'])) || @$_SESSION['status'] =="ExecutiveGeneral" || @$_SESSION['status'] =="AdminGeneral" || @$_SESSION['status'] =="superadmin")):?>
-                        <div class="mt-2 mb-1 ps-2">
-                            <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">ส่วนงานเจ้าหน้าที่</small>
+                    <!-- Staff Section -->
+                    <div class="mt-2 mb-1 ps-2">
+                        <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">ส่วนงานเจ้าหน้าที่</small>
+                    </div>
+                    <a href="<?=base_url('CarBooking/Approve/Admin')?>" class="action-card shadow-sm p-3 border-start border-info border-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar bg-label-info p-2 rounded-3 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i class='bx bx-check-shield fs-4'></i>
+                            </div>
+                            <h6 class="mb-0 fw-bold text-dark">สำหรับเจ้าหน้าที่</h6>
                         </div>
-                        <a href="<?=base_url('CarBooking/Approve/Admin')?>" class="action-card shadow-sm p-3 border-start border-info border-3">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="avatar bg-label-info p-2 rounded-3 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                    <i class='bx bxs-user-detail fs-4'></i>
-                                </div>
-                                <h6 class="mb-0 fw-bold text-dark">หน้าจัดการคำขอ</h6>
-                            </div>
-                            <div class="admin-stat-row">
-                                <small class="text-muted">รออนุมัติ</small>
-                                <span class="badge bg-warning rounded-pill px-2"><?= $NumRowsWaitApprove ?></span>
-                            </div>
-                            <div class="admin-stat-row mt-2 border-0">
-                                <small class="text-muted">อนุมัติแล้ว</small>
-                                <span class="badge bg-success rounded-pill px-2"><?= $NumRowsApprove ?></span>
-                            </div>
-                        </a>
-                    <?php endif; ?>
+                        <div class="admin-stat-row">
+                            <small class="text-muted">รออนุมัติ</small>
+                            <span class="badge bg-warning rounded-pill px-2"><?= $NumRowsWaitApprove ?></span>
+                        </div>
+                        <div class="admin-stat-row mt-2 border-0">
+                            <small class="text-muted">อนุมัติแล้ว</small>
+                            <span class="badge bg-success rounded-pill px-2"><?= $NumRowsApprove ?></span>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>

@@ -43,11 +43,51 @@
             </a>
         </li>
 
-        <li class="menu-item <?= $UrlMenuMain == "CarBooking" ? "active" : "" ?>">
-            <a href="<?= base_url('CarBooking'); ?>" class="menu-link">
+        <?php 
+        $userRoles = json_decode($_SESSION['rloes'] ?? '[]', true) ?: [];
+        $isCarStaff = (isset($_SESSION['username']) && (
+            in_array(@$_SESSION['status'], ['superadmin', 'admin', 'manager', 'AdminGeneral']) ||
+            in_array('งานยานพาหนะ', $userRoles)
+        ));
+        $isEquipmentStaff = (isset($_SESSION['username']) && (
+            in_array(@$_SESSION['status'], ['superadmin', 'admin', 'AdminGeneral']) ||
+            in_array('งานพัสดุและอุปกรณ์', $userRoles)
+        ));
+        ?>
+        <li class="menu-item <?= ($UrlMenuMain ?? '') == "CarBooking" ? "active open" : "" ?>">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-car"></i>
                 <div>จองยานพาหนะ</div>
             </a>
+            <ul class="menu-sub">
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "CarBookingMain" ? "active" : "" ?>">
+                    <a href="<?= base_url('CarBooking'); ?>" class="menu-link">
+                        <div>ขอใช้ยานพาหนะ</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "CarBookingView" ? "active" : "" ?>">
+                    <a href="<?= base_url('CarBooking/View'); ?>" class="menu-link">
+                        <div>แดชบอร์ด & รายการจอง</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "CarBookingCheck" ? "active" : "" ?>">
+                    <a href="<?= base_url('CarBooking/CheckCar'); ?>" class="menu-link">
+                        <div>เช็ครถว่าง</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "CarBookingDriver" ? "active" : "" ?>">
+                    <a href="<?= base_url('CarBooking/Driver'); ?>" class="menu-link text-primary fw-semibold">
+                        <i class="bx bx-id-card me-2"></i>
+                        <div>สำหรับคนขับรถ</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "CarBookingAdmin" ? "active" : "" ?>">
+                    <a href="<?= base_url('CarBooking/Approve/Admin'); ?>" class="menu-link text-primary fw-semibold">
+                        <i class="bx bx-check-shield me-2"></i>
+                        <div>สำหรับเจ้าหน้าที่</div>
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <li class="menu-item <?= $UrlMenuMain == "Repair" ? "active" : "" ?>">
@@ -63,14 +103,6 @@
                 <div>รายงานอาหาร</div>
             </a>
         </li>
-
-        <?php 
-        $userRoles = json_decode($_SESSION['rloes'] ?? '[]', true) ?: [];
-        $isEquipmentStaff = (isset($_SESSION['username']) && (
-            in_array(@$_SESSION['status'], ['superadmin', 'admin', 'AdminGeneral']) ||
-            in_array('งานพัสดุและอุปกรณ์', $userRoles)
-        ));
-        ?>
         <li class="menu-item <?= ($UrlMenuMain ?? '') == "Equipment" ? "active open" : "" ?>">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-box text-primary"></i>

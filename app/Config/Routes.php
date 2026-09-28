@@ -95,7 +95,13 @@ $routes->match(['GET', 'POST'],'CarBooking/DB/ResetAppoveCarReservationAdmin', '
 $routes->match(['GET', 'POST'],'CarBooking/Cancel', 'ConUserCarBooking::CarBookingCancel');
 
 $routes->get('CarBooking/Approve/Admin/Print/(:any)', 'ConUserCarBooking::PrintApproveCarBooking/$1');
+$routes->get('CarBooking/CarBookingPrint/(:any)', 'ConUserCarBooking::CarBookingPrint/$1');
 $routes->match(['GET', 'POST'],'Booking/DB/BookingCarChart', 'ConUserCarBooking::BookingCarChart');
+
+// ระบบคนขับรถ (Driver Portal)
+$routes->get('CarBooking/Driver', 'ConUserCarBooking::CarBookingDriverPortal');
+$routes->match(['GET', 'POST'], 'CarBooking/Driver/GetTrips', 'ConUserCarBooking::CarBookingDriverGetTrips');
+$routes->post('CarBooking/Driver/UpdateTrip', 'ConUserCarBooking::CarBookingDriverUpdateTrip');
 
 // User แจ้งซ่อม
 $routes->get('Repair', 'ConUserRepair::RepairMain');

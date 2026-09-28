@@ -526,17 +526,29 @@
                 <p>สรุปภาพรวม สถิติ และตารางการขอใช้ยานพาหนะโรงเรียน</p>
             </div>
 
-            <!-- Filter Year Dropdown -->
-            <div class="year-filter-box">
-                <label for="selectYearFilter"><i class='bx bx-calendar me-1'></i>เลือกปี พ.ศ.:</label>
-                <select id="selectYearFilter" onchange="changeYearFilter(this.value)">
-                    <option value="all" <?= $selectedYear === 'all' ? 'selected' : '' ?>>ทุกปี (ทั้งหมด)</option>
-                    <?php foreach($availableYears as $y): ?>
-                        <option value="<?= $y ?>" <?= (string)$y === (string)$selectedYear ? 'selected' : '' ?>>
-                            ปี พ.ศ. <?= $y + 543 ?> (<?= $y ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Driver Portal Quick Button -->
+                <a href="<?= base_url('CarBooking/Driver'); ?>" class="btn btn-sm btn-light text-primary fw-bold rounded-pill px-3 shadow-sm d-flex align-items-center gap-1" style="height: 38px;">
+                    <i class='bx bx-id-card fs-5'></i> สำหรับคนขับรถ
+                </a>
+
+                <!-- Staff Portal Quick Button -->
+                <a href="<?= base_url('CarBooking/Approve/Admin'); ?>" class="btn btn-sm btn-light text-primary fw-bold rounded-pill px-3 shadow-sm d-flex align-items-center gap-1" style="height: 38px;">
+                    <i class='bx bx-check-shield fs-5'></i> สำหรับเจ้าหน้าที่
+                </a>
+
+                <!-- Filter Year Dropdown -->
+                <div class="year-filter-box">
+                    <label for="selectYearFilter"><i class='bx bx-calendar me-1'></i>เลือกปี พ.ศ.:</label>
+                    <select id="selectYearFilter" onchange="changeYearFilter(this.value)">
+                        <option value="all" <?= $selectedYear === 'all' ? 'selected' : '' ?>>ทุกปี (ทั้งหมด)</option>
+                        <?php foreach($availableYears as $y): ?>
+                            <option value="<?= $y ?>" <?= (string)$y === (string)$selectedYear ? 'selected' : '' ?>>
+                                ปี พ.ศ. <?= $y + 543 ?> (<?= $y ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -689,9 +701,9 @@
                 <div class="card-actions">
                     <?php if($isApproved): ?>
                         <a target="_blank"
-                           href="<?=base_url('CarBooking/Approve/Admin/Print/'.$v_Booking->car_reserv_id)?>"
+                           href="<?=base_url('CarBooking/CarBookingPrint/'.$v_Booking->car_reserv_id)?>"
                            class="btn-card-action btn-card-print">
-                            <i class='bx bx-printer'></i>พิมพ์ใบงานใช้รถ
+                            <i class='bx bx-printer'></i>พิมพ์เอกสาร (แบบ ๓)
                         </a>
                     <?php endif; ?>
 

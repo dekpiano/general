@@ -48,8 +48,26 @@ class NotificationService
         'rejected' => ['color' => '#ff3e1d', 'colorEnd' => '#ff6b4a', 'cardBg' => '#fff5f5', 'cardBorder' => '#ffcdd2', 'icon' => '❌'],
         'update'   => ['color' => '#28a745', 'colorEnd' => '#20c997', 'cardBg' => '#f0faf4', 'cardBorder' => '#c8e6c9', 'icon' => '🔄'],
     ];
+    /**
+     * ตรวจสอบว่าควรส่งการแจ้งเตือนหรือไม่ (ข้ามเมื่อทำงานบน localhost / เครื่อง Dev)
+     */
     private function shouldSendNotification(): bool
     {
+        $host = $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? '');
+        $serverAddr = $_SERVER['SERVER_ADDR'] ?? '';
+
+        // ถ้าเป็น localhost, 127.0.0.1 หรือ .local / .test จะไม่ส่งการแจ้งเตือน
+        if (
+            strpos($host, 'localhost') !== false ||
+            strpos($host, '127.0.0.1') !== false ||
+            $serverAddr === '127.0.0.1' ||
+            $serverAddr === '::1' ||
+            ENVIRONMENT === 'testing'
+        ) {
+            log_message('info', 'NotificationService: Skipped sending notification on localhost (' . $host . ')');
+            return false;
+        }
+
         return true;
     }
 

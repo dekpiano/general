@@ -210,6 +210,58 @@
                             </div>
                         </div>
 
+                        <!-- NEW SECTION: Vice Director & Fuel -->
+                        <h5 class="section-title"><i class='bx bx-gas-pump'></i> ข้อมูลเพิ่มเติมและการเบิกน้ำมัน</h5>
+                        <div class="row g-3 mb-4">
+                            <!-- Fuel Request Toggle -->
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">ขออนุมัติเบิกน้ำมันเชื้อเพลิงและหล่อลื่นหรือไม่?</label>
+                                <div class="d-flex gap-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="fuel_request" id="fuel_no" value="no" <?= ($Booking->fuel_request == 'no' || empty($Booking->fuel_request)) ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="fuel_no">ไม่เบิก</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="fuel_request" id="fuel_yes" value="yes" <?= ($Booking->fuel_request == 'yes') ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="fuel_yes">ขอเบิก</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fuel Details -->
+                            <div class="col-md-12" id="fuel_details_section" style="<?= ($Booking->fuel_request == 'yes') ? '' : 'display: none;' ?>">
+                                <div class="p-3 border rounded-3 bg-light bg-opacity-25 mt-2">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <select class="form-select" id="fuel_type" name="fuel_type">
+                                                    <option value="">-- เลือกชนิดน้ำมัน --</option>
+                                                    <option value="น้ำมันแก๊สโซฮอล์ 95" <?= $Booking->fuel_type == 'น้ำมันแก๊สโซฮอล์ 95' ? 'selected' : '' ?>>น้ำมันแก๊สโซฮอล์ 95</option>
+                                                    <option value="น้ำมันแก๊สโซฮอล์ 91" <?= $Booking->fuel_type == 'น้ำมันแก๊สโซฮอล์ 91' ? 'selected' : '' ?>>น้ำมันแก๊สโซฮอล์ 91</option>
+                                                    <option value="น้ำมันดีเซล B10" <?= $Booking->fuel_type == 'น้ำมันดีเซล B10' ? 'selected' : '' ?>>น้ำมันดีเซล B10</option>
+                                                    <option value="น้ำมันดีเซล B7" <?= $Booking->fuel_type == 'น้ำมันดีเซล B7' ? 'selected' : '' ?>>น้ำมันดีเซล B7</option>
+                                                    <option value="อื่นๆ" <?= $Booking->fuel_type == 'อื่นๆ' ? 'selected' : '' ?>>อื่นๆ</option>
+                                                </select>
+                                                <label>ชนิดน้ำมัน</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="fuel_amount" name="fuel_amount" placeholder="จำนวนลิตร" min="1" step="0.01" value="<?= $Booking->fuel_amount ?>">
+                                                <label>จำนวน (ลิตร)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" id="fuel_other_section" style="<?= $Booking->fuel_type == 'อื่นๆ' ? '' : 'display: none;' ?>">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="fuel_other_desc" name="fuel_other_desc" placeholder="ระบุชนิดน้ำมันอื่นๆ" value="<?= $Booking->fuel_other_desc ?>">
+                                                <label>ระบุชนิดน้ำมันอื่นๆ</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Availability Display -->
                         <div id="AlertMessage" class="alert-premium d-none mb-4 p-3 animate__animated animate__fadeIn"></div>
 
@@ -270,6 +322,31 @@
             const phone = $(this).find(':selected').data('phone');
             if (phone) {
                 $('#car_reserv_phone').val(phone).trigger('input');
+            }
+        });
+
+        // --- Fuel Toggle Logic ---
+        $('input[name="fuel_request"]').on('change', function() {
+            if ($(this).val() === 'yes') {
+                $('#fuel_details_section').slideDown();
+                $('#fuel_type').prop('required', true);
+                $('#fuel_amount').prop('required', true);
+            } else {
+                $('#fuel_details_section').slideUp();
+                $('#fuel_type').prop('required', false).val('');
+                $('#fuel_amount').prop('required', false).val('');
+                $('#fuel_other_desc').prop('required', false).val('');
+                $('#fuel_other_section').hide();
+            }
+        });
+
+        $('#fuel_type').on('change', function() {
+            if ($(this).val() === 'อื่นๆ') {
+                $('#fuel_other_section').show();
+                $('#fuel_other_desc').prop('required', true);
+            } else {
+                $('#fuel_other_section').hide();
+                $('#fuel_other_desc').prop('required', false).val('');
             }
         });
 

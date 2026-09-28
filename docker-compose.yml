@@ -5,8 +5,8 @@ services:
     container_name: general2025_app
     build: .
     ports:
-      - "8085:80"
-      - "8086:443"
+      - "8096:80"
+      - "8097:443"
     volumes:
       - .:/var/www/html:cached
       - app_writable:/var/www/html/writable

@@ -62,17 +62,30 @@ class ConUserCarBooking extends BaseController
     public function CarBookingMain()
     {
         $session = session();
+        $userId = $session->get('id');
+        $database = \Config\Database::connect();
+
+        // ตรวจสอบว่าผู้ใช้ที่ล็อกอินเป็นคนขับรถหรือไม่
+        $isDriver = false;
+        if ($userId) {
+            $isDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
+        }
+
+        // หากเป็นคนขับรถ ให้ไปที่หน้าสำหรับคนขับรถโดยตรงเพื่อดูงานและรถที่ระบบเลือกให้ขับ
+        if ($isDriver) {
+            return redirect()->to(base_url('CarBooking/Driver'));
+        }
+
         $data = $this->DataMain();
         $data['title'] = "ระบบจองยานพาหนะ";
         $data['description'] = "ระบบสำหรับจองยานพาหนะภายในโรงเรียน";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingMain';
 
-        $database = \Config\Database::connect();
         $DBSchoolCar = $database->table('tb_school_car');
         $DBCarReservation = $database->table('tb_car_reservation');
         $data['CountCarAll'] = $DBSchoolCar->countAll();
-        $data['CountCarReservationAll'] = $DBCarReservation->where('car_reserv_memberID', $session->get('id'))->countAllResults();
+        $data['CountCarReservationAll'] = $DBCarReservation->where('car_reserv_memberID', $userId)->countAllResults();
 
         $data['NumRowsWaitApprove'] = $DBCarReservation->where('car_reserv_status', 'รอตรวจสอบ')->countAllResults();
         $data['NumRowsApprove'] = $DBCarReservation->where('car_reserv_status', 'อนุมัติ')->countAllResults();
@@ -87,18 +100,40 @@ class ConUserCarBooking extends BaseController
 
     public function CarBookingCheckCar()
     {
+        $session = session();
+        $userId = $session->get('id');
+        $database = \Config\Database::connect();
+
+        $isDriver = false;
+        if ($userId) {
+            $isDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
+        }
+
+        $builder = $database->table('tb_school_car');
+        if ($isDriver) {
+            // ดึงเฉพาะรถที่ระบบเลือกให้คนขับคนนี้ขับ
+            $assigned = $database->table('tb_car_reservation')
+                ->select('car_reserv_carID')
+                ->where('car_reserv_driver', $userId)
+                ->where('car_reserv_status', 'อนุมัติ')
+                ->groupBy('car_reserv_carID')
+                ->get()->getResultArray();
+            $carIds = array_column($assigned, 'car_reserv_carID');
+            if (!empty($carIds)) {
+                $data['CheckCar'] = $builder->whereIn('car_ID', $carIds)->get()->getResult();
+            } else {
+                $data['CheckCar'] = [];
+            }
+        } else {
+            $data['CheckCar'] = $builder->get()->getResult();
+        }
+
         $data = $this->DataMain();
         $data['title'] = "เช็ครถก่อนทำการจอง";
         $data['description'] = "เช็ครถก่อนทำการจอง";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingCheck';
-        $session = session();
 
-
-        $database = \Config\Database::connect();
-        $builder = $database->table('tb_school_car');
-        $data['CheckCar'] = $builder->get()->getResult();
-        //echo "<pre>";print_r($data['CheckCar']); exit();
         return view('User/UserCarBooking/UserCarBookingCheck', $data);
     }
 
@@ -111,7 +146,12 @@ class ConUserCarBooking extends BaseController
         $DBpers = \Config\Database::connect('personnel');
         $DBpersonnel = $DBpers->table('tb_personnel');
 
-        $S_data = $DBCarReservation->select('
+        $isDriver = false;
+        if ($session->get('id')) {
+            $isDriver = $database->table('tb_car_driver')->where('cardriver_userID', $session->get('id'))->countAllResults() > 0;
+        }
+
+        $queryBuilder = $DBCarReservation->select('
        skjacth_general.tb_car_reservation.*,
         skjacth_general.tb_school_car.car_img,
         skjacth_general.tb_school_car.car_registration,
@@ -122,9 +162,13 @@ class ConUserCarBooking extends BaseController
         skjacth_personnel.tb_personnel.pers_lastname
        ')
             ->join('skjacth_general.tb_school_car', 'skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID')
-            ->join('skjacth_personnel.tb_personnel', "skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID")
-            ->orderBy('car_reserv_id', 'DESC')
-            ->get()->getResult();
+            ->join('skjacth_personnel.tb_personnel', "skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_car_reservation.car_reserv_memberID");
+
+        if ($isDriver) {
+            $queryBuilder->where('skjacth_general.tb_car_reservation.car_reserv_driver', $session->get('id'));
+        }
+
+        $S_data = $queryBuilder->orderBy('car_reserv_id', 'DESC')->get()->getResult();
         $data = array();
         foreach ($S_data as $key => $value) {
             $CheckDriver = $DBpersonnel->select('pers_prefix,pers_firstname,pers_lastname')->where('pers_id', $value->car_reserv_driver)->get()->getResult();
@@ -252,7 +296,11 @@ class ConUserCarBooking extends BaseController
             'car_reserv_EndTime' => $this->request->getVar('car_reserv_EndTime'),
             'car_reserv_carID' => $carID,
             'car_reserv_phone' => $this->request->getVar('car_reserv_phone'),
-            'car_reserv_status' => "รอตรวจสอบ"
+            'car_reserv_status' => "รอตรวจสอบ",
+            'fuel_request' => $this->request->getVar('fuel_request'),
+            'fuel_type' => $this->request->getVar('fuel_type'),
+            'fuel_amount' => $this->request->getVar('fuel_amount') ?: null,
+            'fuel_other_desc' => $this->request->getVar('fuel_other_desc')
         ];
 
 
@@ -582,7 +630,11 @@ class ConUserCarBooking extends BaseController
             'car_reserv_EndDate' => $Car_dateEnd,
             'car_reserv_EndTime' => $this->request->getVar('car_reserv_EndTime'),
             'car_reserv_phone' => $this->request->getVar('car_reserv_phone'),
-            'car_reserv_status' => "รอตรวจสอบ"
+            'car_reserv_status' => "รอตรวจสอบ",
+            'fuel_request' => $this->request->getVar('fuel_request'),
+            'fuel_type' => $this->request->getVar('fuel_type'),
+            'fuel_amount' => $this->request->getVar('fuel_amount') ?: null,
+            'fuel_other_desc' => $this->request->getVar('fuel_other_desc')
         ];
 
         $DBCarReservation->where('car_reserv_id', $id);
@@ -599,6 +651,124 @@ class ConUserCarBooking extends BaseController
                 'message' => 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล'
             ]);
         }
+    }
+
+    // --------------- พิมพ์แบบฟอร์ม ---------------------------
+    public function CarBookingPrint($id = null)
+    {
+        $session = session();
+        if (!$session->get('username')) {
+            return redirect()->to(base_url('LoginOfficerGeneral?return_to=' . urlencode(current_url())));
+        }
+
+        $data = $this->DataMain();
+        $data['title'] = "พิมพ์ใบอนุญาตใช้รถส่วนกลาง";
+        $data['Datethai'] = new Datethai();
+
+        $database = \Config\Database::connect();
+        $DBCarReservation = $database->table('tb_car_reservation');
+        
+        $booking = $DBCarReservation->select('
+                skjacth_general.tb_car_reservation.*,
+                skjacth_general.tb_school_car.car_registration,
+                skjacth_general.tb_school_car.car_province,
+                skjacth_general.tb_school_car.car_category,
+                p1.pers_prefix as req_prefix, p1.pers_firstname as req_firstname, p1.pers_lastname as req_lastname,
+                p1.pers_academic as req_academic,
+                p1.pers_position as req_pers_position,
+                p1.pers_learning as req_pers_learning,
+                p1.pers_workother_id as req_pers_workother,
+                bookerPosi.posi_name as req_position,
+                bookerPosiMain.work_name as req_position_main,
+                p2.pers_prefix as drv_prefix, p2.pers_firstname as drv_firstname, p2.pers_lastname as drv_lastname,
+                p2.pers_academic as drv_academic,
+                p2.pers_position as drv_pers_position,
+                drvPosiMain.work_name as drv_position_main,
+                p3.pers_prefix as approver_prefix, p3.pers_firstname as approver_firstname, p3.pers_lastname as approver_lastname,
+                p3.pers_academic as approver_academic,
+                approverPosi.posi_name as approver_position
+            ')
+            ->join('skjacth_general.tb_school_car', 'skjacth_general.tb_school_car.car_ID = skjacth_general.tb_car_reservation.car_reserv_carID', 'left')
+            ->join('skjacth_personnel.tb_personnel AS p1', 'tb_car_reservation.car_reserv_memberID = p1.pers_id', 'left')
+            ->join('skjacth_skj.tb_position AS bookerPosi', 'bookerPosi.posi_id = p1.pers_position', 'left')
+            ->join('skjacth_skj.tb_position_main AS bookerPosiMain', 'bookerPosiMain.work_id = p1.pers_workother_id', 'left')
+            ->join('skjacth_personnel.tb_personnel AS p2', 'tb_car_reservation.car_reserv_driver = p2.pers_id', 'left')
+            ->join('skjacth_skj.tb_position_main AS drvPosiMain', 'drvPosiMain.work_id = p2.pers_workother_id', 'left')
+            ->join('skjacth_personnel.tb_personnel AS p3', 'tb_car_reservation.car_reserv_approver = p3.pers_id', 'left')
+            ->join('skjacth_skj.tb_position AS approverPosi', 'approverPosi.posi_id = p3.pers_position', 'left')
+            ->where('car_reserv_id', $id)
+            ->get()->getRow();
+
+        if (!$booking) {
+            return redirect()->to(base_url('CarBooking'))->with('error', 'ไม่พบข้อมูลการจอง');
+        }
+
+        $data['Booking'] = $booking;
+        
+        $dbGeneral = \Config\Database::connect();
+        $dbPersonnel = \Config\Database::connect('personnel');
+
+        // 1. รองผู้อำนวยการกลุ่มบริหารทั่วไป (หัวหน้าฝ่าย)
+        $DeputyDirectorGeneral = $dbGeneral->table('tb_admin_rloes')
+            ->select('
+                CONCAT(skjacth_personnel.tb_personnel.pers_prefix, skjacth_personnel.tb_personnel.pers_firstname, " ", skjacth_personnel.tb_personnel.pers_lastname) AS ExecutiveName,
+                skjacth_skj.tb_position.posi_name,
+                skjacth_personnel.tb_personnel.pers_academic
+            ')
+            ->join('skjacth_personnel.tb_personnel', 'skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id', 'left')
+            ->join('skjacth_skj.tb_position', 'skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position', 'left')
+            ->groupStart()
+                ->like('admin_rloes_nanetype', 'รองผู้อำนวยการบริหารทั่วไป')
+                ->orLike('admin_rloes_nanetype', 'บริหารทั่วไป')
+            ->groupEnd()
+            ->get()->getRow();
+
+        // 2. ผู้อำนวยการโรงเรียน (ผู้มีอำนาจสั่งใช้รถ)
+        $Director = $dbGeneral->table('tb_admin_rloes')
+            ->select('
+                CONCAT(skjacth_personnel.tb_personnel.pers_prefix, skjacth_personnel.tb_personnel.pers_firstname, " ", skjacth_personnel.tb_personnel.pers_lastname) AS DirectorName,
+                skjacth_skj.tb_position.posi_name,
+                skjacth_personnel.tb_personnel.pers_academic
+            ')
+            ->join('skjacth_personnel.tb_personnel', 'skjacth_general.tb_admin_rloes.admin_rloes_userid = skjacth_personnel.tb_personnel.pers_id', 'left')
+            ->join('skjacth_skj.tb_position', 'skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position', 'left')
+            ->like('admin_rloes_nanetype', 'ผู้อำนวยการ')
+            ->get()->getRow();
+
+        // Fallback: หากยังไม่ได้ผูกใน tb_admin_rloes ให้ดึงจากตำแหน่งใน tb_personnel
+        if (!$DeputyDirectorGeneral) {
+            $DeputyDirectorGeneral = $dbPersonnel->table('tb_personnel')
+                ->select('
+                    CONCAT(pers_prefix, pers_firstname, " ", pers_lastname) AS ExecutiveName,
+                    skjacth_skj.tb_position.posi_name,
+                    pers_academic
+                ')
+                ->join('skjacth_skj.tb_position', 'skjacth_personnel.tb_personnel.pers_position = skjacth_skj.tb_position.posi_id', 'left')
+                ->where('skjacth_skj.tb_position.posi_name LIKE', '%รองผู้อำนวยการ%')
+                ->where('pers_status', 'กำลังใช้งาน')
+                ->get()->getRow();
+        }
+
+        if (!$Director) {
+            $Director = $dbPersonnel->table('tb_personnel')
+                ->select('
+                    CONCAT(pers_prefix, pers_firstname, " ", pers_lastname) AS DirectorName,
+                    skjacth_skj.tb_position.posi_name,
+                    pers_academic
+                ')
+                ->join('skjacth_skj.tb_position', 'skjacth_personnel.tb_personnel.pers_position = skjacth_skj.tb_position.posi_id', 'left')
+                ->where('skjacth_skj.tb_position.posi_name LIKE', '%ผู้อำนวยการโรงเรียน%')
+                ->where('pers_status', 'กำลังใช้งาน')
+                ->get()->getRow();
+        }
+
+        $data['DeputyDirectorGeneral'] = $DeputyDirectorGeneral;
+        $data['Director'] = $Director;
+        
+        // เราสามารถเพิ่มการเรียกตารางแผนกของ User ตรงนี้ได้ถ้ามี
+        $data['req_department'] = "โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์";
+
+        return view('User/UserCarBooking/UserCarBookingPrint', $data);
     }
 
     // --------------- ของแอดมิน อนุมัตื ApproveAdmin ---------------------------
@@ -740,6 +910,14 @@ class ConUserCarBooking extends BaseController
 
         if ($selectedYear !== 'all' && is_numeric($selectedYear)) {
             $builder->where('YEAR(car_reserv_StartDate)', (int)$selectedYear);
+        }
+
+        $isDriver = false;
+        if ($session->get('id')) {
+            $isDriver = $database->table('tb_car_driver')->where('cardriver_userID', $session->get('id'))->countAllResults() > 0;
+        }
+        if ($isDriver) {
+            $builder->where('skjacth_general.tb_car_reservation.car_reserv_driver', $session->get('id'));
         }
 
         $data['CarBooking'] = $builder->orderBy('car_reserv_id', 'DESC')->get()->getResult();
@@ -1290,7 +1468,7 @@ class ConUserCarBooking extends BaseController
         $data['title'] = "ดูข้อมูลจองยานพาหนะ (Admin)";
         $data['description'] = "ดูข้อมูลจองยานพาหนะ (Admin)";
         $data['UrlMenuMain'] = 'CarBooking';
-        $data['UrlMenuSub'] = 'CarBookingView';
+        $data['UrlMenuSub'] = 'CarBookingAdmin';
         $data['Datethai'] = new Datethai();
 
         $database = \Config\Database::connect();
@@ -1500,199 +1678,244 @@ class ConUserCarBooking extends BaseController
 
     public function PrintApproveCarBooking($KeyCarBooking)
     {
+        return $this->CarBookingPrint($KeyCarBooking);
+    }
 
+    // =========================================================================
+    // ระบบคนขับรถ (Driver Portal)
+    // =========================================================================
+
+    public function CarBookingDriverPortal()
+    {
         $session = session();
-        $Datethai = new Datethai();
+        if (!$session->get('username')) {
+            return redirect()->to(base_url('LoginOfficerGeneral?return_to=' . urlencode(current_url())));
+        }
+
+        $userId = $session->get('id');
+        $userStatus = $session->get('status');
+        $userRoles = json_decode($session->get('rloes') ?? '[]', true) ?: [];
+
         $database = \Config\Database::connect();
-        $DBCarBooking = $database->table('tb_car_reservation');
-        $DBAdminRloe = $database->table('tb_admin_rloes');
-        $DBpers = \Config\Database::connect('personnel');
-        $DBpersonnel = $DBpers->table('tb_personnel');
-        $DBskj = \Config\Database::connect('skj');
-        $DBposition = $DBpers->table('tb_position');
-        //print_r($DBposition);exit();
 
-        $ViewCarBooking = $DBCarBooking->select("     
-        CONCAT(driver.pers_prefix,driver.pers_firstname,' ',driver.pers_lastname) AS DriverName,
-        driverPosi.posi_name AS DriverPosi,
-        CONCAT(booker.pers_prefix,booker.pers_firstname,' ',booker.pers_lastname) AS BookerName,
-        bookerPosi.posi_name AS BookerPosi,
-        CONCAT(approver.pers_prefix,approver.pers_firstname,' ',approver.pers_lastname) AS ApproverName,
-        approverPosi.posi_name AS ApproverPosi,
-        tb_car_reservation.*,
-        skjacth_general.tb_school_car.car_registration,
-        skjacth_general.tb_school_car.car_province,
-        skjacth_general.tb_school_car.car_category,
-        skjacth_general.tb_school_car.car_brand,
-        skjacth_general.tb_school_car.car_model
-        ")
-            ->join('skjacth_personnel.tb_personnel AS driver', 'driver.pers_id = tb_car_reservation.car_reserv_driver', 'left')
-            ->join('skjacth_personnel.tb_personnel AS booker', 'booker.pers_id = tb_car_reservation.car_reserv_memberID', 'left')
-            ->join('skjacth_personnel.tb_personnel AS approver', 'approver.pers_id = tb_car_reservation.car_reserv_approver', 'left')
-            ->join('skjacth_general.tb_school_car', 'skjacth_general.tb_school_car.car_ID = tb_car_reservation.car_reserv_carID', 'left')
-            ->join('skjacth_skj.tb_position AS driverPosi', 'driverPosi.posi_id = driver.pers_position', 'left')
-            ->join('skjacth_skj.tb_position AS bookerPosi', 'bookerPosi.posi_id = booker.pers_position', 'left')
-            ->join('skjacth_skj.tb_position AS approverPosi', 'approverPosi.posi_id = approver.pers_position', 'left')
-            ->where('tb_car_reservation.car_reserv_id', $KeyCarBooking)
-            ->get()->getRow();
+        // ตรวจสอบว่าผู้ใช้อยู่ในตารางคนขับรถหรือไม่
+        $isRegisteredDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
+        // เป็น Admin ยานพาหนะ (และไม่ใช่คนขับรถ)
+        $isAdmin = (in_array($userStatus, ['admin', 'manager', 'superadmin']) || in_array('งานยานพาหนะ', $userRoles)) && !$isRegisteredDriver;
 
-        if (!$ViewCarBooking) {
-            return "ไม่พบข้อมูลการจอง";
-        }
-        $ExecutiveGeneral = $DBAdminRloe->select('
-        CONCAT(skjacth_personnel.tb_personnel.pers_prefix,skjacth_personnel.tb_personnel.pers_firstname," ",skjacth_personnel.tb_personnel.pers_lastname) AS ExecutiveName,
-        skjacth_skj.tb_position.posi_name,
-        skjacth_personnel.tb_personnel.pers_academic
-        ')
-            ->join('skjacth_personnel.tb_personnel', 'skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_admin_rloes.admin_rloes_userid')
-            ->join('skjacth_skj.tb_position', 'skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
-            ->where('admin_rloes_nanetype', 'หัวหน้าบริหารทั่วไป')
-            ->get()->getRow();
+        // รายชื่อคนขับรถทั้งหมด (สำหรับฟิลเตอร์ของ Admin)
+        $allDrivers = $database->table('tb_car_driver')
+            ->select('
+                skjacth_general.tb_car_driver.cardriver_id,
+                skjacth_general.tb_car_driver.cardriver_userID,
+                p.pers_prefix, p.pers_firstname, p.pers_lastname, p.pers_phone, p.pers_img
+            ')
+            ->join('skjacth_personnel.tb_personnel AS p', 'p.pers_id = skjacth_general.tb_car_driver.cardriver_userID', 'left')
+            ->get()->getResult();
 
-        $DeputyDirectorGeneral = $DBAdminRloe->select('
-        CONCAT(skjacth_personnel.tb_personnel.pers_prefix,skjacth_personnel.tb_personnel.pers_firstname," ",skjacth_personnel.tb_personnel.pers_lastname) AS ExecutiveName,
-        skjacth_skj.tb_position.posi_name,
-        skjacth_personnel.tb_personnel.pers_academic
-        ')
-            ->join('skjacth_personnel.tb_personnel', 'skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_admin_rloes.admin_rloes_userid')
-            ->join('skjacth_skj.tb_position', 'skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
-            ->where('admin_rloes_nanetype', 'รองผู้อำนวยการบริหารทั่วไป')
-            ->get()->getRow();
+        $data = $this->DataMain();
+        $data['title'] = "สำหรับคนขับรถ (Driver Portal)";
+        $data['description'] = "ตรวจสอบงานที่ได้รับมอบหมาย บันทึกเลขไมล์และข้อมูลการเดินทาง";
+        $data['UrlMenuMain'] = 'CarBooking';
+        $data['UrlMenuSub'] = 'CarBookingDriver';
+        $data['Datethai'] = new Datethai();
+        $data['isAdmin'] = $isAdmin;
+        $data['isRegisteredDriver'] = $isRegisteredDriver;
+        $data['currentUserId'] = $userId;
+        $data['allDrivers'] = $allDrivers;
 
-        $DeputyDirector = $DBAdminRloe->select('
-        CONCAT(skjacth_personnel.tb_personnel.pers_prefix,skjacth_personnel.tb_personnel.pers_firstname," ",skjacth_personnel.tb_personnel.pers_lastname) AS ExecutiveName,
-        skjacth_skj.tb_position.posi_name,
-        skjacth_personnel.tb_personnel.pers_academic
-        ')
-            ->join('skjacth_personnel.tb_personnel', 'skjacth_personnel.tb_personnel.pers_id = skjacth_general.tb_admin_rloes.admin_rloes_userid')
-            ->join('skjacth_skj.tb_position', 'skjacth_skj.tb_position.posi_id = skjacth_personnel.tb_personnel.pers_position')
-            ->where('admin_rloes_nanetype', 'ผู้อำนวยการโรงเรียน')
-            ->get()->getRow();
-        //echo '<pre>';print_r($DeputyDirectorGeneral);exit();
+        return view('User/UserCarBooking/UserCarBookingDriver', $data);
+    }
 
-        require_once ROOTPATH . 'vendor/autoload.php';
+    public function CarBookingDriverGetTrips()
+    {
         $session = session();
-        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
-        $fontDirs = $defaultConfig['fontDir'];
-
-        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
-        $fontData = $defaultFontConfig['fontdata'];
-
-        $mpdf = new \Mpdf\Mpdf(
-            array(
-                'format' => 'A4',
-                'mode' => 'utf-8',
-                'default_font' => 'thsarabun',
-                'default_font_size' => 16,
-                'fontDir' => array_merge($fontDirs, [
-                    ROOTPATH . 'vendor/mpdf/mpdf/ttfonts',
-                ]),
-                'fontdata' => $fontData + [
-                    'thsarabun' => [
-                        'R' => 'THSarabunNew.ttf',
-                        'B' => 'THSarabunNew Bold.ttf',
-                        'I' => 'THSarabunNew Italic.ttf',
-                        'BI' => 'THSarabunNew BoldItalic.ttf'
-                    ]
-                ],
-            )
-        );
-
-        $mpdf->SetTitle('ใบขออนุญาตใช้รถส่วนกลาง');
-
-        // Placeholder for null values
-        $ViewCarBooking->car_reserv_created_at = $ViewCarBooking->car_reserv_created_at ?? date('Y-m-d H:i:s');
-        $ViewCarBooking->BookerName = $ViewCarBooking->BookerName ?? '-';
-        $ViewCarBooking->BookerPosi = $ViewCarBooking->BookerPosi ?? '-';
-        $ViewCarBooking->car_reserv_location = $ViewCarBooking->car_reserv_location ?? '-';
-        $ViewCarBooking->car_reserv_detail = $ViewCarBooking->car_reserv_detail ?? '-';
-        $ViewCarBooking->car_reserv_number = $ViewCarBooking->car_reserv_number ?? '0';
-        $ViewCarBooking->DriverName = $ViewCarBooking->DriverName ?? '-';
-        $ViewCarBooking->DriverPosi = $ViewCarBooking->DriverPosi ?? '-';
-        $ViewCarBooking->car_brand = $ViewCarBooking->car_brand ?? '-';
-        $ViewCarBooking->car_registration = $ViewCarBooking->car_registration ?? '-';
-        $ViewCarBooking->car_province = $ViewCarBooking->car_province ?? '';
-
-        $ExecutiveGeneralName = $ExecutiveGeneral->ExecutiveName ?? '............................................';
-        $ExecutiveGeneralPosi = ($ExecutiveGeneral->posi_name ?? '-') . ' ' . ($ExecutiveGeneral->pers_academic ?? '');
-
-        $DeputyDirectorGeneralName = $DeputyDirectorGeneral->ExecutiveName ?? '............................................';
-        $DeputyDirectorGeneralPosi = ($DeputyDirectorGeneral->posi_name ?? '-') . ' ' . ($DeputyDirectorGeneral->pers_academic ?? '');
-
-        $DeputyDirectorName = $DeputyDirector->ExecutiveName ?? '............................................';
-
-        $html = '
-        <style>
-        @page {
-            margin-top: 10mm;  /* ระยะห่างจากขอบบน */
-            margin-bottom: 10mm; /* ระยะห่างจากขอบล่าง */
+        if (!$session->get('username')) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Unauthorized']);
         }
-            </style>
-        <h3 style="text-align: center;margin-top:-20px">ใบขออนุญาตใช้รถส่วนกลาง</h3>
 
-            <div style="margin-left:18rem;">องค์การบริหารส่วนจังหวัดนครสวรรค์</div>
-            <div style="margin-left:18rem;">' . $Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_created_at)) . '</div>
-         
-            <div style="margin-top:10px">เรียน: ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์</div>
-            <div style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ข้าพเจ้า ' . $ViewCarBooking->BookerName . ' &nbsp;&nbsp;&nbsp; ตำแหน่ง ' . $ViewCarBooking->BookerPosi . ' &nbsp;&nbsp;&nbsp;&nbsp; 
+        $userId = $session->get('id');
+        $userStatus = $session->get('status');
+        $userRoles = json_decode($session->get('rloes') ?? '[]', true) ?: [];
+        $database = \Config\Database::connect();
 
-            ขออนุญาตใช้รถยนต์ส่วนกลางไปที่ ' . $ViewCarBooking->car_reserv_location . ' เพื่อปฏิบัติงานเรื่อง  ' . $ViewCarBooking->car_reserv_detail . '
-            
+        $isRegisteredDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
+        $isAdmin = (in_array($userStatus, ['admin', 'manager', 'superadmin']) || in_array('งานยานพาหนะ', $userRoles)) && !$isRegisteredDriver;
 
-            จำนวนผู้ไปปฏิบัติงาน ' . $ViewCarBooking->car_reserv_number . ' คน 
-            ออกเดินทางใน' . $Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_StartDate)) . ' เวลา ' . date('H:i', strtotime($ViewCarBooking->car_reserv_StartTime)) . ' น. ถึง' . $Datethai->thai_date_fullmonth_ALL(strtotime($ViewCarBooking->car_reserv_EndDate)) . ' เวลา ' . date('H:i', strtotime($ViewCarBooking->car_reserv_EndTime)) . ' น. </div>
-          
-            <div style="margin-left:18rem;margin-top:30px;">
-                <div style="text-align:center;">
-                    <div>(ลงชื่อ) ............................................ ผู้ขออนุญาต</div>
-                    <div style="margin-left:0px;">(' . $ViewCarBooking->BookerName . ')</div>
-                    <div >ตำแหน่ง ' . $ViewCarBooking->BookerPosi . '</div>
-                </div>            
-            </div>
+        $filterStatus = $this->request->getVar('status') ?: 'all'; // all, today, upcoming, completed
+        $selectedDriver = $this->request->getVar('driver_id');
 
-            <div style="position: absolute;">
-                <div style="text-align:left;">
-                    <div style="text-align:center;">(ลงชื่อ) ............................................ หัวหน้าฝ่ายบริหารทั่วไป</div>
-                    <div style="margin-left:40px;">(' . $ExecutiveGeneralName . ')</div>
-                    <div style="margin-left:40px;">ตำแหน่ง ' . $ExecutiveGeneralPosi . '</div>
-                </div>            
-            </div>
+        $builder = $database->table('tb_car_reservation')
+            ->select('
+                tb_car_reservation.*,
+                skjacth_general.tb_school_car.car_registration,
+                skjacth_general.tb_school_car.car_province,
+                skjacth_general.tb_school_car.car_category,
+                skjacth_general.tb_school_car.car_brand,
+                skjacth_general.tb_school_car.car_model,
+                skjacth_general.tb_school_car.car_img,
+                booker.pers_prefix AS req_prefix, booker.pers_firstname AS req_firstname, booker.pers_lastname AS req_lastname,
+                booker.pers_phone AS req_phone,
+                driver.pers_prefix AS drv_prefix, driver.pers_firstname AS drv_firstname, driver.pers_lastname AS drv_lastname,
+                driver.pers_phone AS drv_phone,
+                driver.pers_img AS drv_img,
+                recorder.pers_prefix AS rec_prefix, recorder.pers_firstname AS rec_firstname, recorder.pers_lastname AS rec_lastname
+            ')
+            ->join('skjacth_general.tb_school_car', 'skjacth_general.tb_school_car.car_ID = tb_car_reservation.car_reserv_carID', 'left')
+            ->join('skjacth_personnel.tb_personnel AS booker', 'booker.pers_id = tb_car_reservation.car_reserv_memberID', 'left')
+            ->join('skjacth_personnel.tb_personnel AS driver', 'driver.pers_id = tb_car_reservation.car_reserv_driver', 'left')
+            ->join('skjacth_personnel.tb_personnel AS recorder', 'recorder.pers_id = tb_car_reservation.mileage_recorded_by', 'left')
+            ->where('tb_car_reservation.car_reserv_status', 'อนุมัติ');
 
-            <div style="margin-top:5rem;">
-                <div style="text-align:left;">
-                    <div style="">(ลงชื่อ) ............................................ รองผู้อำนวยการฝ่ายบริหารทั่วไป</div>
-                    <div style="margin-left:40px;">(' . $DeputyDirectorGeneralName . ')</div>
-                    <div style="margin-left:40px;">ตำแหน่ง ' . $DeputyDirectorGeneralPosi . '</div>
-                </div>            
-            </div>
+        // กรองคนขับ: หากเป็นคนขับรถ (หรือผู้ใช้ทั่วไป) ให้ล็อกเฉพาะงานและรถที่ระบบเลือกให้ตัวเองขับเท่านั้น!
+        if ($isRegisteredDriver || !$isAdmin) {
+            $builder->where('tb_car_reservation.car_reserv_driver', $userId);
+        } else {
+            // Admin สามารถเลือกดูเฉพาะคนขับคนใดคนหนึ่ง หรือดูทั้งหมด
+            if (!empty($selectedDriver) && $selectedDriver !== 'all') {
+                $builder->where('tb_car_reservation.car_reserv_driver', $selectedDriver);
+            }
+        }
 
-            <div style="margin-top:1rem;">
-                <div>สมควรจ่ายรถยนต์ ยี่ห้อ ' . $ViewCarBooking->car_brand . ' หมายเลขทะเบียน  ' . $ViewCarBooking->car_registration . ' ' . $ViewCarBooking->car_province . ' โดยให้ ' . $ViewCarBooking->DriverName . ' เป็นผู้รับ </div>
-            </div>
-           
-            <div style="margin-left:17rem;margin-top:10px;">
-                <div style="text-align:center;">
-                    <div>(ลงชื่อ) ............................................ พนักงานขับรถยนต์</div>
-                    <div style="margin-left:-30px;">(' . $ViewCarBooking->DriverName . ')</div>
-                    <div style="margin-left:-30px;">ตำแหน่ง ' . $ViewCarBooking->DriverPosi . '</div>
-                </div>            
-            </div>
+        $today = date('Y-m-d');
+        if ($filterStatus === 'today') {
+            $builder->where('tb_car_reservation.car_reserv_StartDate <=', $today)
+                    ->where('tb_car_reservation.car_reserv_EndDate >=', $today);
+        } elseif ($filterStatus === 'upcoming') {
+            $builder->where('tb_car_reservation.car_reserv_StartDate >', $today);
+        } elseif ($filterStatus === 'completed') {
+            $builder->groupStart()
+                        ->where('tb_car_reservation.return_mileage >', 0)
+                        ->orWhere('tb_car_reservation.car_reserv_EndDate <', $today)
+                    ->groupEnd();
+        }
 
-            <div style="margin-left:17rem;margin-top:40px;">
-                <div style="text-align:center;">
-                    <div>(ลงชื่อ) ............................................ ผู้อนุญาต</div>
-                    <div style="margin-left:-20px;">(' . $DeputyDirectorName . ')</div>
-                    <div style="margin-left:-30px; font-size:17px;">
-                    ผู้อำนวยการสถานศึกษา โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์
-                    </div>
-                </div>            
-            </div>
-        ';
+        $trips = $builder->orderBy('tb_car_reservation.car_reserv_StartDate', 'DESC')
+                         ->orderBy('tb_car_reservation.car_reserv_StartTime', 'DESC')
+                         ->get()->getResult();
 
-        $mpdf->WriteHTML($html);
-        // สร้างไฟล์ PDF
-        $this->response->setHeader('Content-Type', 'application/pdf');
-        $mpdf->Output('ใบขออนุญาตใช้รถส่วนกลาง.pdf', 'I');
+        $Datethai = new Datethai();
+
+        $processed = [];
+        $totalDistance = 0;
+        $countToday = 0;
+        $countUpcoming = 0;
+        $countCompleted = 0;
+
+        foreach ($trips as $t) {
+            $sDate = $t->car_reserv_StartDate;
+            $eDate = $t->car_reserv_EndDate;
+            $depMile = (int)$t->departure_mileage;
+            $retMile = (int)$t->return_mileage;
+            $dist = ($retMile > 0 && $depMile > 0 && $retMile >= $depMile) ? ($retMile - $depMile) : 0;
+
+            if ($dist > 0) {
+                $totalDistance += $dist;
+            }
+
+            $isToday = ($sDate <= $today && $eDate >= $today);
+            $isUpcoming = ($sDate > $today);
+            $isFinished = ($retMile > 0 || $eDate < $today);
+
+            if ($isToday) $countToday++;
+            if ($isUpcoming) $countUpcoming++;
+            if ($isFinished) $countCompleted++;
+
+            $t->booker_fullname = trim(($t->req_prefix ?? '') . ($t->req_firstname ?? '') . ' ' . ($t->req_lastname ?? ''));
+            $t->driver_fullname = trim(($t->drv_prefix ?? '') . ($t->drv_firstname ?? '') . ' ' . ($t->drv_lastname ?? ''));
+
+            $recFullname = trim(($t->rec_prefix ?? '') . ($t->rec_firstname ?? '') . ' ' . ($t->rec_lastname ?? ''));
+            $t->recorder_fullname = $recFullname ?: (!empty($t->mileage_recorded_by) ? 'เจ้าหน้าที่ (' . $t->mileage_recorded_by . ')' : '');
+            $t->is_recorded_by_staff = !empty($t->mileage_recorded_by) && ($t->mileage_recorded_by !== $t->car_reserv_driver);
+            $t->mileage_recorded_at_thai = !empty($t->mileage_recorded_at) ? $Datethai->thai_date_fullmonth(strtotime($t->mileage_recorded_at)) . ' ' . date('H:i', strtotime($t->mileage_recorded_at)) . ' น.' : '';
+
+            $t->date_range_thai = $Datethai->thai_date_fullmonth(strtotime($sDate)) . ($sDate !== $eDate ? ' - ' . $Datethai->thai_date_fullmonth(strtotime($eDate)) : '');
+            $t->time_range = substr($t->car_reserv_StartTime, 0, 5) . ' - ' . substr($t->car_reserv_EndTime, 0, 5) . ' น.';
+            $t->distance_km = $dist;
+            $t->is_today = $isToday;
+            $t->is_upcoming = $isUpcoming;
+            $t->is_finished = $isFinished;
+
+            $processed[] = $t;
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $processed,
+            'summary' => [
+                'total_trips' => count($trips),
+                'count_today' => $countToday,
+                'count_upcoming' => $countUpcoming,
+                'count_completed' => $countCompleted,
+                'total_distance' => $totalDistance
+            ]
+        ]);
+    }
+
+    public function CarBookingDriverUpdateTrip()
+    {
+        $session = session();
+        if (!$session->get('username')) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'กรุณาเข้าสู่ระบบ']);
+        }
+
+        $id = $this->request->getPost('car_reserv_id');
+        if (!$id) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบรหัสการจอง']);
+        }
+
+        $database = \Config\Database::connect();
+        $booking = $database->table('tb_car_reservation')->where('car_reserv_id', $id)->get()->getRow();
+        if (!$booking) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ไม่พบข้อมูลใบงาน']);
+        }
+
+        $userId = $session->get('id');
+        $userStatus = $session->get('status');
+        $userRoles = json_decode($session->get('rloes') ?? '[]', true) ?: [];
+        $isAdmin = in_array($userStatus, ['admin', 'manager', 'superadmin']) || in_array('งานยานพาหนะ', $userRoles);
+
+        // ตรวจสอบสิทธิ์ (ต้องเป็น Admin หรือคนขับที่ได้รับมอบหมาย)
+        if (!$isAdmin && $booking->car_reserv_driver !== $userId) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'ท่านไม่มีสิทธิ์บันทึกข้อมูลใบงานนี้']);
+        }
+
+        $departure_mileage = $this->request->getPost('departure_mileage');
+        $return_mileage = $this->request->getPost('return_mileage');
+        $fuel_po_book = $this->request->getPost('fuel_po_book');
+        $fuel_po_number = $this->request->getPost('fuel_po_number');
+        $fuel_po_date = $this->request->getPost('fuel_po_date');
+
+        if ($departure_mileage !== null && $departure_mileage !== '' && !is_numeric($departure_mileage)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'เลขไมล์ออกเดินทางต้องเป็นตัวเลข']);
+        }
+
+        if ($return_mileage !== null && $return_mileage !== '' && !is_numeric($return_mileage)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'เลขไมล์เมื่อกลับถึงต้องเป็นตัวเลข']);
+        }
+
+        if ($departure_mileage !== '' && $return_mileage !== '' && $departure_mileage !== null && $return_mileage !== null) {
+            if ((int)$return_mileage < (int)$departure_mileage) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'เลขไมล์กลับถึงสำนักงานต้องไม่น้อยกว่าเลขไมล์ออกเดินทาง']);
+            }
+        }
+
+        $updateData = [
+            'departure_mileage'   => ($departure_mileage !== '' && $departure_mileage !== null) ? (int)$departure_mileage : null,
+            'return_mileage'      => ($return_mileage !== '' && $return_mileage !== null) ? (int)$return_mileage : null,
+            'fuel_po_book'        => trim($fuel_po_book ?? '') ?: null,
+            'fuel_po_number'      => trim($fuel_po_number ?? '') ?: null,
+            'fuel_po_date'        => trim($fuel_po_date ?? '') ?: null,
+            'mileage_recorded_by' => $userId,
+            'mileage_recorded_at' => date('Y-m-d H:i:s'),
+        ];
+
+        $database->table('tb_car_reservation')->where('car_reserv_id', $id)->update($updateData);
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'บันทึกข้อมูลการเดินทางและเลขไมล์เรียบร้อยแล้ว'
+        ]);
     }
 
 }
