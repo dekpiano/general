@@ -109,6 +109,12 @@ class ConUserCarBooking extends BaseController
             $isDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
         }
 
+        $data = $this->DataMain();
+        $data['title'] = "เช็ครถก่อนทำการจอง";
+        $data['description'] = "เช็ครถก่อนทำการจอง";
+        $data['UrlMenuMain'] = 'CarBooking';
+        $data['UrlMenuSub'] = 'CarBookingCheck';
+
         $builder = $database->table('tb_school_car');
         if ($isDriver) {
             // ดึงเฉพาะรถที่ระบบเลือกให้คนขับคนนี้ขับ
@@ -127,12 +133,6 @@ class ConUserCarBooking extends BaseController
         } else {
             $data['CheckCar'] = $builder->get()->getResult();
         }
-
-        $data = $this->DataMain();
-        $data['title'] = "เช็ครถก่อนทำการจอง";
-        $data['description'] = "เช็ครถก่อนทำการจอง";
-        $data['UrlMenuMain'] = 'CarBooking';
-        $data['UrlMenuSub'] = 'CarBookingCheck';
 
         return view('User/UserCarBooking/UserCarBookingCheck', $data);
     }
@@ -1688,22 +1688,24 @@ class ConUserCarBooking extends BaseController
     public function CarBookingDriverPortal()
     {
         $session = session();
-        if (!$session->get('username')) {
-            return redirect()->to(base_url('LoginOfficerGeneral?return_to=' . urlencode(current_url())));
-        }
-
-        $userId = $session->get('id');
-        $userStatus = $session->get('status');
+        $isLoggedIn = !empty($session->get('username'));
+        $userId = $session->get('id') ?: '';
+        $userStatus = $session->get('status') ?: '';
         $userRoles = json_decode($session->get('rloes') ?? '[]', true) ?: [];
 
         $database = \Config\Database::connect();
 
         // ตรวจสอบว่าผู้ใช้อยู่ในตารางคนขับรถหรือไม่
-        $isRegisteredDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
-        // เป็น Admin ยานพาหนะ (และไม่ใช่คนขับรถ)
-        $isAdmin = (in_array($userStatus, ['admin', 'manager', 'superadmin']) || in_array('งานยานพาหนะ', $userRoles)) && !$isRegisteredDriver;
+        $isRegisteredDriver = false;
+        $isAdmin = false;
 
-        // รายชื่อคนขับรถทั้งหมด (สำหรับฟิลเตอร์ของ Admin)
+        if ($isLoggedIn && $userId) {
+            $isRegisteredDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
+            // เป็น Admin ยานพาหนะ (และไม่ใช่คนขับรถ)
+            $isAdmin = (in_array($userStatus, ['admin', 'manager', 'superadmin']) || in_array('งานยานพาหนะ', $userRoles)) && !$isRegisteredDriver;
+        }
+
+        // รายชื่อคนขับรถทั้งหมด (สำหรับฟิลเตอร์ของ Admin และการแสดงรายชื่อคนขับ)
         $allDrivers = $database->table('tb_car_driver')
             ->select('
                 skjacth_general.tb_car_driver.cardriver_id,
@@ -1714,12 +1716,13 @@ class ConUserCarBooking extends BaseController
             ->get()->getResult();
 
         $data = $this->DataMain();
-        $data['title'] = "สำหรับคนขับรถ (Driver Portal)";
-        $data['description'] = "ตรวจสอบงานที่ได้รับมอบหมาย บันทึกเลขไมล์และข้อมูลการเดินทาง";
+        $data['title'] = "คนขับรถ & ภารกิจการเดินทาง";
+        $data['description'] = "ตรวจสอบรายชื่อคนขับรถและภารกิจการเดินทาง";
         $data['UrlMenuMain'] = 'CarBooking';
         $data['UrlMenuSub'] = 'CarBookingDriver';
         $data['Datethai'] = new Datethai();
         $data['isAdmin'] = $isAdmin;
+        $data['isLoggedIn'] = $isLoggedIn;
         $data['isRegisteredDriver'] = $isRegisteredDriver;
         $data['currentUserId'] = $userId;
         $data['allDrivers'] = $allDrivers;
@@ -1730,17 +1733,18 @@ class ConUserCarBooking extends BaseController
     public function CarBookingDriverGetTrips()
     {
         $session = session();
-        if (!$session->get('username')) {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Unauthorized']);
-        }
-
-        $userId = $session->get('id');
-        $userStatus = $session->get('status');
+        $isLoggedIn = !empty($session->get('username'));
+        $userId = $session->get('id') ?: '';
+        $userStatus = $session->get('status') ?: '';
         $userRoles = json_decode($session->get('rloes') ?? '[]', true) ?: [];
         $database = \Config\Database::connect();
 
-        $isRegisteredDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
-        $isAdmin = (in_array($userStatus, ['admin', 'manager', 'superadmin']) || in_array('งานยานพาหนะ', $userRoles)) && !$isRegisteredDriver;
+        $isRegisteredDriver = false;
+        $isAdmin = false;
+        if ($isLoggedIn && $userId) {
+            $isRegisteredDriver = $database->table('tb_car_driver')->where('cardriver_userID', $userId)->countAllResults() > 0;
+            $isAdmin = (in_array($userStatus, ['admin', 'manager', 'superadmin']) || in_array('งานยานพาหนะ', $userRoles)) && !$isRegisteredDriver;
+        }
 
         $filterStatus = $this->request->getVar('status') ?: 'all'; // all, today, upcoming, completed
         $selectedDriver = $this->request->getVar('driver_id');
@@ -1767,11 +1771,12 @@ class ConUserCarBooking extends BaseController
             ->join('skjacth_personnel.tb_personnel AS recorder', 'recorder.pers_id = tb_car_reservation.mileage_recorded_by', 'left')
             ->where('tb_car_reservation.car_reserv_status', 'อนุมัติ');
 
-        // กรองคนขับ: หากเป็นคนขับรถ (หรือผู้ใช้ทั่วไป) ให้ล็อกเฉพาะงานและรถที่ระบบเลือกให้ตัวเองขับเท่านั้น!
-        if ($isRegisteredDriver || !$isAdmin) {
+        // กรองคนขับ:
+        // ถ้าเป็นคนขับรถที่ล็อกอินอยู่ ให้ล็อกเฉพาะงานที่ตัวเองขับ
+        if ($isRegisteredDriver) {
             $builder->where('tb_car_reservation.car_reserv_driver', $userId);
         } else {
-            // Admin สามารถเลือกดูเฉพาะคนขับคนใดคนหนึ่ง หรือดูทั้งหมด
+            // กรณีเป็น Admin หรือผู้ใช้ทั่วไป/ยังไม่ได้ล็อกอิน: สามารถเลือกกรองตามคนขับ หรือดูทั้งหมดได้
             if (!empty($selectedDriver) && $selectedDriver !== 'all') {
                 $builder->where('tb_car_reservation.car_reserv_driver', $selectedDriver);
             }
@@ -1900,9 +1905,22 @@ class ConUserCarBooking extends BaseController
             }
         }
 
+        $fuel_request = $this->request->getPost('fuel_request') ?: 'no';
+        $fuel_type_post = $this->request->getPost('fuel_type');
+        $fuel_other_desc = $this->request->getPost('fuel_other_desc');
+        $fuel_amount = $this->request->getPost('fuel_amount');
+
+        $final_fuel_type = null;
+        if ($fuel_request === 'yes') {
+            $final_fuel_type = ($fuel_type_post === 'อื่นๆ') ? trim($fuel_other_desc ?? '') : trim($fuel_type_post ?? '');
+        }
+
         $updateData = [
             'departure_mileage'   => ($departure_mileage !== '' && $departure_mileage !== null) ? (int)$departure_mileage : null,
             'return_mileage'      => ($return_mileage !== '' && $return_mileage !== null) ? (int)$return_mileage : null,
+            'fuel_request'        => $fuel_request,
+            'fuel_type'           => $final_fuel_type ?: null,
+            'fuel_amount'         => ($fuel_request === 'yes' && $fuel_amount !== '' && $fuel_amount !== null) ? (float)$fuel_amount : null,
             'fuel_po_book'        => trim($fuel_po_book ?? '') ?: null,
             'fuel_po_number'      => trim($fuel_po_number ?? '') ?: null,
             'fuel_po_date'        => trim($fuel_po_date ?? '') ?: null,
@@ -1914,7 +1932,7 @@ class ConUserCarBooking extends BaseController
 
         return $this->response->setJSON([
             'status' => 'success',
-            'message' => 'บันทึกข้อมูลการเดินทางและเลขไมล์เรียบร้อยแล้ว'
+            'message' => 'บันทึกข้อมูลการเดินทาง เลขไมล์ และการใช้น้ำมันเรียบร้อยแล้ว'
         ]);
     }
 

@@ -566,11 +566,54 @@
         box-shadow: 0 3px 8px rgba(105, 108, 255, 0.35);
     }
 
-    .pagination-lux .page-item.disabled .page-link {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: #f8fafc;
-        box-shadow: none;
+    /* --- Driver List Grid & Cards --- */
+    .driver-roster-card {
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 1.15rem;
+        background: #ffffff;
+        box-shadow: 0 4px 16px -3px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        text-align: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .driver-roster-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 14px 30px -6px rgba(105, 108, 255, 0.2);
+        border-color: rgba(105, 108, 255, 0.3);
+    }
+
+    .driver-roster-card .card-top-bg {
+        height: 60px;
+        background: linear-gradient(135deg, #696cff 0%, #3f4191 100%);
+    }
+
+    .driver-roster-avatar {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #ffffff;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        margin: -42px auto 0.75rem auto;
+        display: block;
+        background: #fff;
+    }
+
+    .driver-roster-no-avatar {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #696cff 0%, #3f4191 100%);
+        border: 4px solid #ffffff;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        margin: -42px auto 0.75rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 2.2rem;
     }
 </style>
 <?= $this->endSection() ?>
@@ -586,55 +629,65 @@
                     <i class='bx bxs-car'></i>
                 </div>
                 <div>
-                    <h4 class="fw-bold mb-0 text-white">สำหรับคนขับรถ</h4>
+                    <h4 class="fw-bold mb-0 text-white">คนขับรถ & ภารกิจการเดินทาง</h4>
                     <p class="mb-0 text-white-50">
-                        ตรวจสอบภารกิจที่ได้รับมอบหมาย บันทึกเลขไมล์ & น้ำมัน
+                        รายชื่อคนขับของระบบ ตรวจสอบภารกิจที่ได้รับมอบหมาย บันทึกเลขไมล์ & น้ำมัน
                     </p>
                 </div>
             </div>
 
-            <!-- Header Action Controls (Compact Wrap) -->
+            <!-- Header Action Controls -->
             <div class="d-flex align-items-center gap-2 flex-wrap mt-2 mt-md-0">
-                <?php if ($isAdmin): ?>
-                    <div
-                        class="bg-white bg-opacity-20 p-1 px-2 rounded-pill d-flex align-items-center gap-1 backdrop-blur w-100 w-md-auto">
-                        <i class='bx bx-user text-white' style="font-size: 0.85rem;"></i>
-                        <span class="fw-bold text-dark" style="font-size: 0.75rem;">คนขับ:</span>
-                        <select id="selectDriverFilter"
-                            class="form-select form-select-sm border-0 rounded-pill bg-white text-dark shadow-sm py-0"
-                            style="font-size: 0.78rem; height: 28px;">
-                            <option value="all">-- คนขับทุกคน --</option>
-                            <?php foreach ($allDrivers as $drv): ?>
-                                <option value="<?= $drv->cardriver_userID ?>" <?= ($drv->cardriver_userID == $currentUserId) ? 'selected' : '' ?>>
-                                    <?= $drv->pers_prefix . $drv->pers_firstname . ' ' . $drv->pers_lastname ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                <?php if (empty($isLoggedIn)): ?>
+                    <a href="<?= base_url('LoginOfficerGeneral?return_to=' . urlencode(current_url())) ?>"
+                       class="btn btn-warning rounded-pill px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2 fw-bold text-dark">
+                        <i class='bx bx-log-in fs-5'></i> เข้าสู่ระบบคนขับ / เจ้าหน้าที่
+                    </a>
                 <?php else: ?>
-                    <div class="bg-white bg-opacity-20 p-1 px-3 rounded-pill d-flex align-items-center gap-1 backdrop-blur text-white shadow-sm"
-                        style="font-size: 0.78rem;">
-                        <i class='bx bx-id-card'></i>
-                        <span>พนักงานขับรถ: <strong><?= session()->get('fullname') ?: 'ผู้ได้รับมอบหมาย' ?></strong></span>
+                    <?php if ($isAdmin): ?>
+                        <div class="bg-white bg-opacity-20 p-1 px-2 rounded-pill d-flex align-items-center gap-1 backdrop-blur w-100 w-md-auto">
+                            <i class='bx bx-user text-white' style="font-size: 0.85rem;"></i>
+                            <span class="fw-bold text-dark" style="font-size: 0.75rem;">เลือกคนขับ:</span>
+                            <select id="selectDriverFilter"
+                                class="form-select form-select-sm border-0 rounded-pill bg-white text-dark shadow-sm py-0"
+                                style="font-size: 0.78rem; height: 28px;">
+                                <option value="all">-- คนขับทุกคน --</option>
+                                <?php foreach ($allDrivers as $drv): ?>
+                                    <option value="<?= $drv->cardriver_userID ?>" <?= (!empty($currentUserId) && $drv->cardriver_userID == $currentUserId) ? 'selected' : '' ?>>
+                                        <?= $drv->pers_prefix . $drv->pers_firstname . ' ' . $drv->pers_lastname ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php else: ?>
+                        <div class="bg-white bg-opacity-20 p-1 px-3 rounded-pill d-flex align-items-center gap-1 backdrop-blur text-white shadow-sm"
+                            style="font-size: 0.78rem;">
+                            <i class='bx bx-id-card'></i>
+                            <span>พนักงานขับรถ: <strong><?= session()->get('fullname') ?: 'ผู้ได้รับมอบหมาย' ?></strong></span>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="d-flex align-items-center gap-2 w-100 w-md-auto justify-content-between flex-wrap">
+                        <button type="button" class="btn-header-action flex-grow-1 text-center justify-content-center" data-bs-toggle="modal" data-bs-target="#modalDriverList">
+                            <i class='bx bxs-user-badge'></i> รายชื่อคนขับรถ (<?= count($allDrivers ?? []) ?>)
+                        </button>
+                        <a href="<?= base_url('CarBooking/View') ?>"
+                            class="btn-header-action flex-grow-1 text-center justify-content-center">
+                            <i class='bx bx-list-ul'></i> ดูการจองทั้งหมด
+                        </a>
+                        <?php if ($isAdmin): ?>
+                            <a href="<?= base_url('CarBooking/Approve/Admin') ?>"
+                                class="btn-header-action flex-grow-1 text-center justify-content-center">
+                                <i class='bx bx-check-shield'></i> สำหรับเจ้าหน้าที่
+                            </a>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
-
-                <div class="d-flex align-items-center gap-2 w-100 w-md-auto justify-content-between">
-                    <a href="<?= base_url('CarBooking/View') ?>"
-                        class="btn-header-action flex-grow-1 text-center justify-content-center">
-                        <i class='bx bx-list-ul'></i> ดูการจองทั้งหมด
-                    </a>
-                    <?php if ($isAdmin): ?>
-                        <a href="<?= base_url('CarBooking/Approve/Admin') ?>"
-                            class="btn-header-action flex-grow-1 text-center justify-content-center">
-                            <i class='bx bx-check-shield'></i> สำหรับเจ้าหน้าที่
-                        </a>
-                    <?php endif; ?>
-                </div>
             </div>
         </div>
     </div>
 
+    <?php if (!empty($isLoggedIn)): ?>
     <!-- Summary Widgets (Compact 2x2 on Mobile, 4 in row on Desktop) -->
     <div class="row g-2 g-md-3 mb-3 animate-fadeInUp">
         <div class="col-6 col-md-3">
@@ -683,30 +736,43 @@
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- Filter Tabs & Search Bar (Mobile First) -->
     <div class="filter-wrapper-mobile">
-        <div class="filter-tabs">
-            <button type="button" class="filter-tab active" data-status="all">
-                <i class='bx bx-grid-alt'></i> ทั้งหมด
-            </button>
-            <button type="button" class="filter-tab" data-status="today">
-                <i class='bx bx-sun'></i> วันนี้
-            </button>
-            <button type="button" class="filter-tab" data-status="upcoming">
-                <i class='bx bx-time'></i> รอเดินทาง
-            </button>
-            <button type="button" class="filter-tab" data-status="completed">
-                <i class='bx bx-check-circle'></i> เสร็จสิ้น
-            </button>
-        </div>
+        <?php if (!empty($isLoggedIn)): ?>
+            <div class="filter-tabs">
+                <button type="button" class="filter-tab active" data-status="drivers_roster">
+                    <i class='bx bxs-user-badge'></i> รายชื่อคนขับ (<?= count($allDrivers ?? []) ?>)
+                </button>
+                <button type="button" class="filter-tab" data-status="all">
+                    <i class='bx bx-grid-alt'></i> ภารกิจทั้งหมด
+                </button>
+                <button type="button" class="filter-tab" data-status="today">
+                    <i class='bx bx-sun'></i> วันนี้
+                </button>
+                <button type="button" class="filter-tab" data-status="upcoming">
+                    <i class='bx bx-time'></i> รอเดินทาง
+                </button>
+                <button type="button" class="filter-tab" data-status="completed">
+                    <i class='bx bx-check-circle'></i> เสร็จสิ้น
+                </button>
+            </div>
+        <?php else: ?>
+            <div class="d-flex align-items-center gap-2 py-1">
+                <div class="badge bg-label-primary px-3 py-2 rounded-pill fs-6 d-inline-flex align-items-center gap-1 shadow-sm">
+                    <i class='bx bxs-user-badge fs-5'></i> 
+                    <span>รายชื่อพนักงานขับรถของระบบ (<?= count($allDrivers ?? []) ?> ท่าน)</span>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <div class="d-flex align-items-center gap-2">
             <div class="input-group input-group-merge shadow-sm flex-grow-1" style="max-width: 100%;">
                 <span class="input-group-text bg-white border-end-0 py-1 pe-1"><i class='bx bx-search text-muted'
                         style="font-size: 1rem;"></i></span>
                 <input type="text" id="searchInput" class="form-control bg-white border-start-0 ps-1 py-1"
-                    style="font-size: 0.85rem;" placeholder="ค้นหางาน, สถานที่, คนขับ...">
+                    style="font-size: 0.85rem;" placeholder="ค้นหาชื่อคนขับ, เบอร์โทร...">
             </div>
             <button type="button" id="btnRefresh"
                 class="btn btn-outline-secondary rounded-pill px-2 py-1 shadow-sm flex-shrink-0" title="รีเฟรช">
@@ -715,8 +781,67 @@
         </div>
     </div>
 
+    <!-- Drivers Roster Grid (Default Active View) -->
+    <div id="driversRosterContainer">
+        <div class="row g-3">
+            <?php if (!empty($allDrivers)): ?>
+                <?php foreach ($allDrivers as $driver): ?>
+                    <?php 
+                        $hasImg = !empty($driver->pers_img);
+                        $fullName = trim(($driver->pers_prefix ?? '') . ($driver->pers_firstname ?? '') . ' ' . ($driver->pers_lastname ?? ''));
+                        $phone = $driver->pers_phone ?: 'ไม่ระบุเบอร์โทร';
+                    ?>
+                    <div class="col-sm-6 col-lg-4 col-xl-3 driver-roster-item" data-name="<?= esc(strtolower($fullName)) ?>" data-phone="<?= esc($phone) ?>">
+                        <div class="driver-roster-card h-100">
+                            <div class="card-top-bg"></div>
+                            <div class="p-3 pt-0">
+                                <?php if ($hasImg): ?>
+                                    <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?= esc($driver->pers_img) ?>"
+                                         class="driver-roster-avatar"
+                                         alt="<?= esc($fullName) ?>"
+                                         onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='https://personnel.skj.ac.th/uploads/admin/Person/<?= esc($driver->pers_img) ?>';}else{this.outerHTML='<div class=\'driver-roster-no-avatar\'><i class=\'bx bxs-user\'></i></div>';}">
+                                <?php else: ?>
+                                    <div class="driver-roster-no-avatar">
+                                        <i class='bx bxs-user'></i>
+                                    </div>
+                                <?php endif; ?>
+
+                                <h6 class="fw-bold mb-1 text-dark"><?= esc($fullName) ?></h6>
+                                <p class="text-muted small mb-2">
+                                    <i class='bx bx-id-card text-primary me-1'></i>พนักงานขับรถ
+                                </p>
+
+                                <div class="bg-light rounded-pill py-1 px-3 mb-3 d-inline-flex align-items-center gap-1 small">
+                                    <i class='bx bx-phone text-success'></i>
+                                    <span class="fw-semibold text-dark"><?= esc($phone) ?></span>
+                                </div>
+
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <?php if (!empty($driver->pers_phone)): ?>
+                                    <a href="tel:<?= esc($driver->pers_phone) ?>" class="btn btn-sm btn-outline-success rounded-pill px-3 w-100">
+                                        <i class='bx bx-phone-call me-1'></i>โทรออก
+                                    </a>
+                                    <?php endif; ?>
+                                    <?php if ($isAdmin): ?>
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2 btn-filter-this-driver" data-driver-id="<?= esc($driver->cardriver_userID) ?>" title="ดูภารกิจของคนนี้">
+                                        <i class='bx bx-filter-alt'></i> ดูงาน
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">ไม่พบข้อมูลพนักงานขับรถในระบบ</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <!-- Trips List Container -->
-    <div id="tripsContainer">
+    <div id="tripsContainer" class="d-none">
         <!-- Rendered by JavaScript -->
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status"></div>
@@ -725,7 +850,7 @@
     </div>
 
     <!-- Pagination Container -->
-    <div id="paginationContainer"></div>
+    <div id="paginationContainer" class="d-none"></div>
 
 </div>
 
@@ -828,24 +953,70 @@
 
                     <hr class="my-4">
 
-                    <!-- ส่วนที่ 2: ข้อมูลใบสั่งซื้อน้ำมัน -->
+                    <!-- ส่วนที่ 2: ข้อมูลการใช้น้ำมันเชื้อเพลิง & ใบสั่งซื้อ -->
                     <div class="form-section-title">
-                        <i class='bx bx-gas-pump text-warning'></i> ข้อมูลใบสั่งซื้อสินค้า / น้ำมันเชื้อเพลิง (ถ้ามี)
+                        <i class='bx bx-gas-pump text-warning'></i> ข้อมูลการเบิก / ใช้น้ำมันเชื้อเพลิง
                     </div>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label">ใบสั่งซื้อสินค้า เล่มที่</label>
-                            <input type="text" name="fuel_po_book" id="field_fuel_po_book" class="form-control"
-                                placeholder="เช่น เล่มที่ 05">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">การเบิกน้ำมันเชื้อเพลิงในภารกิจนี้:</label>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="fuel_request" id="modal_fuel_no" value="no" checked>
+                                    <label class="form-check-label" for="modal_fuel_no">ไม่เบิกน้ำมัน</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="fuel_request" id="modal_fuel_yes" value="yes">
+                                    <label class="form-check-label text-primary fw-bold" for="modal_fuel_yes">มีการเบิกน้ำมัน</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">เลขที่</label>
-                            <input type="text" name="fuel_po_number" id="field_fuel_po_number" class="form-control"
-                                placeholder="เช่น 0124">
+                    </div>
+
+                    <!-- Fuel Details (Shown when fuel_request is yes) -->
+                    <div id="modal_fuel_details_section" class="p-3 border rounded-3 bg-light bg-opacity-50 mb-3" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">ชนิดน้ำมัน</label>
+                                <select class="form-select" id="field_fuel_type" name="fuel_type">
+                                    <option value="">-- เลือกชนิดน้ำมัน --</option>
+                                    <option value="น้ำมันดีเซล B7">น้ำมันดีเซล B7</option>
+                                    <option value="น้ำมันดีเซล B10">น้ำมันดีเซล B10</option>
+                                    <option value="น้ำมันดีเซล">น้ำมันดีเซล</option>
+                                    <option value="น้ำมันแก๊สโซฮอล์ 95">น้ำมันแก๊สโซฮอล์ 95</option>
+                                    <option value="น้ำมันแก๊สโซฮอล์ 91">น้ำมันแก๊สโซฮอล์ 91</option>
+                                    <option value="อื่นๆ">อื่นๆ (ระบุ)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4" id="modal_fuel_other_section" style="display: none;">
+                                <label class="form-label fw-bold">ระบุชนิดน้ำมัน</label>
+                                <input type="text" class="form-control" id="field_fuel_other_desc" name="fuel_other_desc" placeholder="เช่น น้ำมันเครื่อง, แก๊ส E20">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">ปริมาณน้ำมัน (ลิตร)</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" min="0" class="form-control" id="field_fuel_amount" name="fuel_amount" placeholder="เช่น 45.50">
+                                    <span class="input-group-text">ลิตร</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">ลงวันที่</label>
-                            <input type="date" name="fuel_po_date" id="field_fuel_po_date" class="form-control">
+
+                        <div class="row g-3 mt-1 pt-2 border-top">
+                            <div class="col-md-4">
+                                <label class="form-label">ใบสั่งซื้อสินค้า เล่มที่</label>
+                                <input type="text" name="fuel_po_book" id="field_fuel_po_book" class="form-control"
+                                    placeholder="เช่น เล่มที่ 05">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">เลขที่</label>
+                                <input type="text" name="fuel_po_number" id="field_fuel_po_number" class="form-control"
+                                    placeholder="เช่น 0124">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">ลงวันที่</label>
+                                <input type="date" name="fuel_po_date" id="field_fuel_po_date" class="form-control">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -858,6 +1029,76 @@
                     </button>
                 </div>
             </form>
+<!-- Modal: รายชื่อคนขับรถทั้งหมด (Quick View Modal) -->
+<div class="modal fade modal-lux" id="modalDriverList" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0">
+                        <i class='bx bxs-user-badge me-1'></i> พนักงานขับรถของระบบ (<?= count($allDrivers ?? []) ?> ท่าน)
+                    </h5>
+                    <small class="text-white-50">รายชื่อและข้อมูลติดต่อสำหรับประสานงาน</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="row g-3">
+                    <?php if (!empty($allDrivers)): ?>
+                        <?php foreach ($allDrivers as $driver): ?>
+                            <?php 
+                                $hasImg = !empty($driver->pers_img);
+                                $fullName = trim(($driver->pers_prefix ?? '') . ($driver->pers_firstname ?? '') . ' ' . ($driver->pers_lastname ?? ''));
+                                $phone = $driver->pers_phone ?: 'ไม่ระบุเบอร์โทร';
+                            ?>
+                            <div class="col-sm-6 col-lg-4 col-xl-3">
+                                <div class="driver-roster-card h-100 bg-white">
+                                    <div class="card-top-bg"></div>
+                                    <div class="p-3 pt-0">
+                                        <?php if ($hasImg): ?>
+                                            <img src="https://personnel.skj.ac.th/uploads/admin/Personnal/<?= esc($driver->pers_img) ?>"
+                                                 class="driver-roster-avatar"
+                                                 alt="<?= esc($fullName) ?>"
+                                                 onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='https://personnel.skj.ac.th/uploads/admin/Person/<?= esc($driver->pers_img) ?>';}else{this.outerHTML='<div class=\'driver-roster-no-avatar\'><i class=\'bx bxs-user\'></i></div>';}">
+                                        <?php else: ?>
+                                            <div class="driver-roster-no-avatar">
+                                                <i class='bx bxs-user'></i>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <h6 class="fw-bold mb-1 text-dark"><?= esc($fullName) ?></h6>
+                                        <p class="text-muted small mb-2">
+                                            <i class='bx bx-id-card text-primary me-1'></i>พนักงานขับรถ
+                                        </p>
+
+                                        <div class="bg-light rounded-pill py-1 px-3 mb-3 d-inline-flex align-items-center gap-1 small">
+                                            <i class='bx bx-phone text-success'></i>
+                                            <span class="fw-semibold text-dark"><?= esc($phone) ?></span>
+                                        </div>
+
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <?php if (!empty($driver->pers_phone)): ?>
+                                            <a href="tel:<?= esc($driver->pers_phone) ?>" class="btn btn-sm btn-outline-success rounded-pill px-3 w-100">
+                                                <i class='bx bx-phone-call me-1'></i>โทรออก
+                                            </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted">ไม่พบข้อมูลพนักงานขับรถในระบบ</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="modal-footer bg-light p-3">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    ปิดหน้าต่าง
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -868,7 +1109,7 @@
     $(document).ready(function () {
         const currentUserId = '<?= $currentUserId ?? '' ?>';
         const isAdmin = <?= !empty($isAdmin) ? 'true' : 'false' ?>;
-        let currentStatus = 'all';
+        let currentStatus = 'drivers_roster';
         let allTripsData = [];
         let currentPage = 1;
         const itemsPerPage = 5;
@@ -1171,23 +1412,70 @@
             $('.filter-tab').removeClass('active');
             $(this).addClass('active');
             currentStatus = $(this).data('status');
-            loadTrips();
+            
+            if (currentStatus === 'drivers_roster') {
+                $('#tripsContainer').addClass('d-none');
+                $('#paginationContainer').addClass('d-none');
+                $('#driversRosterContainer').removeClass('d-none');
+                filterDriversRoster();
+            } else {
+                $('#driversRosterContainer').addClass('d-none');
+                $('#tripsContainer').removeClass('d-none');
+                $('#paginationContainer').removeClass('d-none');
+                loadTrips();
+            }
         });
+
+        // Search Box Keyup for both Trips & Driver Roster
+        function filterDriversRoster() {
+            const query = ($('#searchInput').val() || '').toLowerCase().trim();
+            $('.driver-roster-item').each(function () {
+                const name = $(this).data('name') || '';
+                const phone = $(this).data('phone') || '';
+                if (!query || name.includes(query) || phone.includes(query)) {
+                    $(this).removeClass('d-none');
+                } else {
+                    $(this).addClass('d-none');
+                }
+            });
+        }
 
         // Driver Select change (for Admin)
         $('#selectDriverFilter').on('change', function () {
-            loadTrips();
+            if (currentStatus === 'drivers_roster') {
+                $('.filter-tab[data-status="all"]').trigger('click');
+            } else {
+                loadTrips();
+            }
+        });
+
+        // Click 'ดูงาน' on a driver card from Driver Roster
+        $(document).on('click', '.btn-filter-this-driver', function () {
+            const drvId = $(this).data('driver-id');
+            if ($('#selectDriverFilter').length) {
+                $('#selectDriverFilter').val(drvId);
+            }
+            $('.filter-tab[data-status="all"]').trigger('click');
         });
 
         // Search Box Keyup
         $('#searchInput').on('keyup', function () {
-            currentPage = 1;
-            renderTrips();
+            if (currentStatus === 'drivers_roster') {
+                filterDriversRoster();
+            } else {
+                currentPage = 1;
+                renderTrips();
+            }
         });
 
         // Refresh Button Click
         $('#btnRefresh').on('click', function () {
-            loadTrips();
+            if (currentStatus === 'drivers_roster') {
+                $('#searchInput').val('');
+                filterDriversRoster();
+            } else {
+                loadTrips();
+            }
         });
 
         // Live Mileage Distance Calculation in Modal
@@ -1208,8 +1496,27 @@
 
         $('#field_departure_mileage, #field_return_mileage').on('input', calcLiveDistance);
 
+        const isLoggedIn = <?= !empty($isLoggedIn) ? 'true' : 'false' ?>;
+
         // Open Edit Modal
         $(document).on('click', '.btn-edit-trip', function () {
+            if (!isLoggedIn) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาเข้าสู่ระบบ',
+                    text: 'คนขับรถหรือเจ้าหน้าที่ต้องเข้าสู่ระบบก่อนทำการบันทึกเลขไมล์และค่าน้ำมัน',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bx bx-log-in me-1"></i> เข้าสู่ระบบ',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#696cff'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        window.location.href = '<?= base_url("LoginOfficerGeneral?return_to=" . urlencode(current_url())) ?>';
+                    }
+                });
+                return;
+            }
+
             const trip = $(this).data('trip');
             $('#field_car_reserv_id').val(trip.car_reserv_id);
             $('#modalSubTitle').text('ใบงาน #' + (trip.car_reserv_order || trip.car_reserv_id));
@@ -1242,12 +1549,62 @@
 
             $('#field_departure_mileage').val(trip.departure_mileage || '');
             $('#field_return_mileage').val(trip.return_mileage || '');
+
+            // ตั้งค่าข้อมูลการเบิกน้ำมัน
+            if (trip.fuel_request === 'yes') {
+                $('#modal_fuel_yes').prop('checked', true);
+                $('#modal_fuel_details_section').show();
+            } else {
+                $('#modal_fuel_no').prop('checked', true);
+                $('#modal_fuel_details_section').hide();
+            }
+
+            const standardFuelTypes = ['น้ำมันดีเซล B7', 'น้ำมันดีเซล B10', 'น้ำมันดีเซล', 'น้ำมันแก๊สโซฮอล์ 95', 'น้ำมันแก๊สโซฮอล์ 91'];
+            if (trip.fuel_type) {
+                if (standardFuelTypes.includes(trip.fuel_type)) {
+                    $('#field_fuel_type').val(trip.fuel_type);
+                    $('#modal_fuel_other_section').hide();
+                    $('#field_fuel_other_desc').val('');
+                } else {
+                    $('#field_fuel_type').val('อื่นๆ');
+                    $('#modal_fuel_other_section').show();
+                    $('#field_fuel_other_desc').val(trip.fuel_type);
+                }
+            } else {
+                $('#field_fuel_type').val('');
+                $('#modal_fuel_other_section').hide();
+                $('#field_fuel_other_desc').val('');
+            }
+
+            $('#field_fuel_amount').val(trip.fuel_amount || '');
             $('#field_fuel_po_book').val(trip.fuel_po_book || '');
             $('#field_fuel_po_number').val(trip.fuel_po_number || '');
             $('#field_fuel_po_date').val(trip.fuel_po_date || '');
 
             calcLiveDistance();
             $('#modalRecordTrip').modal('show');
+        });
+
+        // Fuel Toggle in Modal
+        $('input[name="fuel_request"]').on('change', function () {
+            if ($(this).val() === 'yes') {
+                $('#modal_fuel_details_section').slideDown();
+            } else {
+                $('#modal_fuel_details_section').slideUp();
+                $('#field_fuel_type').val('');
+                $('#field_fuel_amount').val('');
+                $('#field_fuel_other_desc').val('');
+                $('#modal_fuel_other_section').hide();
+            }
+        });
+
+        $('#field_fuel_type').on('change', function () {
+            if ($(this).val() === 'อื่นๆ') {
+                $('#modal_fuel_other_section').slideDown();
+            } else {
+                $('#modal_fuel_other_section').slideUp();
+                $('#field_fuel_other_desc').val('');
+            }
         });
 
         // Submit Trip Form
@@ -1306,8 +1663,10 @@
             });
         });
 
-        // เริ่มต้นโหลดงาน
-        loadTrips();
+        // เริ่มต้นโหลดงาน (เฉพาะเมื่อล็อกอินแล้ว)
+        if (isLoggedIn) {
+            loadTrips();
+        }
     });
 </script>
 <?= $this->endSection() ?>

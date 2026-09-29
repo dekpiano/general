@@ -76,17 +76,17 @@
                     </a>
                 </li>
                 <li class="menu-item <?= ($UrlMenuSub ?? '') == "CarBookingDriver" ? "active" : "" ?>">
-                    <a href="<?= base_url('CarBooking/Driver'); ?>" class="menu-link text-primary fw-semibold">
-                        <i class="bx bx-id-card me-2"></i>
-                        <div>สำหรับคนขับรถ</div>
+                    <a href="<?= base_url('CarBooking/Driver'); ?>" class="menu-link">
+                        <div>คนขับรถ</div>
                     </a>
                 </li>
+                <?php if ($isCarStaff): ?>
                 <li class="menu-item <?= ($UrlMenuSub ?? '') == "CarBookingAdmin" ? "active" : "" ?>">
-                    <a href="<?= base_url('CarBooking/Approve/Admin'); ?>" class="menu-link text-primary fw-semibold">
-                        <i class="bx bx-check-shield me-2"></i>
+                    <a href="<?= base_url('CarBooking/Approve/Admin'); ?>" class="menu-link">
                         <div>สำหรับเจ้าหน้าที่</div>
                     </a>
                 </li>
+                <?php endif; ?>
             </ul>
         </li>
 
