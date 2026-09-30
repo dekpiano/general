@@ -90,11 +90,33 @@
             </ul>
         </li>
 
-        <li class="menu-item <?= $UrlMenuMain == "Repair" ? "active" : "" ?>">
-            <a href="<?= base_url('Repair'); ?>" class="menu-link">
+        <li class="menu-item <?= ($UrlMenuMain ?? '') == "Repair" ? "active open" : "" ?>">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-wrench"></i>
                 <div>แจ้งซ่อมออนไลน์</div>
             </a>
+            <ul class="menu-sub">
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "RepairMain" ? "active" : "" ?>">
+                    <a href="<?= base_url('Repair'); ?>" class="menu-link">
+                        <div>เลือกประเภทแจ้งซ่อม</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "RepairDashboard" ? "active" : "" ?>">
+                    <a href="<?= base_url('Repair/Dashboard'); ?>" class="menu-link">
+                        <div>แดชบอร์ด & รายการซ่อม</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "RepairAdd" ? "active" : "" ?>">
+                    <a href="<?= base_url('Repair/Add'); ?>" class="menu-link">
+                        <div>แบบฟอร์มแจ้งซ่อม</div>
+                    </a>
+                </li>
+                <li class="menu-item <?= ($UrlMenuSub ?? '') == "RepairBuildingMemo" ? "active" : "" ?>">
+                    <a href="<?= base_url('Repair/BuildingMemo'); ?>" class="menu-link">
+                        <div>บันทึกข้อความอาคาร</div>
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <li class="menu-item <?= $UrlMenuMain == "FoodReport" ? "active" : "" ?>">

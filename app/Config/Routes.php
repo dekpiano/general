@@ -105,6 +105,8 @@ $routes->post('CarBooking/Driver/UpdateTrip', 'ConUserCarBooking::CarBookingDriv
 
 // User แจ้งซ่อม
 $routes->get('Repair', 'ConUserRepair::RepairMain');
+$routes->get('Repair/Dashboard', 'ConUserRepair::RepairDashboard');
+$routes->get('Repair/View', 'ConUserRepair::RepairDashboard');
 $routes->get('Repair/Add', 'ConUserRepair::RepairAdd');
 $routes->match(['GET', 'POST'],'Repair/DB/CheckPosiUser', 'ConUserRepair::CheckPosiUser');
 $routes->match(['GET', 'POST'],'Repair/DB/Insert', 'ConUserRepair::RepairInsert');

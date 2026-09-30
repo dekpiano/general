@@ -13,34 +13,9 @@ window.triggerAdminFileInput = function(index) {
 };
 
 $(document).ready(function () {
-  // Initialize Select2 ONLY for the specific form, preserving DataTables default selects
+  // Initialize Select2 for FormAddRepair
   $("#FormAddRepair .form-select").select2({
-    theme: "bootstrap-5",
-    width: "100%",
-    dropdownParent: $(document.body),
-  });
-
-  // Handle Floating Label for Select2 (Scoped to FormAddRepair)
-  $("#FormAddRepair .form-select")
-    .on("select2:open", function (e) {
-      $(this).closest(".form-floating-custom").addClass("is-focused");
-    })
-    .on("select2:close", function (e) {
-      $(this).closest(".form-floating-custom").removeClass("is-focused");
-    })
-    .on("change", function (e) {
-      if ($(this).val()) {
-        $(this).closest(".form-floating-custom").addClass("is-filled");
-      } else {
-        $(this).closest(".form-floating-custom").removeClass("is-filled");
-      }
-    });
-
-  // Initial check for pre-filled values
-  $("#FormAddRepair .form-select").each(function () {
-    if ($(this).val()) {
-      $(this).closest(".form-floating-custom").addClass("is-filled");
-    }
+    width: "100%"
   });
 
   ShowDataLocationRoom(); // Initialize DataTable
@@ -333,13 +308,15 @@ function appendRepairPage() {
 }
 
 function loadRepairCards() {
+  const $container = $("#repairListContainer");
+  if (!$container.length) return;
+
   const urlParams = new URLSearchParams(window.location.search);
   let selectedYear = urlParams.get("year");
   if (!selectedYear) {
     selectedYear = $("#yearFilter").val();
   }
 
-  const $container = $("#repairListContainer");
   $container.html('<div class="repair-loading"><div class="spinner-border" role="status"><span class="visually-hidden">กำลังโหลด...</span></div></div>');
 
   $.ajax({
@@ -517,26 +494,27 @@ $(document).on("change", "#repair_posi", function () {
       repair_posi: posiId,
     },
     function (data) {
-      $("#repair_userID")
-        .prop("disabled", false)
-        .empty()
-        .append('<option value="" selected disabled></option>')
-        .trigger("change");
+      let options = '<option value="" selected disabled>-- กรุณาเลือกรายชื่อผู้แจ้ง --</option>';
+      if (data && data.length > 0) {
+        $.each(data, function (key, val) {
+          options += `<option value="${val.pers_id}" data-phone="${val.pers_phone || ''}">${val.pers_prefix}${val.pers_firstname} ${val.pers_lastname}</option>`;
+        });
+        $("#repair_userID")
+          .prop("disabled", false)
+          .html(options)
+          .trigger("change");
+      } else {
+        options = '<option value="" selected disabled>-- ไม่พบบุคลากรในตำแหน่งนี้ --</option>';
+        $("#repair_userID")
+          .prop("disabled", false)
+          .html(options)
+          .trigger("change");
+      }
 
-      $.each(data, function (key, val) {
-        var optionElement = $("<option>")
-          .attr("value", val.pers_id)
-          .attr("data-phone", val.pers_phone || "")
-          .text(val.pers_prefix + val.pers_firstname + " " + val.pers_lastname);
-        $("#repair_userID").append(optionElement);
-      });
-
-      // Refresh select2 if initialized
+      // Re-trigger select2 update
       if ($("#repair_userID").hasClass("select2-hidden-accessible")) {
         $("#repair_userID").select2({
-          theme: "bootstrap-5",
-          width: "100%",
-          dropdownParent: $(document.body),
+          width: "100%"
         });
       }
     },

@@ -159,13 +159,153 @@ class ConUserRepair extends BaseController
     {
         $session = session();
         $database = \Config\Database::connect();
+
+        $data = $this->DataMain();
+        $data['title'] = "เลือกประเภทการแจ้งซ่อมออนไลน์";
+        $data['description'] = "เลือกหมวดหมู่งานซ่อมที่ต้องการแจ้งซ่อมออนไลน์ โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์";
+        $data['UrlMenuMain'] = 'Repair';
+        $data['UrlMenuSub'] = 'RepairMain';
+        $data['Datethai'] = new Datethai();
+
+        $TBrepair = $database->table('tb_repair');
+        
+        // Overall statistics
+        $totalCount = $TBrepair->countAllResults(false);
+        $pendingCount = $database->table('tb_repair')->where('repair_status', 'รอดำเนินการ')->countAllResults();
+        $processCount = $database->table('tb_repair')->where('repair_status', 'กำลังดำเนินการ')->countAllResults();
+        $successCount = $database->table('tb_repair')->groupStart()
+            ->like('repair_status', 'เรียบร้อย')
+            ->orLike('repair_status', 'เสร็จสิ้น')
+            ->groupEnd()
+            ->countAllResults();
+
+        $data['TotalRepair'] = $totalCount;
+        $data['StatusPending'] = $pendingCount;
+        $data['StatusProcess'] = $processCount;
+        $data['StatusSuccess'] = $successCount;
+
+        // My repairs count (if logged in)
+        $myRepairsCount = 0;
+        if (!empty($_SESSION['id'])) {
+            $myRepairsCount = $database->table('tb_repair')->where('repair_userID', $_SESSION['id'])->countAllResults();
+        }
+        $data['MyRepairsCount'] = $myRepairsCount;
+
+        // Category stats (Active & Pending breakdown)
+        $catCounts = [];
+        $catQuery = $database->query("
+            SELECT repair_caselist, COUNT(*) as total,
+                   SUM(CASE WHEN repair_status = 'รอดำเนินการ' THEN 1 ELSE 0 END) as pending,
+                   SUM(CASE WHEN repair_status = 'กำลังดำเนินการ' THEN 1 ELSE 0 END) as in_progress,
+                   SUM(CASE WHEN repair_status LIKE '%เรียบร้อย%' OR repair_status LIKE '%เสร็จสิ้น%' THEN 1 ELSE 0 END) as completed
+            FROM tb_repair
+            WHERE repair_caselist IS NOT NULL AND repair_caselist != ''
+            GROUP BY repair_caselist
+        ")->getResultArray();
+
+        foreach ($catQuery as $cq) {
+            $catCounts[$cq['repair_caselist']] = [
+                'total' => (int)$cq['total'],
+                'pending' => (int)$cq['pending'],
+                'in_progress' => (int)$cq['in_progress'],
+                'completed' => (int)$cq['completed']
+            ];
+        }
+        $data['CategoryStats'] = $catCounts;
+
+        // Define Category Cards with Large Graphic Illustrations
+        $data['RepairCategories'] = [
+            [
+                'id' => 'computer',
+                'title' => 'คอมพิวเตอร์ / โปรเจคเตอร์',
+                'sub_title' => 'Computer & Projector',
+                'caselist' => 'คอมพิวเตอร์/โปรเจคเตอร์',
+                'icon' => 'bx bx-desktop',
+                'image' => 'https://cdn-icons-png.flaticon.com/512/3039/3039387.png',
+                'color' => '#696cff',
+                'gradient' => 'linear-gradient(135deg, #696cff 0%, #4345bb 100%)',
+                'bg_light' => 'rgba(105, 108, 255, 0.08)',
+                'border_color' => 'rgba(105, 108, 255, 0.25)',
+                'badge' => 'IT Support',
+                'description' => 'บริการซ่อมคอมพิวเตอร์ PC, แล็ปท็อป/โน้ตบุ๊ก, จอภาพ, โปรเจคเตอร์ห้องเรียน, อุปกรณ์ต่อพ่วง และระบบปฏิบัติการ/โปรแกรมการเรียนการสอน',
+                'tags' => ['จอเปิดไม่ติด', 'เครื่องค้าง/ดับเอง', 'โปรเจคเตอร์ไม่มีภาพ', 'ลงโปรแกรม/OS', 'อุปกรณ์ต่อพ่วงเสีย']
+            ],
+            [
+                'id' => 'printer',
+                'title' => 'ปริ้นเตอร์ / สแกนเนอร์',
+                'sub_title' => 'Printer & Scanner',
+                'caselist' => 'ปริ้นเตอร์/สแกนเนอร์',
+                'icon' => 'bx bx-printer',
+                'image' => 'https://cdn-icons-png.flaticon.com/512/2888/2888704.png',
+                'color' => '#03c3ec',
+                'gradient' => 'linear-gradient(135deg, #03c3ec 0%, #0192b1 100%)',
+                'bg_light' => 'rgba(3, 195, 236, 0.08)',
+                'border_color' => 'rgba(3, 195, 236, 0.25)',
+                'badge' => 'Printing',
+                'description' => 'บริการซ่อมเครื่องพิมพ์เอกสาร, เครื่องสแกนเนอร์, เครื่องมัลติฟังก์ชัน, ปัญหากระดาษติด, หมึกหมด/หมึกจาง และเชื่อมต่อระบบสั่งพิมพ์',
+                'tags' => ['กระดาษติด', 'หมึกหมด/หมึกจาง', 'สแกนไม่ได้', 'พิมพ์ไม่ออก', 'ลงไดรเวอร์ใหม่']
+            ],
+            [
+                'id' => 'network',
+                'title' => 'ระบบเครือข่าย & อินเทอร์เน็ต',
+                'sub_title' => 'Network & Internet',
+                'caselist' => 'ระบบเครือข่าย',
+                'icon' => 'bx bx-wifi',
+                'image' => 'https://cdn-icons-png.flaticon.com/512/900/900782.png',
+                'color' => '#71dd37',
+                'gradient' => 'linear-gradient(135deg, #71dd37 0%, #4ca71a 100%)',
+                'bg_light' => 'rgba(113, 221, 55, 0.08)',
+                'border_color' => 'rgba(113, 221, 55, 0.25)',
+                'badge' => 'Network',
+                'description' => 'บริการแก้ไขปัญหาสัญญาณอินเทอร์เน็ต Wi-Fi หลุดบ่อย, สาย LAN ขาด/หัวต่อชำรุด, จุดเชื่อมต่อ Access Point ดับ หรือความเร็วอินเทอร์เน็ตไม่ปกติ',
+                'tags' => ['Wi-Fi เข้าไม่ได้', 'เน็ตหลุดบ่อย', 'หัวต่อ LAN เสีย', 'Access Point ไม่ทำงาน', 'ความเร็วเน็ตช้า']
+            ],
+            [
+                'id' => 'av',
+                'title' => 'โสตทัศนอุปกรณ์ & เครื่องเสียง',
+                'sub_title' => 'Audio & Visual Systems',
+                'caselist' => 'โสตทัศนอุปกรณ์',
+                'icon' => 'bx bx-volume-full',
+                'image' => 'https://cdn-icons-png.flaticon.com/512/3174/3174780.png',
+                'color' => '#ffab00',
+                'gradient' => 'linear-gradient(135deg, #ffab00 0%, #cc8800 100%)',
+                'bg_light' => 'rgba(255, 171, 0, 0.08)',
+                'border_color' => 'rgba(255, 171, 0, 0.25)',
+                'badge' => 'Audio & AV',
+                'description' => 'บริการแจ้งซ่อมและปรับจูนระบบเครื่องเสียงห้องประชุม, ไมโครโฟนไร้สาย/มีสาย, ลำโพง, มิกเซอร์, แอมป์ขยายเสียง และระบบภาพเสียงกิจกรรม',
+                'tags' => ['ไมค์ไม่มีเสียง/เสียงหอน', 'ลำโพงแตก', 'มิกเซอร์ไม่ทำงาน', 'สายสัญญาณชำรุด', 'ระบบภาพเสียงกิจกรรม']
+            ],
+            [
+                'id' => 'building',
+                'title' => 'งานอาคารสถานที่ & สาธารณูปโภค',
+                'sub_title' => 'Building & Maintenance',
+                'caselist' => 'งานอาคารสถานที่',
+                'icon' => 'bx bx-building-house',
+                'image' => 'https://cdn-icons-png.flaticon.com/512/2933/2933948.png',
+                'color' => '#ff3e1d',
+                'gradient' => 'linear-gradient(135deg, #ff5e3a 0%, #c4290d 100%)',
+                'bg_light' => 'rgba(255, 62, 29, 0.08)',
+                'border_color' => 'rgba(255, 62, 29, 0.25)',
+                'badge' => 'Facility (บันทึกข้อความ)',
+                'description' => 'บริการซ่อมระบบไฟฟ้า, หลอดไฟส่องสว่าง, เครื่องปรับอากาศ, ระบบประปา/สุขภัณฑ์, ประตูหน้าต่าง, โต๊ะ เก้าอี้ และงานบำรุงรักษาอาคารสถานที่',
+                'tags' => ['หลอดไฟดับ/กะพริบ', 'แอร์ไม่เย็น/น้ำหยด', 'ก๊อกน้ำรั่ว/ท่อตัน', 'ประตู/หน้าต่างชำรุด', 'โต๊ะเก้าอี้เสียหาย']
+            ]
+        ];
+
+        return view('User/UserRepair/UserRepairMain', $data);
+    }
+
+    public function RepairDashboard()
+    {
+        $session = session();
+        $database = \Config\Database::connect();
         $builder = $database->table('tb_location');
 
         $data = $this->DataMain();
-        $data['title']="แดชบอร์ดระบบงานแจ้งซ่อมออนไลน์";
-        $data['description']="หน้าแรกและแดชบอร์ดภาพรวมระบบงานแจ้งซ่อมออนไลน์";
+        $data['title'] = "แดชบอร์ดและรายการแจ้งซ่อม";
+        $data['description'] = "แดชบอร์ดภาพรวมและรายการแจ้งซ่อมออนไลน์ โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์";
         $data['UrlMenuMain'] = 'Repair';
-        $data['UrlMenuSub'] = '';
+        $data['UrlMenuSub'] = 'RepairDashboard';
         $data['Datethai'] = new Datethai();
 
         $data['DictationAll'] = $builder->countAll();
@@ -263,33 +403,33 @@ class ConUserRepair extends BaseController
             ]
         ];
 
-        return view('User/UserRepair/UserRepairMain', $data);
+        return view('User/UserRepair/UserRepairDashboard', $data);
     }
 
     public function RepairAdd()
     {
         $session = session();
         $database = \Config\Database::connect();
-        $DBpers = \Config\Database::connect('personnel');
         $DBskj = \Config\Database::connect('skj');
         $Skj = $DBskj->table('tb_position');
         $builder = $database->table('tb_location');
 
         $data = $this->DataMain();
-        $data['title']="เพิ่มข้อมูลงานแจ้งซ่อม";
-        $data['description']="บันทึกงานแจ้งซ่อม";
+        $data['title'] = "เพิ่มข้อมูลงานแจ้งซ่อม";
+        $data['description'] = "บันทึกงานแจ้งซ่อม";
         $data['UrlMenuMain'] = 'Repair';
-        $data['UrlMenuSub'] = '';
+        $data['UrlMenuSub'] = 'RepairAdd';
 
-       $data['Posi'] = $Skj->get()->getResult();
-       
-       $data['Datethai'] = new Datethai();
+        $data['Posi'] = $Skj->get()->getResult();
+        $data['Datethai'] = new Datethai();
 
-       // Math Captcha Generation
-       $data['num1'] = rand(1, 9);
-       $data['num2'] = rand(1, 9);
-       session()->set('captcha_answer', $data['num1'] + $data['num2']);
+        // Support category pre-selection from GET parameter
+        $data['selectedCategory'] = $this->request->getGet('category') ?? '';
 
+        // Math Captcha Generation
+        $data['num1'] = rand(1, 9);
+        $data['num2'] = rand(1, 9);
+        session()->set('captcha_answer', $data['num1'] + $data['num2']);
 
         return view('User/UserRepair/UserRepairAdd', $data);
     } 
@@ -300,7 +440,7 @@ class ConUserRepair extends BaseController
         $TBPres = $DBpers->table('tb_personnel');
 
         $this->request->getVar('repair_posi');
-        $data = $TBPres->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_phone')
+        $data = $TBPres->select('pers_id,pers_prefix,pers_firstname,pers_lastname,pers_phone,pers_academic')
         ->where('pers_position',$this->request->getVar('repair_posi'))
         ->where('pers_status','กำลังใช้งาน')
         ->get()->getResult();
@@ -986,27 +1126,79 @@ class ConUserRepair extends BaseController
         $postData = $this->request->getPost();
         $repair_order = $this->request->getVar('order') ?? $this->request->getPost('repair_order');
 
-        // If no POST data but we have an order ID, try to fetch from DB
-        if (empty($postData['memo_subject']) && !empty($repair_order)) {
+        if (!empty($postData['memo_subject'])) {
+            $data['memo_data'] = $postData;
+            // Prefer explicit position name if sent from hidden field
+            if (!empty($postData['memo_posi_name'])) {
+                $data['memo_data']['memo_posi'] = $postData['memo_posi_name'];
+            }
+        } elseif (!empty($repair_order)) {
             $dbMemo = $db->table('tb_repair_memo')->where('repair_order', $repair_order)->get()->getRowArray();
             if ($dbMemo) {
                 $data['memo_data'] = $dbMemo;
-                // For images, they are already in the correct field names in DB
                 $data['img1'] = $dbMemo['memo_img1'] ?? '';
                 $data['img2'] = $dbMemo['memo_img2'] ?? '';
             } else {
-                $data['memo_data'] = $postData;
+                $repair_info = $db->table('tb_repair')->where('repair_order', $repair_order)->get()->getRowArray();
+                if ($repair_info) {
+                    $DBpers = \Config\Database::connect('personnel');
+                    $pers = $DBpers->table('tb_personnel')->where('pers_id', $repair_info['repair_userID'])->get()->getRowArray();
+                    $DBskj = \Config\Database::connect('skj');
+                    $posi = $DBskj->table('tb_position')->where('posi_id', $repair_info['repair_posi'])->get()->getRowArray();
+                    
+                    $locArr = array_filter([$repair_info['repair_building'] ?? '', !empty($repair_info['repair_class']) ? 'ชั้น '.$repair_info['repair_class'] : '', !empty($repair_info['repair_room']) ? 'ห้อง '.$repair_info['repair_room'] : '']);
+
+                    $data['memo_data'] = [
+                        'memo_agency' => 'กลุ่มบริหารทั่วไป งานอาคารสถานที่ โรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์ โทร. ๐-๕๖๐๐-๙๖๖๗',
+                        'memo_no' => '',
+                        'memo_date' => $data['Datethai']->thai_date_fullmonth(strtotime($repair_info['repair_datetime'] ?? date('Y-m-d'))),
+                        'memo_subject' => 'ขออนุมัติซ่อมแซมอาคารสถานที่',
+                        'memo_to' => 'ผู้อำนวยการโรงเรียนสวนกุหลาบวิทยาลัย (จิรประวัติ) นครสวรรค์',
+                        'memo_location' => implode(' ', $locArr),
+                        'memo_reason' => $repair_info['repair_detail'] ?? '',
+                        'memo_budget' => '',
+                        'memo_fullname' => $pers ? ($pers['pers_prefix'].$pers['pers_firstname'].' '.$pers['pers_lastname']) : '',
+                        'memo_posi' => $posi ? $posi['posi_name'] : ($repair_info['repair_posi'] ?? ''),
+                    ];
+                } else {
+                    $data['memo_data'] = $postData;
+                }
             }
         } else {
             $data['memo_data'] = $postData;
         }
 
-        // Find position name based on position ID selected
+        // Find position name based on position ID selected if still numeric
         if (!empty($data['memo_data']['memo_posi']) && is_numeric($data['memo_data']['memo_posi'])) {
             $DBskj = \Config\Database::connect('skj');
             $posiRecord = $DBskj->table('tb_position')->where('posi_id', $data['memo_data']['memo_posi'])->get()->getRow();
             if ($posiRecord) {
                 $data['memo_data']['memo_posi'] = $posiRecord->posi_name;
+            }
+        }
+
+        // Format Academic Standing (วิทยฐานะ) for teachers
+        if (!empty($data['memo_data']['memo_fullname']) && !empty($data['memo_data']['memo_posi'])) {
+            $curPosi = trim($data['memo_data']['memo_posi']);
+            if (($curPosi === 'ครู' || mb_strpos($curPosi, 'ครู') !== false) && mb_strpos($curPosi, 'ผู้อำนวยการ') === false && mb_strpos($curPosi, 'วิทยฐานะ') === false) {
+                $DBpers = \Config\Database::connect('personnel');
+                $nameParts = explode(' ', trim($data['memo_data']['memo_fullname']));
+                $fnameClean = preg_replace('/^(นาย|นางสาว|นาง|ว่าที่ร้อยตรี|ดร\.)/', '', $nameParts[0]);
+                $pQuery = $DBpers->table('tb_personnel')->like('pers_firstname', $fnameClean);
+                if (count($nameParts) > 1) {
+                    $pQuery->like('pers_lastname', end($nameParts));
+                }
+                $pRow = $pQuery->get()->getRow();
+                if ($pRow && !empty($pRow->pers_academic) && $pRow->pers_academic !== 'ไม่มี' && $pRow->pers_academic !== '-') {
+                    $ac = trim($pRow->pers_academic);
+                    if (mb_strpos($ac, 'วิทยฐานะ') !== false) {
+                        $data['memo_data']['memo_posi'] = $curPosi . ' ' . $ac;
+                    } elseif (mb_strpos($ac, 'ครู') === 0) {
+                        $data['memo_data']['memo_posi'] = $curPosi . ' วิทยฐานะ' . $ac;
+                    } else {
+                        $data['memo_data']['memo_posi'] = $curPosi . ' วิทยฐานะครู' . $ac;
+                    }
+                }
             }
         }
 
@@ -1175,37 +1367,30 @@ class ConUserRepair extends BaseController
             ->where('admin_rloes_nanetype', 'ผู้อำนวยการโรงเรียน')
             ->get()->getRow();
 
-        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
-        $fontDirs = $defaultConfig['fontDir'];
-        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
-        $fontData = $defaultFontConfig['fontdata'];
+        // Prepare images array for view
+        $memoImages = [];
+        if (!empty($data['img1'])) {
+            $memoImages[] = (strpos($data['img1'], 'http') === 0) ? $data['img1'] : base_url($data['img1']);
+        }
+        if (!empty($data['img2'])) {
+            $memoImages[] = (strpos($data['img2'], 'http') === 0) ? $data['img2'] : base_url($data['img2']);
+        }
+        // Fallback: If no memo image was uploaded, check if original repair record has images
+        if (empty($memoImages) && !empty($repair_order)) {
+            $rInfo = $db->table('tb_repair')->where('repair_order', $repair_order)->get()->getRowArray();
+            if (!empty($rInfo['repair_imguser'])) {
+                $userImgs = explode(',', $rInfo['repair_imguser']);
+                foreach ($userImgs as $ui) {
+                    $ui = trim($ui);
+                    if (!empty($ui)) {
+                        $memoImages[] = base_url('uploads/user/Repair/' . $ui);
+                    }
+                }
+            }
+        }
+        $data['memo_data']['images'] = $memoImages;
 
-        $mpdf = new \Mpdf\Mpdf([
-            'format' => 'A4',
-            'mode' => 'utf-8',
-            'default_font' => 'thsarabun',
-            'default_font_size' => 16,
-            'margin_top' => 15,
-            'margin_bottom' => 15,
-            'margin_left' => 30,
-            'margin_right' => 20,
-            'fontDir' => array_merge($fontDirs, [
-                ROOTPATH . 'vendor/mpdf/mpdf/ttfonts',
-            ]),
-            'fontdata' => $fontData + [
-                'thsarabun' => [
-                    'R' => 'THSarabunNew.ttf',
-                    'B' => 'THSarabunNew Bold.ttf',
-                    'I' => 'THSarabunNew Italic.ttf',
-                    'BI' => 'THSarabunNew BoldItalic.ttf'
-                ]
-            ],
-        ]);
-
-        $html = view('User/UserRepair/UserRepairBuildingMemoPrint', $data);
-        $mpdf->WriteHTML($html);
-        
-        return $this->response->setHeader('Content-Type', 'application/pdf')->setBody($mpdf->Output('memo_building.pdf', 'I'));
+        return view('User/UserRepair/UserRepairBuildingMemoPrint', $data);
     }
 
     public function RepairStatistics(){
@@ -1605,3 +1790,4 @@ class ConUserRepair extends BaseController
         ]);
     }
 }
+
