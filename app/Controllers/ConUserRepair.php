@@ -656,9 +656,10 @@ class ConUserRepair extends BaseController
        $S_data = $TBrepair->select('
        repair_ID,repair_order,repair_datetime,repair_userID,repair_phone,repair_caselist,repair_status,repair_detail,repair_building,repair_class,repair_room,repair_imguser,repair_imgwork,pers_prefix,pers_firstname,pers_lastname
        ')
-       ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
-       ->where("YEAR(repair_datetime)", $year) // Filter by year
-       ->orderBy('repair_order', 'DESC')
+       ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id', 'left')
+       ->where(($year !== 'all' && is_numeric($year)) ? "YEAR(repair_datetime) = " . (int)$year : "1=1")
+       ->orderBy('repair_datetime', 'DESC')
+       ->orderBy('repair_ID', 'DESC')
        ->get()->getResult();
 
        $data = array();
@@ -666,6 +667,8 @@ class ConUserRepair extends BaseController
            $data[] = array(
                 "repair_ID"=>$row->repair_ID,
               "repair_order"=>$row->repair_order,
+              "repair_datetime_raw"=>$row->repair_datetime,
+              "repair_timestamp"=>(!empty($row->repair_datetime) && $row->repair_datetime !== '0000-00-00 00:00:00') ? strtotime($row->repair_datetime) : 0,
               "repair_datetime"=>$Datethai->thai_date_fullmonth(strtotime($row->repair_datetime)),
               "repair_userID"=>$row->repair_userID,
               "repair_phone"=>$row->repair_phone,
@@ -677,7 +680,7 @@ class ConUserRepair extends BaseController
               "repair_room"=>isset($row->repair_room) ? $row->repair_room : '',
               "repair_imguser"=>isset($row->repair_imguser) ? $row->repair_imguser : '',
               "repair_imgwork"=>isset($row->repair_imgwork) ? $row->repair_imgwork : '',
-              'UserFullname'=>$row->pers_prefix.$row->pers_firstname.' '.$row->pers_lastname
+              'UserFullname'=>(!empty($row->pers_firstname) ? ($row->pers_prefix . $row->pers_firstname . ' ' . $row->pers_lastname) : 'เจ้าหน้าที่')
            );
         }
 
@@ -688,7 +691,7 @@ class ConUserRepair extends BaseController
         echo json_encode($response);
     }
 
-    public function ViewOrder($IDorder){
+        public function ViewOrder($IDorder){
         $session = session();
         $data = $this->DataMain();
         $data['title'] = "รายละเอียดการแจ้งซ่อม";
@@ -703,16 +706,63 @@ class ConUserRepair extends BaseController
         $TBpers = $DBpers->table('tb_personnel');
 
         $data['RepaiUser'] = $TBrepair->select('tb_repair.*,tb_position.posi_name,tb_personnel.pers_prefix,tb_personnel.pers_firstname,tb_personnel.pers_lastname')
-        ->where('repair_order',$IDorder)
-        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
-        ->join('skjacth_skj.tb_position','tb_repair.repair_posi = tb_position.posi_id')
+        ->where('repair_order', $IDorder)
+        ->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id', 'left')
+        ->join('skjacth_skj.tb_position', 'tb_repair.repair_posi = tb_position.posi_id', 'left')
         ->get()->getResult();
 
-        $data['Repairman'] = $TBpers->select("CONCAT(pers_prefix,pers_firstname,' ',pers_lastname) AS Repairman")
-            ->where('pers_id',$data['RepaiUser'][0]->repair_Repairman)
-            ->get()->getResult();
+        if (empty($data['RepaiUser'])) {
+            $rawOrder = $TBrepair->where('repair_order', $IDorder)->get()->getResult();
+            if (!empty($rawOrder)) {
+                $data['RepaiUser'] = $rawOrder;
+            } else {
+                return redirect()->to(base_url('Repair'))->with('error', 'ไม่พบข้อมูลรายการแจ้งซ่อม');
+            }
+        }
 
-        $data['Order'] = array_merge($data['RepaiUser'],$data['Repairman']);
+        $isIT = (strpos($data['RepaiUser'][0]->repair_cause ?? '', 'IT Support') !== false || preg_match('/\[IT-\d{6}-\d{4}\]/', $data['RepaiUser'][0]->repair_detail ?? ''));
+
+        // Make sure joined fields are not null and not raw IDs
+        if (!empty($data['RepaiUser'])) {
+            if (empty($data['RepaiUser'][0]->pers_firstname) || $data['RepaiUser'][0]->pers_firstname === '0000' || is_numeric($data['RepaiUser'][0]->pers_firstname)) {
+                $data['RepaiUser'][0]->pers_prefix = '';
+                $data['RepaiUser'][0]->pers_firstname = $isIT ? 'ผู้ดูแลระบบ IT Support' : 'เจ้าหน้าที่';
+                $data['RepaiUser'][0]->pers_lastname = '';
+            }
+            if (empty($data['RepaiUser'][0]->posi_name)) {
+                $data['RepaiUser'][0]->posi_name = !empty($data['RepaiUser'][0]->repair_posi) ? $data['RepaiUser'][0]->repair_posi : 'เจ้าหน้าที่กองการศึกษา';
+            }
+        }
+
+        $repairmanName = '';
+        $repairmanId = $data['RepaiUser'][0]->repair_Repairman ?? '';
+        if (!empty($repairmanId)) {
+            $man = $TBpers->select("CONCAT(pers_prefix,pers_firstname,' ',pers_lastname) AS Repairman")
+                ->where('pers_id', $repairmanId)
+                ->get()->getRow();
+            if ($man && !empty(trim($man->Repairman))) {
+                $repairmanName = trim($man->Repairman);
+            } elseif ($repairmanId === '0000' || is_numeric($repairmanId)) {
+                $repairmanName = $isIT ? 'ผู้ดูแลระบบ IT Support' : 'เจ้าหน้าที่ปฏิบัติงาน';
+            } else {
+                $repairmanName = $repairmanId;
+            }
+        } else {
+            $repairmanName = $isIT ? 'ผู้ดูแลระบบ IT Support' : '-';
+        }
+
+        // สำหรับรายการที่ซิงค์มาจาก IT Support API: รูปภาพทั้งหมดคือรูปภาพประกอบงาน (ภาพการดำเนินงานต้องไม่มี)
+        if (!empty($data['RepaiUser'])) {
+            if ($isIT && !empty($data['RepaiUser'][0]->repair_imgwork)) {
+                $TBrepair->where('repair_order', $IDorder)->update(['repair_imgwork' => '']);
+                $data['RepaiUser'][0]->repair_imgwork = '';
+            }
+        }
+
+        $data['RepairmanName'] = $repairmanName;
+        $data['Repairman'] = [(object)['Repairman' => $repairmanName]];
+        $data['Order'] = array_merge($data['RepaiUser'], $data['Repairman']);
+        $data['Order'][0]->repair_RepairmanFullName = $repairmanName;
 
         // ตรวจสอบว่ามีการประเมินไปแล้วหรือยัง
         $data['Evaluation'] = $DBrepair->table('tb_repair_evaluations')
@@ -724,10 +774,7 @@ class ConUserRepair extends BaseController
             ->where('repair_order', $IDorder)
             ->get()->getRow();
 
-        //echo "<pre>"; print_r($data['Order']); exit();
-        
         return view('User/UserRepair/UserRepairView', $data);
-
     }
 
     public function CheckRepairFullDetail(){
@@ -738,25 +785,43 @@ class ConUserRepair extends BaseController
 
         $json = [];
         $data = $TBrepair->select('tb_repair.*,tb_position.posi_name,tb_personnel.pers_prefix,tb_personnel.pers_firstname,tb_personnel.pers_lastname')
-        ->where('repair_ID',$this->request->getVar('RepairId'))
-        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
-        ->join('skjacth_skj.tb_position','tb_repair.repair_posi = tb_position.posi_id')
+        ->where('repair_ID', $this->request->getVar('RepairId'))
+        ->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id', 'left')
+        ->join('skjacth_skj.tb_position', 'tb_repair.repair_posi = tb_position.posi_id', 'left')
         ->get()->getResult();
-        array_push($json,$data);
+
+        if (!empty($data)) {
+            if (empty($data[0]->posi_name)) {
+                $data[0]->posi_name = $data[0]->repair_posi ?: 'เจ้าหน้าที่กองการศึกษา';
+            }
+            if (empty($data[0]->pers_firstname)) {
+                $data[0]->pers_prefix = '';
+                $data[0]->pers_firstname = $data[0]->repair_Repairman ?: 'เจ้าหน้าที่';
+                $data[0]->pers_lastname = '';
+            }
+        }
+        array_push($json, $data);
        
-        if($data[0]->repair_Repairman != ''){
+        if (!empty($data) && !empty($data[0]->repair_Repairman)) {
             $check = $TBpers->select('pers_prefix,pers_firstname,pers_lastname')
-            ->where('pers_id',$data[0]->repair_Repairman)
+            ->where('pers_id', $data[0]->repair_Repairman)
             ->get()->getResult();
-            array_push($json,$check);
-        }else{
-            array_push($json,'pers_prefix,pers_firstname,pers_lastname');
+            if (!empty($check)) {
+                array_push($json, $check);
+            } else {
+                array_push($json, [(object)[
+                    'pers_prefix' => '',
+                    'pers_firstname' => $data[0]->repair_Repairman,
+                    'pers_lastname' => ''
+                ]]);
+            }
+        } else {
+            array_push($json, 'pers_prefix,pers_firstname,pers_lastname');
         }
 
         echo json_encode($json);
     }
-  
-    public function RepairUpdateWork(){
+  public function RepairUpdateWork(){
         try {
             $DBrepair = \Config\Database::connect();
             $TBrepair = $DBrepair->table('tb_repair');
@@ -1012,8 +1077,8 @@ class ConUserRepair extends BaseController
         $data['Datethai'] = new Datethai();
 
         $data['RepairUser'] = $TBrepair->select('tb_repair.*,tb_position.posi_name,tb_personnel.pers_prefix,tb_personnel.pers_firstname,tb_personnel.pers_lastname')        
-        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id')
-        ->join('skjacth_skj.tb_position','tb_repair.repair_posi = tb_position.posi_id')
+        ->join('skjacth_personnel.tb_personnel','tb_repair.repair_userID = tb_personnel.pers_id', 'left')
+        ->join('skjacth_skj.tb_position','tb_repair.repair_posi = tb_position.posi_id', 'left')
         ->where('repair_order', urldecode($RepairId))
         ->get()->getResult();
 
@@ -1038,6 +1103,7 @@ class ConUserRepair extends BaseController
                 'mode' => 'utf-8',
                 'default_font' => 'thsarabun',
                 'default_font_size' => 16,
+                'curlAllowUnsafeSslRequests' => true,
                 'margin_top' => 5,
                 'margin_bottom' => 40,
                 'margin_left' => 15,
@@ -1456,7 +1522,7 @@ class ConUserRepair extends BaseController
             tb_personnel.pers_firstname, 
             tb_personnel.pers_lastname
         ');
-        $builder->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id');
+        $builder->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id', 'left');
         $builder->where("YEAR(tb_repair.repair_datetime)", $year);
         $builder->where('tb_repair.repair_caselist !=', 'งานอาคารสถานที่');
 
@@ -1464,7 +1530,8 @@ class ConUserRepair extends BaseController
             $builder->where('tb_repair.repair_status', $status);
         }
 
-        $builder->orderBy('tb_repair.repair_order', 'DESC');
+        $builder->orderBy('tb_repair.repair_datetime', 'DESC')
+                ->orderBy('tb_repair.repair_ID', 'DESC');
         $results = $builder->get()->getResult();
 
         $data = [];
@@ -1511,8 +1578,8 @@ class ConUserRepair extends BaseController
         $Datethai = new Datethai();
 
         $builder->select('tb_repair.*, tb_position.posi_name, tb_personnel.pers_prefix, tb_personnel.pers_firstname, tb_personnel.pers_lastname');
-        $builder->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id');
-        $builder->join('skjacth_skj.tb_position', 'tb_repair.repair_posi = tb_position.posi_id');
+        $builder->join('skjacth_personnel.tb_personnel', 'tb_repair.repair_userID = tb_personnel.pers_id', 'left');
+        $builder->join('skjacth_skj.tb_position', 'tb_repair.repair_posi = tb_position.posi_id', 'left');
         
         if (is_numeric($id)) {
             $builder->where('repair_ID', $id);
@@ -1789,5 +1856,380 @@ class ConUserRepair extends BaseController
             'message' => 'ออกจากระบบแล้ว'
         ]);
     }
-}
 
+        /**
+     * ดึงข้อมูลรายการแจ้งซ่อม/งานบริการจากระบบ IT Support (PAO-Erc API)
+     */
+        public function FetchITSupport()
+    {
+        $session = session();
+        $isAuth = $session->get('isLoggedIn') || $session->get('staffLogin') || $session->get('logged_in') || $session->get('id');
+        if (!$isAuth) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'กรุณาเข้าสู่ระบบก่อนทำรายการ'
+            ]);
+        }
+
+        try {
+            $limit = (int)($this->request->getVar('limit') ?? $this->request->getGet('limit') ?? 50);
+            $search = $this->request->getVar('search') ?? $this->request->getGet('search') ?? '';
+            $category = $this->request->getVar('category') ?? $this->request->getGet('category') ?? '';
+
+            // ตรวจสอบ URL ของ IT Support API (รองรับทั้งผ่าน .env และ fallback อัตโนมัติ)
+            $envApiUrl = env('IT_SUPPORT_API_URL') ?: (getenv('IT_SUPPORT_API_URL') ?: '');
+            $apiKey = env('IT_SUPPORT_API_KEY') ?: (getenv('IT_SUPPORT_API_KEY') ?: 'pao-erc-itsupport-api-key-2026');
+
+            // รายการ URL ที่จะทดสอบเชื่อมต่อตามลำดับความเหมาะสม (Server จริง / .env / Localhost / Docker)
+            $candidateUrls = [];
+            if (!empty($envApiUrl)) {
+                $candidateUrls[] = rtrim($envApiUrl, '/');
+            }
+            // รายการ Candidate สำหรับ Production Server และสภาพแวดล้อมต่างๆ
+            $candidateUrls[] = 'http://paoerc_app/api/itsupport';
+            $candidateUrls[] = 'http://pao-erc-app/api/itsupport';
+            $candidateUrls[] = 'https://localhost:9443/api/itsupport';
+            $candidateUrls[] = 'http://localhost:9000/api/itsupport';
+            $candidateUrls[] = 'http://localhost/api/itsupport';
+            $candidateUrls[] = 'https://host.docker.internal:9443/api/itsupport';
+
+            $queryParams = '?limit=' . $limit;
+            if (!empty($search)) {
+                $queryParams .= '&search=' . urlencode($search);
+            }
+            if (!empty($category)) {
+                $queryParams .= '&category=' . urlencode($category);
+            }
+
+            $response = false;
+            $lastErr = '';
+
+            foreach ($candidateUrls as $baseUrl) {
+                $targetUrl = (strpos($baseUrl, '?') !== false) ? ($baseUrl . '&limit=' . $limit) : ($baseUrl . $queryParams);
+
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $targetUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'X-API-KEY: ' . $apiKey,
+                    'Accept: application/json'
+                ]);
+
+                $res = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlErr = curl_error($ch);
+                curl_close($ch);
+
+                if (!$curlErr && ($httpCode === 200 || $httpCode === 201)) {
+                    $jsonTest = json_decode($res, true);
+                    if ($jsonTest && (isset($jsonTest['status']) || isset($jsonTest['data']))) {
+                        $response = $res;
+                        break;
+                    }
+                } else {
+                    $lastErr = $curlErr ? $curlErr : ('HTTP ' . $httpCode);
+                }
+            }
+
+            if (!$response) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'เชื่อมต่อ IT Support API ไม่สำเร็จ (' . ($lastErr ?: 'ไม่พบ Endpoint') . ') กรุณาระบุ IT_SUPPORT_API_URL ในไฟล์ .env ของระบบ'
+                ]);
+            }
+
+            $apiData = json_decode($response, true);
+            $isSuccess = $apiData && (
+                (isset($apiData['status']) && ($apiData['status'] === 'success' || $apiData['status'] === 200 || $apiData['status'] == '200')) ||
+                (isset($apiData['success']) && $apiData['success'] === true)
+            );
+
+            if (!$isSuccess) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => $apiData['message'] ?? 'ไม่สามารถดึงข้อมูลจาก IT Support API ได้'
+                ]);
+            }
+
+            // ตรวจสอบกับฐานข้อมูล tb_repair ว่า Ticket ไหนเคยถูกนำเข้าแล้วบ้าง
+            $db = \Config\Database::connect();
+            $existingRepairs = $db->table('tb_repair')
+                ->select('repair_order, repair_detail, repair_datetime')
+                ->get()
+                ->getResultArray();
+
+            $tickets = $apiData['data'] ?? [];
+            foreach ($tickets as &$ticket) {
+                $ticketCode = $ticket['ticket_code'] ?? '';
+                $isImported = false;
+                $matchedOrder = null;
+
+                foreach ($existingRepairs as $er) {
+                    if (!empty($ticketCode) && strpos($er['repair_detail'], $ticketCode) !== false) {
+                        $isImported = true;
+                        $matchedOrder = $er['repair_order'];
+                        break;
+                    }
+                }
+
+                $ticket['is_imported'] = $isImported;
+                $ticket['matched_repair_order'] = $matchedOrder;
+            }
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'meta'    => $apiData['meta'] ?? [],
+                'data'    => $tickets
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+        public function SyncITSupport()
+    {
+        $session = session();
+        $isAuth = $session->get('isLoggedIn') || $session->get('staffLogin') || $session->get('logged_in') || $session->get('id');
+        if (!$isAuth) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'กรุณาเข้าสู่ระบบก่อนทำรายการ'
+            ]);
+        }
+
+        try {
+            $rawPayload = $this->request->getVar('tickets');
+            if (empty($rawPayload)) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'ไม่พบข้อมูลรายการที่ส่งมานำเข้า'
+                ]);
+            }
+
+            $tickets = is_string($rawPayload) ? json_decode($rawPayload, true) : $rawPayload;
+            if (!is_array($tickets) || empty($tickets)) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'รูปแบบข้อมูลรายการไม่ถูกต้อง'
+                ]);
+            }
+
+            $db = \Config\Database::connect();
+            $tbRepair = $db->table('tb_repair');
+
+            $importedCount = 0;
+            $skippedCount = 0;
+            $newOrders = [];
+
+            foreach ($tickets as $item) {
+                $ticketCode = $item['ticket_code'] ?? '';
+                $task = $item['task'] ?? '';
+                $ticketDate = $item['date'] ?? date('Y-m-d H:i:s');
+                $category = $item['category'] ?? '';
+                $location = $item['location'] ?? '';
+                $recordedBy = $item['recorded_by'] ?? '';
+
+                // 1. ตรวจสอบว่าเคยนำเข้า Ticket นี้แล้วหรือไม่ ถ้ามีแล้วให้อัปเดตผู้ดำเนินการซ่อมเป็นผู้ที่กดซิงค์
+                $syncOperator = !empty($session->get('id')) && $session->get('id') !== '0000' ? $session->get('id') : ($session->get('fullname') ?: ($session->get('username') ?: 'ผู้ดูแลระบบ IT Support'));
+                if (!empty($ticketCode)) {
+                    $existing = $tbRepair->like('repair_detail', $ticketCode)->get()->getRow();
+                    if ($existing) {
+                        $tbRepair->where('repair_ID', $existing->repair_ID)->update([
+                            'repair_Repairman' => $syncOperator,
+                            'repair_posi'      => !empty($item['recorded_by_position']) ? $item['recorded_by_position'] : (!empty($item['position']) ? $item['position'] : $existing->repair_posi),
+                            'repair_imguser'   => $imgStored,
+                            'repair_imgwork'   => ''
+                        ]);
+                        $skippedCount++;
+                        continue;
+                    }
+                }
+
+                // 2. ออกเลขที่ใบงาน repair_order อัตโนมัติ (SKJRP_YYYYXXXX)
+                $lastRecord = $db->table('tb_repair')->select('repair_order')->orderBy('repair_ID', 'DESC')->get()->getRow();
+                if (!empty($lastRecord) && !empty($lastRecord->repair_order)) {
+                    $sub = explode('_', $lastRecord->repair_order);
+                    $seq = isset($sub[1]) ? ((int)$sub[1] + 1) : 1;
+                    $orderNumber = $sub[0] . '_' . sprintf("%08d", $seq);
+                } else {
+                    $orderNumber = "SKJRP_" . date('Y') . "0001";
+                }
+
+                // 3. จัดหมวดหมู่งานซ่อม (Caselist)
+                $caseList = 'ระบบคอมพิวเตอร์/เครือข่าย';
+                $catLower = mb_strtolower($category . ' ' . $task, 'UTF-8');
+                if (mb_strpos($catLower, 'เครื่องเสียง') !== false || mb_strpos($catLower, 'ภาพและเสียง') !== false || mb_strpos($catLower, 'led') !== false || mb_strpos($catLower, 'streaming') !== false) {
+                    $caseList = 'ระบบโสตทัศนูปกรณ์';
+                } elseif (mb_strpos($catLower, 'อินเทอร์เน็ต') !== false || mb_strpos($catLower, 'ระบบเครือข่าย') !== false || mb_strpos($catLower, 'wifi') !== false || mb_strpos($catLower, 'network') !== false) {
+                    $caseList = 'ระบบอินเทอร์เน็ต/เครือข่าย';
+                } elseif (mb_strpos($catLower, 'เครื่องพิมพ์') !== false || mb_strpos($catLower, 'ปริ้นเตอร์') !== false || mb_strpos($catLower, 'หมึกพิมพ์') !== false || mb_strpos($catLower, 'printer') !== false) {
+                    $caseList = 'เครื่องพิมพ์/อุปกรณ์ต่อพ่วง';
+                } elseif (mb_strpos($catLower, 'โปรแกรม') !== false || mb_strpos($catLower, 'ติดตั้งโปรแกรม') !== false || mb_strpos($catLower, 'it') !== false || mb_strpos($catLower, 'ระบบสารสนเทศ') !== false || mb_strpos($catLower, 'windows') !== false || mb_strpos($catLower, 'ระบบปฏิบัติการ') !== false) {
+                    $caseList = 'ซอฟต์แวร์/ระบบปฏิบัติการ';
+                }
+
+                // 4. นำ Array ของ URL รูปภาพตัวเต็มจาก IT Support API มาจัดเก็บ
+                $savedImages = [];
+                $images = $item['images'] ?? [];
+                if (!empty($images) && is_array($images)) {
+                    foreach ($images as $imgObj) {
+                        $imgUrl = is_array($imgObj) ? ($imgObj['url'] ?? '') : $imgObj;
+                        if (!empty($imgUrl)) {
+                            if (strpos($imgUrl, 'http') !== 0) {
+                                $imgUrl = 'https://erc.nsnpao.go.th/' . ltrim($imgUrl, '/');
+                            }
+                            $savedImages[] = $imgUrl;
+                        }
+                    }
+                }
+
+                // จัดเก็บ URL รูปภาพเป็น JSON Array หรือ comma-separated string
+                $imgStored = !empty($savedImages) ? json_encode($savedImages, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : '';
+
+                // 5. ดึงตำแหน่งของเจ้าหน้าที่จาก IT Support API
+                $staffPosition = !empty($item['recorded_by_position']) ? $item['recorded_by_position'] : (!empty($item['position']) ? $item['position'] : 'ผู้ช่วยนักวิชาการคอมพิวเตอร์');
+
+                // เตรียมข้อมูลและบันทึกลง tb_repair
+                $detailFormatted = (!empty($ticketCode) ? "[$ticketCode] " : "") . $task;
+
+                $insertData = [
+                    'repair_order'        => $orderNumber,
+                    'repair_datetime'     => $ticketDate,
+                    'repair_posi'         => $staffPosition,
+                    'repair_userID'       => $session->get('id') ?: '0000',
+                    'repair_phone'        => '-',
+                    'repair_building'     => !empty($location) ? $location : 'อบจ.นครสวรรค์',
+                    'repair_class'        => '',
+                    'repair_room'         => '',
+                    'repair_caselist'     => $caseList,
+                    'repair_detail'       => $detailFormatted,
+                    'repair_status'       => 'ดำเนินการเรียบร้อย',
+                    // ผู้ดำเนินการซ่อม = ผู้ที่กดซิงค์ข้อมูล
+                    'repair_Repairman'    => !empty($session->get('id')) && $session->get('id') !== '0000' ? $session->get('id') : ($session->get('fullname') ?: ($session->get('username') ?: 'ผู้ดูแลระบบ IT Support')),
+                    'repair_datework'     => $ticketDate,
+                    'repair_cause'        => 'นำเข้าจากประวัติงาน IT Support (' . $ticketCode . ')',
+                    'repair_imguser'      => $imgStored,
+                    'repair_imgwork'      => '',
+                    'repair_usersignature'=> ''
+                ];
+
+                if ($tbRepair->insert($insertData)) {
+                    $importedCount++;
+                    $newOrders[] = [
+                        'order'       => $orderNumber,
+                        'ticket_code' => $ticketCode
+                    ];
+                }
+            }
+
+            return $this->response->setJSON([
+                'status'         => 'success',
+                'message'        => "นำเข้าข้อมูลสำเร็จ $importedCount รายการ (ข้ามรายการที่เคยนำเข้าแล้ว $skippedCount รายการ)",
+                'imported_count' => $importedCount,
+                'skipped_count'  => $skippedCount,
+                'orders'         => $newOrders
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'เกิดข้อผิดพลาดในการนำเข้าข้อมูล: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * ลบข้อมูลการแจ้งซ่อม ลบไฟล์รูปภาพที่เกี่ยวข้อง และข้อมูลประเมิน/บันทึกข้อความ
+     */
+    public function DeleteOrder()
+    {
+        $session = session();
+        $isAuth = $session->get('isLoggedIn') || $session->get('staffLogin') || $session->get('logged_in') || $session->get('id');
+        if (!$isAuth) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'กรุณาเข้าสู่ระบบก่อนทำรายการ'
+            ]);
+        }
+
+        $repairOrder = $this->request->getVar('repair_order');
+        if (empty($repairOrder)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'ไม่พบรหัสเลขที่ใบงานที่ต้องการลบ'
+            ]);
+        }
+
+        $db = \Config\Database::connect();
+        $repair = $db->table('tb_repair')->where('repair_order', $repairOrder)->get()->getRow();
+        if (!$repair) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'ไม่พบข้อมูลใบงานในระบบ'
+            ]);
+        }
+
+        // ลบไฟล์รูปภาพในเครื่อง (ถ้าไม่ใช่ URL ภายนอก)
+        $cleanImgs = function($raw) {
+            if (empty($raw)) return [];
+            $raw = trim($raw);
+            if (strpos($raw, '[') === 0) {
+                $j = json_decode($raw, true);
+                if (is_array($j)) return $j;
+            }
+            return explode(',', $raw);
+        };
+
+        $allImages = array_merge(
+            $cleanImgs($repair->repair_imguser ?? ''),
+            $cleanImgs($repair->repair_imgwork ?? '')
+        );
+
+        $uploadDirs = [
+            ROOTPATH . 'uploads/user/Repair/',
+            ROOTPATH . 'uploads/User/Repair/',
+            ROOTPATH . 'uploads/admin/Repair/'
+        ];
+
+        foreach ($allImages as $img) {
+            $img = trim($img);
+            if (empty($img)) continue;
+            // ถ้าไม่ใช่ http/https url ให้ลบไฟล์ในเครื่อง
+            if (strpos($img, 'http://') !== 0 && strpos($img, 'https://') !== 0) {
+                foreach ($uploadDirs as $dir) {
+                    $filePath = $dir . $img;
+                    if (file_exists($filePath) && is_file($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+            }
+        }
+
+        // ลบข้อมูลการประเมิน
+        if ($db->tableExists('tb_repair_evaluations')) {
+            $db->table('tb_repair_evaluations')->where('repair_order', $repairOrder)->delete();
+        }
+
+        // ลบข้อมูลบันทึกข้อความ
+        if ($db->tableExists('tb_repair_memo')) {
+            $db->table('tb_repair_memo')->where('repair_order', $repairOrder)->delete();
+        }
+
+        // ลบใบงานหลัก
+        $db->table('tb_repair')->where('repair_order', $repairOrder)->delete();
+
+        return $this->response->setJSON([
+            'status'   => 'success',
+            'message'  => 'ลบข้อมูลการแจ้งซ่อมและไฟล์ที่เกี่ยวข้องเรียบร้อยแล้ว',
+            'redirect' => base_url('Repair/Dashboard')
+        ]);
+    }
+}

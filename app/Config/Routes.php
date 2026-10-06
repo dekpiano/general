@@ -126,6 +126,9 @@ $routes->match(['GET', 'POST'], 'Repair/BuildingMemo/Print', 'ConUserRepair::Rep
 $routes->post('Repair/DB/SaveEvaluation', 'ConUserRepair::RepairSaveEvaluation');
 $routes->post('Repair/DB/StaffLogin', 'ConUserRepair::StaffLogin');
 $routes->post('Repair/DB/StaffLogout', 'ConUserRepair::StaffLogout');
+$routes->match(['GET', 'POST'], 'Repair/Api/FetchITSupport', 'ConUserRepair::FetchITSupport');
+$routes->match(['GET', 'POST'], 'Repair/Api/SyncITSupport', 'ConUserRepair::SyncITSupport');
+$routes->match(['GET', 'POST'], 'Repair/DB/DeleteOrder', 'ConUserRepair::DeleteOrder');
 
 
 

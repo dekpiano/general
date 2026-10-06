@@ -28,7 +28,18 @@
     <style>
         :root { --bs-font-sans-serif: 'K2D', sans-serif !important; }
         body, .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 { font-family: 'K2D', sans-serif !important; }
-    </style>
+    
+    /* SweetAlert2 Always on Top of Everything (Modals & Backdrops) */
+    .swal2-container {
+        z-index: 9999999 !important;
+    }
+    .swal2-popup {
+        z-index: 10000000 !important;
+    }
+    .swal2-backdrop-show {
+        z-index: 9999999 !important;
+    }
+</style>
 
     <!-- Icons. Uncomment required icon fonts -->
     <link rel="stylesheet" href="<?=base_url()?>/assets/vendor/fonts/boxicons.css" />

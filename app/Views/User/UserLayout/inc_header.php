@@ -242,6 +242,17 @@
             backdrop-filter: blur(16px) saturate(180%) !important;
             box-shadow: 0 10px 30px -5px rgba(105, 108, 255, 0.09), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
         }
-    </style>
+    
+    /* SweetAlert2 Always on Top of Everything (Modals & Backdrops) */
+    .swal2-container {
+        z-index: 9999999 !important;
+    }
+    .swal2-popup {
+        z-index: 10000000 !important;
+    }
+    .swal2-backdrop-show {
+        z-index: 9999999 !important;
+    }
+</style>
     <?= $this->renderSection('customCSS') ?>
 </head>

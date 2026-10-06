@@ -197,11 +197,40 @@ function getStatusBadge(data) {
 }
 
 function getRepairImagesHtml(row) {
+  const isIT = (row.repair_cause && row.repair_cause.indexOf('IT Support') !== -1) || (row.repair_detail && /\[IT-\d{6}-\d{4}\]/.test(row.repair_detail));
   const imgUser = row.repair_imguser ? row.repair_imguser.trim() : '';
-  const imgWork = row.repair_imgwork ? row.repair_imgwork.trim() : '';
+  const imgWork = (!isIT && row.repair_imgwork) ? row.repair_imgwork.trim() : '';
   const allImgs = [];
-  if (imgUser) imgUser.split(',').forEach(f => { if (f.trim()) allImgs.push({ url: '/uploads/user/Repair/' + f.trim(), type: 'user' }); });
-  if (imgWork) imgWork.split(',').forEach(f => { if (f.trim()) allImgs.push({ url: '/uploads/admin/Repair/' + f.trim(), type: 'work' }); });
+
+  const parseImgs = (raw, type) => {
+    if (!raw) return;
+    if (raw.startsWith('[')) {
+      try {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          arr.forEach(f => {
+            if (f && typeof f === 'string' && f.trim()) {
+              const url = (f.startsWith('http') || f.startsWith('/')) ? f.trim() : (type === 'user' ? '/uploads/user/Repair/' : '/uploads/admin/Repair/') + f.trim();
+              allImgs.push({ url, type });
+            }
+          });
+          return;
+        }
+      } catch (e) {}
+    }
+    raw.split(',').forEach(f => {
+      const trimmed = f.trim();
+      if (trimmed) {
+        const url = (trimmed.startsWith('http') || trimmed.startsWith('/')) ? trimmed : (type === 'user' ? '/uploads/user/Repair/' : '/uploads/admin/Repair/') + trimmed;
+        allImgs.push({ url, type });
+      }
+    });
+  };
+
+  parseImgs(imgUser, 'user');
+  if (!isIT) {
+    parseImgs(imgWork, 'work');
+  }
 
   const defaultSvg = BASE_URL + 'assets/img/no-image.svg';
 
@@ -330,11 +359,20 @@ function loadRepairCards() {
         $container.html('<div class="repair-empty"><i class="bi bi-inbox d-block"></i><h5>ไม่พบข้อมูลการแจ้งซ่อม</h5></div>');
         return;
       }
-      // Sort by repair_order descending
+      // เรียงลำดับตามวันที่แจ้งซ่อม (repair_timestamp) ล่าสุดขึ้นก่อนอย่างแม่นยำ
       rows.sort((a, b) => {
-        const oa = parseInt(a.repair_order) || 0;
-        const ob = parseInt(b.repair_order) || 0;
-        return ob - oa;
+        let tsA = parseInt(a.repair_timestamp) || 0;
+        let tsB = parseInt(b.repair_timestamp) || 0;
+        if (!tsA && a.repair_datetime_raw) {
+          tsA = (new Date(a.repair_datetime_raw.replace(/-/g, '/')).getTime() / 1000) || 0;
+        }
+        if (!tsB && b.repair_datetime_raw) {
+          tsB = (new Date(b.repair_datetime_raw.replace(/-/g, '/')).getTime() / 1000) || 0;
+        }
+        if (tsB !== tsA) {
+          return tsB - tsA;
+        }
+        return (parseInt(b.repair_ID) || 0) - (parseInt(a.repair_ID) || 0);
       });
 
       // เก็บข้อมูลทั้งหมด & รีเซ็ตตัวนับ
@@ -422,16 +460,41 @@ $(document).on("click", "#BtnRepairFullDetail1", function () {
 
       const modalNoImgSvg = BASE_URL + 'assets/img/no-image.svg';
 
-      if (data[0][0].repair_imguser) {
-          const imgs = data[0][0].repair_imguser.split(',');
+      const isIT = (data[0][0].repair_cause && data[0][0].repair_cause.indexOf('IT Support') !== -1) || (data[0][0].repair_detail && /\[IT-\d{6}-\d{4}\]/.test(data[0][0].repair_detail));
+
+      const parseModalImgs = (raw, type) => {
+        if (!raw) return [];
+        let list = [];
+        if (raw.startsWith('[')) {
+          try {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+              arr.forEach(f => {
+                if (f && typeof f === 'string' && f.trim()) {
+                  list.push((f.startsWith('http') || f.startsWith('/')) ? f.trim() : (type === 'user' ? '/uploads/user/Repair/' : '/uploads/admin/Repair/') + f.trim());
+                }
+              });
+              return list;
+            }
+          } catch (e) {}
+        }
+        raw.split(',').forEach(f => {
+          const trimmed = f.trim();
+          if (trimmed) {
+            list.push((trimmed.startsWith('http') || trimmed.startsWith('/')) ? trimmed : (type === 'user' ? '/uploads/user/Repair/' : '/uploads/admin/Repair/') + trimmed);
+          }
+        });
+        return list;
+      };
+
+      const userImgs = parseModalImgs(data[0][0].repair_imguser, 'user');
+      if (userImgs.length > 0) {
           let imgsHtml = '<div class="row g-2">';
-          imgs.forEach(img => {
-              if (img) {
-                  imgsHtml += `
-                      <div class="col-12 mb-2">
-                          <img src="/uploads/user/Repair/${img}" class="img-fluid rounded border shadow-sm w-100" alt="รูปภาพ" onerror="this.onerror=null; this.src='${modalNoImgSvg}';">
-                      </div>`;
-              }
+          userImgs.forEach(imgUrl => {
+              imgsHtml += `
+                  <div class="col-12 mb-2">
+                      <img src="${imgUrl}" class="img-fluid rounded border shadow-sm w-100" alt="รูปภาพ" onerror="this.onerror=null; this.src='${modalNoImgSvg}';">
+                  </div>`;
           });
           imgsHtml += '</div>';
           $("#show_repair_imguser").html(imgsHtml);
@@ -439,16 +502,14 @@ $(document).on("click", "#BtnRepairFullDetail1", function () {
           $("#show_repair_imguser").html(`<img src="${modalNoImgSvg}" class="img-fluid rounded border shadow-sm w-100" style="max-height: 160px; object-fit: contain;" alt="ไม่ได้แนบรูปมา">`);
       }
 
-      if (data[0][0].repair_imgwork) {
-          const imgs_w = data[0][0].repair_imgwork.split(',');
+      const workImgs = isIT ? [] : parseModalImgs(data[0][0].repair_imgwork, 'work');
+      if (workImgs.length > 0) {
           let imgsWorkHtml = '<div class="row g-2">';
-          imgs_w.forEach(img => {
-              if (img) {
-                  imgsWorkHtml += `
-                      <div class="col-12 mb-2">
-                          <img src="/uploads/admin/Repair/${img}" class="img-fluid rounded border shadow-sm w-100" alt="รูปภาพ" onerror="this.onerror=null; this.src='${modalNoImgSvg}';">
-                      </div>`;
-              }
+          workImgs.forEach(imgUrl => {
+              imgsWorkHtml += `
+                  <div class="col-12 mb-2">
+                      <img src="${imgUrl}" class="img-fluid rounded border shadow-sm w-100" alt="รูปภาพ" onerror="this.onerror=null; this.src='${modalNoImgSvg}';">
+                  </div>`;
           });
           imgsWorkHtml += '</div>';
           $("#show_repair_imgwork").html(imgsWorkHtml);
