@@ -3,8 +3,25 @@
 
 <?php
 // ประกาศตัวแปรสิทธิ์การใช้งาน
-$checkRloes = explode(",", @$_SESSION['rloes']);
-$isAdmin = (!empty($_SESSION['username']) && (in_array("งานแจ้งซ่อม", $checkRloes) || in_array("งานอาคารสถานที่", $checkRloes) || @$_SESSION['status'] == 'AdminGeneral' || @$_SESSION['status'] == 'superadmin'));
+$checkRloes = explode(",", (string)@$_SESSION['rloes']);
+$isStaffSession = !empty($_SESSION['staffLogin']) || (session()->get('staffLogin') === true);
+$isAdmin = (!empty($_SESSION['username']) && (in_array("งานแจ้งซ่อม", $checkRloes) || in_array("งานอาคารสถานที่", $checkRloes) || @$_SESSION['status'] == 'AdminGeneral' || @$_SESSION['status'] == 'superadmin' || $isStaffSession));
+$isLoggedIn = (!empty($_SESSION['username']) || !empty($_SESSION['id']) || !empty(session()->get('logged_in')) || !empty(session()->get('isLoggedIn')) || $isStaffSession);
+
+$currentUserId = session()->get('id') ?? ($_SESSION['id'] ?? '');
+$currentUserName = session()->get('fullname') ?? ($_SESSION['fullname'] ?? '');
+if (empty($currentUserName) && !empty($currentUserId)) {
+    try {
+        $dbPers = \Config\Database::connect('personnel');
+        $persRow = $dbPers->table('tb_personnel')->where('pers_id', $currentUserId)->get()->getRow();
+        if ($persRow) {
+            $currentUserName = trim(($persRow->pers_prefix ?? '') . ($persRow->pers_firstname ?? '') . ' ' . ($persRow->pers_lastname ?? ''));
+        }
+    } catch (\Exception $e) {}
+}
+if (empty($currentUserName)) {
+    $currentUserName = session()->get('username') ?? ($_SESSION['username'] ?? 'เจ้าหน้าที่ผู้ปฏิบัติงาน');
+}
 
 // ตรวจสอบว่าใบงานนี้มาจากระบบ IT Support API หรือไม่
 $isITSupport = (strpos($Order[0]->repair_cause ?? '', 'IT Support') !== false || preg_match('/\[IT-\d{6}-\d{4}\]/', $Order[0]->repair_detail ?? ''));
@@ -210,7 +227,7 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
     <!-- Header Navigation -->
     <div class="row mb-4">
         <div class="col-12 <?php if ($isAdmin) {
-            echo "col-md-8";
+            echo "col-md-7";
         } ?>">
             <div class="card bg-label-primary border-0 text-white overflow-hidden wave-bg">
                 <div class="card-body">
@@ -238,7 +255,7 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                                 </ol>
                             </nav>
                         </div>
-                        <div class="d-flex gap-2 align-items-center">
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
                             <?php if ($Order[0]->repair_caselist === 'งานอาคารสถานที่' && session()->get('id') == $Order[0]->repair_userID): ?>
                                 <a href="<?= base_url('Repair/BuildingMemo?order=') . $Order[0]->repair_order ?>"
                                     class="btn btn-outline-warning shadow-sm fw-bold btn-sm">
@@ -251,8 +268,15 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                                 <i class="bx bx-printer me-1"></i> พิมพ์
                             </a>
 
+                            <?php if ($isAdmin): ?>
+                                <button type="button" class="btn btn-warning shadow-sm fw-bold btn-sm" id="BtnOpenWorkModalHeader">
+                                    <i class="bx bx-wrench me-1"></i> รับงาน/บันทึกการซ่อม
+                                </button>
+                            <?php endif; ?>
+
                             <button type="button" class="btn btn-outline-danger shadow-sm fw-bold btn-sm"
-                                id="BtnDeleteOrder" data-order="<?= $Order[0]->repair_order ?>">
+                                id="BtnDeleteOrder" data-order="<?= $Order[0]->repair_order ?>"
+                                title="<?= $isLoggedIn ? 'ลบข้อมูลการแจ้งซ่อม' : 'ต้องเข้าสู่ระบบก่อนทำการลบข้อมูล' ?>">
                                 <i class="bx bx-trash me-1"></i> ลบข้อมูล
                             </button>
 
@@ -269,15 +293,18 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
 
         <!-- Admin Control Panel (Horizontal Bar) -->
         <?php if ($isAdmin): ?>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-5">
                 <div class="card border-0 shadow-sm bg-label-warning overflow-hidden h-100">
                     <div class="card-body py-2 px-3 d-flex flex-column justify-content-center">
                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                             <div class="d-flex align-items-center text-warning">
-                                <i class="bx bx-shield-quarter fs-4 me-2"></i>
-                                <span class="fw-bold">แผงควบคุมเจ้าหน้าที่:</span>
+                                <i class="bx bx-shield-quarter fs-3 me-2"></i>
+                                <div>
+                                    <span class="fw-bold d-block text-dark small">เจ้าหน้าที่: <?= esc($currentUserName) ?></span>
+                                    <small class="text-muted" style="font-size: 0.72rem;">สิทธิ์จัดการงานซ่อม</small>
+                                </div>
                             </div>
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
                                 <button type="button" class="btn btn-warning btn-sm fw-bold px-3 shadow-sm"
                                     id="ModalFormAdmin">
                                     <i class="bx bx-wrench me-1"></i> รับงาน/บันทึกการซ่อม
@@ -288,6 +315,13 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                                         target="_blank" class="btn btn-outline-primary btn-sm fw-bold px-3">
                                         <i class="bx bx-file me-1"></i> บันทึกข้อความ
                                     </a>
+                                <?php endif; ?>
+
+                                <?php if ($isStaffSession): ?>
+                                    <button type="button" class="btn btn-outline-danger btn-sm fw-bold px-2"
+                                        id="BtnStaffLogout" title="ออกจากระบบเจ้าหน้าที่">
+                                        <i class="bx bx-log-out me-1"></i> ออกจากระบบ
+                                    </button>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -678,7 +712,7 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
 <!-- ========================================== -->
 <!-- ADMIN MODAL: RECEIVE & UPDATE WORK        -->
 <!-- ========================================== -->
-<div class="modal fade" id="ModalAdmin" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+<div class="modal fade" id="ModalRepairSaveAdmin" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-warning">
@@ -686,8 +720,11 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4 bg-light">
-                <form id="FormAdmin">
+                <form id="FormSaveRepairAdmin">
                     <input type="hidden" name="repair_order" value="<?= $Order[0]->repair_order ?>">
+                    <?php if (!empty($Order[0]->repair_adminsignature)): ?>
+                        <input type="hidden" id="ExistingSignature" value="<?= $Order[0]->repair_adminsignature ?>">
+                    <?php endif; ?>
 
                     <div class="card shadow-sm border-0 mb-3">
                         <div class="card-header bg-white pb-0">
@@ -696,7 +733,7 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                         <div class="card-body pt-3">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="repair_status" class="form-label">สถานะการซ่อม</label>
+                                    <label for="repair_status" class="form-label fw-bold">สถานะการซ่อม</label>
                                     <select class="form-select" name="repair_status" id="repair_status">
                                         <option <?= $Order[0]->repair_status == "รอดำเนินการ" ? "selected" : "" ?>
                                             value="รอดำเนินการ">รอดำเนินการ</option>
@@ -709,18 +746,19 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="repair_Repairman" class="form-label">ผู้รับผิดชอบ</label>
-                                    <select class="form-select" name="repair_Repairman" id="repair_Repairman">
-                                        <option value="">เลือกช่างผู้รับผิดชอบ</option>
-                                        <?php if (isset($Personnel) && is_array($Personnel)): ?>
-                                            <?php foreach ($Personnel as $key => $value): ?>
-                                                <option <?= $Order[0]->repair_Repairman == $value->pers_id ? 'selected' : '' ?>
-                                                    value="<?= $value->pers_id ?>">
-                                                    <?= $value->pers_prefix . $value->pers_firstname . ' ' . $value->pers_lastname ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </select>
+                                    <label for="repair_Repairman_display" class="form-label fw-bold">ผู้รับผิดชอบ <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white text-primary border-end-0">
+                                            <i class="bx bx-user-check fs-5"></i>
+                                        </span>
+                                        <input type="text" class="form-control bg-light border-start-0 fw-semibold text-dark" id="repair_Repairman_display"
+                                            value="<?= esc($currentUserName) ?>" readonly>
+                                        <input type="hidden" name="repair_Repairman" id="repair_Repairman"
+                                            value="<?= esc($currentUserId ?: $currentUserName) ?>">
+                                    </div>
+                                    <div class="form-text text-muted">
+                                        <i class="bx bx-check-shield text-success me-1"></i>บันทึกตามเจ้าหน้าที่ที่เข้าสู่ระบบ
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -732,10 +770,48 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                         </div>
                         <div class="card-body pt-3">
                             <div class="mb-3">
-                                <label for="repair_cause" class="form-label">สาเหตุ / วิธีแก้ไข</label>
+                                <label for="repair_cause" class="form-label fw-bold">สาเหตุ / วิธีแก้ไข</label>
                                 <textarea class="form-control" name="repair_cause" id="repair_cause"
-                                    rows="3"><?= $Order[0]->repair_cause; ?></textarea>
+                                    rows="3" placeholder="ระบุสาเหตุ และวิธีการซ่อมแซม..."><?= $Order[0]->repair_cause; ?></textarea>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Proof of Work / Completed Work Photos -->
+                    <div class="card shadow-sm border-0 mb-3">
+                        <div class="card-header bg-white pb-0 d-flex justify-content-between align-items-center">
+                            <h6 class="card-title text-primary py-2 mb-0">
+                                <i class="bx bx-camera me-1"></i> แนบรูปภาพผลงาน / รูปภาพตอนส่งงาน
+                            </h6>
+                            <span class="badge bg-label-info"><i class="bx bx-upload me-1"></i>เลือกรูปภาพ</span>
+                        </div>
+                        <div class="card-body pt-3">
+                            <div class="mb-2">
+                                <label for="admin_repair_imgwork" class="form-label small text-muted">
+                                    เลือกรูปภาพถ่ายขณะซ่อม หรือหลังซ่อมแซมเสร็จสิ้นเพื่อเป็นหลักฐาน (สามารถเลือกได้หลายรูป):
+                                </label>
+                                <input class="form-control" type="file" id="admin_repair_imgwork" name="repair_imgwork[]" multiple accept="image/*">
+                            </div>
+                            <div id="admin_imgwork_preview" class="row g-2 mt-2" style="display: none;"></div>
+
+                            <?php if (!empty($workImages)): ?>
+                                <div class="mt-3 pt-2 border-top">
+                                    <small class="fw-bold text-muted d-block mb-2">
+                                        <i class="bx bx-images me-1"></i>รูปภาพส่งงานปัจจุบันในระบบ (<?= count($workImages) ?> รูป):
+                                    </small>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <?php foreach ($workImages as $wImg): ?>
+                                            <div class="position-relative">
+                                                <img src="<?= base_url('uploads/admin/Repair/' . $wImg) ?>" 
+                                                    class="rounded border shadow-xs" 
+                                                    style="width: 80px; height: 60px; object-fit: cover;"
+                                                    onerror="this.onerror=null; this.src='<?= base_url('assets/img/no-image.svg') ?>';">
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">* หากอัปโหลดรูปภาพใหม่ รูปภาพใหม่จะถูกนำมาบันทึกเพิ่มเติม</small>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -744,14 +820,22 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                             <h6 class="card-title text-primary py-2 mb-0">ลายเซ็นช่างซ่อม/ผู้รับเรื่อง</h6>
                         </div>
                         <div class="card-body pt-3">
-                            <div class="border rounded p-0 text-center bg-white mb-2 overflow-hidden">
-                                <canvas id="signature-pad" class="w-100" style="touch-action: none;"></canvas>
+                            <div class="signature-wrapper rounded-3 p-0 bg-white mb-2 position-relative shadow-xs" 
+                                style="height: 180px; width: 100%; touch-action: none; user-select: none; -webkit-user-select: none; overflow: hidden; border: 2px dashed #cbd5e1 !important; background-color: #fafbfd !important;">
+                                <canvas id="signature-pad" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair;"></canvas>
+                                <div id="signature-placeholder" class="position-absolute top-50 start-50 translate-middle text-muted text-opacity-50" 
+                                    style="pointer-events: none; user-select: none; -webkit-user-select: none; transition: opacity 0.2s ease;">
+                                    <i class="bx bx-pencil me-1"></i> <span class="small fw-semibold">ลงลายมือชื่อที่นี่ (สัมผัสหรือลากเมาส์)</span>
+                                </div>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger w-100 mb-3" id="clear">
-                                <i class="bx bx-refresh me-1"></i> ล้างลายเซ็น
-                            </button>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <small class="text-muted"><i class="bx bx-info-circle me-1"></i>ลงชื่อผู้บันทึก/ส่งงาน เพื่อยืนยันความถูกต้อง</small>
+                                <button type="button" class="btn btn-sm btn-outline-danger px-3 fw-semibold shadow-xs" id="clear">
+                                    <i class="bx bx-refresh me-1"></i> ล้างลายเซ็น
+                                </button>
+                            </div>
 
-                            <button type="submit" id="BtnSave" class="btn btn-primary w-100 py-2 fw-bold">
+                            <button type="submit" id="btnSaveRepair" class="btn btn-primary w-100 py-2 fw-bold">
                                 <span id="btnSaveText"><i class="bx bx-save me-1"></i> บันทึกการซ่อม</span>
                                 <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2"
                                     style="display:none;" role="status" aria-hidden="true"></span>
@@ -759,6 +843,53 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                         </div>
                     </div>
 
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- STAFF LOGIN MODAL                          -->
+<!-- ========================================== -->
+<div class="modal fade" id="ModalStaffLogin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title text-white"><i class="bx bx-shield-quarter me-2"></i>เข้าสู่ระบบเจ้าหน้าที่</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-label-dark mb-3" style="width:64px;height:64px;">
+                        <i class="bx bx-user-check fs-2 text-dark"></i>
+                    </div>
+                    <p class="text-muted mb-0 small">กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบสำหรับเจ้าหน้าที่รับงาน</p>
+                </div>
+                <form id="FormStaffLogin">
+                    <input type="hidden" name="repair_order" value="<?= $Order[0]->repair_order ?>">
+                    <div class="mb-3">
+                        <label for="staff_username" class="form-label fw-bold">ชื่อผู้ใช้</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-label-dark border-end-0"><i class="bx bx-user"></i></span>
+                            <input type="text" class="form-control border-start-0" id="staff_username" name="username" placeholder="กรอกชื่อผู้ใช้" required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="staff_password" class="form-label fw-bold">รหัสผ่าน</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-label-dark border-end-0"><i class="bx bx-lock-alt"></i></span>
+                            <input type="password" class="form-control border-start-0 border-end-0" id="staff_password" name="password" placeholder="กรอกรหัสผ่าน" required autocomplete="current-password">
+                            <button class="btn btn-outline-secondary border-start-0" type="button" id="toggleStaffPassword"><i class="bx bx-show"></i></button>
+                        </div>
+                    </div>
+                    <div id="staffLoginError" class="alert alert-danger py-2 px-3 mb-3" style="display:none;">
+                        <i class="bx bx-error-circle me-1"></i> <span id="staffLoginErrorMsg"></span>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 py-2 fw-bold" id="BtnStaffLoginSubmit">
+                        <span id="staffLoginBtnText"><i class="bx bx-log-in me-1"></i> เข้าสู่ระบบ</span>
+                        <span id="staffLoginSpinner" class="spinner-border spinner-border-sm ms-2" style="display:none;" role="status"></span>
+                    </button>
                 </form>
             </div>
         </div>
@@ -851,11 +982,43 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
 
 <?= $this->section('scripts') ?>
 <script>
+    // เปิด Modal เข้าสู่ระบบเจ้าหน้าที่
     $(document).on('click', '#BtnStaffLogin', function () {
         $('#ModalStaffLogin').modal('show');
     });
 
-    // Toggle password visibility
+    // เปิด Modal บันทึกการซ่อม (ทั้งจาก Header และ Admin Control Bar)
+    $(document).on('click', '#ModalFormAdmin, #BtnOpenWorkModalHeader', function () {
+        $('#ModalRepairSaveAdmin').modal('show');
+    });
+
+    // พรีวิวรูปภาพการดำเนินงาน/ส่งงานที่เลือก
+    $(document).on('change', '#admin_repair_imgwork', function () {
+        const previewContainer = $('#admin_imgwork_preview');
+        previewContainer.empty().hide();
+
+        const files = this.files;
+        if (files && files.length > 0) {
+            previewContainer.show();
+            Array.from(files).forEach((file, idx) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const col = $(`
+                            <div class="col-4 col-sm-3 col-md-2 text-center position-relative">
+                                <img src="${e.target.result}" class="img-fluid rounded border shadow-sm" style="width: 100%; aspect-ratio: 4/3; object-fit: cover;">
+                                <div class="badge bg-dark bg-opacity-75 position-absolute bottom-0 start-50 translate-middle-x mb-1" style="font-size: 0.65rem;">รูปที่ ${idx + 1}</div>
+                            </div>
+                        `);
+                        previewContainer.append(col);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+
+    // เปิด/ปิดการแสดงรหัสผ่านเจ้าหน้าที่
     $(document).on('click', '#toggleStaffPassword', function () {
         const $input = $('#staff_password');
         const $icon = $(this).find('i');
@@ -868,7 +1031,7 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
         }
     });
 
-    // Staff Login Form Submit
+    // ฟอร์มเข้าสู่ระบบเจ้าหน้าที่
     $(document).on('submit', '#FormStaffLogin', function (e) {
         e.preventDefault();
         const $btn = $('#BtnStaffLoginSubmit');
@@ -896,7 +1059,7 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
                         showConfirmButton: false,
                         allowOutsideClick: false
                     }).then(function () {
-                        window.location.href = res.redirect;
+                        window.location.href = res.redirect || window.location.href;
                     });
                 } else {
                     $('#staffLoginErrorMsg').text(res.message);
@@ -916,15 +1079,50 @@ if (empty($repairmanFullName) || $repairmanFullName === '0000' || is_numeric($re
         });
     });
 
-    $(document).on('click', '#ModalFormAdmin', function () {
-        $('#ModalAdmin').modal('show');
+    // ออกจากระบบเจ้าหน้าที่
+    $(document).on('click', '#BtnStaffLogout', function () {
+        Swal.fire({
+            title: 'ออกจากระบบเจ้าหน้าที่?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: '<i class="bx bx-log-out me-1"></i> ออกจากระบบ',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('<?= base_url("Repair/DB/StaffLogout") ?>', function () {
+                    location.reload();
+                });
+            }
+        });
     });
 
     $(document).on('click', '#BtnOpenEvaluation', function () {
         $('#ModalEvaluation').modal('show');
     });
-    // Delete Order Confirmation & Handler
+
+    // ยืนยันการลบข้อมูล (ตรวจสอบว่าเข้าสู่ระบบแล้วหรือยังก่อนดำเนินการ)
     $(document).on('click', '#BtnDeleteOrder', function () {
+        const isLoggedIn = <?= json_encode((bool) $isLoggedIn) ?>;
+        if (!isLoggedIn) {
+            Swal.fire({
+                title: 'ต้องเข้าสู่ระบบก่อน',
+                text: 'กรุณาเข้าสู่ระบบเจ้าหน้าที่ก่อนทำการลบข้อมูลการแจ้งซ่อมนี้',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1e293b',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="bx bx-log-in me-1"></i> เข้าสู่ระบบเจ้าหน้าที่',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#ModalStaffLogin').modal('show');
+                }
+            });
+            return;
+        }
+
         const orderNumber = $(this).data('order') || '<?= $Order[0]->repair_order ?>';
 
         Swal.fire({

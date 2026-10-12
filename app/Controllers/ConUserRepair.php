@@ -863,10 +863,16 @@ class ConUserRepair extends BaseController
                 }
             }
 
+            $repairman = $this->request->getPost('repair_Repairman');
+            if (empty($repairman)) {
+                $session = session();
+                $repairman = $session->get('id') ?: ($session->get('fullname') ?: $session->get('username'));
+            }
+
             $data = [
                 'repair_status' => $this->request->getPost('repair_status'),
-                'repair_datework' => $this->request->getPost('repair_datework'),
-                'repair_Repairman' => $this->request->getPost('repair_Repairman'),
+                'repair_datework' => $this->request->getPost('repair_datework') ?: date('Y-m-d H:i:s'),
+                'repair_Repairman' => $repairman,
                 'repair_cause' => $this->request->getPost('repair_cause'),
                 'repair_adminsignature' => $this->request->getPost('Signature') // เก็บเป็น PNG Base64
             ];
@@ -1808,9 +1814,19 @@ class ConUserRepair extends BaseController
                 ]);
             }
 
-            // ตรวจสอบสิทธิ์ — ต้องมี rloes ที่มี "งานแจ้งซ่อม" หรือ "งานอาคารสถานที่"
-            $rloes = !empty($person->pers_rloes) ? explode(',', $person->pers_rloes) : [];
-            $hasPermission = in_array('งานแจ้งซ่อม', $rloes) || in_array('งานอาคารสถานที่', $rloes);
+            // ตรวจสอบสิทธิ์ — ต้องมี rloes ที่มี "งานแจ้งซ่อม" หรือ "งานอาคารสถานที่" หรือมีสิทธิ์ Admin
+            $dbGen = \Config\Database::connect();
+            $adminRole = $dbGen->table('tb_admin_rloes')
+                ->where('admin_rloes_userid', $person->pers_id)
+                ->get()->getRow();
+
+            $rloesList = !empty($person->pers_rloes) ? explode(',', $person->pers_rloes) : [];
+            if ($adminRole && !empty($adminRole->admin_rloes_nanetype)) {
+                $rloesList = array_merge($rloesList, explode(',', $adminRole->admin_rloes_nanetype));
+            }
+            $adminStatus = $adminRole ? ($adminRole->admin_rloes_status ?? '') : '';
+
+            $hasPermission = in_array('งานแจ้งซ่อม', $rloesList) || in_array('งานอาคารสถานที่', $rloesList) || $adminStatus === 'AdminGeneral' || $adminStatus === 'superadmin';
 
             if (!$hasPermission) {
                 return $this->response->setJSON([
@@ -1820,12 +1836,16 @@ class ConUserRepair extends BaseController
             }
 
             // Login สำเร็จ — สร้าง session
+            $fullName = trim(($person->pers_prefix ?? '') . ($person->pers_firstname ?? '') . ' ' . ($person->pers_lastname ?? ''));
             $session = session();
             $session->set([
                 'id'         => $person->pers_id,
                 'username'   => $person->pers_username,
-                'fullname'   => $person->pers_prefix . $person->pers_firstname . ' ' . $person->pers_lastname,
-                'rloes'      => $person->pers_rloes,
+                'fullname'   => $fullName,
+                'email'      => $person->pers_username,
+                'rloes'      => implode(',', array_unique(array_filter($rloesList))),
+                'status'     => $adminStatus ?: 'AdminGeneral',
+                'logged_in'  => true,
                 'isLoggedIn' => true,
                 'staffLogin' => true, // ระบุว่า login ผ่านหน้าเจ้าหน้าที่
             ]);

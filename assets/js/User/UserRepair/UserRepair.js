@@ -18,6 +18,14 @@ $(document).ready(function () {
     width: "100%"
   });
 
+  // Auto-init Signature Pad if present on page (UserRepairAdd)
+  if (document.getElementById("signature-pad")) {
+    setTimeout(function() {
+      initSignaturePad();
+      resizeSignatureCanvas();
+    }, 150);
+  }
+
   ShowDataLocationRoom(); // Initialize DataTable
 
   // REAL-TIME CAPTCHA VALIDATION
@@ -776,133 +784,136 @@ $(document).on("click", "#ModalFormAdmin", function () {
   //$('#ModalShowRepair').modal('hide');
 });
 
-// Signature Pad Logic - ปรับปรุงให้แสดงผลเต็มและใช้ PNG
-const canvas = document.getElementById("signature-pad");
+// ========================================================
+// SIGNATURE PAD - High Performance & Mobile Responsive Logic
+// ========================================================
 let signaturePad = null;
-let isInitialized = false; // ป้องกัน resize ซ้ำ
 
-// กำหนดขนาดคงที่สำหรับ canvas เพื่อให้ลายเซ็นแสดงผลถูกต้อง
-const SIGNATURE_WIDTH = 400;
-const SIGNATURE_HEIGHT = 150;
-
-function initCanvas() {
-  if (!canvas || isInitialized) return;
-
-  // ใช้ ratio เพื่อให้คมชัด แต่กำหนดขนาดให้คงที่
-  const ratio = Math.max(window.devicePixelRatio || 1, 1);
-
-  // กำหนดขนาดแสดงผล (CSS pixels)
-  canvas.style.width = "100%";
-  canvas.style.height = SIGNATURE_HEIGHT + "px";
-  canvas.style.maxWidth = SIGNATURE_WIDTH + "px";
-
-  // กำหนดขนาด internal canvas สำหรับความคมชัด
-  const displayWidth = Math.min(canvas.offsetWidth, SIGNATURE_WIDTH);
-  canvas.width = displayWidth * ratio;
-  canvas.height = SIGNATURE_HEIGHT * ratio;
-
-  const ctx = canvas.getContext("2d");
-  ctx.scale(ratio, ratio);
-
-  // เติมพื้นหลังขาว
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  isInitialized = true;
+function getSignatureCanvas() {
+  return document.getElementById("signature-pad");
 }
 
-// ฟังก์ชัน resize ที่เก็บลายเซ็นไว้ก่อนแล้ว restore กลับ
-function resizeCanvasSafe() {
-  if (!canvas || !signaturePad) return;
-  
-  // ถ้าไม่มีลายเซ็น ให้ init ใหม่ได้
-  if (signaturePad.isEmpty()) {
-    isInitialized = false;
-    initCanvas();
-    return;
-  }
-  
-  // ถ้ามีลายเซ็นอยู่แล้ว ให้เก็บไว้ก่อน
-  const signatureData = signaturePad.toData();
-  
-  // ใช้ ratio เพื่อให้คมชัด
-  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+function initSignaturePad() {
+  const canvasEl = getSignatureCanvas();
+  if (!canvasEl) return null;
 
-  // ตรวจสอบว่าขนาดจริงเปลี่ยนหรือไม่
-  const displayWidth = Math.min(canvas.offsetWidth, SIGNATURE_WIDTH);
-  const newWidth = displayWidth * ratio;
-  
-  // ถ้าขนาดไม่เปลี่ยน ไม่ต้องทำอะไร (ป้องกัน scroll trigger)
-  if (Math.abs(canvas.width - newWidth) < 5) {
-    return;
+  if (signaturePad) {
+    resizeSignatureCanvas();
+    return signaturePad;
   }
 
-  // กำหนดขนาดแสดงผล (CSS pixels)
-  canvas.style.width = "100%";
-  canvas.style.height = SIGNATURE_HEIGHT + "px";
-  canvas.style.maxWidth = SIGNATURE_WIDTH + "px";
-
-  // กำหนดขนาด internal canvas
-  canvas.width = newWidth;
-  canvas.height = SIGNATURE_HEIGHT * ratio;
-
-  const ctx = canvas.getContext("2d");
-  ctx.scale(ratio, ratio);
-
-  // เติมพื้นหลังขาว
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Restore ลายเซ็นกลับมา
-  if (signatureData && signatureData.length > 0) {
-    signaturePad.fromData(signatureData);
-  }
-}
-
-// Initialize if canvas exists
-if (canvas) {
-  signaturePad = new SignaturePad(canvas, {
-    backgroundColor: "rgb(255,255,255)", // พื้นหลังขาว
-    penColor: "rgb(0,0,150)", // สีน้ำเงินเข้ม
-    minWidth: 1,
-    maxWidth: 2.5,
+  signaturePad = new SignaturePad(canvasEl, {
+    backgroundColor: "rgb(255, 255, 255)",
+    penColor: "#0f2b5c", // หมึกสีน้ำเงินเข้ม คมชัด ดูเป็นทางการ
+    minWidth: 1.5,
+    maxWidth: 3.5,
     velocityFilterWeight: 0.7,
+    throttle: 16
   });
 
-  // Init canvas ครั้งแรก
-  initCanvas();
-
-  // ใช้ debounce เพื่อป้องกันการ resize ซ้ำเมื่อ scroll บนมือถือ
-  let resizeTimeout;
-  window.addEventListener("resize", function() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(resizeCanvasSafe, 200);
+  signaturePad.addEventListener("beginStroke", () => {
+    $('#signature-placeholder').fadeOut(150);
   });
 
-  // Special handling for Modal (UserRepairView.php)
-  $("#ModalRepairSaveAdmin").on("shown.bs.modal", function () {
-    isInitialized = false;
-    initCanvas();
+  signaturePad.addEventListener("endStroke", () => {
+    if (signaturePad.isEmpty()) {
+      $('#signature-placeholder').fadeIn(150);
+    }
   });
+
+  resizeSignatureCanvas();
+  return signaturePad;
 }
 
-const clearBtn = document.getElementById("clear");
-if (clearBtn && signaturePad) {
-  clearBtn.addEventListener("click", () => {
+function resizeSignatureCanvas() {
+  const canvasEl = getSignatureCanvas();
+  if (!canvasEl || !signaturePad) return;
+
+  const rect = canvasEl.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return;
+
+  // ป้องกันการ resize จังหวะที่ความกว้างแทบไม่เปลี่ยน (เช่น บนมือถือที่มี scroll bar ซ่อน/แสดง)
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  const targetWidth = Math.round(rect.width * ratio);
+  const targetHeight = Math.round(rect.height * ratio);
+
+  if (canvasEl.width === targetWidth && canvasEl.height === targetHeight) {
+    return;
+  }
+
+  const existingData = signaturePad.toData();
+
+  canvasEl.width = targetWidth;
+  canvasEl.height = targetHeight;
+
+  const ctx = canvasEl.getContext("2d");
+  ctx.scale(ratio, ratio);
+
+  signaturePad.clear();
+
+  if (existingData && existingData.length > 0) {
+    signaturePad.fromData(existingData);
+    $('#signature-placeholder').hide();
+  } else {
+    const existingSigUrl = $('#ExistingSignature').val();
+    if (existingSigUrl) {
+      signaturePad.fromDataURL(existingSigUrl);
+      $('#signature-placeholder').hide();
+    }
+  }
+}
+
+// Initial setup when modal opens
+$(document).on("shown.bs.modal", "#ModalRepairSaveAdmin", function () {
+  setTimeout(() => {
+    initSignaturePad();
+    resizeSignatureCanvas();
+
+    const existingSigUrl = $('#ExistingSignature').val();
+    if (existingSigUrl && signaturePad && signaturePad.isEmpty()) {
+      signaturePad.fromDataURL(existingSigUrl);
+      $('#signature-placeholder').hide();
+    }
+  }, 50);
+});
+
+// Expose to window for external page scripts
+window.initSignaturePad = initSignaturePad;
+window.resizeSignatureCanvas = resizeSignatureCanvas;
+
+// Resize with orientation/resize listener
+let sigResizeTimeout = null;
+window.addEventListener("resize", function () {
+  clearTimeout(sigResizeTimeout);
+  sigResizeTimeout = setTimeout(() => {
+    if ($('#ModalRepairSaveAdmin').hasClass('show') || document.getElementById('signature-pad')) {
+      resizeSignatureCanvas();
+    }
+  }, 250);
+});
+
+// Clear Button
+$(document).on("click", "#clear", function () {
+  if (signaturePad) {
     signaturePad.clear();
-    // เติมพื้นหลังขาวใหม่หลังล้าง
-    const ctx = canvas.getContext("2d");
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width / ratio, canvas.height / ratio);
-  });
-}
+    $('#ExistingSignature').val(''); // ล้างค่าเดิมออกด้วย
+    $('#signature-placeholder').fadeIn(150);
+  }
+});
 
 $(document).on("submit", "#FormSaveRepairAdmin", function (e) {
   e.preventDefault();
 
-  if (signaturePad.isEmpty()) {
-    alert("กรุณาเซ็นก่อนบันทึก!");
+  const existingSig = $('#ExistingSignature').val();
+  const isPadEmpty = !signaturePad || signaturePad.isEmpty();
+
+  if (isPadEmpty && !existingSig) {
+    Swal.fire({
+      icon: "warning",
+      title: "แจ้งเตือน!",
+      text: "กรุณาลงลายมือชื่อก่อนบันทึกการซ่อม",
+      confirmButtonColor: "#3730a3"
+    });
     return;
   }
 
@@ -911,20 +922,27 @@ $(document).on("submit", "#FormSaveRepairAdmin", function (e) {
   $("#btnSaveText").text("กำลังบันทึก...");
   $("#btnSpinner").show();
 
-  // ใช้ PNG แทน SVG เพื่อให้ขนาดเล็กลงและแสดงผลถูกต้อง
-  var dataURL = signaturePad.toDataURL("image/png", 0.8);
   var formData = new FormData(this);
-  formData.append("Signature", dataURL);
 
-  // Remove original repair_imgwork from formData to avoid confusion
-  formData.delete('repair_imgwork');
+  // ใช้ลายเซ็นจาก pad ถ้ามีการเซ็นใหม่ หรือใช้ของเดิม
+  if (!isPadEmpty) {
+    var dataURL = signaturePad.toDataURL("image/png", 0.85);
+    formData.append("Signature", dataURL);
+  } else if (existingSig) {
+    formData.append("Signature", existingSig);
+  }
 
-  // Append all admin cropped blobs that exist
-  adminCroppedBlobs.forEach((blob, index) => {
-    if (blob) {
-      formData.append('repair_imgwork[]', blob, `admin_photo_${index}.png`);
-    }
-  });
+  // Only override repair_imgwork if adminCroppedBlobs actually has cropped images
+  const hasCroppedAdminImgs = adminCroppedBlobs && adminCroppedBlobs.some(b => b !== null);
+  if (hasCroppedAdminImgs) {
+    formData.delete('repair_imgwork');
+    formData.delete('repair_imgwork[]');
+    adminCroppedBlobs.forEach((blob, index) => {
+      if (blob) {
+        formData.append('repair_imgwork[]', blob, `admin_photo_${index}.png`);
+      }
+    });
+  }
 
   $.ajax({
     url: BASE_URL + "Repair/DB/UpdateWork",
