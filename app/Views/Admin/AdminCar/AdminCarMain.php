@@ -722,7 +722,7 @@ $(document).ready(function() {
         
         data.forEach(car => {
             const hasImage = car.car_img && car.car_img !== '';
-            const imgSrc = hasImage ? `<?=base_url('uploads/admin/Car/')?>/${car.car_img}` : '';
+            const imgSrc = hasImage ? `<?=base_url('uploads/admin/Car')?>/${car.car_img}` : '';
             const badgeClass = getCategoryBadge(car.car_category);
             
             const imageContent = hasImage 
@@ -855,7 +855,7 @@ $(document).ready(function() {
             
             const hasImage = car.car_img && car.car_img !== '';
             if (hasImage) {
-                const imgSrc = `<?=base_url('uploads/admin/Car/')?>/${car.car_img}`;
+                const imgSrc = `<?=base_url('uploads/admin/Car')?>/${car.car_img}`;
                 $('#imgPreviewWrapper').html(`<img src="${imgSrc}" alt="Preview">`);
             } else {
                 $('#imgPreviewWrapper').html(`
@@ -971,7 +971,7 @@ $(document).ready(function() {
         if (car) {
             const hasImage = car.car_img && car.car_img !== '';
             const imgContent = hasImage 
-                ? `<img src="<?=base_url('uploads/admin/Car/')?>/${car.car_img}" class="img-fluid rounded-3" alt="${car.car_registration}" onerror="this.parentElement.innerHTML='<div class=\\'view-no-image\\'><i class=\\'bx bxs-car\\'></i><span>ไม่มีรูปภาพ</span></div>'" style="max-height: 250px; object-fit: cover;">`
+                ? `<img src="<?=base_url('uploads/admin/Car')?>/${car.car_img}" class="img-fluid rounded-3" alt="${car.car_registration}" onerror="this.parentElement.innerHTML='<div class=\\'view-no-image\\'><i class=\\'bx bxs-car\\'></i><span>ไม่มีรูปภาพ</span></div>'" style="max-height: 250px; object-fit: cover;">`
                 : `<div class="view-no-image" style="height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #f0f2f5, #e4e7eb); border-radius: 12px; color: #a1acb8;"><i class='bx bxs-car' style="font-size: 4rem; opacity: 0.6;"></i><span>ไม่มีรูปภาพ</span></div>`;
             
             const content = `
@@ -1032,7 +1032,7 @@ $(document).ready(function() {
                     data: 'car_img',
                     render: function(data) {
                         if (data && data !== '') {
-                            return `<img src="<?=base_url('uploads/admin/Car/')?>/${data}" width="80" height="50" class="rounded" style="object-fit:cover" onerror="this.outerHTML='<div style=\\'width:80px;height:50px;background:#f0f2f5;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#a1acb8;\\'><i class=\\'bx bxs-car\\' style=\\'font-size:1.5rem;\\'></i></div>'">`;
+                            return `<img src="<?=base_url('uploads/admin/Car')?>/${data}" width="80" height="50" class="rounded" style="object-fit:cover" onerror="this.outerHTML='<div style=\\'width:80px;height:50px;background:#f0f2f5;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#a1acb8;\\'><i class=\\'bx bxs-car\\' style=\\'font-size:1.5rem;\\'></i></div>'">`;
                         }
                         return `<div style="width:80px;height:50px;background:#f0f2f5;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#a1acb8;"><i class='bx bxs-car' style="font-size:1.5rem;"></i></div>`;
                     }

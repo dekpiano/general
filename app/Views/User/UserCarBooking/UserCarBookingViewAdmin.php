@@ -264,6 +264,292 @@
         position: relative;
         overflow: hidden;
     }
+
+    /* Mobile Responsive Card Layout */
+    .mobile-booking-cards {
+        display: none;
+    }
+
+    .admin-mobile-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 1rem 1.15rem;
+        margin-bottom: 0.85rem;
+        border: 1px solid #edf2f7;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+        position: relative;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .admin-mobile-card:active {
+        transform: scale(0.99);
+    }
+
+    .admin-mobile-card.border-status-pending {
+        border-left: 4px solid #ff9800;
+    }
+
+    .admin-mobile-card.border-status-approved {
+        border-left: 4px solid #71dd37;
+    }
+
+    .admin-mobile-card.border-status-rejected {
+        border-left: 4px solid #ff3e1d;
+    }
+
+    .admin-mobile-card .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.65rem;
+    }
+
+    .admin-mobile-card .card-destination {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .admin-mobile-card .card-info-row {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .admin-mobile-card .card-car-badge {
+        background: #f0f4ff;
+        border: 1px solid #e0e7ff;
+        border-radius: 8px;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.65rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .admin-mobile-card .card-actions-wrapper {
+        border-top: 1px dashed #e2e8f0;
+        padding-top: 0.65rem;
+        margin-top: 0.5rem;
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+    }
+
+    .admin-mobile-card .card-actions-wrapper .btn {
+        flex: 1 1 auto;
+        font-size: 0.78rem;
+        padding: 0.45rem 0.65rem;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        min-width: 80px;
+    }
+
+    /* Smartphone Breakpoints (max-width: 768px) */
+    @media (max-width: 768px) {
+        .page-header-premium {
+            border-radius: 18px;
+            margin-bottom: 1.25rem;
+        }
+
+        .header-accent {
+            width: 6px;
+        }
+
+        .header-body {
+            padding: 1.25rem 1rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .header-info {
+            gap: 0.85rem;
+            width: 100%;
+        }
+
+        .header-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        .header-text h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .header-text p {
+            font-size: 0.82rem;
+        }
+
+        .header-actions {
+            width: 100%;
+            text-align: left;
+        }
+
+        .header-date-badge {
+            margin-bottom: 0.65rem;
+            font-size: 0.78rem;
+            padding: 4px 12px;
+        }
+
+        .header-actions .btn-group-mobile {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.45rem;
+            width: 100%;
+        }
+
+        .header-actions .btn-group-mobile .btn,
+        .header-actions .btn {
+            font-size: 0.8rem !important;
+            padding: 0.45rem 0.65rem !important;
+            margin: 0 !important;
+            width: 100%;
+            justify-content: center;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 50px;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            border-radius: 14px;
+        }
+
+        .stat-card .card-body {
+            padding: 1rem;
+        }
+
+        .stat-card h6 {
+            font-size: 0.75rem;
+        }
+
+        .stat-card h3 {
+            font-size: 1.15rem;
+        }
+
+        .stat-icon-bg {
+            font-size: 3.5rem;
+            bottom: -10px;
+            right: -10px;
+        }
+
+        /* Table vs Mobile Card Toggle */
+        .table-responsive {
+            display: none;
+        }
+
+        .mobile-booking-cards {
+            display: block;
+        }
+
+        .table-container {
+            padding: 1rem 0.75rem;
+            border-radius: 16px;
+        }
+
+        .table-container .search-container-mobile {
+            width: 100% !important;
+            margin-top: 0.75rem;
+        }
+
+        .table-container .search-container-mobile .input-group {
+            width: 100% !important;
+        }
+
+        /* Mobile Pagination Styling */
+        .mobile-pagination-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .mobile-pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .mobile-page-btn {
+            min-width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0 0.5rem;
+        }
+
+        .mobile-page-btn:active {
+            transform: scale(0.96);
+        }
+
+        .mobile-page-btn.active {
+            background: #696cff;
+            color: #ffffff;
+            border-color: #696cff;
+            box-shadow: 0 3px 8px rgba(105, 108, 255, 0.35);
+        }
+
+        .mobile-page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .mobile-pagination-info {
+            font-size: 0.76rem;
+            color: #64748b;
+            text-align: center;
+        }
+
+        /* Modal optimization for smartphone */
+        .modal-lux {
+            border-radius: 18px;
+        }
+
+        .modal-lux .modal-header {
+            padding: 1.25rem 1.25rem 0.75rem;
+        }
+
+        .modal-lux .modal-body {
+            padding: 0.75rem 1.25rem 1.25rem;
+        }
+
+        .modal-lux .modal-footer {
+            padding: 0.75rem 1.25rem 1.25rem;
+        }
+    }
 </style>
 
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -285,17 +571,17 @@
                 <div class="header-date-badge">
                     <i class='bx bx-calendar-star me-1'></i> วันนี้: <?= date('d F Y') ?>
                 </div>
-                <div>
-                    <button class="btn btn-primary btn-lg rounded-pill shadow-primary px-4 mb-2" onclick="location.reload()">
+                <div class="btn-group-mobile">
+                    <button class="btn btn-primary btn-lg rounded-pill shadow-primary px-3 mb-2" onclick="location.reload()">
                         <i class='bx bx-refresh me-1'></i> อัปเดตข้อมูล
                     </button>
-                    <a href="<?= base_url('CarBooking/Driver') ?>" class="btn btn-primary btn-lg rounded-pill px-4 mb-2 ms-2" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);">
+                    <a href="<?= base_url('CarBooking/Driver') ?>" class="btn btn-primary btn-lg rounded-pill px-3 mb-2" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);">
                         <i class='bx bx-id-card me-1'></i> สำหรับคนขับรถ
                     </a>
-                    <button class="btn btn-primary btn-lg rounded-pill px-4 mb-2 ms-2" data-bs-toggle="modal" data-bs-target="#CarManageModal" style="background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                    <button class="btn btn-primary btn-lg rounded-pill px-3 mb-2" data-bs-toggle="modal" data-bs-target="#CarManageModal" style="background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
                         <i class='bx bx-car me-1'></i> จัดการข้อมูลรถ
                     </button>
-                    <button class="btn btn-primary btn-lg rounded-pill px-4 mb-2 ms-2" data-bs-toggle="modal" data-bs-target="#CarDriverManageModal" style="background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                    <button class="btn btn-primary btn-lg rounded-pill px-3 mb-2" data-bs-toggle="modal" data-bs-target="#CarDriverManageModal" style="background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
                         <i class='bx bx-user me-1'></i> จัดการคนขับรถ
                     </button>
                 </div>
@@ -304,8 +590,8 @@
     </div>
 
     <!-- Stats Summary Row -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
+    <div class="row g-3 g-md-4 mb-4 mb-md-5">
+        <div class="col-12 col-md-4">
             <div class="card stat-card border-start border-warning border-5">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -324,7 +610,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-md-4">
             <div class="card stat-card border-start border-primary border-5">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -343,7 +629,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-md-4">
             <div class="card stat-card border-start border-success border-5">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -371,7 +657,7 @@
                 <h4 class="fw-bold mb-1"><i class='bx bx-list-check me-2 text-primary'></i>รายการรอการตรวจสอบ</h4>
                 <p class="text-muted small mb-0">ข้อมูลการจองทั้งหมดที่เกิดขึ้นในระบบ</p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="search-container-mobile d-flex gap-2">
                 <div class="input-group input-group-merge" style="width: 250px;">
                     <span class="input-group-text"><i class="bx bx-search"></i></span>
                     <input type="text" class="form-control" id="tableSearch" placeholder="ค้นหาการจอง...">
@@ -379,6 +665,7 @@
             </div>
         </div>
 
+        <!-- Desktop Table View -->
         <div class="table-responsive">
             <table class="table custom-table w-100" id="TBShowDataCarBookingAdmin">
                 <thead>
@@ -394,6 +681,14 @@
                     <!-- DataTable content -->
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Card View (for smartphones) -->
+        <div class="mobile-booking-cards" id="mobileBookingCardsContainer">
+            <div class="text-center py-4 text-muted" id="mobileCardsLoading">
+                <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                <div>กำลังโหลดรายการ...</div>
+            </div>
         </div>
     </div>
 </div>

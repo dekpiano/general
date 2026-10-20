@@ -25,7 +25,9 @@ $(document).ready(function() {
       ajax: {
         url: getUrl("CarBooking/DB/DataTable/Approve/Admin"),
       },
-      dom: '<"top"rt><"bottom"ip><"clear">',
+      pageLength: 10,
+      lengthMenu: [5, 10, 25, 50],
+      dom: '<"top"rt><"bottom d-none d-md-flex justify-content-between align-items-center mt-3"ip><"clear">',
       order: [[1, "desc"]],
       columns: [
         {
@@ -175,8 +177,214 @@ $(document).ready(function() {
           },
         },
       ],
+      drawCallback: function(settings) {
+        renderAdminMobileCards(this.api());
+      }
     });
   }
+
+  // Helper function to render admin mobile cards
+  function renderAdminMobileCards(api) {
+    const $container = $("#mobileBookingCardsContainer");
+    if (!$container.length) return;
+
+    const data = api.rows({ page: 'current' }).data();
+    if (!data.length) {
+      $container.html(`
+        <div class="text-center py-4 text-muted">
+          <i class='bx bx-car fs-1 mb-2 d-block text-secondary opacity-50'></i>
+          <div>ไม่พบรายการจองยานพาหนะ</div>
+        </div>
+      `);
+      return;
+    }
+
+    let cardsHtml = '';
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      let statusBorder = 'border-status-pending';
+      let statusPill = `<span class="status-pill pending"><i class='bx bx-time-five'></i> ${row.car_reserv_status}</span>`;
+
+      if (row.car_reserv_status === 'อนุมัติ') {
+        statusBorder = 'border-status-approved';
+        let approverHtml = row.car_reserv_approver 
+          ? `<div class="small text-muted" style="font-size: 0.72rem;"><i class='bx bx-user-check me-1 text-success'></i>โดย: ${row.car_reserv_approver}</div>` 
+          : '';
+        statusPill = `<div><span class="status-pill approved"><i class='bx bx-check-circle'></i> ${row.car_reserv_status}</span>${approverHtml}</div>`;
+      } else if (row.car_reserv_status === 'ไม่อนุมัติ') {
+        statusBorder = 'border-status-rejected';
+        let approverHtml = row.car_reserv_approver 
+          ? `<div class="small text-muted" style="font-size: 0.72rem;"><i class='bx bx-user-x me-1 text-danger'></i>โดย: ${row.car_reserv_approver}</div>` 
+          : '';
+        statusPill = `<div><span class="status-pill rejected"><i class='bx bx-x-circle'></i> ${row.car_reserv_status}</span>${approverHtml}</div>`;
+      } else if (row.car_reserv_status === 'ยกเลิก' || row.car_reserv_status === 'ยกเลิกการจอง') {
+        statusBorder = 'border-status-rejected';
+        statusPill = `<span class="status-pill text-secondary bg-label-secondary"><i class='bx bx-minus-circle'></i> ${row.car_reserv_status}</span>`;
+      }
+
+      // Actions
+      let actionButtons = '';
+      let printUrl = getUrl("CarBooking/Approve/Admin/Print/" + row.car_reserv_id);
+
+      if (row.car_reserv_status === 'อนุมัติ') {
+        actionButtons = `
+          <a href="${printUrl}" target="_blank" class="btn btn-sm btn-info shadow-none" title="พิมพ์ใบงาน">
+            <i class="bx bxs-printer"></i> พิมพ์
+          </a>
+          <button type="button" class="btn btn-outline-warning btn-sm btn-cancel-approve" 
+                  carbooking-id="${row.car_reserv_id}" title="ยกเลิกอนุมัติ">
+            <i class="bx bx-undo"></i> ย้อน
+          </button>
+        `;
+      } else if (row.car_reserv_status === 'ไม่อนุมัติ' || row.car_reserv_status === 'ยกเลิก') {
+        actionButtons = `
+          <button type="button" class="btn btn-warning btn-sm btn-cancel-reject shadow-none" 
+                  carbooking-id="${row.car_reserv_id}">
+            <i class="bx bx-undo"></i> คืนสถานะ
+          </button>
+        `;
+      } else {
+        actionButtons = `
+          <button type="button" class="btn btn-primary btn-sm btn-approve-row shadow-none" 
+                  carbooking-id="${row.car_reserv_id}" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#ModalApproveAdmin">
+            <i class="bx bx-check-shield"></i> อนุมัติ
+          </button>
+          <button type="button" class="btn btn-outline-warning btn-sm btn-disapprove-row" 
+                  carbooking-id="${row.car_reserv_id}">
+            <i class="bx bx-error-circle"></i> ไม่อนุมัติ
+          </button>
+          <button type="button" class="btn btn-outline-danger btn-sm btn-reject-row" 
+                  carbooking-id="${row.car_reserv_id}">
+            <i class="bx bx-x"></i> ยกเลิก
+          </button>
+        `;
+      }
+
+      let driverHtml = (row.car_reserv_status === 'อนุมัติ' && row.car_reserv_driver)
+        ? `<div class="card-info-row text-primary fw-medium"><i class='bx bx-steering-wheel'></i> คนขับ: ${row.car_reserv_driver}</div>`
+        : '';
+
+      cardsHtml += `
+        <div class="admin-mobile-card ${statusBorder}">
+          <div class="card-head">
+            ${statusPill}
+            <span class="badge bg-label-secondary fw-bold" style="font-size: 0.75rem;">
+              <i class='bx bx-hash'></i> ${row.car_reserv_order}
+            </span>
+          </div>
+
+          <div class="card-destination">
+            <i class='bx bxs-map-pin text-danger'></i>
+            <span>${row.car_reserv_location || '-'}</span>
+          </div>
+
+          <div class="card-info-row">
+            <i class='bx bx-user text-primary'></i>
+            <span class="text-dark fw-medium">${row.Member || '-'}</span>
+          </div>
+
+          <div class="card-info-row">
+            <i class='bx bx-time text-primary'></i>
+            <span>${row.Date || '-'}</span>
+          </div>
+
+          ${row.car_reserv_detail ? `
+          <div class="card-info-row">
+            <i class='bx bx-note text-warning'></i>
+            <span>${row.car_reserv_detail}</span>
+          </div>` : ''}
+
+          <div class="card-car-badge">
+            <i class='bx bxs-car text-info'></i>
+            <span class="fw-bold text-dark">${row.car_registration || ''}</span>
+            <span class="text-muted small">(${row.car_category || ''})</span>
+          </div>
+
+          ${driverHtml}
+
+          <div class="card-actions-wrapper">
+            ${actionButtons}
+          </div>
+        </div>
+      `;
+    }
+
+    // Mobile Pagination Controls
+    const pageInfo = api.page.info();
+    if (pageInfo && pageInfo.pages > 1) {
+      let pageButtons = '';
+      const currentPage = pageInfo.page; // 0-indexed
+      const totalPages = pageInfo.pages;
+
+      // Previous button
+      pageButtons += `
+        <button type="button" class="mobile-page-btn btn-admin-mobile-page" data-page="${currentPage - 1}" ${currentPage === 0 ? 'disabled' : ''}>
+          <i class='bx bx-chevron-left'></i>
+        </button>
+      `;
+
+      // Page numbers (smart window)
+      let startPage = Math.max(0, currentPage - 1);
+      let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+      if (startPage > 0) {
+        pageButtons += `<button type="button" class="mobile-page-btn btn-admin-mobile-page ${currentPage === 0 ? 'active' : ''}" data-page="0">1</button>`;
+        if (startPage > 1) {
+          pageButtons += `<span class="px-1 text-muted small">...</span>`;
+        }
+      }
+
+      for (let p = startPage; p <= endPage; p++) {
+        pageButtons += `
+          <button type="button" class="mobile-page-btn btn-admin-mobile-page ${p === currentPage ? 'active' : ''}" data-page="${p}">
+            ${p + 1}
+          </button>
+        `;
+      }
+
+      if (endPage < totalPages - 1) {
+        if (endPage < totalPages - 2) {
+          pageButtons += `<span class="px-1 text-muted small">...</span>`;
+        }
+        pageButtons += `<button type="button" class="mobile-page-btn btn-admin-mobile-page ${currentPage === totalPages - 1 ? 'active' : ''}" data-page="${totalPages - 1}">${totalPages}</button>`;
+      }
+
+      // Next button
+      pageButtons += `
+        <button type="button" class="mobile-page-btn btn-admin-mobile-page" data-page="${currentPage + 1}" ${currentPage >= totalPages - 1 ? 'disabled' : ''}>
+          <i class='bx bx-chevron-right'></i>
+        </button>
+      `;
+
+      cardsHtml += `
+        <div class="mobile-pagination-box">
+          <div class="mobile-pagination-controls">
+            ${pageButtons}
+          </div>
+          <div class="mobile-pagination-info">
+            แสดงรายการที่ ${pageInfo.start + 1} - ${pageInfo.end} จากทั้งหมด ${pageInfo.recordsDisplay} รายการ
+          </div>
+        </div>
+      `;
+    }
+
+    $container.html(cardsHtml);
+  }
+
+  // Handle Mobile Pagination clicks
+  $(document).on("click", ".btn-admin-mobile-page", function() {
+    const page = parseInt($(this).data("page"), 10);
+    if (!isNaN(page) && $("#TBShowDataCarBookingAdmin").length) {
+      $("#TBShowDataCarBookingAdmin").DataTable().page(page).draw('page');
+      // Smooth scroll back to list top on mobile
+      const listTop = $("#mobileBookingCardsContainer").offset().top - 80;
+      if (window.scrollY > listTop) {
+        window.scrollTo({ top: listTop, behavior: 'smooth' });
+      }
+    }
+  });
 
   // Common UI Handlers
   $(document).on("keyup", "#tableSearch", function() {

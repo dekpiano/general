@@ -13,14 +13,17 @@
 
         if (pieEl) {
             const pieOptions = {
-                chart: { type: 'pie', height: chartHeight, width: 400 },
+                chart: { type: 'pie', height: chartHeight, width: '100%' },
                 series: [],
                 labels: [],
+                legend: {
+                    position: 'bottom'
+                },
                 responsive: [{
-                    breakpoint: 480,
+                    breakpoint: 576,
                     options: {
-                        chart: { width: 200 },
-                        legend: { position: 'bottom' }
+                        chart: { width: '100%', height: 230 },
+                        legend: { position: 'bottom', fontSize: '11px' }
                     }
                 }]
             };
@@ -30,12 +33,26 @@
 
         if (barEl) {
             const barOptions = {
-                chart: { type: 'bar', height: chartHeight },
+                chart: { type: 'bar', height: chartHeight, width: '100%', toolbar: { show: false } },
                 series: [{
                     name: 'จำนวนครั้งที่จอง',
                     data: []
                 }],
-                xaxis: { categories: [] }
+                xaxis: { 
+                    categories: [],
+                    labels: {
+                        rotate: -45,
+                        rotateAlways: false,
+                        style: { fontSize: '11px' }
+                    }
+                },
+                responsive: [{
+                    breakpoint: 576,
+                    options: {
+                        chart: { height: 230 },
+                        xaxis: { labels: { rotate: -45, style: { fontSize: '10px' } } }
+                    }
+                }]
             };
             barChart = new ApexCharts(barEl, barOptions);
             barChart.render();
@@ -43,9 +60,19 @@
 
         if (approveEl) {
             const PieOptApprove = {
-                chart: { type: 'donut', height: chartHeight },
+                chart: { type: 'donut', height: chartHeight, width: '100%' },
                 series: [],
-                labels: []
+                labels: [],
+                legend: {
+                    position: 'bottom'
+                },
+                responsive: [{
+                    breakpoint: 576,
+                    options: {
+                        chart: { height: 230 },
+                        legend: { position: 'bottom', fontSize: '11px' }
+                    }
+                }]
             };
             PieApprove = new ApexCharts(approveEl, PieOptApprove);
             PieApprove.render();
